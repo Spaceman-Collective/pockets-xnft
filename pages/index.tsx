@@ -1,14 +1,9 @@
 import Head from "next/head";
-import { Inter } from "next/font/google";
-import { Box, Button } from "@chakra-ui/react";
-import { useWeb3Auth } from "@/hooks/useWeb3Auth";
+import dynamic from "next/dynamic";
 
-const inter = Inter({ subsets: ["latin"] });
-
-//Initialize within your constructor
+const ClientHome = dynamic(() => import("../components/home/client.component"));
 
 export default function Home() {
-  const { web3auth } = useWeb3Auth();
   return (
     <>
       <Head>
@@ -17,15 +12,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Box>
-        <Button
-          onClick={async () => {
-            await web3auth?.connect();
-          }}
-        >
-          hi
-        </Button>
-      </Box>
+      <ClientHome />
     </>
   );
 }
