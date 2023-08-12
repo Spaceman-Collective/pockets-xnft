@@ -1,22 +1,22 @@
-import { colors, fonts } from "@/styles/defaultTheme";
+import { colors } from "@/styles/defaultTheme";
 import { Button, Grid, Flex, Text, Box } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import { FC } from "react";
 
-export const SelectCollection: FC<{ next: () => void }> = ({
+export const SelectNFT: FC<{ back: () => void; next: () => void }> = ({
   next: nextStep,
+  back: backStep,
 }) => {
   return (
     <Flex direction="column" justifyContent="space-between" minH="60vh">
       <Box>
-        <Header>Welcome Anon!</Header>
         <Text>
           Insert some random lore here or perhaps something about anons who are
           out of pocket. This is just filler text that can also be removed if
           wanted. That said it is nice to keep the container the same size from
           screen to screen so maybe keep this text.
         </Text>
-        <H3 pt="4rem">Select a Collection:</H3>
+        <H3 pt="4rem">NFTs</H3>
         <Grid
           templateColumns="repeat(auto-fill, minmax(150px, 1fr))"
           gap="1rem"
@@ -27,9 +27,14 @@ export const SelectCollection: FC<{ next: () => void }> = ({
           <Thumbnail />
         </Grid>
       </Box>
-      <Button w="100%" alignSelf="end" onClick={nextStep}>
-        Continue
-      </Button>
+      <Flex gap="2rem">
+        <Button variant="outline" w="100%" alignSelf="end" onClick={backStep}>
+          Back
+        </Button>
+        <Button w="100%" alignSelf="end" onClick={nextStep}>
+          Continue
+        </Button>
+      </Flex>
     </Flex>
   );
 };
@@ -55,11 +60,4 @@ const H3 = styled(Text)`
   text-transform: uppercase;
   font-weight: 700;
   margin: 1rem 0;
-`;
-const Header = styled(Text)`
-  font-size: 32px;
-  letter-spacing: 5px;
-  font-family: ${fonts.header};
-  text-transform: uppercase;
-  font-weight: 900;
 `;

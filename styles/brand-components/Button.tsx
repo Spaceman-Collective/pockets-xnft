@@ -29,7 +29,8 @@ export const Button = defineStyleConfig({
       borderColor: "brand.secondary",
       color: "brand.secondary",
       _hover: {
-        border: "3px solid",
+        color: "brand.quternary",
+        borderColor: "brand.quternary",
       },
     },
     solid: {
