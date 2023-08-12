@@ -11,6 +11,5 @@ export const Layout = ({ children }: { children: ReactNode }) => {
 };
 
 const Container = styled.div`
-  /* background-color: ${colors.brand.primary}; */
   padding: 1rem;
 `;
