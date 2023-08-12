@@ -1,8 +1,10 @@
+import "@/styles/global.css";
 import type { AppProps } from "next/app";
 import { ChakraBaseProvider } from "@chakra-ui/react";
 import { defaultTheme } from "@/styles/defaultTheme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Montserrat, Roboto } from "next/font/google";
+import { Layout } from "@/components/layout";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +24,11 @@ export default function App({ Component, pageProps }: AppProps) {
       </style>
       <QueryClientProvider client={queryClient}>
         <ChakraBaseProvider theme={defaultTheme}>
-          <Component {...pageProps} />
+          <main className={bodyFont.className}>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </main>
         </ChakraBaseProvider>
       </QueryClientProvider>
     </>
