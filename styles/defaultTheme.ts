@@ -24,6 +24,15 @@ export const fonts = {
 const { Spinner } = chakraTheme.components;
 
 export const defaultTheme = extendBaseTheme({
+  styles: {
+    global: {
+      body: {
+        color: "brand.secondary",
+        bg: "brand.primary",
+        fontSize: "1.75rem",
+      },
+    },
+  },
   components: {
     Button,
     Spinner,
