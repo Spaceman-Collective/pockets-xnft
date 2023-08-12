@@ -10,7 +10,8 @@ export const colors = {
     quternary: "#DDCEBE",
   },
   blacks: {
-    500: "#222",
+    500: "#1B1A1A",
+    600: "#151414",
     700: "#0D0D0D",
   },
 };
@@ -28,8 +29,15 @@ export const defaultTheme = extendBaseTheme({
     global: {
       body: {
         color: "brand.secondary",
-        bg: "brand.primary",
+        bg: "blacks.700",
         fontSize: "1.75rem",
+      },
+      h1: {
+        fontSize: "32px",
+        fontWeight: 900,
+        letterSpacing: "5px",
+        fontFamily: "header",
+        textTransform: "uppercase",
       },
     },
   },
