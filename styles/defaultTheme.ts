@@ -1,5 +1,6 @@
 import { extendBaseTheme } from "@chakra-ui/react";
 import chakraTheme from "@chakra-ui/theme";
+import { Button } from "@/styles/brand-components";
 
 export const colors = {
   brand: {
@@ -7,6 +8,10 @@ export const colors = {
     secondary: "#F8F8F8",
     tertiary: "#B1B7BF",
     quternary: "#DDCEBE",
+  },
+  blacks: {
+    500: "#222",
+    700: "#0D0D0D",
   },
 };
 
@@ -16,9 +21,18 @@ export const fonts = {
 };
 
 // NOTE: To avoid large initial JS Payload, only import the components used.
-const { Button, Spinner } = chakraTheme.components;
+const { Spinner } = chakraTheme.components;
 
 export const defaultTheme = extendBaseTheme({
+  styles: {
+    global: {
+      body: {
+        color: "brand.secondary",
+        bg: "brand.primary",
+        fontSize: "1.75rem",
+      },
+    },
+  },
   components: {
     Button,
     Spinner,
