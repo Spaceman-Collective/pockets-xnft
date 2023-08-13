@@ -8,6 +8,7 @@ import {
 } from "@solana/web3.js";
 import { CustomChainConfig, SafeEventEmitterProvider } from "@web3auth/base";
 import { SolanaWallet } from "@web3auth/solana-provider";
+import { encode } from "bs58";
 
 export default class SolanaRpc {
   private provider: SafeEventEmitterProvider;
@@ -105,11 +106,6 @@ export default class SolanaRpc {
       const pubKey = await solanaWallet.requestAccounts();
       const { blockhash } = await conn.getRecentBlockhash("finalized");
 
-      // const TransactionInstruction = SystemProgram.transfer({
-      //   fromPubkey: new PublicKey(pubKey[0]),
-      //   toPubkey: new PublicKey(pubKey[0]),
-      //   lamports: 0.01 * LAMPORTS_PER_SOL,
-      // });
       const TxInstruct = new TransactionInstruction({
         keys: [
           {
@@ -128,8 +124,12 @@ export default class SolanaRpc {
       }).add(TxInstruct);
       const signedTx = await solanaWallet.signTransaction(transaction);
 
-      return signedTx.signature?.toString() || "";
+      console.log({ signedTx });
+      const encodedSignedTx = encode(signedTx.serialize());
+      // return signedTx.signature?.toString() || "";
+      return encodedSignedTx;
     } catch (error) {
+      console.error("error in signing", error);
       return error as string;
     }
   };

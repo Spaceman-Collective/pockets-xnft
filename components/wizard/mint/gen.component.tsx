@@ -1,7 +1,6 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { FC, useState } from "react";
 import Image from "next/image";
-import { getLadImageURL } from "@/lib/apiClient";
 import styled from "@emotion/styled";
 import { H3 } from "../wizard.styled";
 import Confetti from "@/components/Confetti";
@@ -55,8 +54,9 @@ export const Generate: FC<{
                 timestamp: Date.now().toString(),
                 name,
               });
-              const msg = await signTransaction(payload);
-              console.log({ msg });
+              const signedTx = await signTransaction(payload);
+              console.log({ signedTx });
+              // post({signedTx})
               fireConfetti();
               nextStep();
             }}
