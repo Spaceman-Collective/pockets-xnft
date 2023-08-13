@@ -11,12 +11,8 @@ import { Box, Grid } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
-import { useRouter } from "next/router";
 
 export default function Wizard() {
-  const router = useRouter();
-  console.log("query", router.query);
-
   const [wizardStep, setWizardStep] = useState<number>(1);
   const next = () => setWizardStep(wizardStep + 1);
   const back = () => setWizardStep(wizardStep - 1);
