@@ -2,7 +2,7 @@ import { Box, Text } from "@chakra-ui/react";
 import { getLadImageURL } from "@/lib/apiClient";
 import { Image100 as Img } from "./wizard.styled";
 
-export const Frame = ({ img }: { img: string }) => {
+export const Frame = ({ img, select }: { img: string; select: () => void }) => {
   return (
     <Box
       cursor="pointer"
@@ -11,6 +11,7 @@ export const Frame = ({ img }: { img: string }) => {
       _hover={{
         transform: "scale(1.2)",
       }}
+      onClick={select}
     >
       {/* <Text */}
       {/*   opacity="0.7" */}

@@ -9,7 +9,8 @@ export const SelectNFT: FC<{
   next: () => void;
   data?: { nfts?: NFT[]; character?: any[] };
   isLoading?: boolean;
-}> = ({ next: nextStep, back: backStep, data, isLoading }) => {
+  select: (mint: string) => void;
+}> = ({ next: nextStep, back: backStep, data, isLoading, select }) => {
   return (
     <Flex direction="column" justifyContent="space-between" minH="60vh">
       <Box>
@@ -37,7 +38,11 @@ export const SelectNFT: FC<{
           mb="3rem"
         >
           {data?.nfts?.map((record, i) => (
-            <Frame key={record?.name + i} img={record?.cached_image_uri} />
+            <Frame
+              key={record?.name + i}
+              img={record?.cached_image_uri}
+              select={() => select(record?.mint)}
+            />
           ))}
           {isLoading && <Skeletons />}
         </Grid>
