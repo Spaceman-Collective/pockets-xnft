@@ -26,7 +26,7 @@ export const CharGen: FC<{ back: () => void; next: () => void }> = ({
             _hover={{ bg: "brand.tertiary" }}
             w="100%"
             alignSelf="end"
-            onClick={nextStep}
+            // onClick={nextStep}
           >
             Mint Charachter
           </Button>

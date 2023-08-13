@@ -13,14 +13,17 @@ export const RumbleInput = () => {
     setIsPressed(false);
   };
   return (
-    <Wrapper isPressed={isPressed} onClick={press}>
+    <Wrapper
+      pressed={isPressed ? isPressed.toString() : undefined}
+      onClick={press}
+    >
       <Text>First Last</Text>
       <FaDice color={colors.brand.primary} fontSize="4rem" />
     </Wrapper>
   );
 };
 
-const Wrapper = styled(Flex)<{ isPressed: boolean }>`
+const Wrapper = styled(Flex)<{ pressed?: string }>`
   justify-content: space-between;
   align-items: center;
 
@@ -34,7 +37,7 @@ const Wrapper = styled(Flex)<{ isPressed: boolean }>`
   cursor: pointer;
 
   animation: ${(props) => {
-    return props.isPressed ? "spinX 600ms infinite ease-in-out" : "";
+    return props.pressed ? "spinX 600ms infinite ease-in-out" : "";
   }};
 
   svg {
@@ -44,7 +47,7 @@ const Wrapper = styled(Flex)<{ isPressed: boolean }>`
   :hover {
     svg {
       transform: ${(props) => {
-        return props.isPressed ? "scale(1)" : "scale(1.2)";
+        return props.pressed ? "scale(1)" : "scale(1.2)";
       }};
     }
   }
