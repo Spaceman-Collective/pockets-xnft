@@ -8,6 +8,7 @@ import Confetti from "@/components/Confetti";
 import { RumbleInput } from "./rumble-input.component";
 import { GenderToggleContainer } from "./gender-toggle.component";
 import type { NFT } from "@/types/server";
+import { getRandomName } from "@/lib/utils";
 
 export const Generate: FC<{
   confetti: boolean;
@@ -23,14 +24,16 @@ export const Generate: FC<{
   nft,
 }) => {
   const [isMale, setIsMale] = useState(false);
+  const [name, setName] = useState<string>(getRandomName({ isMale }));
+  const getNewName = () => setName(getRandomName({ isMale }));
 
   return (
     <>
       <Flex direction="column" justifyContent="space-between" minH="60vh">
         <H3>Generate your Character</H3>
-        <GenImg img={nft.cached_image_uri} />
+        <GenImg img={nft.cached_image_uri} name={nft.name} />
         <Box>
-          <RumbleInput />
+          <RumbleInput name={name} shake={getNewName} />
           <GenderToggleContainer isMale={isMale} setIsMale={setIsMale} />
         </Box>
         <Flex gap="2rem">
@@ -57,7 +60,7 @@ export const Generate: FC<{
   );
 };
 
-const GenImg = ({ img }: { img: string }) => {
+const GenImg = ({ img, name }: { img: string; name?: string }) => {
   return (
     <Box
       m="0 auto"
@@ -65,21 +68,23 @@ const GenImg = ({ img }: { img: string }) => {
       position="relative"
       transition="all 0.25s ease-in-out"
     >
-      <Text
-        opacity="0.7"
-        position="absolute"
-        top="0.2rem"
-        left="0.2rem"
-        bg="brand.primary"
-        borderRadius="1rem"
-        p="0.25rem"
-        fontSize="1.25rem"
-        fontWeight={700}
-        letterSpacing="1px"
-        zIndex={10}
-      >
-        #{}
-      </Text>
+      {name && (
+        <Text
+          opacity="0.7"
+          position="absolute"
+          top="0.5rem"
+          left="0.5rem"
+          bg="brand.primary"
+          borderRadius="1rem"
+          p="0.25rem"
+          fontSize="1.25rem"
+          fontWeight={700}
+          letterSpacing="1px"
+          zIndex={10}
+        >
+          {name}
+        </Text>
+      )}
       <Img
         width="400"
         height="1"

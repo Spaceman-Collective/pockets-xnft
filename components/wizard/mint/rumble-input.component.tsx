@@ -2,14 +2,20 @@ import { colors } from "@/styles/defaultTheme";
 import { Flex, Text } from "@chakra-ui/react";
 import { FaDice } from "react-icons/fa";
 import styled from "@emotion/styled";
-import { useState } from "react";
+import { FC, useState } from "react";
 import { timeout } from "@/lib/utils";
 
-export const RumbleInput = () => {
+export const RumbleInput: FC<{ name: string; shake: () => void }> = ({
+  name,
+  shake,
+}) => {
   const [isPressed, setIsPressed] = useState<boolean>(false);
   const press = async () => {
     setIsPressed(true);
-    await timeout(600);
+
+    await timeout(100);
+    shake();
+    await timeout(500);
     setIsPressed(false);
   };
   return (
@@ -17,7 +23,7 @@ export const RumbleInput = () => {
       pressed={isPressed ? isPressed.toString() : undefined}
       onClick={press}
     >
-      <Text>First Last</Text>
+      <Text>{name}</Text>
       <FaDice color={colors.brand.primary} fontSize="4rem" />
     </Wrapper>
   );

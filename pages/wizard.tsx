@@ -11,7 +11,6 @@ import { Box, Grid } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
-import { NFT as NFTType } from "@/types/server";
 import { useRouter } from "next/router";
 
 export default function Wizard() {
@@ -33,12 +32,9 @@ export default function Wizard() {
   );
 
   const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
-  console.log({ selectedMint });
 
   useEffect(() => {
-    if (wizardStep === 1 && !!selectedMint) {
-      setWizardStep(2);
-    }
+    if (wizardStep === 1 && !!selectedMint) setWizardStep(2);
   }, [wizardStep, selectedMint]);
 
   return (
