@@ -14,7 +14,6 @@ export const useWeb3Auth = () => {
     null
   );
   const [authIdToken, setAuthIdToken] = useState<UserAuthInfo | undefined>();
-  // const [account, setAccount] = useState<string>("");
   const [account, setAccount] = useLocalStorage("account", "");
 
   useEffect(() => {
@@ -149,16 +148,17 @@ export const useWeb3Auth = () => {
     uiConsole(privateKey);
   };
 
-  const signTransaction = async () => {
+  const signTransaction = async (msg: string) => {
     if (!provider) {
       uiConsole("provider not initialized yet");
       return;
     }
     const rpc = new RPC(provider);
-    const receipt = await rpc.signTransaction();
+    const receipt = await rpc.signTransaction(msg);
     uiConsole(receipt);
     console.log({ receipt });
 
+    //@ts-ignore
     if (receipt?.code === -32603) throw Error("no no no");
     return receipt;
   };

@@ -4,6 +4,7 @@ import {
   PublicKey,
   SystemProgram,
   Transaction,
+  TransactionInstruction,
 } from "@solana/web3.js";
 import { CustomChainConfig, SafeEventEmitterProvider } from "@web3auth/base";
 import { SolanaWallet } from "@web3auth/solana-provider";
@@ -92,7 +93,7 @@ export default class SolanaRpc {
     }
   };
 
-  signTransaction = async (): Promise<string> => {
+  signTransaction = async (messageToSign: string): Promise<string> => {
     try {
       const solanaWallet = new SolanaWallet(this.provider);
       const connectionConfig = await solanaWallet.request<CustomChainConfig>({
@@ -103,15 +104,28 @@ export default class SolanaRpc {
 
       const pubKey = await solanaWallet.requestAccounts();
       const { blockhash } = await conn.getRecentBlockhash("finalized");
-      const TransactionInstruction = SystemProgram.transfer({
-        fromPubkey: new PublicKey(pubKey[0]),
-        toPubkey: new PublicKey(pubKey[0]),
-        lamports: 0.01 * LAMPORTS_PER_SOL,
+
+      // const TransactionInstruction = SystemProgram.transfer({
+      //   fromPubkey: new PublicKey(pubKey[0]),
+      //   toPubkey: new PublicKey(pubKey[0]),
+      //   lamports: 0.01 * LAMPORTS_PER_SOL,
+      // });
+      const TxInstruct = new TransactionInstruction({
+        keys: [
+          {
+            pubkey: new PublicKey(pubKey[0]),
+            isSigner: true,
+            isWritable: false,
+          },
+        ],
+        data: Buffer.from(messageToSign, "utf-8"),
+        programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
       });
+
       const transaction = new Transaction({
         recentBlockhash: blockhash,
         feePayer: new PublicKey(pubKey[0]),
-      }).add(TransactionInstruction);
+      }).add(TxInstruct);
       const signedTx = await solanaWallet.signTransaction(transaction);
 
       return signedTx.signature?.toString() || "";

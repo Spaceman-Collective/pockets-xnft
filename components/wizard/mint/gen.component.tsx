@@ -50,7 +50,12 @@ export const Generate: FC<{
             w="100%"
             alignSelf="end"
             onClick={async () => {
-              const msg = await signTransaction();
+              const payload = JSON.stringify({
+                mint: nft.mint,
+                timestamp: Date.now().toString(),
+                name,
+              });
+              const msg = await signTransaction(payload);
               console.log({ msg });
               fireConfetti();
               nextStep();
