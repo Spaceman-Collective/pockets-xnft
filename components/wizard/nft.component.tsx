@@ -4,6 +4,7 @@ import { Button, Grid, Flex, Text, Box } from "@chakra-ui/react";
 import Image from "next/image";
 import styled from "@emotion/styled";
 import { FC } from "react";
+import { H3 } from ".";
 
 export const SelectNFT: FC<{ back: () => void; next: () => void }> = ({
   next: nextStep,
@@ -55,12 +56,6 @@ const Thumbnail = styled(Grid)<{ isSelected?: boolean }>`
     border: solid 2px ${colors.brand.secondary};
   }
   transition: all 0.25s ease-in-out;
-`;
-
-const H3 = styled(Text)`
-  text-transform: uppercase;
-  font-weight: 700;
-  margin: 1rem 0;
 `;
 
 const Lad = ({ lad }: { lad: number }) => {

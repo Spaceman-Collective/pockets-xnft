@@ -1,3 +1,4 @@
-export * from "./collection.select";
-export * from "./nft.select";
-export * from "./character.create";
+export * from "./collection.component";
+export * from "./nft.component";
+export * from "./char";
+export * from "./wizard.styled";

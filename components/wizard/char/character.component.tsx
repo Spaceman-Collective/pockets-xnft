@@ -1,9 +1,10 @@
-import { Box, Button, Flex, Grid, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { FC } from "react";
 import Image from "next/image";
 import { getLadImageURL } from "@/lib/apiClient";
 import styled from "@emotion/styled";
-import { transform } from "typescript";
+import { H3 } from "../wizard.styled";
+import { RumbleInput } from ".";
 
 export const CharGen: FC<{ back: () => void; next: () => void }> = ({
   next: nextStep,
@@ -12,21 +13,22 @@ export const CharGen: FC<{ back: () => void; next: () => void }> = ({
   return (
     <>
       <Flex direction="column" justifyContent="space-between" minH="60vh">
-        <Grid
-          templateColumns="repeat(auto-fill, minmax(100px, 1fr))"
-          gap="1rem"
-          mb="3rem"
-        >
-          {Array.from({ length: 14 }).map((_, i) => (
-            <Lad key={"la" + i} lad={10 + i * 4 + 6} />
-          ))}
-        </Grid>
+        <H3>Generate your Character</H3>
+        <Lad lad={109} />
+        <RumbleInput />
         <Flex gap="2rem">
           <Button variant="outline" w="100%" alignSelf="end" onClick={backStep}>
             Back
           </Button>
-          <Button w="100%" alignSelf="end" onClick={nextStep}>
-            Continue
+          <Button
+            bg="brand.quternary"
+            color="brand.primary"
+            _hover={{ bg: "brand.tertiary" }}
+            w="100%"
+            alignSelf="end"
+            onClick={nextStep}
+          >
+            Mint Charachter
           </Button>
         </Flex>
       </Flex>
@@ -37,12 +39,10 @@ export const CharGen: FC<{ back: () => void; next: () => void }> = ({
 const Lad = ({ lad }: { lad: number }) => {
   return (
     <Box
+      m="0 auto"
       cursor="pointer"
       position="relative"
       transition="all 0.25s ease-in-out"
-      _hover={{
-        transform: "scale(1.2)",
-      }}
     >
       <Text
         opacity="0.7"
@@ -59,7 +59,7 @@ const Lad = ({ lad }: { lad: number }) => {
       >
         #{lad}
       </Text>
-      <Img width="100" height="100" alt="lad" src={getLadImageURL(lad)} />
+      <Img width="400" height="1" alt="lad" src={getLadImageURL(lad)} />
     </Box>
   );
 };
@@ -68,6 +68,6 @@ const Img = styled(Image)`
   border-radius: 1rem;
   object-position: end;
   object-fit: cover;
-  width: 100px;
-  height: 100px;
+  max-height: 300px;
+  width: 300px;
 `;

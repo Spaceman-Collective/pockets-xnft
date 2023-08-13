@@ -2,6 +2,7 @@ import { colors, fonts } from "@/styles/defaultTheme";
 import { Button, Grid, Flex, Text, Box } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import { FC } from "react";
+import { H3 } from ".";
 
 export const SelectCollection: FC<{ next: () => void }> = ({
   next: nextStep,
@@ -51,11 +52,6 @@ const Thumbnail = styled(Grid)<{ isSelected?: boolean }>`
   transition: all 0.25s ease-in-out;
 `;
 
-const H3 = styled(Text)`
-  text-transform: uppercase;
-  font-weight: 700;
-  margin: 1rem 0;
-`;
 const Header = styled(Text)`
   font-size: 32px;
   letter-spacing: 5px;

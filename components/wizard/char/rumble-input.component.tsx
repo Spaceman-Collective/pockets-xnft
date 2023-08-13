@@ -1,0 +1,63 @@
+import { colors } from "@/styles/defaultTheme";
+import { Flex, Text } from "@chakra-ui/react";
+import { FaDice } from "react-icons/fa";
+import styled from "@emotion/styled";
+import { useState } from "react";
+import { timeout } from "@/lib/utils";
+
+export const RumbleInput = () => {
+  const [isPressed, setIsPressed] = useState<boolean>(false);
+  const press = async () => {
+    setIsPressed(true);
+    await timeout(600);
+    setIsPressed(false);
+  };
+  return (
+    <Wrapper isPressed={isPressed} onClick={press}>
+      <Text>First Last</Text>
+      <FaDice color={colors.brand.primary} fontSize="4rem" />
+    </Wrapper>
+  );
+};
+
+const Wrapper = styled(Flex)<{ isPressed: boolean }>`
+  justify-content: space-between;
+  align-items: center;
+
+  background-color: ${colors.brand.secondary};
+  color: ${colors.brand.primary};
+  padding: 1rem;
+  border-radius: 0.5rem;
+  max-width: 300px;
+  width: 100%;
+  margin: 2rem auto;
+  cursor: pointer;
+
+  animation: ${(props) => {
+    return props.isPressed ? "spinX 600ms infinite ease-in-out" : "";
+  }};
+
+  svg {
+    transition: all 0.25s ease-in-out;
+  }
+
+  :hover {
+    svg {
+      transform: ${(props) => {
+        return props.isPressed ? "scale(1)" : "scale(1.2)";
+      }};
+    }
+  }
+
+  @keyframes spinX {
+    from {
+      transform: rotate3d(1, 0, 0, 0deg);
+    }
+    70% {
+      transform: rotate3d(1, 0, 0, 420deg);
+    }
+    to {
+      transform: rotate3d(1, 0, 0, 360deg);
+    }
+  }
+`;
