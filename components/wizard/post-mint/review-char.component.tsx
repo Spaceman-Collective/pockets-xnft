@@ -13,7 +13,6 @@ export const ReviewMint = ({
   back: () => void;
   data?: Character;
 }) => {
-  console.log({ data });
   if (!data) return;
   return (
     <Flex minH="60vh" direction="column" justifyContent="space-between">
@@ -42,14 +41,14 @@ export const ReviewMint = ({
             direction="column"
             gap={{ base: "1.5rem", md: "" }}
           >
-            <Stat label="Health" value={347} />
-            <Stat label="Spirit" value={134} />
-            <Stat label="Weight" value={120} suffix="KG" />
+            <Stat label="Health" value={data.vitals.health} />
+            <Stat label="Spirit" value={data.vitals.spirit} />
+            <Stat label="Weight" value={data.vitals.weight} suffix="KG" />
             <Grid templateColumns="repeat(2, 1fr)" gap="1.5rem">
-              <Stat label="Dodge" value={12} />
-              <Stat label="Parry" value={13} />
-              <Stat label="Magic Resist" value={8} />
-              <Stat label="Armor" value={25} />
+              <Stat label="Dodge" value={data.vitals.dodge} />
+              <Stat label="Parry" value={data.vitals.parry} />
+              <Stat label="Magic Resist" value={data.vitals.magicResistance} />
+              <Stat label="Armor" value={data.vitals.armor} />
             </Grid>
           </Flex>
         </Flex>
@@ -58,11 +57,13 @@ export const ReviewMint = ({
             <Value>Skills</Value>
             <Flex alignItems="end" gap="1rem">
               <Label>xp:</Label>
-              <Value>123/456</Value>
+              <Value>
+                {data?.experience.current}/{data?.experience.threshold}
+              </Value>
             </Flex>
             <Flex alignItems="end" gap="1rem">
               <Label>points:</Label>
-              <Value>1004</Value>
+              <Value>{data.points}</Value>
             </Flex>
           </Flex>
           {/* <Label>See all {">"}</Label> */}
