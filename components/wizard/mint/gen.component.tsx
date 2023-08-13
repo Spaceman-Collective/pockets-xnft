@@ -7,20 +7,28 @@ import { H3 } from "../wizard.styled";
 import Confetti from "@/components/Confetti";
 import { RumbleInput } from "./rumble-input.component";
 import { GenderToggleContainer } from "./gender-toggle.component";
+import type { NFT } from "@/types/server";
 
 export const Generate: FC<{
   confetti: boolean;
   fire: () => void;
   back: () => void;
   next: () => void;
-}> = ({ confetti, fire: fireConfetti, back: backStep, next: nextStep }) => {
+  nft: NFT;
+}> = ({
+  confetti,
+  fire: fireConfetti,
+  back: backStep,
+  next: nextStep,
+  nft,
+}) => {
   const [isMale, setIsMale] = useState(false);
 
   return (
     <>
       <Flex direction="column" justifyContent="space-between" minH="60vh">
         <H3>Generate your Character</H3>
-        <Lad lad={109} />
+        <GenImg img={nft.cached_image_uri} />
         <Box>
           <RumbleInput />
           <GenderToggleContainer isMale={isMale} setIsMale={setIsMale} />
@@ -49,7 +57,7 @@ export const Generate: FC<{
   );
 };
 
-const Lad = ({ lad }: { lad: number }) => {
+const GenImg = ({ img }: { img: string }) => {
   return (
     <Box
       m="0 auto"
@@ -70,9 +78,16 @@ const Lad = ({ lad }: { lad: number }) => {
         letterSpacing="1px"
         zIndex={10}
       >
-        #{lad}
+        #{}
       </Text>
-      <Img width="400" height="1" alt="lad" src={getLadImageURL(lad)} />
+      <Img
+        width="400"
+        height="1"
+        alt="lad"
+        src={img}
+        placeholder="blur"
+        blurDataURL="data:image/webp;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+      />
     </Box>
   );
 };

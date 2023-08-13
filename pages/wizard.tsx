@@ -9,11 +9,15 @@ import {
 import styled from "@emotion/styled";
 import { Box, Grid } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
 import { NFT as NFTType } from "@/types/server";
+import { useRouter } from "next/router";
 
 export default function Wizard() {
+  const router = useRouter();
+  console.log("query", router.query);
+
   const [wizardStep, setWizardStep] = useState<number>(1);
   const next = () => setWizardStep(wizardStep + 1);
   const back = () => setWizardStep(wizardStep - 1);
@@ -30,6 +34,12 @@ export default function Wizard() {
 
   const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
   console.log({ selectedMint });
+
+  useEffect(() => {
+    if (wizardStep === 1 && !!selectedMint) {
+      setWizardStep(2);
+    }
+  }, [wizardStep, selectedMint]);
 
   return (
     <>
@@ -61,7 +71,18 @@ export default function Wizard() {
             select={setSelectedMint}
           />
         )}
-        {wizardStep === 2 && <Mint back={back} next={next} />}
+        {wizardStep === 2 && (
+          <Mint
+            back={() => {
+              setSelectedMint(undefined);
+              back();
+            }}
+            next={next}
+            nft={allAssetData?.nfts?.find(
+              (record) => record?.mint === selectedMint
+            )}
+          />
+        )}
         {wizardStep === 3 && <ReviewMint />}
       </WizardContainer>
     </>
