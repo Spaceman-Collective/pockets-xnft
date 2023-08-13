@@ -8,6 +8,7 @@ export const Button = defineStyleConfig({
     letterSpacing: "0.1rem",
     fontFamily: "body",
     borderRadius: "4px",
+    transition: "all 0.25s ease-in-out",
   },
   // Two sizes: sm and md
   sizes: {
@@ -27,10 +28,17 @@ export const Button = defineStyleConfig({
       border: "2px solid",
       borderColor: "brand.secondary",
       color: "brand.secondary",
+      _hover: {
+        color: "brand.quternary",
+        borderColor: "brand.quternary",
+      },
     },
     solid: {
       bg: "blacks.700",
       color: "brand.secondary",
+      _hover: {
+        bg: "blacks.600",
+      },
     },
   },
   // The default size and variant values
