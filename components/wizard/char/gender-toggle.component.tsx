@@ -11,16 +11,24 @@ export const GenderToggleContainer = ({
 }) => {
   return (
     <Flex justifyContent="center" alignItems="center" gap="2rem">
-      <Text>Lassie</Text>
-      <BiFemaleSign />
+      <Text>Female</Text>
+      <BiFemaleSign
+        style={{
+          transform: isMale ? "scale(1)" : "scale(1.4)",
+        }}
+      />
       <GenderToggle
         size="lg"
         isChecked={isMale}
         bg={isMale ? "skyblue" : "pink"}
         onChange={(e) => setIsMale(e.target.checked)}
       />
-      <BiMaleSign />
-      <Text>Lad</Text>
+      <BiMaleSign
+        style={{
+          transform: !isMale ? "scale(1)" : "scale(1.4)",
+        }}
+      />
+      <Text>Male</Text>
     </Flex>
   );
 };
