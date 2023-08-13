@@ -58,6 +58,12 @@ export const useWeb3Auth = () => {
     }
     const web3authProvider = await web3auth.connect();
     setProvider(web3authProvider);
+
+    if (!web3authProvider) return;
+    const rpc = new RPC(web3authProvider);
+    const address = await rpc.getAccounts();
+    if (!address) return;
+    setAccount(address[0]);
   };
 
   const authenticateUser = async () => {

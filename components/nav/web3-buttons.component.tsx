@@ -13,6 +13,7 @@ export default function Web3Buttons() {
     getUserInfo,
     account,
   } = useWeb3Auth();
+  console.log({ account });
 
   return (
     <>
