@@ -2,15 +2,21 @@ import { Box, Text } from "@chakra-ui/react";
 import { getLadImageURL } from "@/lib/apiClient";
 import { Image100 as Img } from "./wizard.styled";
 
-export const Frame = ({ img, select }: { img: string; select: () => void }) => {
+export const Frame = ({
+  img,
+  select,
+}: {
+  img: string;
+  select?: () => void;
+}) => {
   console.log({ img });
   return (
     <Box
-      cursor="pointer"
+      cursor={!!select ? "pointer" : "initial"}
       position="relative"
       transition="all 0.25s ease-in-out"
       _hover={{
-        transform: "scale(1.2)",
+        transform: !!select && "scale(1.2)",
       }}
       onClick={select}
     >

@@ -4,6 +4,7 @@ import styled from "@emotion/styled";
 import useLocalStorage from "use-local-storage";
 
 import type { Character, NFT } from "@/types/server";
+import { Frame } from "../wizard.components";
 
 export const ReviewMint = ({
   back: backStep,
@@ -13,9 +14,17 @@ export const ReviewMint = ({
   data?: Character;
 }) => {
   console.log({ data });
+  if (!data) return;
   return (
     <Flex minH="60vh" direction="column" justifyContent="space-between">
       <Flex direction="column" gap="2rem">
+        <Flex>
+          <Frame img={data.image} />
+          <Box>
+            <Text>Shadower</Text>
+            <Text>Mad Lads OG</Text>
+          </Box>
+        </Flex>
         <Flex gap="1.5rem" direction={{ base: "column", md: "row" }}>
           <Equipment />
           <Flex
@@ -47,27 +56,44 @@ export const ReviewMint = ({
               <Value>1004</Value>
             </Flex>
           </Flex>
-          <Label>See all {">"}</Label>
+          {/* <Label>See all {">"}</Label> */}
         </Flex>
         <Grid templateColumns="repeat(auto-fill, minmax(75px, 1fr))" gap="1rem">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <Box
-              key={i + "skillbox"}
-              p="1rem"
-              w="75px"
-              h="75px"
-              bg="brand.primary"
-              borderRadius="1rem"
-              textTransform="uppercase"
-              fontWeight={700}
-              fontSize="1.25rem"
-            >
-              Skill
-            </Box>
-          ))}
+          {(Object.keys(data.skills) as Array<keyof typeof data.skills>).map(
+            (skill) => (
+              <Box
+                key={"skillbox:" + skill}
+                p="1rem"
+                w="75px"
+                h="75px"
+                bg="brand.primary"
+                borderRadius="1rem"
+                textTransform="uppercase"
+                fontWeight={700}
+                fontSize="1.25rem"
+                opacity={data?.skills[skill] > 0 ? "1" : "0.3"}
+                userSelect="none"
+              >
+                <Text
+                  title={skill}
+                  fontSize="1rem"
+                  textOverflow="ellipsis"
+                  noOfLines={1}
+                  _hover={{
+                    noOfLines: 2,
+                  }}
+                >
+                  {skill}
+                </Text>
+                <Text fontSize="1.7rem" m="1rem auto" w="fit-content">
+                  {data?.skills[skill]}
+                </Text>
+              </Box>
+            )
+          )}
         </Grid>
       </Flex>
-      <Flex gap="2rem">
+      <Flex gap="2rem" mt="4rem">
         <Button
           variant="outline"
           w="100%"
