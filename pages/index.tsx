@@ -1,25 +1,17 @@
 import Head from "next/head";
 import dynamic from "next/dynamic";
 import { NavBar } from "@/components/nav";
-import {
-  Mint,
-  SelectCollection as Collection,
-  SelectNFT as NFT,
-  ReviewMint,
-} from "@/components/wizard";
 import styled from "@emotion/styled";
 import { Box, Button, Grid, Spinner } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
-import { useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
-import { NFT as NFTType } from "@/types/server";
 import { useRouter } from "next/router";
-
-const ClientHome = dynamic(() => import("../components/home/client.component"));
 
 export default function Home() {
   const router = useRouter();
-  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
+  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets(
+    {}
+  );
 
   return (
     <>

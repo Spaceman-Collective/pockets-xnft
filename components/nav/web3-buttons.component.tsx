@@ -1,19 +1,8 @@
 import { Box, Button, Text } from "@chakra-ui/react";
 import { useWeb3Auth } from "@/hooks/useWeb3Auth";
-import { useAssets } from "@/hooks/useAssets";
 
 export default function Web3Buttons() {
-  const {
-    web3auth,
-    login,
-    logout,
-    authIdToken,
-    authenticateUser,
-    signTransaction,
-    getUserInfo,
-    account,
-  } = useWeb3Auth();
-  console.log({ account });
+  const { web3auth, login, logout, authIdToken, account } = useWeb3Auth();
 
   return (
     <>
