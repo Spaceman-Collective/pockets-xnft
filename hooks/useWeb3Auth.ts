@@ -6,6 +6,7 @@ import {
   UserAuthInfo,
 } from "@web3auth/base";
 import RPC from "@/hooks/SolanaRPC";
+import useLocalStorage from "use-local-storage";
 
 export const useWeb3Auth = () => {
   const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
@@ -13,7 +14,8 @@ export const useWeb3Auth = () => {
     null
   );
   const [authIdToken, setAuthIdToken] = useState<UserAuthInfo | undefined>();
-  const [account, setAccount] = useState<string>("");
+  // const [account, setAccount] = useState<string>("");
+  const [account, setAccount] = useLocalStorage("account", "");
 
   useEffect(() => {
     const init = async () => {

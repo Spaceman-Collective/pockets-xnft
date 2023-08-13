@@ -28,9 +28,7 @@ export default function Wizard() {
     />
   );
 
-  const { account } = useWeb3Auth();
-  const { data: allAssetData, isLoading: allAssetDataIsLoading } =
-    useAssets(account);
+  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
 
   useEffect(() => {
     if (wizardStep === 1 && !!selectedMint) setWizardStep(2);

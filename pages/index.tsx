@@ -9,9 +9,7 @@ import { useWeb3Auth } from "@/hooks/useWeb3Auth";
 
 export default function Home() {
   const router = useRouter();
-  const { account } = useWeb3Auth();
-  const { data: allAssetData, isLoading: allAssetDataIsLoading } =
-    useAssets(account);
+  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
 
   return (
     <>
