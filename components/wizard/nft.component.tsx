@@ -1,12 +1,15 @@
-import { Button, Grid, Flex, Text, Box } from "@chakra-ui/react";
+import { Button, Grid, Flex, Text, Box, Skeleton } from "@chakra-ui/react";
 import { FC } from "react";
 import { H3 } from ".";
-import { Lad } from "./wizard.components";
+import { Frame, Lad } from "./wizard.components";
+import type { NFT } from "@/types/server";
 
-export const SelectNFT: FC<{ back: () => void; next: () => void }> = ({
-  next: nextStep,
-  back: backStep,
-}) => {
+export const SelectNFT: FC<{
+  back: () => void;
+  next: () => void;
+  data?: { nfts?: NFT[]; character?: any[] };
+  isLoading?: boolean;
+}> = ({ next: nextStep, back: backStep, data, isLoading }) => {
   return (
     <Flex direction="column" justifyContent="space-between" minH="60vh">
       <Box>
@@ -15,15 +18,28 @@ export const SelectNFT: FC<{ back: () => void; next: () => void }> = ({
           Character with. You will be asked to sign a message on the next screen
           to confirm.
         </Text>
+
+        <H3 pt="4rem">Characters</H3>
+        <Grid
+          templateColumns="repeat(auto-fill, minmax(100px, 1fr))"
+          gap="1rem"
+          mb="3rem"
+        >
+          {data?.character?.map((record, i) => (
+            <Frame key={record?.name + i} img={record?.cached_image_uri} />
+          ))}
+          {isLoading && <Skeletons />}
+        </Grid>
         <H3 pt="4rem">NFTs</H3>
         <Grid
           templateColumns="repeat(auto-fill, minmax(100px, 1fr))"
           gap="1rem"
           mb="3rem"
         >
-          {Array.from({ length: 14 }).map((_, i) => (
-            <Lad key={"la" + i} lad={10 + i * 4 + 6} />
+          {data?.nfts?.map((record, i) => (
+            <Frame key={record?.name + i} img={record?.cached_image_uri} />
           ))}
+          {isLoading && <Skeletons />}
         </Grid>
       </Box>
       <Flex gap="2rem">
@@ -35,5 +51,20 @@ export const SelectNFT: FC<{ back: () => void; next: () => void }> = ({
         </Button>
       </Flex>
     </Flex>
+  );
+};
+
+const Skeletons = () => {
+  return (
+    <>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton
+          key={"loading" + i}
+          h="100px"
+          w="100px"
+          borderRadius="0.5rem"
+        />
+      ))}
+    </>
   );
 };

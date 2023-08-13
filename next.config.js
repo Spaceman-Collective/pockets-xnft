@@ -15,6 +15,18 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "madlads.s3.us-west-2.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.shyft.to",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

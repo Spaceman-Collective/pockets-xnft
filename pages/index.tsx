@@ -11,11 +11,14 @@ import styled from "@emotion/styled";
 import { Box, Grid } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useState } from "react";
+import { fetchAssets } from "@/lib/apiClient";
+import { useQuery } from "@tanstack/react-query";
+import { useAssets } from "@/hooks/useAssets";
 
 const ClientHome = dynamic(() => import("../components/home/client.component"));
 
 export default function Home() {
-  const [wizardStep, setWizardStep] = useState<number>(0);
+  const [wizardStep, setWizardStep] = useState<number>(1);
   const next = () => setWizardStep(wizardStep + 1);
   const back = () => setWizardStep(wizardStep - 1);
 
@@ -31,6 +34,9 @@ export default function Home() {
       }
     />
   );
+
+  const { data } = useAssets();
+  console.log({ data });
 
   return (
     <>
@@ -53,7 +59,7 @@ export default function Home() {
       </Grid>
       <WizardContainer>
         {wizardStep === 0 && <Collection next={next} />}
-        {wizardStep === 1 && <NFT back={back} next={next} />}
+        {wizardStep === 1 && <NFT back={back} next={next} data={data} />}
         {wizardStep === 2 && <Mint back={back} next={next} />}
         {wizardStep === 3 && <ReviewMint />}
       </WizardContainer>
