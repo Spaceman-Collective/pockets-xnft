@@ -157,6 +157,10 @@ export const useWeb3Auth = () => {
     const rpc = new RPC(provider);
     const receipt = await rpc.signTransaction();
     uiConsole(receipt);
+    console.log({ receipt });
+
+    if (receipt?.code === -32603) throw Error("no no no");
+    return receipt;
   };
 
   return {

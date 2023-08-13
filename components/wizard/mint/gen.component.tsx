@@ -9,6 +9,7 @@ import { RumbleInput } from "./rumble-input.component";
 import { GenderToggleContainer } from "./gender-toggle.component";
 import type { NFT } from "@/types/server";
 import { getRandomName } from "@/lib/utils";
+import { useWeb3Auth } from "@/hooks/useWeb3Auth";
 
 export const Generate: FC<{
   confetti: boolean;
@@ -26,6 +27,8 @@ export const Generate: FC<{
   const [isMale, setIsMale] = useState(false);
   const [name, setName] = useState<string>(getRandomName({ isMale }));
   const getNewName = () => setName(getRandomName({ isMale }));
+
+  const { signTransaction } = useWeb3Auth();
 
   return (
     <>
@@ -46,7 +49,9 @@ export const Generate: FC<{
             _hover={{ bg: "brand.tertiary" }}
             w="100%"
             alignSelf="end"
-            onClick={() => {
+            onClick={async () => {
+              const msg = await signTransaction();
+              console.log({ msg });
               fireConfetti();
               nextStep();
             }}
