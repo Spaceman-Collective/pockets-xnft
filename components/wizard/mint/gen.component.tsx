@@ -4,8 +4,9 @@ import Image from "next/image";
 import { getLadImageURL } from "@/lib/apiClient";
 import styled from "@emotion/styled";
 import { H3 } from "../wizard.styled";
-import { GenderToggle, RumbleInput } from ".";
 import Confetti from "@/components/Confetti";
+import { RumbleInput } from "./rumble-input.component";
+import { GenderToggleContainer } from "./gender-toggle.component";
 
 export const Generate: FC<{
   confetti: boolean;
@@ -22,7 +23,7 @@ export const Generate: FC<{
         <Lad lad={109} />
         <Box>
           <RumbleInput />
-          <GenderToggle isMale={isMale} setIsMale={setIsMale} />
+          <GenderToggleContainer isMale={isMale} setIsMale={setIsMale} />
         </Box>
         <Flex gap="2rem">
           <Button variant="outline" w="100%" alignSelf="end" onClick={backStep}>

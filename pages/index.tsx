@@ -2,9 +2,10 @@ import Head from "next/head";
 import dynamic from "next/dynamic";
 import { NavBar } from "@/components/nav";
 import {
-  CharGen,
+  Mint,
   SelectCollection as Collection,
   SelectNFT as NFT,
+  ReviewMint,
 } from "@/components/wizard";
 import styled from "@emotion/styled";
 import { Box, Grid } from "@chakra-ui/react";
@@ -53,7 +54,8 @@ export default function Home() {
       <WizardContainer>
         {wizardStep === 0 && <Collection next={next} />}
         {wizardStep === 1 && <NFT back={back} next={next} />}
-        {wizardStep === 2 && <CharGen back={back} next={next} />}
+        {wizardStep === 2 && <Mint back={back} next={next} />}
+        {wizardStep === 3 && <ReviewMint />}
       </WizardContainer>
     </>
   );
