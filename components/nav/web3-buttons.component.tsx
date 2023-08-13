@@ -41,7 +41,9 @@ export default function Web3Buttons() {
         {/* )} */}
 
         {account && (
-          <Button onClick={async () => {}}>{account?.substring(0, 5)}</Button>
+          <Button variant="outline" onClick={async () => {}}>
+            {account?.substring(0, 5)}
+          </Button>
         )}
         <Text>{authIdToken?.idToken}</Text>
       </Box>
