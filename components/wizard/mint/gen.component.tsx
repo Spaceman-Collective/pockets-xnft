@@ -37,9 +37,11 @@ export const Generate: FC<{
   useEffect(() => {
     if (isSuccess) {
       nextStep();
+      fireConfetti();
     }
     if (data) {
       setMinted(JSON.stringify(data));
+      console.log({ data });
     }
   }, [isSuccess]);
 
