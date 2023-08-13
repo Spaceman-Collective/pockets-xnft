@@ -11,7 +11,6 @@ import { Box, Grid } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
-import useLocalStorage from "use-local-storage";
 import { Character } from "@/types/server";
 
 export default function Wizard() {
@@ -20,15 +19,6 @@ export default function Wizard() {
   const back = () => setWizardStep(wizardStep - 1);
   const [selectedMint, setSelectedMint] = useState<string | undefined>();
   const [reviewMint, setReviewMint] = useState<Character | undefined>();
-
-  const Bubble = ({ toStep }: { toStep: number }) => (
-    <BubbleBox
-      onClick={() => setWizardStep(toStep)}
-      bg={
-        toStep === wizardStep ? "green" : toStep < wizardStep ? "teal" : "grey"
-      }
-    />
-  );
 
   const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
 
@@ -51,18 +41,6 @@ export default function Wizard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      {wizardStep !== 3 && (
-        <Grid
-          templateColumns="repeat(3, 1fr)"
-          justifyItems="center"
-          maxW="700px"
-          m="2rem auto"
-        >
-          <Bubble toStep={0} />
-          <Bubble toStep={1} />
-          <Bubble toStep={2} />
-        </Grid>
-      )}
       <WizardContainer>
         {wizardStep === 0 && <Collection next={next} />}
         {wizardStep === 1 && (
