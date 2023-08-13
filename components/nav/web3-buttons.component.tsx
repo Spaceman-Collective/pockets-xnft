@@ -18,42 +18,31 @@ export default function Web3Buttons() {
   return (
     <>
       <Box>
-        <Button
-          variant="outline"
-          onClick={async () => {
-            console.log("call login");
-            try {
-              await login();
-              console.log("Login successful!");
-            } catch (err) {
-              console.error("XXXXXXXXXXXX");
-            }
-            console.log("fin login");
-          }}
-        >
-          connect
-        </Button>
-
-        {!authIdToken && (
+        {!web3auth?.connected && (
           <Button
-            isDisabled={!!authIdToken}
+            variant="outline"
             onClick={async () => {
-              await authenticateUser();
+              await login();
             }}
           >
-            authenticateUser
+            connect
           </Button>
         )}
 
-        <Button
-          onClick={async () => {
-            // await signTransaction();
-            await getUserInfo();
-            console.log(refetch());
-          }}
-        >
-          {account?.substring(0, 5)}
-        </Button>
+        {/* {!authIdToken && ( */}
+        {/*   <Button */}
+        {/*     isDisabled={!!authIdToken} */}
+        {/*     onClick={async () => { */}
+        {/*       await authenticateUser(); */}
+        {/*     }} */}
+        {/*   > */}
+        {/*     authenticateUser */}
+        {/*   </Button> */}
+        {/* )} */}
+
+        {account && (
+          <Button onClick={async () => {}}>{account?.substring(0, 5)}</Button>
+        )}
         <Text>{authIdToken?.idToken}</Text>
       </Box>
     </>

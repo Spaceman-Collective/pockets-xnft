@@ -4,7 +4,6 @@ import {
   CHAIN_NAMESPACES,
   SafeEventEmitterProvider,
   UserAuthInfo,
-  UserInfo,
 } from "@web3auth/base";
 import RPC from "@/hooks/SolanaRPC";
 
@@ -33,6 +32,9 @@ export const useWeb3Auth = () => {
         await web3.initModal();
         if (web3.provider) {
           setProvider(web3.provider);
+          const rpc = new RPC(web3.provider);
+          const address = await rpc.getAccounts();
+          setAccount(address[0]);
         }
       } catch (err) {
         console.error("UH OH", err);
@@ -56,10 +58,6 @@ export const useWeb3Auth = () => {
     }
     const web3authProvider = await web3auth.connect();
     setProvider(web3authProvider);
-    const account = (await getAccounts())![0];
-    setAccount(account);
-    //@ts-ignore
-    window.solanaAccount = account;
   };
 
   const authenticateUser = async () => {
