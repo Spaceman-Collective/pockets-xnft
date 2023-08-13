@@ -5,7 +5,6 @@ import { Box, Button, Grid, Spinner } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useAssets } from "@/hooks/useAssets";
 import { useRouter } from "next/router";
-import { useWeb3Auth } from "@/hooks/useWeb3Auth";
 
 export default function Home() {
   const router = useRouter();

@@ -6,7 +6,7 @@ import { H3 } from "../wizard.styled";
 import Confetti from "@/components/Confetti";
 import { RumbleInput } from "./rumble-input.component";
 import { GenderToggleContainer } from "./gender-toggle.component";
-import type { NFT } from "@/types/server";
+import type { Character, NFT } from "@/types/server";
 import { getRandomName } from "@/lib/utils";
 import { useWeb3Auth } from "@/hooks/useWeb3Auth";
 import { useCreateCharacter } from "@/hooks/useCreateCharacter";
@@ -17,6 +17,7 @@ export const Generate: FC<{
   fire: () => void;
   back: () => void;
   next: () => void;
+  setReviewMint: (char: Character) => void;
   nft: NFT;
 }> = ({
   confetti,
@@ -24,6 +25,7 @@ export const Generate: FC<{
   back: backStep,
   next: nextStep,
   nft,
+  setReviewMint,
 }) => {
   const [isMale, setIsMale] = useState(false);
   const [name, setName] = useState<string>(getRandomName({ isMale }));
@@ -32,16 +34,11 @@ export const Generate: FC<{
   const { signTransaction } = useWeb3Auth();
   const { mutate, isSuccess, data } = useCreateCharacter();
 
-  const [minted, setMinted] = useLocalStorage("minted-char", "");
-
   useEffect(() => {
     if (isSuccess) {
       nextStep();
       fireConfetti();
-    }
-    if (data) {
-      setMinted(JSON.stringify(data));
-      console.log({ data });
+      setReviewMint(data);
     }
   }, [isSuccess]);
 

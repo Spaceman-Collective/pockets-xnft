@@ -130,10 +130,6 @@ export default class SolanaRpc {
 
       const signedTx = await solanaWallet.signTransaction(tx);
 
-      console.log(
-        "sss",
-        signedTx.message.compiledInstructions[0].data.toString()
-      );
       const encodedSignedTx = encode(signedTx.serialize());
       // return signedTx.signature?.toString() || "";
       const newTx = Transaction.from(signedTx.serialize());

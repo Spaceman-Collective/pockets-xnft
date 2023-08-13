@@ -11,12 +11,15 @@ import { Box, Grid } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
+import useLocalStorage from "use-local-storage";
+import { Character } from "@/types/server";
 
 export default function Wizard() {
   const [wizardStep, setWizardStep] = useState<number>(1);
   const next = () => setWizardStep(wizardStep + 1);
   const back = () => setWizardStep(wizardStep - 1);
   const [selectedMint, setSelectedMint] = useState<string | undefined>();
+  const [reviewMint, setReviewMint] = useState<Character | undefined>();
 
   const Bubble = ({ toStep }: { toStep: number }) => (
     <BubbleBox
@@ -33,6 +36,12 @@ export default function Wizard() {
     if (wizardStep === 1 && !!selectedMint) setWizardStep(2);
   }, [wizardStep, selectedMint]);
 
+  useEffect(() => {
+    if (reviewMint) {
+      setWizardStep(3);
+    }
+  }, [reviewMint]);
+
   return (
     <>
       <Head>
@@ -42,16 +51,18 @@ export default function Wizard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      <Grid
-        templateColumns="repeat(3, 1fr)"
-        justifyItems="center"
-        maxW="700px"
-        m="2rem auto"
-      >
-        <Bubble toStep={0} />
-        <Bubble toStep={1} />
-        <Bubble toStep={2} />
-      </Grid>
+      {wizardStep !== 3 && (
+        <Grid
+          templateColumns="repeat(3, 1fr)"
+          justifyItems="center"
+          maxW="700px"
+          m="2rem auto"
+        >
+          <Bubble toStep={0} />
+          <Bubble toStep={1} />
+          <Bubble toStep={2} />
+        </Grid>
+      )}
       <WizardContainer>
         {wizardStep === 0 && <Collection next={next} />}
         {wizardStep === 1 && (
@@ -61,6 +72,7 @@ export default function Wizard() {
             data={allAssetData}
             isLoading={allAssetDataIsLoading}
             select={setSelectedMint}
+            setReview={setReviewMint}
           />
         )}
         {wizardStep === 2 && (
@@ -70,6 +82,7 @@ export default function Wizard() {
               back();
             }}
             next={next}
+            setReviewMint={setReviewMint}
             nft={allAssetData?.nfts?.find(
               (record) => record?.mint === selectedMint
             )}
@@ -77,8 +90,10 @@ export default function Wizard() {
         )}
         {wizardStep === 3 && (
           <ReviewMint
+            data={reviewMint}
             back={() => {
               setSelectedMint(undefined);
+              setReviewMint(undefined);
               setWizardStep(1);
             }}
           />

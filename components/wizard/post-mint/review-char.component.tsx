@@ -1,8 +1,18 @@
 import { Text, Button, Flex, Box, Grid } from "@chakra-ui/react";
 import { Equipment } from "./equipment.component";
 import styled from "@emotion/styled";
+import useLocalStorage from "use-local-storage";
 
-export const ReviewMint = ({ back: backStep }: { back: () => void }) => {
+import type { Character, NFT } from "@/types/server";
+
+export const ReviewMint = ({
+  back: backStep,
+  data,
+}: {
+  back: () => void;
+  data?: Character;
+}) => {
+  console.log({ data });
   return (
     <Flex minH="60vh" direction="column" justifyContent="space-between">
       <Flex direction="column" gap="2rem">
@@ -58,7 +68,13 @@ export const ReviewMint = ({ back: backStep }: { back: () => void }) => {
         </Grid>
       </Flex>
       <Flex gap="2rem">
-        <Button variant="outline" w="100%" onClick={backStep}>
+        <Button
+          variant="outline"
+          w="100%"
+          onClick={() => {
+            backStep();
+          }}
+        >
           Mint another
         </Button>
         <Button w="100%">Continue</Button>
