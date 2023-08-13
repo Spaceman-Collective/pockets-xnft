@@ -1,6 +1,7 @@
 import { Item, SUPPORTED_COLLECTION_ADDRESSES } from ".";
 
 export interface Character {
+  name: string;
   mint: string;
   collection: string;
   image: string;

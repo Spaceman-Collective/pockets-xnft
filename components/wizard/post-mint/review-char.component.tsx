@@ -18,11 +18,20 @@ export const ReviewMint = ({
   return (
     <Flex minH="60vh" direction="column" justifyContent="space-between">
       <Flex direction="column" gap="2rem">
-        <Flex>
+        <Flex gap="1rem">
           <Frame img={data.image} />
           <Box>
-            <Text>Shadower</Text>
-            <Text>Mad Lads OG</Text>
+            <Text fontFamily="header" fontSize="5rem" fontWeight={700}>
+              {data.name}
+            </Text>
+            <Flex gap="1rem" alignItems="center">
+              <Text letterSpacing="1px">FACTION:</Text>
+              {data?.faction ? (
+                <Text>{data?.faction}</Text>
+              ) : (
+                <Button fontSize="1rem">Join Faction</Button>
+              )}
+            </Flex>
           </Box>
         </Flex>
         <Flex gap="1.5rem" direction={{ base: "column", md: "row" }}>

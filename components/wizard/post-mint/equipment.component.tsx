@@ -6,22 +6,16 @@ export const Equipment = () => {
   return (
     <EquipmentContainer>
       <Equip gridArea="head" filled="true">
-        <Item url="https://picsum.photos/seed/head/300" />
+        {/* <Item url="https://picsum.photos/seed/head/300" /> */}
       </Equip>
       <Equip gridArea="torso" filled="true">
-        <Item url="https://picsum.photos/seed/torso/300" />
+        {/* <Item url="https://picsum.photos/seed/torso/300" /> */}
       </Equip>
-      <Equip gridArea="feet">
-        <Text p="1rem">Feet</Text>
-      </Equip>
-      <Equip gridArea="mainhand">
-        <Text p="1rem">Main hand</Text>
-      </Equip>
-      <Equip gridArea="offhand">
-        <Text p="1rem">Off hand</Text>
-      </Equip>
+      <Equip gridArea="feet">{/* <Text p="1rem">Feet</Text> */}</Equip>
+      <Equip gridArea="mainhand">{/* <Text p="1rem">Main hand</Text> */}</Equip>
+      <Equip gridArea="offhand">{/* <Text p="1rem">Off hand</Text> */}</Equip>
       <Equip gridArea="trinket" filled="true">
-        <TrinketItem url="https://picsum.photos/seed/trinket/300" />
+        <TrinketItem />
       </Equip>
     </EquipmentContainer>
   );

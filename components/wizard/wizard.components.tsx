@@ -9,7 +9,6 @@ export const Frame = ({
   img: string;
   select?: () => void;
 }) => {
-  console.log({ img });
   return (
     <Box
       cursor={!!select ? "pointer" : "initial"}
