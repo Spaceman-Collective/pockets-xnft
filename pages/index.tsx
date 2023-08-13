@@ -15,7 +15,7 @@ import { useState } from "react";
 const ClientHome = dynamic(() => import("../components/home/client.component"));
 
 export default function Home() {
-  const [wizardStep, setWizardStep] = useState<number>(0);
+  const [wizardStep, setWizardStep] = useState<number>(3);
   const next = () => setWizardStep(wizardStep + 1);
   const back = () => setWizardStep(wizardStep - 1);
 
