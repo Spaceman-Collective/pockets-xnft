@@ -1,17 +1,17 @@
 import Head from "next/head";
-import dynamic from "next/dynamic";
 import { NavBar } from "@/components/nav";
 import styled from "@emotion/styled";
 import { Box, Button, Grid, Spinner } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useAssets } from "@/hooks/useAssets";
 import { useRouter } from "next/router";
+import { useWeb3Auth } from "@/hooks/useWeb3Auth";
 
 export default function Home() {
   const router = useRouter();
-  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets(
-    {}
-  );
+  const { account } = useWeb3Auth();
+  const { data: allAssetData, isLoading: allAssetDataIsLoading } =
+    useAssets(account);
 
   return (
     <>
