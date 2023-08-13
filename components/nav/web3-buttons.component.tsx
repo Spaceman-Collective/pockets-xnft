@@ -9,22 +9,21 @@ export default function Web3Buttons() {
     authenticateUser,
     signTransaction,
     getUserInfo,
+    account,
   } = useWeb3Auth();
 
   console.log({ web3auth });
   return (
     <>
       <Box>
-        {!web3auth?.connected && (
-          <Button
-            variant="outline"
-            onClick={async () => {
-              await login();
-            }}
-          >
-            connect
-          </Button>
-        )}
+        <Button
+          variant="outline"
+          onClick={async () => {
+            await login();
+          }}
+        >
+          connect
+        </Button>
 
         {!authIdToken && (
           <Button
@@ -43,7 +42,7 @@ export default function Web3Buttons() {
             await getUserInfo();
           }}
         >
-          sign
+          {account?.substring(0, 5)}
         </Button>
         <Text>{authIdToken?.idToken}</Text>
       </Box>

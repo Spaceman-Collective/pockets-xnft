@@ -14,7 +14,7 @@ export const useWeb3Auth = () => {
     null
   );
   const [authIdToken, setAuthIdToken] = useState<UserAuthInfo | undefined>();
-  const [userInfo, setUserInfo] = useState<any | undefined>();
+  const [account, setAccount] = useState<string | undefined>();
 
   useEffect(() => {
     const init = async () => {
@@ -23,7 +23,7 @@ export const useWeb3Auth = () => {
           "BL5FL1mFUvNRhURCu-Q2HaIxTNL4FeHoNv7489GHa4J6oTRt8hPjfZ8d6hXpk21vzN42LDjDKP-4R9TTA1ERUWc", // Get your Client ID from Web3Auth Dashboard
         chainConfig: {
           chainNamespace: CHAIN_NAMESPACES.SOLANA,
-          chainId: "0x1", // 0x1 for Mainnet, 0x2 for Testnet, 0x3 for Devnet
+          chainId: "0x3", // 0x1 for Mainnet, 0x2 for Testnet, 0x3 for Devnet
           rpcTarget: "https://api.devnet.solana.com", // pass on your own endpoint while creating an app
         },
       });
@@ -58,6 +58,9 @@ export const useWeb3Auth = () => {
     }
     const web3authProvider = await web3auth.connect();
     setProvider(web3authProvider);
+
+    const account = (await getAccounts()) as string[];
+    setAccount(account[0]);
   };
 
   const authenticateUser = async () => {
@@ -152,6 +155,7 @@ export const useWeb3Auth = () => {
   };
 
   return {
+    account,
     web3auth,
     provider,
     authIdToken,
