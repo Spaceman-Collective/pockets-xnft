@@ -8,29 +8,18 @@ import {
   ReviewMint,
 } from "@/components/wizard";
 import styled from "@emotion/styled";
-import { Box, Grid } from "@chakra-ui/react";
+import { Box, Button, Grid, Spinner } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useState } from "react";
+import { useAssets } from "@/hooks/useAssets";
+import { NFT as NFTType } from "@/types/server";
+import { useRouter } from "next/router";
 
 const ClientHome = dynamic(() => import("../components/home/client.component"));
 
 export default function Home() {
-  const [wizardStep, setWizardStep] = useState<number>(0);
-  const next = () => setWizardStep(wizardStep + 1);
-  const back = () => setWizardStep(wizardStep - 1);
-
-  const Bubble = ({ toStep }: { toStep: number }) => (
-    <Box
-      onClick={() => setWizardStep(toStep)}
-      borderRadius="1rem"
-      w="95%"
-      h="5rem"
-      transition="all 1s ease"
-      bg={
-        toStep === wizardStep ? "green" : toStep < wizardStep ? "teal" : "grey"
-      }
-    />
-  );
+  const router = useRouter();
+  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
 
   return (
     <>
@@ -41,22 +30,14 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      <Grid
-        templateColumns="repeat(3, 1fr)"
-        justifyItems="center"
-        maxW="700px"
-        m="2rem auto"
-      >
-        <Bubble toStep={0} />
-        <Bubble toStep={1} />
-        <Bubble toStep={2} />
-      </Grid>
-      <WizardContainer>
-        {wizardStep === 0 && <Collection next={next} />}
-        {wizardStep === 1 && <NFT back={back} next={next} />}
-        {wizardStep === 2 && <Mint back={back} next={next} />}
-        {wizardStep === 3 && <ReviewMint />}
-      </WizardContainer>
+      {allAssetDataIsLoading && <Spinner />}
+      {!allAssetDataIsLoading && allAssetData?.characters?.length === 0 && (
+        <Grid placeItems="center" minH="50vh">
+          <Button variant="outline" onClick={() => router.push("/wizard")}>
+            Create a Char
+          </Button>
+        </Grid>
+      )}
     </>
   );
 }
@@ -69,9 +50,9 @@ const WizardContainer = styled(Box)`
   background-color: ${colors.blacks[500]};
 `;
 
-// const Bubble: FC<{ setStep: (num: number) => void; step: number }> = ({
-//   setStep,
-//   step,
-// }) => {
-//   return <Box onClick={() => setStep(0)} w="5rem" h="5rem" bg="gray" />;
-// };
+const BubbleBox = styled(Box)`
+  border-radius: 1rem;
+  width: 95%;
+  height: 5rem;
+  transition: all 1s ease;
+`;

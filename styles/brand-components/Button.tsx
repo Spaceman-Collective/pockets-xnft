@@ -9,6 +9,10 @@ export const Button = defineStyleConfig({
     fontFamily: "body",
     borderRadius: "4px",
     transition: "all 0.25s ease-in-out",
+    _disabled: {
+      opacity: "0.5",
+      cursor: "not-allowed",
+    },
   },
   // Two sizes: sm and md
   sizes: {

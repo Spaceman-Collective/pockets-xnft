@@ -2,7 +2,7 @@ import { Text, Button, Flex, Box, Grid } from "@chakra-ui/react";
 import { Equipment } from "./equipment.component";
 import styled from "@emotion/styled";
 
-export const ReviewMint = () => {
+export const ReviewMint = ({ back: backStep }: { back: () => void }) => {
   return (
     <Flex minH="60vh" direction="column" justifyContent="space-between">
       <Flex direction="column" gap="2rem">
@@ -57,7 +57,12 @@ export const ReviewMint = () => {
           ))}
         </Grid>
       </Flex>
-      <Button>Confirm</Button>
+      <Flex gap="2rem">
+        <Button variant="outline" w="100%" onClick={backStep}>
+          Mint another
+        </Button>
+        <Button w="100%">Continue</Button>
+      </Flex>
     </Flex>
   );
 };

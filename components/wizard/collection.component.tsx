@@ -23,9 +23,12 @@ export const SelectCollection: FC<{ next: () => void }> = ({
           gap="1rem"
           mb="3rem"
         >
-          <Thumbnail>Mad Lads</Thumbnail>
-          <Thumbnail>Kyogen</Thumbnail>
-          <Thumbnail />
+          <Thumbnail cursor="pointer" onClick={nextStep}>
+            Mad Lads
+          </Thumbnail>
+          <Thumbnail userSelect="none" cursor="not-allowed" opacity="0.5">
+            Kyogen
+          </Thumbnail>
         </Grid>
       </Box>
       <Button w="100%" alignSelf="end" onClick={nextStep}>
@@ -36,7 +39,6 @@ export const SelectCollection: FC<{ next: () => void }> = ({
 };
 
 const Thumbnail = styled(Grid)<{ isSelected?: boolean }>`
-  cursor: pointer;
   background-color: ${colors.brand.primary};
   height: 150px;
   width: 150px;
