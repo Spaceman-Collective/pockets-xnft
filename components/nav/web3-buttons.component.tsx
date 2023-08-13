@@ -1,5 +1,6 @@
 import { Box, Button, Text } from "@chakra-ui/react";
 import { useWeb3Auth } from "@/hooks/useWeb3Auth";
+import { useAssets } from "@/hooks/useAssets";
 
 export default function Web3Buttons() {
   const {
@@ -12,7 +13,8 @@ export default function Web3Buttons() {
     account,
   } = useWeb3Auth();
 
-  console.log({ web3auth });
+  const { refetch } = useAssets();
+
   return (
     <>
       <Box>
@@ -22,6 +24,7 @@ export default function Web3Buttons() {
             console.log("call login");
             try {
               await login();
+              console.log("Login successful!");
             } catch (err) {
               console.error("XXXXXXXXXXXX");
             }
@@ -46,6 +49,7 @@ export default function Web3Buttons() {
           onClick={async () => {
             // await signTransaction();
             await getUserInfo();
+            console.log(refetch());
           }}
         >
           {account?.substring(0, 5)}

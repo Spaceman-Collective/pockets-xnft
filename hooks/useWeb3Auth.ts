@@ -56,6 +56,10 @@ export const useWeb3Auth = () => {
     }
     const web3authProvider = await web3auth.connect();
     setProvider(web3authProvider);
+    const account = (await getAccounts())![0];
+    setAccount(account);
+    //@ts-ignore
+    window.solanaAccount = account;
   };
 
   const authenticateUser = async () => {
