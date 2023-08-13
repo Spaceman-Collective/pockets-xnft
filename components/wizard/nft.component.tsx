@@ -27,7 +27,11 @@ export const SelectNFT: FC<{
           mb="3rem"
         >
           {data?.character?.map((record, i) => (
-            <Frame key={record?.name + i} img={record?.cached_image_uri} />
+            <Frame
+              key={record?.name + i}
+              img={record?.cached_image_uri}
+              select={() => {}}
+            />
           ))}
           {isLoading && <Skeletons />}
         </Grid>
@@ -51,8 +55,8 @@ export const SelectNFT: FC<{
         <Button variant="outline" w="100%" alignSelf="end" onClick={backStep}>
           Back
         </Button>
-        <Button w="100%" alignSelf="end" onClick={nextStep}>
-          Continue
+        <Button w="100%" alignSelf="end" isDisabled>
+          Select an NFT
         </Button>
       </Flex>
     </Flex>
