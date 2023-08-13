@@ -10,26 +10,28 @@ export const GenderToggleContainer = ({
   setIsMale: (bool: boolean) => void;
 }) => {
   return (
-    <Flex justifyContent="center" alignItems="center" gap="2rem">
-      <Text>Female</Text>
-      <BiFemaleSign
-        style={{
-          transform: isMale ? "scale(1)" : "scale(1.4)",
-        }}
-      />
-      <GenderToggle
-        size="lg"
-        isChecked={isMale}
-        bg={isMale ? "skyblue" : "pink"}
-        onChange={(e) => setIsMale(e.target.checked)}
-      />
-      <BiMaleSign
-        style={{
-          transform: !isMale ? "scale(1)" : "scale(1.4)",
-        }}
-      />
-      <Text>Male</Text>
-    </Flex>
+    <>
+      <Flex justifyContent="center" alignItems="center" gap="2rem">
+        <Text>Female</Text>
+        <BiFemaleSign
+          style={{
+            transform: isMale ? "scale(1)" : "scale(1.4)",
+          }}
+        />
+        <GenderToggle
+          size="lg"
+          isChecked={isMale}
+          bg={isMale ? "skyblue" : "pink"}
+          onChange={(e) => setIsMale(e.target.checked)}
+        />
+        <BiMaleSign
+          style={{
+            transform: !isMale ? "scale(1)" : "scale(1.4)",
+          }}
+        />
+        <Text>Male</Text>
+      </Flex>
+    </>
   );
 };
 
