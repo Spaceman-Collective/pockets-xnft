@@ -7,7 +7,7 @@ import {
   ReviewMint,
 } from "@/components/wizard";
 import styled from "@emotion/styled";
-import { Box, Grid } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";

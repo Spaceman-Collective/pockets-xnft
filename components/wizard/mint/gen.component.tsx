@@ -10,7 +10,6 @@ import type { Character, NFT } from "@/types/server";
 import { getRandomName } from "@/lib/utils";
 import { useWeb3Auth } from "@/hooks/useWeb3Auth";
 import { useCreateCharacter } from "@/hooks/useCreateCharacter";
-import useLocalStorage from "use-local-storage";
 
 export const Generate: FC<{
   confetti: boolean;
@@ -67,17 +66,9 @@ export const Generate: FC<{
                 timestamp: Date.now().toString(),
                 name,
               };
-              console.log({ payload });
-              console.log("stringed", JSON.stringify(payload));
-              console.log("parsed", JSON.parse(JSON.stringify(payload)));
               const signedTx = await signTransaction(JSON.stringify(payload));
-              console.log({ signedTx });
               if (!signedTx) throw Error("No Tx");
               mutate({ signedTx });
-
-              // if (!isSuccess) return;
-              // fireConfetti();
-              // nextStep();
             }}
           >
             Mint Charachter
