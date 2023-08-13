@@ -76,7 +76,6 @@ export const useWeb3Auth = () => {
       return;
     }
     const user = await web3auth.getUserInfo();
-    console.log({ user });
     return user;
   };
 
@@ -86,6 +85,7 @@ export const useWeb3Auth = () => {
       return;
     }
     await web3auth.logout();
+    setAccount("");
     setProvider(null);
   };
 

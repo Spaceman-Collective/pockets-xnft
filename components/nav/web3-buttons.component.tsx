@@ -6,14 +6,13 @@ export default function Web3Buttons() {
   const {
     web3auth,
     login,
+    logout,
     authIdToken,
     authenticateUser,
     signTransaction,
     getUserInfo,
     account,
   } = useWeb3Auth();
-
-  const { refetch } = useAssets();
 
   return (
     <>
@@ -41,7 +40,12 @@ export default function Web3Buttons() {
         {/* )} */}
 
         {account && (
-          <Button variant="outline" onClick={async () => {}}>
+          <Button
+            variant="outline"
+            onClick={async () => {
+              await logout();
+            }}
+          >
             {account?.substring(0, 5)}
           </Button>
         )}
