@@ -9,7 +9,7 @@ import {
 import styled from "@emotion/styled";
 import { Box, Grid } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
-import { FC, useState } from "react";
+import { useState } from "react";
 
 const ClientHome = dynamic(() => import("../components/home/client.component"));
 
@@ -30,6 +30,7 @@ export default function Home() {
       }
     />
   );
+
   return (
     <>
       <Head>

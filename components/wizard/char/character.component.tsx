@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import Confetti from "@/components/Confetti";
 import { timeout } from "@/lib/utils";
 import { Generate } from "./gen.component";

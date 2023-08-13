@@ -15,7 +15,6 @@ export const Generate: FC<{
 }> = ({ confetti, fire: fireConfetti, back: backStep, next: nextStep }) => {
   const [isMale, setIsMale] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(false);
   return (
     <>
       <Flex direction="column" justifyContent="space-between" minH="60vh">
