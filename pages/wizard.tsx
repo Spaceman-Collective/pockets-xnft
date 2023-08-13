@@ -11,7 +11,6 @@ import { Box, Grid } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
-import { useWeb3Auth } from "@/hooks/useWeb3Auth";
 
 export default function Wizard() {
   const [wizardStep, setWizardStep] = useState<number>(1);
