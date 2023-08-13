@@ -4,6 +4,7 @@ import {
   CHAIN_NAMESPACES,
   SafeEventEmitterProvider,
   UserAuthInfo,
+  UserInfo,
 } from "@web3auth/base";
 import RPC from "@/hooks/SolanaRPC";
 
@@ -13,6 +14,7 @@ export const useWeb3Auth = () => {
     null
   );
   const [authIdToken, setAuthIdToken] = useState<UserAuthInfo | undefined>();
+  const [userInfo, setUserInfo] = useState<any | undefined>();
 
   useEffect(() => {
     const init = async () => {
@@ -31,6 +33,8 @@ export const useWeb3Auth = () => {
         await web3.initModal();
         if (web3.provider) {
           setProvider(web3.provider);
+          console.log(web3.provider, "provider");
+          console.log({ provider });
         }
       } catch (err) {
         console.error("UH OH", err);
@@ -73,6 +77,7 @@ export const useWeb3Auth = () => {
     }
     const user = await web3auth.getUserInfo();
     console.log({ user });
+    return user;
   };
 
   const logout = async () => {
@@ -92,6 +97,7 @@ export const useWeb3Auth = () => {
     const rpc = new RPC(provider);
     const address = await rpc.getAccounts();
     uiConsole(address);
+    return address;
   };
 
   const getBalance = async () => {
@@ -102,6 +108,7 @@ export const useWeb3Auth = () => {
     const rpc = new RPC(provider);
     const balance = await rpc.getBalance();
     uiConsole(balance);
+    return balance;
   };
 
   const sendTransaction = async () => {

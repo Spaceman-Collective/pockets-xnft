@@ -1,5 +1,8 @@
+import dynamic from "next/dynamic";
 import { Flex, Button, Text } from "@chakra-ui/react";
 import Link from "next/link";
+
+const LazyButtons = dynamic(() => import("./web3-buttons.component"));
 
 export const NavBar = () => {
   return (
@@ -9,7 +12,8 @@ export const NavBar = () => {
           POCKETS
         </Text>
       </Link>
-      <Button variant="outline">0x....god</Button>
+      {/* <Button variant="outline">0x....god</Button> */}
+      <LazyButtons />
     </Flex>
   );
 };
