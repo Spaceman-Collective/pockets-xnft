@@ -79,7 +79,14 @@ export default function Wizard() {
             )}
           />
         )}
-        {wizardStep === 3 && <ReviewMint />}
+        {wizardStep === 3 && (
+          <ReviewMint
+            back={() => {
+              setSelectedMint(undefined);
+              setWizardStep(1);
+            }}
+          />
+        )}
       </WizardContainer>
     </>
   );

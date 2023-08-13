@@ -11,8 +11,8 @@ export const RumbleInput: FC<{ name: string; shake: () => void }> = ({
 }) => {
   const [isPressed, setIsPressed] = useState<boolean>(false);
   const press = async () => {
+    if (isPressed) return;
     setIsPressed(true);
-
     await timeout(100);
     shake();
     await timeout(500);
