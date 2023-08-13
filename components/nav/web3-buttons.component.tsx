@@ -19,7 +19,13 @@ export default function Web3Buttons() {
         <Button
           variant="outline"
           onClick={async () => {
-            await login();
+            console.log("call login");
+            try {
+              await login();
+            } catch (err) {
+              console.error("XXXXXXXXXXXX");
+            }
+            console.log("fin login");
           }}
         >
           connect

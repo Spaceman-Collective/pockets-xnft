@@ -14,7 +14,7 @@ export const useWeb3Auth = () => {
     null
   );
   const [authIdToken, setAuthIdToken] = useState<UserAuthInfo | undefined>();
-  const [account, setAccount] = useState<string | undefined>();
+  const [account, setAccount] = useState<string>("");
 
   useEffect(() => {
     const init = async () => {
@@ -33,8 +33,6 @@ export const useWeb3Auth = () => {
         await web3.initModal();
         if (web3.provider) {
           setProvider(web3.provider);
-          console.log(web3.provider, "provider");
-          console.log({ provider });
         }
       } catch (err) {
         console.error("UH OH", err);
@@ -58,9 +56,6 @@ export const useWeb3Auth = () => {
     }
     const web3authProvider = await web3auth.connect();
     setProvider(web3authProvider);
-
-    const account = (await getAccounts()) as string[];
-    setAccount(account[0]);
   };
 
   const authenticateUser = async () => {
