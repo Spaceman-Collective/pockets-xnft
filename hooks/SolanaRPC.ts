@@ -5,6 +5,8 @@ import {
   SystemProgram,
   Transaction,
   TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import { CustomChainConfig, SafeEventEmitterProvider } from "@web3auth/base";
 import { SolanaWallet } from "@web3auth/solana-provider";
@@ -49,7 +51,7 @@ export default class SolanaRpc {
   signMessage = async (): Promise<string> => {
     try {
       const solanaWallet = new SolanaWallet(this.provider);
-      const msg = Buffer.from("Test Signing Message ", "utf8");
+      const msg = Buffer.from("Test Signing Message ", "utf-8");
       const res = await solanaWallet.signMessage(msg);
 
       return res.toString();
@@ -104,7 +106,7 @@ export default class SolanaRpc {
       const conn = new Connection(connectionConfig.rpcTarget);
 
       const pubKey = await solanaWallet.requestAccounts();
-      const { blockhash } = await conn.getRecentBlockhash("finalized");
+      const { blockhash } = await conn.getLatestBlockhash();
 
       const TxInstruct = new TransactionInstruction({
         keys: [
@@ -118,15 +120,27 @@ export default class SolanaRpc {
         programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
       });
 
-      const transaction = new Transaction({
+      const txMsg = new TransactionMessage({
+        payerKey: new PublicKey(pubKey[0]),
         recentBlockhash: blockhash,
-        feePayer: new PublicKey(pubKey[0]),
-      }).add(TxInstruct);
-      const signedTx = await solanaWallet.signTransaction(transaction);
+        instructions: [TxInstruct],
+      }).compileToLegacyMessage();
 
-      console.log({ signedTx });
+      const tx = new VersionedTransaction(txMsg);
+
+      const signedTx = await solanaWallet.signTransaction(tx);
+
+      console.log(
+        "sss",
+        signedTx.message.compiledInstructions[0].data.toString()
+      );
       const encodedSignedTx = encode(signedTx.serialize());
       // return signedTx.signature?.toString() || "";
+      const newTx = Transaction.from(signedTx.serialize());
+      console.log({ newTx }, newTx.instructions[0].data.toString());
+      console.log(";aaaa", newTx.instructions[0].programId.toString());
+      console.log(";TOWTWO", newTx.instructions[1].programId.toString());
+
       return encodedSignedTx;
     } catch (error) {
       console.error("error in signing", error);

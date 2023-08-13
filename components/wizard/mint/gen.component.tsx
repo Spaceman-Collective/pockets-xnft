@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import Image from "next/image";
 import styled from "@emotion/styled";
 import { H3 } from "../wizard.styled";
@@ -9,6 +9,8 @@ import { GenderToggleContainer } from "./gender-toggle.component";
 import type { NFT } from "@/types/server";
 import { getRandomName } from "@/lib/utils";
 import { useWeb3Auth } from "@/hooks/useWeb3Auth";
+import { useCreateCharacter } from "@/hooks/useCreateCharacter";
+import useLocalStorage from "use-local-storage";
 
 export const Generate: FC<{
   confetti: boolean;
@@ -28,6 +30,18 @@ export const Generate: FC<{
   const getNewName = () => setName(getRandomName({ isMale }));
 
   const { signTransaction } = useWeb3Auth();
+  const { mutate, isSuccess, data } = useCreateCharacter();
+
+  const [minted, setMinted] = useLocalStorage("minted-char", "");
+
+  useEffect(() => {
+    if (isSuccess) {
+      nextStep();
+    }
+    if (data) {
+      setMinted(JSON.stringify(data));
+    }
+  }, [isSuccess]);
 
   return (
     <>
@@ -49,16 +63,22 @@ export const Generate: FC<{
             w="100%"
             alignSelf="end"
             onClick={async () => {
-              const payload = JSON.stringify({
+              const payload = {
                 mint: nft.mint,
                 timestamp: Date.now().toString(),
                 name,
-              });
-              const signedTx = await signTransaction(payload);
+              };
+              console.log({ payload });
+              console.log("stringed", JSON.stringify(payload));
+              console.log("parsed", JSON.parse(JSON.stringify(payload)));
+              const signedTx = await signTransaction(JSON.stringify(payload));
               console.log({ signedTx });
-              // post({signedTx})
-              fireConfetti();
-              nextStep();
+              if (!signedTx) throw Error("No Tx");
+              mutate({ signedTx });
+
+              // if (!isSuccess) return;
+              // fireConfetti();
+              // nextStep();
             }}
           >
             Mint Charachter
