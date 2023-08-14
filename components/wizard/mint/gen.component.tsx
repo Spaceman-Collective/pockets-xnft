@@ -9,14 +9,6 @@ import type { Character, NFT } from "@/types/server";
 import { getRandomName } from "@/lib/utils";
 import { useSolana } from "@/hooks/useSolana";
 import { useCreateCharacter } from "@/hooks/useCreateCharacter";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import {
-  PublicKey,
-  TransactionInstruction,
-  TransactionMessage,
-  VersionedTransaction,
-} from "@solana/web3.js";
-import { encode } from "bs58";
 
 export const Generate: FC<{
   fire: () => void;
@@ -35,9 +27,7 @@ export const Generate: FC<{
     fireConfetti();
   };
 
-  const { account, handleSignTransaction } = useSolana();
-  // const { connection } = useConnection();
-  // const { signTransaction } = useWallet();
+  const { handleSignTransaction } = useSolana();
 
   return (
     <>
