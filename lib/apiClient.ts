@@ -23,3 +23,16 @@ export const fetchAssets = async ({
     return;
   }
 };
+
+export const postCharCreate = async ({ signedTx }: { signedTx: string }) => {
+  const URL = API_BASE_URL + "/character/create";
+  try {
+    const { data } = await fetch.post<any>(URL, {
+      signedTx,
+    });
+    return data; // returns CharacterModel
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+};

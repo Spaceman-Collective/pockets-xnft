@@ -5,23 +5,23 @@ import { colors } from "@/styles/defaultTheme";
 export const Equipment = () => {
   return (
     <EquipmentContainer>
-      <Equip gridArea="head" filled="true">
-        <Item url="https://picsum.photos/seed/head/300" />
+      <Equip gridArea="head" filled="true" title="head">
+        {/* <Item url="https://picsum.photos/seed/head/300" /> */}
       </Equip>
-      <Equip gridArea="torso" filled="true">
-        <Item url="https://picsum.photos/seed/torso/300" />
+      <Equip gridArea="torso" filled="true" title="torso">
+        {/* <Item url="https://picsum.photos/seed/torso/300" /> */}
       </Equip>
-      <Equip gridArea="feet">
-        <Text p="1rem">Feet</Text>
+      <Equip gridArea="feet" title="feet">
+        {/* <Text p="1rem">Feet</Text> */}
       </Equip>
-      <Equip gridArea="mainhand">
-        <Text p="1rem">Main hand</Text>
+      <Equip gridArea="mainhand" title="mainhand">
+        {/* <Text p="1rem">Main hand</Text> */}
       </Equip>
-      <Equip gridArea="offhand">
-        <Text p="1rem">Off hand</Text>
+      <Equip gridArea="offhand" title="offhand">
+        {/* <Text p="1rem">Off hand</Text> */}
       </Equip>
-      <Equip gridArea="trinket" filled="true">
-        <TrinketItem url="https://picsum.photos/seed/trinket/300" />
+      <Equip gridArea="trinket" filled="true" title="trinket">
+        <TrinketItem />
       </Equip>
     </EquipmentContainer>
   );

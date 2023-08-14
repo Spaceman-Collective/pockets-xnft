@@ -7,35 +7,45 @@ import {
   ReviewMint,
 } from "@/components/wizard";
 import styled from "@emotion/styled";
-import { Box, Grid } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
-import { useRouter } from "next/router";
+import { Character } from "@/types/server";
+import { timeout } from "@/lib/utils";
+import Confetti from "@/components/Confetti";
 
 export default function Wizard() {
-  const router = useRouter();
-  console.log("query", router.query);
-
   const [wizardStep, setWizardStep] = useState<number>(1);
   const next = () => setWizardStep(wizardStep + 1);
   const back = () => setWizardStep(wizardStep - 1);
   const [selectedMint, setSelectedMint] = useState<string | undefined>();
+  const [reviewMint, setReviewMint] = useState<Character | undefined>();
 
-  const Bubble = ({ toStep }: { toStep: number }) => (
-    <BubbleBox
-      onClick={() => setWizardStep(toStep)}
-      bg={
-        toStep === wizardStep ? "green" : toStep < wizardStep ? "teal" : "grey"
-      }
-    />
-  );
+  const {
+    data: allAssetData,
+    isLoading: allAssetDataIsLoading,
+    refetch,
+  } = useAssets();
 
-  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
+  const [confetti, setConfetti] = useState(false);
+  const fireConfetti = async () => {
+    if (confetti) return;
+    setConfetti(true);
+    await timeout(3600);
+    setConfetti(false);
+    refetch();
+  };
 
   useEffect(() => {
     if (wizardStep === 1 && !!selectedMint) setWizardStep(2);
   }, [wizardStep, selectedMint]);
+
+  useEffect(() => {
+    if (reviewMint) {
+      setWizardStep(3);
+    }
+  }, [reviewMint]);
 
   return (
     <>
@@ -46,16 +56,6 @@ export default function Wizard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      <Grid
-        templateColumns="repeat(3, 1fr)"
-        justifyItems="center"
-        maxW="700px"
-        m="2rem auto"
-      >
-        <Bubble toStep={0} />
-        <Bubble toStep={1} />
-        <Bubble toStep={2} />
-      </Grid>
       <WizardContainer>
         {wizardStep === 0 && <Collection next={next} />}
         {wizardStep === 1 && (
@@ -65,6 +65,7 @@ export default function Wizard() {
             data={allAssetData}
             isLoading={allAssetDataIsLoading}
             select={setSelectedMint}
+            setReview={setReviewMint}
           />
         )}
         {wizardStep === 2 && (
@@ -74,20 +75,25 @@ export default function Wizard() {
               back();
             }}
             next={next}
+            setReviewMint={setReviewMint}
             nft={allAssetData?.nfts?.find(
               (record) => record?.mint === selectedMint
             )}
+            fireConfetti={fireConfetti}
           />
         )}
         {wizardStep === 3 && (
           <ReviewMint
+            data={reviewMint}
             back={() => {
               setSelectedMint(undefined);
+              setReviewMint(undefined);
               setWizardStep(1);
             }}
           />
         )}
       </WizardContainer>
+      {confetti && <Confetti canFire={confetti} />}
     </>
   );
 }

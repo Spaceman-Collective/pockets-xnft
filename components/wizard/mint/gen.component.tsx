@@ -1,31 +1,36 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import Image from "next/image";
-import { getLadImageURL } from "@/lib/apiClient";
 import styled from "@emotion/styled";
 import { H3 } from "../wizard.styled";
-import Confetti from "@/components/Confetti";
 import { RumbleInput } from "./rumble-input.component";
 import { GenderToggleContainer } from "./gender-toggle.component";
-import type { NFT } from "@/types/server";
+import type { Character, NFT } from "@/types/server";
 import { getRandomName } from "@/lib/utils";
+import { useWeb3Auth } from "@/hooks/useWeb3Auth";
+import { useCreateCharacter } from "@/hooks/useCreateCharacter";
 
 export const Generate: FC<{
-  confetti: boolean;
   fire: () => void;
   back: () => void;
   next: () => void;
+  setReviewMint: (char: Character) => void;
   nft: NFT;
-}> = ({
-  confetti,
-  fire: fireConfetti,
-  back: backStep,
-  next: nextStep,
-  nft,
-}) => {
+}> = ({ fire: fireConfetti, back: backStep, nft, setReviewMint }) => {
   const [isMale, setIsMale] = useState(false);
   const [name, setName] = useState<string>(getRandomName({ isMale }));
   const getNewName = () => setName(getRandomName({ isMale }));
+
+  const { signTransaction } = useWeb3Auth();
+  const { mutate, isSuccess, data } = useCreateCharacter();
+
+  useEffect(() => {
+    if (isSuccess || data) {
+      if (!data?.name) return;
+      fireConfetti();
+      setReviewMint(data);
+    }
+  }, [isSuccess]);
 
   return (
     <>
@@ -46,16 +51,22 @@ export const Generate: FC<{
             _hover={{ bg: "brand.tertiary" }}
             w="100%"
             alignSelf="end"
-            onClick={() => {
-              fireConfetti();
-              nextStep();
+            onClick={async () => {
+              const payload = {
+                mint: nft.mint,
+                timestamp: Date.now().toString(),
+                name,
+              };
+              const signedTx = await signTransaction(JSON.stringify(payload));
+              if (!signedTx) throw Error("No Tx");
+
+              mutate({ signedTx });
             }}
           >
             Mint Charachter
           </Button>
         </Flex>
       </Flex>
-      {confetti && <Confetti canFire={confetti} />}
     </>
   );
 };

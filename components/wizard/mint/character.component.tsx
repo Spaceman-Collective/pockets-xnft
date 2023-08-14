@@ -3,21 +3,15 @@ import Confetti from "@/components/Confetti";
 import { timeout } from "@/lib/utils";
 import { Generate } from "./gen.component";
 import { Grid, Spinner } from "@chakra-ui/react";
-import type { NFT } from "@/types/server";
+import type { Character, NFT } from "@/types/server";
 
-export const CharGen: FC<{ back: () => void; next: () => void; nft?: NFT }> = ({
-  next: nextStep,
-  back: backStep,
-  nft,
-}) => {
-  const [confetti, setConfetti] = useState(false);
-  const fireConfetti = async () => {
-    if (confetti) return;
-    setConfetti(true);
-    await timeout(3600);
-    setConfetti(false);
-  };
-
+export const CharGen: FC<{
+  back: () => void;
+  next: () => void;
+  nft?: NFT;
+  setReviewMint: (char: Character) => void;
+  fireConfetti: () => void;
+}> = ({ next: nextStep, back: backStep, nft, setReviewMint, fireConfetti }) => {
   const [isLoading, setIsLoading] = useState<boolean | undefined>();
 
   return (
@@ -26,13 +20,13 @@ export const CharGen: FC<{ back: () => void; next: () => void; nft?: NFT }> = ({
         <Generate
           nft={nft}
           back={backStep}
+          setReviewMint={setReviewMint}
           next={async () => {
             setIsLoading(true);
             await timeout(3600);
             setIsLoading(false);
             nextStep();
           }}
-          confetti={confetti}
           fire={fireConfetti}
         />
       )}
@@ -42,7 +36,6 @@ export const CharGen: FC<{ back: () => void; next: () => void; nft?: NFT }> = ({
           <p>Hold Tight!</p>
         </Grid>
       )}
-      {confetti && <Confetti canFire={confetti} />}
     </>
   );
 };

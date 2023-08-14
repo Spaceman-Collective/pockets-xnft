@@ -6,6 +6,7 @@ import {
   UserAuthInfo,
 } from "@web3auth/base";
 import RPC from "@/hooks/SolanaRPC";
+import useLocalStorage from "use-local-storage";
 
 export const useWeb3Auth = () => {
   const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
@@ -13,6 +14,7 @@ export const useWeb3Auth = () => {
     null
   );
   const [authIdToken, setAuthIdToken] = useState<UserAuthInfo | undefined>();
+  const [account, setAccount] = useLocalStorage("account", "");
 
   useEffect(() => {
     const init = async () => {
@@ -21,7 +23,7 @@ export const useWeb3Auth = () => {
           "BL5FL1mFUvNRhURCu-Q2HaIxTNL4FeHoNv7489GHa4J6oTRt8hPjfZ8d6hXpk21vzN42LDjDKP-4R9TTA1ERUWc", // Get your Client ID from Web3Auth Dashboard
         chainConfig: {
           chainNamespace: CHAIN_NAMESPACES.SOLANA,
-          chainId: "0x1", // 0x1 for Mainnet, 0x2 for Testnet, 0x3 for Devnet
+          chainId: "0x3", // 0x1 for Mainnet, 0x2 for Testnet, 0x3 for Devnet
           rpcTarget: "https://api.devnet.solana.com", // pass on your own endpoint while creating an app
         },
       });
@@ -31,6 +33,9 @@ export const useWeb3Auth = () => {
         await web3.initModal();
         if (web3.provider) {
           setProvider(web3.provider);
+          const rpc = new RPC(web3.provider);
+          const address = await rpc.getAccounts();
+          setAccount(address[0]);
         }
       } catch (err) {
         console.error("UH OH", err);
@@ -54,6 +59,12 @@ export const useWeb3Auth = () => {
     }
     const web3authProvider = await web3auth.connect();
     setProvider(web3authProvider);
+
+    if (!web3authProvider) return;
+    const rpc = new RPC(web3authProvider);
+    const address = await rpc.getAccounts();
+    if (!address) return;
+    setAccount(address[0]);
   };
 
   const authenticateUser = async () => {
@@ -72,7 +83,7 @@ export const useWeb3Auth = () => {
       return;
     }
     const user = await web3auth.getUserInfo();
-    console.log({ user });
+    return user;
   };
 
   const logout = async () => {
@@ -81,6 +92,7 @@ export const useWeb3Auth = () => {
       return;
     }
     await web3auth.logout();
+    setAccount("");
     setProvider(null);
   };
 
@@ -92,6 +104,7 @@ export const useWeb3Auth = () => {
     const rpc = new RPC(provider);
     const address = await rpc.getAccounts();
     uiConsole(address);
+    return address;
   };
 
   const getBalance = async () => {
@@ -102,6 +115,7 @@ export const useWeb3Auth = () => {
     const rpc = new RPC(provider);
     const balance = await rpc.getBalance();
     uiConsole(balance);
+    return balance;
   };
 
   const sendTransaction = async () => {
@@ -134,17 +148,23 @@ export const useWeb3Auth = () => {
     uiConsole(privateKey);
   };
 
-  const signTransaction = async () => {
+  const signTransaction = async (msg: string) => {
     if (!provider) {
       uiConsole("provider not initialized yet");
       return;
     }
     const rpc = new RPC(provider);
-    const receipt = await rpc.signTransaction();
+    const receipt = await rpc.signTransaction(msg);
     uiConsole(receipt);
+    console.log({ receipt });
+
+    //@ts-ignore
+    if (receipt?.code === -32603) throw Error("no no no");
+    return receipt;
   };
 
   return {
+    account,
     web3auth,
     provider,
     authIdToken,

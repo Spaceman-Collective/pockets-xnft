@@ -1,11 +1,47 @@
 import { Text, Button, Flex, Box, Grid } from "@chakra-ui/react";
 import { Equipment } from "./equipment.component";
 import styled from "@emotion/styled";
+import type { Character } from "@/types/server";
+import { Frame } from "../wizard.components";
 
-export const ReviewMint = ({ back: backStep }: { back: () => void }) => {
+export const ReviewMint = ({
+  back: backStep,
+  data,
+}: {
+  back: () => void;
+  data?: Character;
+}) => {
+  if (!data)
+    return (
+      <Button
+        variant="outline"
+        w="fit-content"
+        onClick={() => {
+          backStep();
+        }}
+      >
+        Go back to NFTs
+      </Button>
+    );
   return (
     <Flex minH="60vh" direction="column" justifyContent="space-between">
       <Flex direction="column" gap="2rem">
+        <Flex gap="1rem">
+          <Frame img={data.image} />
+          <Box>
+            <Text fontFamily="header" fontSize="5rem" fontWeight={700}>
+              {data.name}
+            </Text>
+            <Flex gap="1rem" alignItems="center">
+              <Text letterSpacing="1px">FACTION:</Text>
+              {data?.faction ? (
+                <Text>{data?.faction}</Text>
+              ) : (
+                <Button fontSize="1rem">Join Faction</Button>
+              )}
+            </Flex>
+          </Box>
+        </Flex>
         <Flex gap="1.5rem" direction={{ base: "column", md: "row" }}>
           <Equipment />
           <Flex
@@ -14,14 +50,14 @@ export const ReviewMint = ({ back: backStep }: { back: () => void }) => {
             direction="column"
             gap={{ base: "1.5rem", md: "" }}
           >
-            <Stat label="Health" value={347} />
-            <Stat label="Spirit" value={134} />
-            <Stat label="Weight" value={120} suffix="KG" />
+            <Stat label="Health" value={data.vitals.health} />
+            <Stat label="Spirit" value={data.vitals.spirit} />
+            <Stat label="Weight" value={data.vitals.weight} suffix="KG" />
             <Grid templateColumns="repeat(2, 1fr)" gap="1.5rem">
-              <Stat label="Dodge" value={12} />
-              <Stat label="Parry" value={13} />
-              <Stat label="Magic Resist" value={8} />
-              <Stat label="Armor" value={25} />
+              <Stat label="Dodge" value={data.vitals.dodge} />
+              <Stat label="Parry" value={data.vitals.parry} />
+              <Stat label="Magic Resist" value={data.vitals.magicResistance} />
+              <Stat label="Armor" value={data.vitals.armor} />
             </Grid>
           </Flex>
         </Flex>
@@ -30,35 +66,60 @@ export const ReviewMint = ({ back: backStep }: { back: () => void }) => {
             <Value>Skills</Value>
             <Flex alignItems="end" gap="1rem">
               <Label>xp:</Label>
-              <Value>123/456</Value>
+              <Value>
+                {data?.experience.current}/{data?.experience.threshold}
+              </Value>
             </Flex>
             <Flex alignItems="end" gap="1rem">
               <Label>points:</Label>
-              <Value>1004</Value>
+              <Value>{data.points}</Value>
             </Flex>
           </Flex>
-          <Label>See all {">"}</Label>
+          {/* <Label>See all {">"}</Label> */}
         </Flex>
         <Grid templateColumns="repeat(auto-fill, minmax(75px, 1fr))" gap="1rem">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <Box
-              key={i + "skillbox"}
-              p="1rem"
-              w="75px"
-              h="75px"
-              bg="brand.primary"
-              borderRadius="1rem"
-              textTransform="uppercase"
-              fontWeight={700}
-              fontSize="1.25rem"
-            >
-              Skill
-            </Box>
-          ))}
+          {(Object.keys(data.skills) as Array<keyof typeof data.skills>).map(
+            (skill) => (
+              <Box
+                key={"skillbox:" + skill}
+                p="1rem"
+                w="75px"
+                h="75px"
+                bg="brand.primary"
+                borderRadius="1rem"
+                textTransform="uppercase"
+                fontWeight={700}
+                fontSize="1.25rem"
+                opacity={data?.skills[skill] > 0 ? "1" : "0.3"}
+                userSelect="none"
+              >
+                <Text
+                  title={skill}
+                  fontSize="1rem"
+                  textOverflow="ellipsis"
+                  noOfLines={1}
+                  _hover={{
+                    noOfLines: 2,
+                  }}
+                >
+                  {skill}
+                </Text>
+                <Text fontSize="1.7rem" m="1rem auto" w="fit-content">
+                  {data?.skills[skill]}
+                </Text>
+              </Box>
+            )
+          )}
         </Grid>
       </Flex>
-      <Flex gap="2rem">
-        <Button variant="outline" w="100%" onClick={backStep}>
+      <Flex gap="2rem" mt="4rem">
+        <Button
+          variant="outline"
+          w="100%"
+          onClick={() => {
+            backStep();
+          }}
+        >
           Mint another
         </Button>
         <Button w="100%">Continue</Button>

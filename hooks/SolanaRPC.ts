@@ -4,9 +4,13 @@ import {
   PublicKey,
   SystemProgram,
   Transaction,
+  TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import { CustomChainConfig, SafeEventEmitterProvider } from "@web3auth/base";
 import { SolanaWallet } from "@web3auth/solana-provider";
+import { encode } from "bs58";
 
 export default class SolanaRpc {
   private provider: SafeEventEmitterProvider;
@@ -47,7 +51,7 @@ export default class SolanaRpc {
   signMessage = async (): Promise<string> => {
     try {
       const solanaWallet = new SolanaWallet(this.provider);
-      const msg = Buffer.from("Test Signing Message ", "utf8");
+      const msg = Buffer.from("Test Signing Message ", "utf-8");
       const res = await solanaWallet.signMessage(msg);
 
       return res.toString();
@@ -92,7 +96,7 @@ export default class SolanaRpc {
     }
   };
 
-  signTransaction = async (): Promise<string> => {
+  signTransaction = async (messageToSign: string): Promise<string> => {
     try {
       const solanaWallet = new SolanaWallet(this.provider);
       const connectionConfig = await solanaWallet.request<CustomChainConfig>({
@@ -102,20 +106,40 @@ export default class SolanaRpc {
       const conn = new Connection(connectionConfig.rpcTarget);
 
       const pubKey = await solanaWallet.requestAccounts();
-      const { blockhash } = await conn.getRecentBlockhash("finalized");
-      const TransactionInstruction = SystemProgram.transfer({
-        fromPubkey: new PublicKey(pubKey[0]),
-        toPubkey: new PublicKey(pubKey[0]),
-        lamports: 0.01 * LAMPORTS_PER_SOL,
-      });
-      const transaction = new Transaction({
-        recentBlockhash: blockhash,
-        feePayer: new PublicKey(pubKey[0]),
-      }).add(TransactionInstruction);
-      const signedTx = await solanaWallet.signTransaction(transaction);
+      const { blockhash } = await conn.getLatestBlockhash();
 
-      return signedTx.signature?.toString() || "";
+      const TxInstruct = new TransactionInstruction({
+        keys: [
+          {
+            pubkey: new PublicKey(pubKey[0]),
+            isSigner: true,
+            isWritable: false,
+          },
+        ],
+        data: Buffer.from(messageToSign, "utf-8"),
+        programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+      });
+
+      const txMsg = new TransactionMessage({
+        payerKey: new PublicKey(pubKey[0]),
+        recentBlockhash: blockhash,
+        instructions: [TxInstruct],
+      }).compileToLegacyMessage();
+
+      const tx = new VersionedTransaction(txMsg);
+
+      const signedTx = await solanaWallet.signTransaction(tx);
+
+      const encodedSignedTx = encode(signedTx.serialize());
+      // return signedTx.signature?.toString() || "";
+      const newTx = Transaction.from(signedTx.serialize());
+      console.log({ newTx }, newTx.instructions[0].data.toString());
+      console.log(";aaaa", newTx.instructions[0].programId.toString());
+      console.log(";TOWTWO", newTx.instructions[1].programId.toString());
+
+      return encodedSignedTx;
     } catch (error) {
+      console.error("error in signing", error);
       return error as string;
     }
   };

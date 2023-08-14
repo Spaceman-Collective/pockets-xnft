@@ -2,15 +2,25 @@ import { Button, Grid, Flex, Text, Box, Skeleton } from "@chakra-ui/react";
 import { FC } from "react";
 import { H3 } from ".";
 import { Frame, Lad } from "./wizard.components";
-import type { NFT } from "@/types/server";
+import type { Character, NFT } from "@/types/server";
 
 export const SelectNFT: FC<{
   back: () => void;
   next: () => void;
-  data?: { nfts?: NFT[]; character?: any[] };
+  data?: { nfts?: NFT[]; characters?: any[] };
   isLoading?: boolean;
   select: (mint: string) => void;
-}> = ({ next: nextStep, back: backStep, data, isLoading, select }) => {
+  setReview: (char: Character) => void;
+}> = ({
+  next: nextStep,
+  back: backStep,
+  data,
+  isLoading,
+  select,
+  setReview,
+}) => {
+  const arrayOfMintedChars = data?.characters?.map((record) => record.mint);
+
   return (
     <Flex direction="column" justifyContent="space-between" minH="60vh">
       <Box>
@@ -26,13 +36,17 @@ export const SelectNFT: FC<{
           gap="1rem"
           mb="3rem"
         >
-          {data?.character?.map((record, i) => (
-            <Frame
-              key={record?.name + i}
-              img={record?.cached_image_uri}
-              select={() => {}}
-            />
-          ))}
+          {data?.characters
+            ?.filter((record) => !!record)
+            .map((record) => (
+              <Frame
+                key={record?.mint + "owned"}
+                img={record?.image}
+                select={() => {
+                  setReview(record);
+                }}
+              />
+            ))}
           {isLoading && <Skeletons />}
         </Grid>
         <H3 pt="4rem">NFTs</H3>
@@ -41,13 +55,15 @@ export const SelectNFT: FC<{
           gap="1rem"
           mb="3rem"
         >
-          {data?.nfts?.map((record, i) => (
-            <Frame
-              key={record?.name + i}
-              img={record?.cached_image_uri}
-              select={() => select(record?.mint)}
-            />
-          ))}
+          {data?.nfts
+            ?.filter((record) => !arrayOfMintedChars?.includes(record.mint))
+            .map((record, i) => (
+              <Frame
+                key={record?.name + i}
+                img={record?.cached_image_uri}
+                select={() => select(record?.mint)}
+              />
+            ))}
           {isLoading && <Skeletons />}
         </Grid>
       </Box>
