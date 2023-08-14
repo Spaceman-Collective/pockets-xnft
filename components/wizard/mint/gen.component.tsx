@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import Image from "next/image";
 import styled from "@emotion/styled";
 import { H3 } from "../wizard.styled";

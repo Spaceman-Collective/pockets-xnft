@@ -6,9 +6,6 @@ import {
   SelectNFT as NFT,
   ReviewMint,
 } from "@/components/wizard";
-import styled from "@emotion/styled";
-import { Box } from "@chakra-ui/react";
-import { colors } from "@/styles/defaultTheme";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
 import { Character } from "@/types/server";
@@ -98,11 +95,3 @@ export default function Wizard() {
     </>
   );
 }
-
-// const WizardContainer = styled(Box)`
-//   margin: 0 auto;
-//   padding: 2rem 3rem;
-//   max-width: 700px;
-//   border-radius: 0.5rem;
-//   background-color: ${colors.blacks[500]};
-// `;
