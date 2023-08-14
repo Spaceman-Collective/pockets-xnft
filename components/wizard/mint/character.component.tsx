@@ -10,15 +10,8 @@ export const CharGen: FC<{
   next: () => void;
   nft?: NFT;
   setReviewMint: (char: Character) => void;
-}> = ({ next: nextStep, back: backStep, nft, setReviewMint }) => {
-  const [confetti, setConfetti] = useState(false);
-  const fireConfetti = async () => {
-    if (confetti) return;
-    setConfetti(true);
-    await timeout(3600);
-    setConfetti(false);
-  };
-
+  fireConfetti: () => void;
+}> = ({ next: nextStep, back: backStep, nft, setReviewMint, fireConfetti }) => {
   const [isLoading, setIsLoading] = useState<boolean | undefined>();
 
   return (
@@ -34,7 +27,6 @@ export const CharGen: FC<{
             setIsLoading(false);
             nextStep();
           }}
-          confetti={confetti}
           fire={fireConfetti}
         />
       )}
@@ -44,7 +36,6 @@ export const CharGen: FC<{
           <p>Hold Tight!</p>
         </Grid>
       )}
-      {confetti && <Confetti canFire={confetti} />}
     </>
   );
 };

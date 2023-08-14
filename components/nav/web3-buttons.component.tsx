@@ -1,8 +1,10 @@
 import { Box, Button, Text } from "@chakra-ui/react";
 import { useWeb3Auth } from "@/hooks/useWeb3Auth";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Web3Buttons() {
   const { web3auth, login, logout, authIdToken, account } = useWeb3Auth();
+  const queryClient = useQueryClient();
 
   return (
     <>
@@ -34,6 +36,7 @@ export default function Web3Buttons() {
             variant="outline"
             onClick={async () => {
               await logout();
+              queryClient.removeQueries();
             }}
           >
             {account?.substring(0, 5)}

@@ -36,15 +36,17 @@ export const SelectNFT: FC<{
           gap="1rem"
           mb="3rem"
         >
-          {data?.characters?.map((record) => (
-            <Frame
-              key={record?.mint}
-              img={record?.image}
-              select={() => {
-                setReview(record);
-              }}
-            />
-          ))}
+          {data?.characters
+            ?.filter((record) => !!record)
+            .map((record) => (
+              <Frame
+                key={record?.mint + "owned"}
+                img={record?.image}
+                select={() => {
+                  setReview(record);
+                }}
+              />
+            ))}
           {isLoading && <Skeletons />}
         </Grid>
         <H3 pt="4rem">NFTs</H3>

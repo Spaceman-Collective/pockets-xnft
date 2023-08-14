@@ -1,9 +1,7 @@
 import { Text, Button, Flex, Box, Grid } from "@chakra-ui/react";
 import { Equipment } from "./equipment.component";
 import styled from "@emotion/styled";
-import useLocalStorage from "use-local-storage";
-
-import type { Character, NFT } from "@/types/server";
+import type { Character } from "@/types/server";
 import { Frame } from "../wizard.components";
 
 export const ReviewMint = ({
@@ -13,7 +11,18 @@ export const ReviewMint = ({
   back: () => void;
   data?: Character;
 }) => {
-  if (!data) return;
+  if (!data)
+    return (
+      <Button
+        variant="outline"
+        w="fit-content"
+        onClick={() => {
+          backStep();
+        }}
+      >
+        Go back to NFTs
+      </Button>
+    );
   return (
     <Flex minH="60vh" direction="column" justifyContent="space-between">
       <Flex direction="column" gap="2rem">

@@ -12,6 +12,8 @@ import { colors } from "@/styles/defaultTheme";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
 import { Character } from "@/types/server";
+import { timeout } from "@/lib/utils";
+import Confetti from "@/components/Confetti";
 
 export default function Wizard() {
   const [wizardStep, setWizardStep] = useState<number>(1);
@@ -20,7 +22,20 @@ export default function Wizard() {
   const [selectedMint, setSelectedMint] = useState<string | undefined>();
   const [reviewMint, setReviewMint] = useState<Character | undefined>();
 
-  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
+  const {
+    data: allAssetData,
+    isLoading: allAssetDataIsLoading,
+    refetch,
+  } = useAssets();
+
+  const [confetti, setConfetti] = useState(false);
+  const fireConfetti = async () => {
+    if (confetti) return;
+    setConfetti(true);
+    await timeout(3600);
+    setConfetti(false);
+    refetch();
+  };
 
   useEffect(() => {
     if (wizardStep === 1 && !!selectedMint) setWizardStep(2);
@@ -64,6 +79,7 @@ export default function Wizard() {
             nft={allAssetData?.nfts?.find(
               (record) => record?.mint === selectedMint
             )}
+            fireConfetti={fireConfetti}
           />
         )}
         {wizardStep === 3 && (
@@ -77,6 +93,7 @@ export default function Wizard() {
           />
         )}
       </WizardContainer>
+      {confetti && <Confetti canFire={confetti} />}
     </>
   );
 }

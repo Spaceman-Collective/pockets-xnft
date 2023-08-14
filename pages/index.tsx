@@ -1,14 +1,19 @@
 import Head from "next/head";
 import { NavBar } from "@/components/nav";
 import styled from "@emotion/styled";
-import { Box, Button, Grid, Spinner } from "@chakra-ui/react";
+import { Box, Button, Grid, Spinner, Text } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useAssets } from "@/hooks/useAssets";
 import { useRouter } from "next/router";
+import useLocalStorage from "use-local-storage";
 
 export default function Home() {
   const router = useRouter();
-  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
+
+  const { data, isLoading, isFetching } = useAssets();
+  console.log(data, isLoading, isFetching);
+
+  const isNotConnected = data === undefined;
 
   return (
     <>
@@ -19,8 +24,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      {allAssetDataIsLoading && <Spinner />}
-      {!allAssetDataIsLoading && allAssetData?.characters?.length === 0 && (
+      {isFetching && <Spinner />}
+      {isNotConnected && (
+        <Grid placeItems="center" minH="50vh">
+          <Text>Connect your wallet</Text>
+        </Grid>
+      )}
+      {!isFetching && !isNotConnected && (
         <Grid placeItems="center" minH="50vh">
           <Button variant="outline" onClick={() => router.push("/wizard")}>
             Create a Char
