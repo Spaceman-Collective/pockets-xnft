@@ -3,6 +3,8 @@ import styled from "@emotion/styled";
 import type { Character } from "@/types/server";
 import { Frame } from "../wizard.components";
 import { FC, ReactNode } from "react";
+import { IconSkill } from "@/components/icons";
+import { colors } from "@/styles/defaultTheme";
 
 export const ReviewMint = ({
   back: backStep,
@@ -27,11 +29,12 @@ export const ReviewMint = ({
 
   const combatSkillKeys = [
     "fighting",
+    "spellcasting",
+    "shooting",
+    "fighting",
+    "strength",
     "healing",
     "psionics",
-    "shooting",
-    "spellcasting",
-    "strength",
   ];
 
   const experienceKeys = Object.keys(data.experience) as Array<
@@ -42,7 +45,7 @@ export const ReviewMint = ({
     <Flex minH="60vh" direction="column" justifyContent="space-between">
       <Flex direction="column" gap="2rem">
         <Header name={data?.name} image={data?.image} faction={data?.faction} />
-        <Grid templateColumns="1fr 1fr" gap="1rem">
+        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="1rem">
           <SkillContainer>
             {data?.experience &&
               experienceKeys
@@ -200,6 +203,43 @@ const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
   level,
   xp,
 }) => {
+  const Icon = () => {
+    function is(value: string) {
+      return name.toLowerCase() === value.toLowerCase();
+    }
+    const style = {
+      color: colors.brand.quternary,
+      fontSize: "4rem",
+    };
+    return is("athlethics") ? (
+      <IconSkill.athletics {...style} />
+    ) : is("electronics") ? (
+      <IconSkill.electronics {...style} />
+    ) : is("farming") ? (
+      <IconSkill.farming {...style} />
+    ) : is("fighting") ? (
+      <IconSkill.fighting {...style} />
+    ) : is("forestry") ? (
+      <IconSkill.forestry {...style} />
+    ) : is("healing") ? (
+      <IconSkill.healing {...style} />
+    ) : is("manufacturing") ? (
+      <IconSkill.manufacturing {...style} />
+    ) : is("mining") ? (
+      <IconSkill.mining {...style} />
+    ) : is("psionics") ? (
+      <IconSkill.psionics {...style} />
+    ) : is("shooting") ? (
+      <IconSkill.shooting {...style} />
+    ) : is("spellcasting") ? (
+      <IconSkill.spellcasting {...style} />
+    ) : is("strength") ? (
+      <IconSkill.strength {...style} />
+    ) : (
+      <div>hj</div>
+    );
+  };
+
   return (
     <Flex
       bg="brand.primary"
@@ -216,7 +256,10 @@ const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
         ml="1rem"
         borderRadius="0.65rem"
         title={name}
-      />
+        placeItems="center"
+      >
+        <Icon />
+      </Grid>
       <Flex direction="column">
         <HStack>
           <Label>LVL:</Label>
