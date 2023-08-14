@@ -30,18 +30,14 @@ export const Generate: FC<{
   const getNewName = () => setName(getRandomName({ isMale }));
 
   const { mutate } = useCreateCharacter();
+  const onSuccess = (data: any) => {
+    setReviewMint(data);
+    fireConfetti();
+  };
+
   const { account } = useSolana();
   const { connection } = useConnection();
-  console.log(".............", connection);
   const { signTransaction } = useWallet();
-
-  // useEffect(() => {
-  //   if (isSuccess || data) {
-  //     if (!data?.name) return;
-  //     fireConfetti();
-  //     setReviewMint(data);
-  //   }
-  // }, [isSuccess]);
 
   return (
     <>
@@ -71,7 +67,6 @@ export const Generate: FC<{
               };
               const blockhashcontainer = await connection.getLatestBlockhash();
               const blockhash = blockhashcontainer?.blockhash;
-              console.log({ blockhashcontainer });
               const TxInstruct = new TransactionInstruction({
                 keys: [
                   {
@@ -99,15 +94,7 @@ export const Generate: FC<{
 
               const encodedSignedTx = encode(signedTx.serialize());
               if (!signedTx) throw Error("No Tx");
-              mutate(
-                { signedTx: encodedSignedTx },
-                {
-                  onSuccess: (data) => {
-                    console.log("Char minted", data);
-                    setReviewMint(data);
-                  },
-                }
-              );
+              mutate({ signedTx: encodedSignedTx }, { onSuccess });
             }}
           >
             Mint Charachter
