@@ -3,8 +3,6 @@ import { useWeb3Auth } from "@/hooks/useWeb3Auth";
 
 //
 export default function Home() {
-  const { web3auth, login, authIdToken, authenticateUser, signTransaction } =
-    useWeb3Auth();
   return (
     <>
       {/* <Box> */}

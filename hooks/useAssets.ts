@@ -1,13 +1,15 @@
 import { fetchAssets } from "@/lib/apiClient";
 import { useQuery } from "@tanstack/react-query";
-import useLocalStorage from "use-local-storage";
+import { useSolana } from "./useSolana";
 
 export const useAssets = () => {
-  const [account, setAccount] = useLocalStorage("account", "");
+  const { account } = useSolana();
+  console.log({ account });
 
   return useQuery(
     ["assets"],
-    () => fetchAssets({ walletAddress: account ?? "" }),
+    //@ts-ignore
+    () => fetchAssets({ walletAddress: account?.toString() ?? "" }),
     { enabled: !!account }
   );
 };

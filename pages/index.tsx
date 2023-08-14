@@ -5,15 +5,10 @@ import { Box, Button, Grid, Spinner, Text } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useAssets } from "@/hooks/useAssets";
 import { useRouter } from "next/router";
-import useLocalStorage from "use-local-storage";
 
 export default function Home() {
   const router = useRouter();
-
   const { data, isLoading, isFetching } = useAssets();
-  console.log(data, isLoading, isFetching);
-
-  const isNotConnected = data === undefined;
 
   return (
     <>
@@ -24,19 +19,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      {isFetching && <Spinner />}
-      {isNotConnected && (
-        <Grid placeItems="center" minH="50vh">
-          <Text>Connect your wallet</Text>
-        </Grid>
-      )}
-      {!isFetching && !isNotConnected && (
-        <Grid placeItems="center" minH="50vh">
-          <Button variant="outline" onClick={() => router.push("/wizard")}>
-            Create a Char
-          </Button>
-        </Grid>
-      )}
+      {JSON.stringify(data)}
+      <Grid placeItems="center" minH="50vh">
+        <Button variant="outline" onClick={() => router.push("/wizard")}>
+          Create a Char
+        </Button>
+      </Grid>
     </>
   );
 }
