@@ -14,7 +14,6 @@ export const NavBar = () => {
           POCKETS
         </Text>
       </Link>
-      {/* <Button variant="outline">0x....god</Button> */}
       <LazyButtons />
     </Flex>
   );

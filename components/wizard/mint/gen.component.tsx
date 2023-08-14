@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import Image from "next/image";
 import styled from "@emotion/styled";
 import { H3 } from "../wizard.styled";
@@ -7,7 +7,7 @@ import { RumbleInput } from "./rumble-input.component";
 import { GenderToggleContainer } from "./gender-toggle.component";
 import type { Character, NFT } from "@/types/server";
 import { getRandomName } from "@/lib/utils";
-import { useWeb3Auth } from "@/hooks/useWeb3Auth";
+import { useSolana } from "@/hooks/useSolana";
 import { useCreateCharacter } from "@/hooks/useCreateCharacter";
 
 export const Generate: FC<{
@@ -21,16 +21,13 @@ export const Generate: FC<{
   const [name, setName] = useState<string>(getRandomName({ isMale }));
   const getNewName = () => setName(getRandomName({ isMale }));
 
-  const { signTransaction } = useWeb3Auth();
-  const { mutate, isSuccess, data } = useCreateCharacter();
+  const { mutate } = useCreateCharacter();
+  const onSuccess = (data: any) => {
+    setReviewMint(data);
+    fireConfetti();
+  };
 
-  useEffect(() => {
-    if (isSuccess || data) {
-      if (!data?.name) return;
-      fireConfetti();
-      setReviewMint(data);
-    }
-  }, [isSuccess]);
+  const { handleSignTransaction } = useSolana();
 
   return (
     <>
@@ -57,10 +54,9 @@ export const Generate: FC<{
                 timestamp: Date.now().toString(),
                 name,
               };
-              const signedTx = await signTransaction(JSON.stringify(payload));
-              if (!signedTx) throw Error("No Tx");
-
-              mutate({ signedTx });
+              const encodedSignedTx = await handleSignTransaction(payload);
+              if (!encodedSignedTx) throw Error("No Tx");
+              mutate({ signedTx: encodedSignedTx }, { onSuccess });
             }}
           >
             Mint Charachter
