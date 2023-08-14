@@ -14,6 +14,7 @@ import { useAssets } from "@/hooks/useAssets";
 import { Character } from "@/types/server";
 import { timeout } from "@/lib/utils";
 import Confetti from "@/components/Confetti";
+import { CenteredBoxContainer as WizardContainer } from "@/components/Containers.styled";
 
 export default function Wizard() {
   const [wizardStep, setWizardStep] = useState<number>(1);
@@ -98,17 +99,10 @@ export default function Wizard() {
   );
 }
 
-const WizardContainer = styled(Box)`
-  margin: 0 auto;
-  padding: 2rem 3rem;
-  max-width: 700px;
-  border-radius: 0.5rem;
-  background-color: ${colors.blacks[500]};
-`;
-
-const BubbleBox = styled(Box)`
-  border-radius: 1rem;
-  width: 95%;
-  height: 5rem;
-  transition: all 1s ease;
-`;
+// const WizardContainer = styled(Box)`
+//   margin: 0 auto;
+//   padding: 2rem 3rem;
+//   max-width: 700px;
+//   border-radius: 0.5rem;
+//   background-color: ${colors.blacks[500]};
+// `;
