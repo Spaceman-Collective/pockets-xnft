@@ -7,7 +7,7 @@ export const useAssets = () => {
 
   return useQuery(
     ["assets"],
-    () => fetchAssets({ walletAddress: account?.toString() ?? "" }),
-    { enabled: !!account }
+    () => fetchAssets({ walletAddress: account ?? "" }),
+    { enabled: account !== undefined }
   );
 };

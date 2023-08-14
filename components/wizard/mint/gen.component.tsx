@@ -7,8 +7,16 @@ import { RumbleInput } from "./rumble-input.component";
 import { GenderToggleContainer } from "./gender-toggle.component";
 import type { Character, NFT } from "@/types/server";
 import { getRandomName } from "@/lib/utils";
-import { useWeb3Auth } from "@/hooks/useWeb3Auth";
+import { useSolana } from "@/hooks/useSolana";
 import { useCreateCharacter } from "@/hooks/useCreateCharacter";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import {
+  PublicKey,
+  TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
+} from "@solana/web3.js";
+import { encode } from "bs58";
 
 export const Generate: FC<{
   fire: () => void;
@@ -21,16 +29,19 @@ export const Generate: FC<{
   const [name, setName] = useState<string>(getRandomName({ isMale }));
   const getNewName = () => setName(getRandomName({ isMale }));
 
-  const { signTransaction } = useWeb3Auth();
-  const { mutate, isSuccess, data } = useCreateCharacter();
+  const { mutate } = useCreateCharacter();
+  const { account } = useSolana();
+  const { connection } = useConnection();
+  console.log(".............", connection);
+  const { signTransaction } = useWallet();
 
-  useEffect(() => {
-    if (isSuccess || data) {
-      if (!data?.name) return;
-      fireConfetti();
-      setReviewMint(data);
-    }
-  }, [isSuccess]);
+  // useEffect(() => {
+  //   if (isSuccess || data) {
+  //     if (!data?.name) return;
+  //     fireConfetti();
+  //     setReviewMint(data);
+  //   }
+  // }, [isSuccess]);
 
   return (
     <>
@@ -52,15 +63,51 @@ export const Generate: FC<{
             w="100%"
             alignSelf="end"
             onClick={async () => {
+              if (!account || !signTransaction) return;
               const payload = {
                 mint: nft.mint,
                 timestamp: Date.now().toString(),
                 name,
               };
-              const signedTx = await signTransaction(JSON.stringify(payload));
-              if (!signedTx) throw Error("No Tx");
+              const blockhashcontainer = await connection.getLatestBlockhash();
+              const blockhash = blockhashcontainer?.blockhash;
+              console.log({ blockhashcontainer });
+              const TxInstruct = new TransactionInstruction({
+                keys: [
+                  {
+                    pubkey: new PublicKey(account),
+                    isSigner: true,
+                    isWritable: false,
+                  },
+                ],
+                data: Buffer.from(JSON.stringify(payload), "utf-8"),
+                programId: new PublicKey(
+                  "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
+                ),
+              });
 
-              mutate({ signedTx });
+              const txMsg = new TransactionMessage({
+                payerKey: new PublicKey(account),
+                recentBlockhash: blockhash,
+                instructions: [TxInstruct],
+              }).compileToLegacyMessage();
+
+              const tx = new VersionedTransaction(txMsg);
+              if (!tx) return;
+
+              const signedTx = await signTransaction(tx);
+
+              const encodedSignedTx = encode(signedTx.serialize());
+              if (!signedTx) throw Error("No Tx");
+              mutate(
+                { signedTx: encodedSignedTx },
+                {
+                  onSuccess: (data) => {
+                    console.log("Char minted", data);
+                    setReviewMint(data);
+                  },
+                }
+              );
             }}
           >
             Mint Charachter

@@ -27,7 +27,7 @@ const headerFont = Roboto({ weight: ["400", "700"], subsets: ["latin"] });
 const bodyFont = Montserrat({ weight: ["400", "700"], subsets: ["latin"] });
 
 export default function App({ Component, pageProps }: AppProps) {
-  const network = WalletAdapterNetwork.Mainnet;
+  const network = WalletAdapterNetwork.Devnet;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   const wallets = useMemo(
     () => [new UnsafeBurnerWalletAdapter()],
