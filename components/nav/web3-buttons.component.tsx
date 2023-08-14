@@ -12,7 +12,7 @@ export default function Web3Buttons() {
     <>
       <Flex gap="1rem">
         <WalletMultiButton />
-        <WalletDisconnectButton />
+        {/* <WalletDisconnectButton /> */}
       </Flex>
     </>
   );
