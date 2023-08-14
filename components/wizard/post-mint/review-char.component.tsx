@@ -236,7 +236,7 @@ const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
     ) : is("strength") ? (
       <IconSkill.strength {...style} />
     ) : (
-      <div>hj</div>
+      <div />
     );
   };
 
@@ -248,6 +248,11 @@ const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
       gap="1rem"
       borderRadius="0.5rem"
       title={name}
+      opacity={level === "0" ? "0.25" : "1"}
+      _hover={{
+        opacity: 1,
+      }}
+      transition="all 0.25s ease-in-out"
     >
       <Grid
         bg="blacks.500"
