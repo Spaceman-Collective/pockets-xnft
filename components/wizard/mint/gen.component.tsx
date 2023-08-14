@@ -35,9 +35,9 @@ export const Generate: FC<{
     fireConfetti();
   };
 
-  const { account } = useSolana();
-  const { connection } = useConnection();
-  const { signTransaction } = useWallet();
+  const { account, handleSignTransaction } = useSolana();
+  // const { connection } = useConnection();
+  // const { signTransaction } = useWallet();
 
   return (
     <>
@@ -59,41 +59,13 @@ export const Generate: FC<{
             w="100%"
             alignSelf="end"
             onClick={async () => {
-              if (!account || !signTransaction) return;
               const payload = {
                 mint: nft.mint,
                 timestamp: Date.now().toString(),
                 name,
               };
-              const blockhashcontainer = await connection.getLatestBlockhash();
-              const blockhash = blockhashcontainer?.blockhash;
-              const TxInstruct = new TransactionInstruction({
-                keys: [
-                  {
-                    pubkey: new PublicKey(account),
-                    isSigner: true,
-                    isWritable: false,
-                  },
-                ],
-                data: Buffer.from(JSON.stringify(payload), "utf-8"),
-                programId: new PublicKey(
-                  "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
-                ),
-              });
-
-              const txMsg = new TransactionMessage({
-                payerKey: new PublicKey(account),
-                recentBlockhash: blockhash,
-                instructions: [TxInstruct],
-              }).compileToLegacyMessage();
-
-              const tx = new VersionedTransaction(txMsg);
-              if (!tx) return;
-
-              const signedTx = await signTransaction(tx);
-
-              const encodedSignedTx = encode(signedTx.serialize());
-              if (!signedTx) throw Error("No Tx");
+              const encodedSignedTx = await handleSignTransaction(payload);
+              if (!encodedSignedTx) throw Error("No Tx");
               mutate({ signedTx: encodedSignedTx }, { onSuccess });
             }}
           >
