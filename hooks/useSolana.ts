@@ -12,32 +12,28 @@ import type {
 import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
+type TxType = VersionedTransaction | Transaction;
+
 export const useSolana = () => {
   const [connection, setConnection] = useState<Connection | undefined>();
   const [account, setAccount] = useState<string>();
   const [signTx, setSignTx] =
-    useState<
-      (
-        transaction: VersionedTransaction | Transaction
-      ) => Promise<VersionedTransaction | Transaction>
-    >();
+    useState<(transaction: TxType) => Promise<TxType>>();
   const [signAllTxs, setSignAllTxs] = useState<any>();
 
   const { connection: connectionRaw } = useConnection();
   const { publicKey, signTransaction, signAllTransactions } = useWallet();
 
   useEffect(() => {
-    console.log({ publicKey });
-    if (false) {
-      console.log("hello dev");
+    if (window?.xnft?.solana?.isXnft) {
       setAccount(window.xnft.solana.publicKey?.toString());
+      setSignTx(window.xnft.solana.signTransaction);
       // setConnection(window.xnft.solana.connection);
-      // setSignTx(window.xnft.solana.signTransaction);
       // setSignAllTxs(window.xnft.solana.signAllTransactions);
     } else {
       setAccount(publicKey?.toString());
+      setSignTx(signTransaction);
       // setConnection(connectionRaw);
-      // setSignTx(signTransaction);
       // setSignAllTxs(signAllTransactions);
     }
   }, [publicKey]);
@@ -45,7 +41,7 @@ export const useSolana = () => {
   return {
     account,
     // connection,
-    // signTransaction: signTx,
+    signTransaction: signTx,
     // signAllTransactions: signAllTxs,
   };
 };
