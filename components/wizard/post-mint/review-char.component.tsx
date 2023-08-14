@@ -56,7 +56,11 @@ export const ReviewMint = ({
                     key={"noncombat" + key}
                     name={key}
                     level={data?.skills[key].toString()}
-                    xp={data.experience[key].current.toString()}
+                    xp={
+                      data.experience[key].current.toString() +
+                      "/" +
+                      data.experience[key].threshold.toString()
+                    }
                   />
                 ))}
           </SkillContainer>
@@ -69,7 +73,11 @@ export const ReviewMint = ({
                   key={"combat" + key}
                   name={key}
                   level={data?.skills[key].toString()}
-                  xp={data.experience[key].current.toString()}
+                  xp={
+                    data.experience[key].current.toString() +
+                    "/" +
+                    data.experience[key].threshold.toString()
+                  }
                 />
               ))}
           </SkillContainer>
