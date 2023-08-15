@@ -1,1 +1,3 @@
-export * from "./dashboard.component";
+export * from "./dashboard-menu.component";
+export * from "./dashboard-info.component";
+

@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { NavBar } from "@/components/nav";
 import {
-  DashboardBox
+  DashboardInfo, DashboardMenu
 } from "@/components/dashboard";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";

@@ -1,7 +1,7 @@
 import { Box, Text } from "@chakra-ui/react";
 import { getLadImageURL } from "@/lib/apiClient";
 
-export const DashboardBox = () => {
+export const DashboardInfo = () => {
   return (
     <Box
       cursor="pointer"

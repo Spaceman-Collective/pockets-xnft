@@ -1,13 +1,14 @@
 import Head from "next/head";
 import { NavBar } from "@/components/nav";
-import {
-  DashboardBox
-} from "@/components/dashboard";
+import { DashboardInfo, DashboardMenu } from "@/components/dashboard";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
 import { Character } from "@/types/server";
 import { timeout } from "@/lib/utils";
-import { DashboardMenuContainer, DashboardInfoContainer} from "@/components/Containers.styled";
+import {
+  DashboardMenuContainer,
+  DashboardInfoContainer,
+} from "@/components/Containers.styled";
 
 export default function Faction() {
   const {
@@ -16,9 +17,7 @@ export default function Faction() {
     refetch,
   } = useAssets();
 
-  useEffect(() => {
-  }, []);
-
+  useEffect(() => {}, []);
 
   return (
     <>
@@ -29,10 +28,12 @@ export default function Faction() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      <DashboardMenuContainer>
-      </DashboardMenuContainer>
       <DashboardInfoContainer>
+        <DashboardInfo />
       </DashboardInfoContainer>
+      <DashboardMenuContainer>
+        <DashboardMenu />
+      </DashboardMenuContainer>
     </>
   );
 }

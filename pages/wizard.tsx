@@ -14,7 +14,7 @@ import Confetti from "@/components/Confetti";
 import { CenteredBoxContainer as WizardContainer } from "@/components/Containers.styled";
 
 export default function Wizard() {
-  const [wizardStep, setWizardStep] = useState<number>(1);
+  const [wizardStep, setWizardStep] = useState<number>(0);
   const next = () => setWizardStep(wizardStep + 1);
   const back = () => setWizardStep(wizardStep - 1);
   const [selectedMint, setSelectedMint] = useState<string | undefined>();
