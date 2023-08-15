@@ -1,7 +1,19 @@
+import { useEffect, useState } from "react";
 import { Box, Text, Button } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
+import { useSolana } from "@/hooks/useSolana";
+import { useCreateFaction } from "@/hooks/useCreateFaction";
+import { CreateFaction } from "./createfaction.component";
+import Confetti from "@/components/Confetti";
+
 
 export const Faction = () => {
+
+  const { handleSignTransaction } = useSolana();
+
+  const { mutate } = useCreateFaction();
+  
+
   return (
     <Box
       display="flex"
@@ -22,21 +34,11 @@ export const Faction = () => {
         fontWeight={600}
         letterSpacing="1px"
         width="12rem"
+        onClick={() => {}}
       >
         Join a Faction
       </Button>
-      <Button
-        mt="1rem"
-        bg={colors.brand.primary}
-        borderRadius="0.5rem"
-        p="0.5rem"
-        fontSize="1.25rem"
-        fontWeight={600}
-        letterSpacing="1px"
-        width="12rem"
-      >
-        Create a Faction
-      </Button>
+      <CreateFaction/>
     </Box>
   );
 };

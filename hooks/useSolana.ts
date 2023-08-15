@@ -3,9 +3,9 @@ declare global {
     xnft: any;
   }
 }
-
 import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { createTransferCheckedInstruction, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import {
   Connection,
   PublicKey,
@@ -15,18 +15,33 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import { encode } from "bs58";
+import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants";
 
 type TxType = VersionedTransaction | Transaction;
 
 export const useSolana = () => {
+  // const [memoPayload, setMPayload] = useState<{
+  //   account?: string;
+  //   signTransaction?: any;
+  //   handleSignTransaction?: any;
+  // }>({
+  //   account: undefined,
+  //   signTransaction: undefined,
+  //   handleSignTransaction: undefined,
+  // });
   const [payload, setPayload] = useState<{
     account?: string;
     signTransaction?: any;
-    handleSignTransaction?: any;
+    handleSignTransaction: any,
+    handleSignMemo?: any;
+    handleTransferSplInstruction?: any;
+
   }>({
     account: undefined,
     signTransaction: undefined,
     handleSignTransaction: undefined,
+    handleSignMemo: undefined,
+    handleTransferSplInstruction: undefined,
   });
 
   const { connection } = useConnection();
@@ -38,31 +53,17 @@ export const useSolana = () => {
       setPayload({
         account: accountXnft,
         signTransaction: window.xnft.solana.signTransaction,
-        handleSignTransaction: async (payload: any) => {
-          if (!accountXnft || !connection) throw Error("not available");
-          return await handleSignTransaction({
-            account: window.xnft.solana.publicKey?.toString(),
-            signTransaction: window.xnft.solana.signTransaction,
-            connection,
-            payload,
-          });
-        },
-      });
+        handleSignMemo: handleSignMemo,
+        handleTransferSplInstruction: handleTransferSplInstruction,
+        handleSignTransaction: handleSignTransaction
+    });
     } else {
       setPayload({
         account: publicKey?.toString(),
         signTransaction,
-        handleSignTransaction: async (
-          payload: any
-        ): Promise<string | undefined> => {
-          if (!publicKey || !connection) throw Error("not available");
-          return await handleSignTransaction({
-            account: publicKey.toString(),
-            signTransaction,
-            connection,
-            payload,
-          });
-        },
+        handleSignMemo: handleSignMemo,
+        handleTransferSplInstruction: handleTransferSplInstruction,
+        handleSignTransaction: handleSignTransaction
       });
     }
   }, [publicKey]);
@@ -70,20 +71,14 @@ export const useSolana = () => {
   return payload;
 };
 
-const handleSignTransaction = async ({
+const handleSignMemo = async ({
   account,
-  signTransaction,
-  connection,
-  payload,
+  payload
 }: {
   account: string;
-  signTransaction: any;
-  connection: Connection;
   payload: any;
 }) => {
-  if (!account || !signTransaction) return;
-  const blockhashcontainer = await connection?.getLatestBlockhash();
-  const blockhash = blockhashcontainer?.blockhash;
+
   const TxInstruct = new TransactionInstruction({
     keys: [
       {
@@ -96,17 +91,51 @@ const handleSignTransaction = async ({
     programId: new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
   });
 
+  return TxInstruct;
+};
+
+const handleTransferSplInstruction = ({
+  account,
+  mint,
+  amount,
+  decimals
+}: {
+  account: string,
+  mint: string,
+  amount: string
+  decimals: number
+}) => { 
+
+  const senderATA = getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(account));
+  const serverATA = getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(SERVER_KEY));
+  
+  const ix = createTransferCheckedInstruction(senderATA, new PublicKey(mint), serverATA, new PublicKey(account), BigInt(amount), decimals);
+
+  return ix;
+}
+
+const handleSignTransaction = async ({
+  account,
+  connection,
+  signTransaction,
+  txInstructions
+}: {
+  account: string;
+  connection: Connection;
+  signTransaction: any;
+  txInstructions: TransactionInstruction[]
+}) => { 
+  const { blockhash } = await connection?.getLatestBlockhash();
   const txMsg = new TransactionMessage({
     payerKey: new PublicKey(account),
     recentBlockhash: blockhash,
-    instructions: [TxInstruct],
+    instructions: txInstructions,
   }).compileToLegacyMessage();
 
   const tx = new VersionedTransaction(txMsg);
-  if (!tx) return;
 
   const signedTx = await signTransaction(tx);
 
-  const encodedSignedTx = encode(signedTx.serialize());
+  const encodedSignedTx = encode(signedTx!.serialize());
   return encodedSignedTx;
 };

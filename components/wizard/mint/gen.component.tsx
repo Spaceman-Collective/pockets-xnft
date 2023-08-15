@@ -27,7 +27,7 @@ export const Generate: FC<{
     fireConfetti();
   };
 
-  const { handleSignTransaction } = useSolana();
+  const { handleSignTransaction, handleSignMemo } = useSolana();
 
   return (
     <>
@@ -54,7 +54,7 @@ export const Generate: FC<{
                 timestamp: Date.now().toString(),
                 name,
               };
-              const encodedSignedTx = await handleSignTransaction(payload);
+              const encodedSignedTx = await handleSignTransaction([handleSignMemo(payload)]);
               if (!encodedSignedTx) throw Error("No Tx");
               mutate({ signedTx: encodedSignedTx }, { onSuccess });
             }}
