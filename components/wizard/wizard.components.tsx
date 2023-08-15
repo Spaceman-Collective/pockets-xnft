@@ -5,9 +5,11 @@ import { Image100 as Img } from "./wizard.styled";
 export const Frame = ({
   img,
   select,
+  size = '100px'
 }: {
   img: string;
   select?: () => void;
+  size?: string;
 }) => {
   if (!img) return "";
   return (
@@ -20,7 +22,7 @@ export const Frame = ({
       }}
       onClick={select}
     >
-      <Img width="200" height="100" alt="lad" src={img} />
+      <Img width="200" height="100" style={{ height: size, width: size }} alt="lad" src={img} />
     </Box>
   );
 };

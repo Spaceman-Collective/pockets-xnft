@@ -19,10 +19,12 @@ import {
   Personal,
   CharacterList,
 } from "@/components/dashboard";
+import { useAssets } from "@/hooks/useAssets";
 
 export default function Home() {
   const router = useRouter();
   const { account } = useSolana();
+  const { data: assets } = useAssets();
 
   return (
     <>
@@ -44,7 +46,7 @@ export default function Home() {
                 <DashboardMenu />
               </DashboardMenuContainer>
               <PersonalSection>
-                <CharacterList />
+                <CharacterList data={assets?.characters} />
                 <SectionContainer>
                   <Personal />
                 </SectionContainer>
