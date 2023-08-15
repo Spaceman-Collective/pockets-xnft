@@ -1,42 +1,25 @@
-import { Box, Text, Button } from "@chakra-ui/react";
-import { colors } from "@/styles/defaultTheme";
+import { Flex, Text, Button } from "@chakra-ui/react";
+import { FC } from "react";
 
-export const Faction = () => {
+export const Faction: FC<{ onOpenJoinFaction: () => void }> = ({
+  onOpenJoinFaction,
+}) => {
   return (
-    <Box
-      display="flex"
+    <Flex
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      cursor="pointer"
+      gap="2rem"
+      h="100%"
     >
-      <Text mt="2rem" textAlign="center" fontSize="1.5rem">
-        AW SHUCKS ANON, YOU’RE NOT IN A FACTION!
+      <Text mt="2rem" textAlign="center" fontSize="4rem">
+        AW SHUCKS ANON,
+        <br /> YOU’RE NOT IN A FACTION!
       </Text>
-      <Button
-        mt="1rem"
-        bg={colors.brand.primary}
-        borderRadius="0.5rem"
-        p="0.5rem"
-        fontSize="1.25rem"
-        fontWeight={600}
-        letterSpacing="1px"
-        width="12rem"
-      >
+      <Button variant="outline" onClick={onOpenJoinFaction}>
         Join a Faction
       </Button>
-      <Button
-        mt="1rem"
-        bg={colors.brand.primary}
-        borderRadius="0.5rem"
-        p="0.5rem"
-        fontSize="1.25rem"
-        fontWeight={600}
-        letterSpacing="1px"
-        width="12rem"
-      >
-        Create a Faction
-      </Button>
-    </Box>
+      <Button variant="outline">Create a Faction</Button>
+    </Flex>
   );
 };
