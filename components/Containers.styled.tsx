@@ -20,11 +20,9 @@ export const DashboardContainer = styled(Box)`
 
 //Used in Faction + Personal
 export const DashboardInfoContainer = styled(Box)`
-  margin: 0rem auto 2rem auto;
-  padding: 1rem;
+  margin: 0rem auto 0.5rem auto;
   border-radius: 0.5rem;
-  background-color: ${colors.brand.primary};
-`;
+  `;
 
 //Used in Faction + Personal
 export const DashboardMenuContainer = styled(Box)`
