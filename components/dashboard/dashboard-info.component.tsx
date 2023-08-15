@@ -1,4 +1,4 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Text, Button } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { MdLeaderboard, MdNotificationsActive, } from "react-icons/md";
 import { AiFillGold } from "react-icons/ai";
@@ -157,36 +157,44 @@ export const DashboardInfo = () => {
         </Box>
       </Box>
       <Box display="flex" justifyContent="flex-start">
-        <Box
+        <Button
           display="flex"
           justifyContent="flex-start"
           alignItems="flex-end"
           marginRight="2rem"
           p="0.5rem"
+          onClick={() => {
+            // Handle the click event for the first icon
+          }}
         >
-          <AiFillGold size={24} color={colors.brand.secondary}
-          />
-        </Box>
-        <Box
+          <AiFillGold size={24} color={colors.brand.secondary} />
+        </Button>
+        <Button
           display="flex"
           justifyContent="flex-start"
           alignItems="flex-end"
           marginRight="2rem"
           p="0.5rem"
+          onClick={() => {
+            // Handle the click event for the second icon
+          }}
         >
-          <MdLeaderboard size={24} color={colors.brand.secondary}
-          />
-        </Box>
-        <Box
+          <MdLeaderboard size={24} color={colors.brand.secondary} />
+        </Button>
+        <Button
           display="flex"
           justifyContent="flex-start"
           alignItems="flex-end"
           p="0.5rem"
+          onClick={() => {
+            // Handle the click event for the third icon
+          }}
         >
-          <MdNotificationsActive size={24} color={colors.brand.secondary}
-          />
-        </Box>
+          <MdNotificationsActive size={24} color={colors.brand.secondary} />
+        </Button>
       </Box>
     </Box>
   );
 };
+
+
