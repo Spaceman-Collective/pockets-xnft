@@ -36,6 +36,12 @@ export default function Wizard() {
   };
 
   useEffect(() => {
+    if (reviewMint) {
+      setWizardStep(3);
+    }
+  }, [reviewMint]);
+
+  useEffect(() => {
     if (wizardStep === 1 && !!selectedMint) setWizardStep(2);
   }, [wizardStep, selectedMint]);
 

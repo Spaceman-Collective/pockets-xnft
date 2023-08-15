@@ -10,3 +10,21 @@ export const CenteredBoxContainer = styled(Box)`
   border-radius: 0.5rem;
   background-color: ${colors.blacks[500]};
 `;
+
+//Used in Faction + Personal
+export const DashboardInfoContainer = styled(Box)`
+  margin: 0 auto;
+  padding: 3rem;
+  width: 920px;
+  border-radius: 0.5rem;
+  background-color: ${colors.blacks[500]};
+`;
+
+//Used in Faction + Personal
+export const DashboardMenuContainer = styled(Box)`
+  margin: 3rem auto;
+  padding: 3rem;
+  width: 920px;
+  border-radius: 0.5rem;
+  background-color: ${colors.blacks[500]};
+`;

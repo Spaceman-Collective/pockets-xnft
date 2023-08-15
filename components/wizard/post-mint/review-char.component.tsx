@@ -109,7 +109,7 @@ export const ReviewMint = ({
         >
           Mint another
         </Button>
-        <Button w="100%" onClick={() => router.push("/dashboard")}>Continue</Button>
+        <Button w="100%" onClick={() => router.push("/faction")}>Continue</Button>
       </Flex>
     </Flex>
   );

@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
 import { Character } from "@/types/server";
 import { timeout } from "@/lib/utils";
-import { CenteredBoxContainer as DashboardContainer } from "@/components/Containers.styled";
+import { DashboardMenuContainer, DashboardInfoContainer} from "@/components/Containers.styled";
 
-export default function Dashboard() {
+export default function Personal() {
   const {
     data: allAssetData,
     isLoading: allAssetDataIsLoading,
@@ -29,9 +29,10 @@ export default function Dashboard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      <DashboardContainer>
-        <DashboardBox/>
-      </DashboardContainer>
+      <DashboardMenuContainer>
+      </DashboardMenuContainer>
+      <DashboardInfoContainer>
+      </DashboardInfoContainer>
     </>
   );
 }
