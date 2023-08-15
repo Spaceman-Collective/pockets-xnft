@@ -24,8 +24,7 @@ import { useAssets } from "@/hooks/useAssets";
 export default function Home() {
   const router = useRouter();
   const { account } = useSolana();
-  const { data: assets } = useAssets()
-  console.log({ assets })
+  const { data: assets } = useAssets();
 
   return (
     <>
