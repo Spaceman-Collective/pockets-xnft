@@ -109,7 +109,7 @@ export const ReviewMint = ({
         >
           Mint another
         </Button>
-        <Button w="100%" onClick={() => router.push("/faction")}>Continue</Button>
+        <Button w="100%" onClick={() => router.push("/")}>Continue</Button>
       </Flex>
     </Flex>
   );
@@ -218,7 +218,7 @@ const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
       return name.toLowerCase() === value.toLowerCase();
     }
     const style = {
-      color: colors.brand.quternary,
+      color: colors.brand.quaternary,
       fontSize: "4rem",
     };
     return is("athlethics") ? (

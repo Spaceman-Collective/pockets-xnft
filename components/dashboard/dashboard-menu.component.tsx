@@ -13,7 +13,7 @@ export const DashboardMenu = () => {
     >
       <Button
         bg={colors.brand.primary}
-        color={router.pathname === "/" ? colors.brand.quaternary : colors.brand.primary}
+        color={router.pathname === "/" ? colors.brand.quaternary : colors.brand.secondary}
         borderRadius="0.5rem"
         p="0.25rem"
         fontSize="18px"
@@ -22,6 +22,7 @@ export const DashboardMenu = () => {
         h="6rem"
         flex="1" 
         mr="1rem"
+        onClick={() => router.push("/")}
       >
         PERSONAL
       </Button>
@@ -35,6 +36,7 @@ export const DashboardMenu = () => {
         h="6rem"
         flex="1"
         ml="1rem"
+        onClick={() => router.push("/faction")}
       >
         FACTION
       </Button>

@@ -1,6 +1,9 @@
 import Head from "next/head";
+import styled from "@emotion/styled";
 import { NavBar } from "@/components/nav";
-import { DashboardInfo, DashboardMenu } from "@/components/dashboard";
+import { DashboardInfo, DashboardMenu, Faction, CharacterList,
+
+} from "@/components/dashboard";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
 import { Character } from "@/types/server";
@@ -8,19 +11,22 @@ import { timeout } from "@/lib/utils";
 import {
   DashboardMenuContainer,
   DashboardInfoContainer,
+  DashboardContainer,
+  SectionContainer,
 } from "@/components/Containers.styled";
-import { Button } from "@chakra-ui/react";
+import { Box, Button, Grid, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
+import { useSolana } from "@/hooks/useSolana";
 
-
-
-export default function Faction() {
+export default function FactionPage() {
   const {
     data: allAssetData,
     isLoading: allAssetDataIsLoading,
     refetch,
   } = useAssets();
   const router = useRouter();
+  const { account } = useSolana();
+
 
 
   useEffect(() => {}, []);
@@ -28,21 +34,40 @@ export default function Faction() {
   return (
     <>
       <Head>
-        <title>Pocket.gg</title>
+        <title>Pockets.gg</title>
         <meta name="description" content="Idle-RPG with your NFTs" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      <DashboardInfoContainer>
-        <DashboardInfo />
-      </DashboardInfoContainer>
-      <DashboardMenuContainer>
-        <DashboardMenu />
-        <Button variant="outline" onClick={() => router.push("/wizard")}>
-            Create a Char
-          </Button>
-      </DashboardMenuContainer>
+      <Grid placeItems="center" minH="50vh">
+        {account ? (
+          <>
+            <DashboardContainer>
+              <DashboardInfoContainer>
+                <DashboardInfo />
+              </DashboardInfoContainer>
+              <DashboardMenuContainer>
+                <DashboardMenu />
+              </DashboardMenuContainer>
+              <FactionSection>
+                <CharacterList/>
+                <SectionContainer>
+                  <Faction/>
+                </SectionContainer>
+              </FactionSection>
+            </DashboardContainer>
+          </>
+        ) : (
+          <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
+        )}
+      </Grid>
     </>
   );
 }
+
+const FactionSection = styled(Box)`
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+`;

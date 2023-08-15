@@ -11,10 +11,14 @@ import {
   DashboardMenuContainer,
   DashboardInfoContainer,
   DashboardContainer,
-  CharacterListContainer,
-  SectionContainer
+  SectionContainer,
 } from "@/components/Containers.styled";
-import { DashboardInfo, DashboardMenu, Personal } from "@/components/dashboard";
+import {
+  DashboardInfo,
+  DashboardMenu,
+  Personal,
+  CharacterList,
+} from "@/components/dashboard";
 
 export default function Home() {
   const router = useRouter();
@@ -39,31 +43,11 @@ export default function Home() {
               <DashboardMenuContainer>
                 <DashboardMenu />
               </DashboardMenuContainer>
-              <Box>
-
-              </Box>
+              <Box></Box>
               <PersonalSection>
-              <CharacterListContainer>
-                <Button
-                  variant="solid"
-                  width="100%"
-                  onClick={() => router.push("/wizard")}
-                >
-                  Create a Char +
-                </Button>
-                <Text>
-                  insert character list here
-                </Text>
-                <Button
-                  variant="outline"
-                  width="100%"
-                  onClick={() => router.push("/wizard")}
-                >
-                  Confirm
-                </Button>
-              </CharacterListContainer>
+                <CharacterList />
                 <SectionContainer>
-                <Personal/>
+                  <Personal />
                 </SectionContainer>
               </PersonalSection>
             </DashboardContainer>
