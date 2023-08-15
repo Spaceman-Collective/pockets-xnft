@@ -1,12 +1,8 @@
 import Head from "next/head";
 import { NavBar } from "@/components/nav";
 import styled from "@emotion/styled";
-import { Box, Button, Grid, Text } from "@chakra-ui/react";
-import { colors } from "@/styles/defaultTheme";
-import { useRouter } from "next/router";
+import { Box, Grid, Text } from "@chakra-ui/react";
 import { useSolana } from "@/hooks/useSolana";
-import { Character } from "@/types/server";
-import { timeout } from "@/lib/utils";
 import {
   DashboardMenuContainer,
   DashboardInfoContainer,
@@ -22,7 +18,6 @@ import {
 import { useAssets } from "@/hooks/useAssets";
 
 export default function Home() {
-  const router = useRouter();
   const { account } = useSolana();
   const { data: assets } = useAssets();
 
