@@ -8,7 +8,7 @@ const LazyButtons = dynamic(() => import("./web3-buttons.component"), {
 
 export const NavBar = () => {
   return (
-    <Flex justifyContent="space-between" alignItems="center" my="2rem">
+    <Flex justifyContent="space-between" alignItems="center" my="2rem" mx="5rem">
       <Link href="/">
         <Text fontWeight="400" letterSpacing="1px" fontSize="2.5rem">
           POCKETS

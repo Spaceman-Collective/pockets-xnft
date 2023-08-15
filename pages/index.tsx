@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Pocket.gg</title>
+        <title>Pockets.gg</title>
         <meta name="description" content="Idle-RPG with your NFTs" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -25,7 +25,7 @@ export default function Home() {
             Create a Char
           </Button>
         ) : (
-          <Text>Sign in with a Solana Wallet</Text>
+          <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
         )}
       </Grid>
     </>

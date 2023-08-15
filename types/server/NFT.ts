@@ -37,10 +37,11 @@ export interface NFT {
   is_compressed?: boolean;
 }
 
-// Madlads, Kyogen, Famous Foxes
+// Madlads, Kyogen, Famous Foxes, OKB POGs
 export const SUPPORTED_COLLECTION_ADDRESSES: {
   [address: string]: string;
 } = {
   J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w: "Madlads",
   BUjZjAS2vbbb65g7Z1Ca9ZRVYoJscURG5L3AkVvHP9ac: "Famous Fox Federation",
+  EFd3WV11WGPzw6FVGimGMnmkRFvqpvLTaABPJpZpRmun: "OKB POG Collectors Edition"
 };

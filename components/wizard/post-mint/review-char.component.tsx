@@ -5,6 +5,7 @@ import { Frame } from "../wizard.components";
 import { FC, ReactNode } from "react";
 import { IconSkill } from "@/components/icons";
 import { colors } from "@/styles/defaultTheme";
+import { useRouter } from "next/router";
 
 export const ReviewMint = ({
   back: backStep,
@@ -14,6 +15,8 @@ export const ReviewMint = ({
   data?: Character;
 }) => {
   console.log({ data });
+  const router = useRouter();
+
   if (!data)
     return (
       <Button
@@ -26,7 +29,6 @@ export const ReviewMint = ({
         Go back to NFTs
       </Button>
     );
-
   const combatSkillKeys = [
     "fighting",
     "spellcasting",
@@ -107,7 +109,7 @@ export const ReviewMint = ({
         >
           Mint another
         </Button>
-        <Button w="100%">Continue</Button>
+        <Button w="100%" onClick={() => router.push("/dashboard")}>Continue</Button>
       </Flex>
     </Flex>
   );

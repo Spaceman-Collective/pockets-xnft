@@ -26,6 +26,9 @@ export const SelectCollection: FC<{ next: () => void }> = ({
           <Thumbnail cursor="pointer" onClick={nextStep}>
             Mad Lads
           </Thumbnail>
+          <Thumbnail cursor="pointer" onClick={nextStep}>
+            OKB POG Collectors Edition
+          </Thumbnail>
           <Thumbnail userSelect="none" cursor="not-allowed" opacity="0.5">
             Kyogen
           </Thumbnail>

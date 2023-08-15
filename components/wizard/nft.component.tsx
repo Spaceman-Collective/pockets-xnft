@@ -25,7 +25,7 @@ export const SelectNFT: FC<{
     <Flex direction="column" justifyContent="space-between" minH="60vh">
       <Box>
         <Text>
-          Select from one of your <strong>Mad Lads</strong> to create a
+          Select from one of your <strong>NFTs</strong> to create a
           Character with. You will be asked to sign a message on the next screen
           to confirm.
         </Text>
