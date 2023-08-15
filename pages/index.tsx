@@ -43,7 +43,6 @@ export default function Home() {
               <DashboardMenuContainer>
                 <DashboardMenu />
               </DashboardMenuContainer>
-              <Box></Box>
               <PersonalSection>
                 <CharacterList />
                 <SectionContainer>

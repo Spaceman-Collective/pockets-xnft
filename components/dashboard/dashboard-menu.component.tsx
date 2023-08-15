@@ -1,9 +1,9 @@
 import { Box, Button } from "@chakra-ui/react";
-import { useRouter } from "next/router"; // Import the useRouter hook
+import { useRouter } from "next/router";
 import { colors } from "@/styles/defaultTheme";
 
 export const DashboardMenu = () => {
-  const router = useRouter(); // Get the current route
+  const router = useRouter();
 
   return (
     <Box
@@ -28,7 +28,8 @@ export const DashboardMenu = () => {
       </Button>
       <Button
         bg={colors.brand.primary}
-        color={router.pathname === "/faction" ? colors.brand.quaternary : colors.brand.secondary}        borderRadius="0.5rem"
+        color={router.pathname === "/faction" ? colors.brand.quaternary : colors.brand.secondary}        
+        borderRadius="0.5rem"
         p="0.25rem"
         fontSize="18px"
         fontWeight={600}
