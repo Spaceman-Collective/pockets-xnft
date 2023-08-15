@@ -24,7 +24,8 @@ export const FactionModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
       <ModalContent
         p="1rem"
         minW={{ base: "95%", sm: "600px" }}
-        minH="800px"
+        minH="600px"
+        maxH="800px"
         bg="blacks.500"
         color="brand.secondary"
         borderRadius="1rem"
@@ -48,7 +49,9 @@ export const FactionModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
             />
           </Flex>
           <Flex direction="column" mt="2rem" gap="2rem">
-            <FactionBox />
+            {Array.from({ length: 7 }).map((_, i) => (
+              <FactionBox key={i + "faction"} />
+            ))}
           </Flex>
         </ModalBody>
       </ModalContent>
