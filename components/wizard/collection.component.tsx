@@ -51,11 +51,13 @@ const Thumbnail = styled(Grid)<{ isSelected?: boolean }>`
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 1px;
+  text-align: center; /* Add this line to center the text horizontally */
   :hover {
     border: solid 2px ${colors.brand.secondary};
   }
   transition: all 0.25s ease-in-out;
 `;
+
 
 const Header = styled(Text)`
   font-size: 32px;
