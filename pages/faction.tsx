@@ -1,22 +1,23 @@
 import Head from "next/head";
 import styled from "@emotion/styled";
 import { NavBar } from "@/components/nav";
-import { DashboardInfo, DashboardMenu, Faction, CharacterList,
-
+import {
+  DashboardInfo,
+  DashboardMenu,
+  Faction,
+  CharacterList,
 } from "@/components/dashboard";
-import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
-import { Character } from "@/types/server";
-import { timeout } from "@/lib/utils";
 import {
   DashboardMenuContainer,
   DashboardInfoContainer,
   DashboardContainer,
   SectionContainer,
 } from "@/components/Containers.styled";
-import { Box, Button, Grid, Text } from "@chakra-ui/react";
-import { useRouter } from "next/router";
+import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react";
 import { useSolana } from "@/hooks/useSolana";
+import { FactionModal } from "@/components/dashboard/faction-modal";
+import { join } from "path";
 
 export default function FactionPage() {
   const {
@@ -24,12 +25,8 @@ export default function FactionPage() {
     isLoading: allAssetDataIsLoading,
     refetch,
   } = useAssets();
-  const router = useRouter();
   const { account } = useSolana();
-
-
-
-  useEffect(() => {}, []);
+  const joinFactionDisclosure = useDisclosure();
 
   return (
     <>
@@ -51,12 +48,13 @@ export default function FactionPage() {
                 <DashboardMenu />
               </DashboardMenuContainer>
               <FactionSection>
-                <CharacterList/>
+                <CharacterList data={allAssetData?.characters} />
                 <SectionContainer>
-                  <Faction/>
+                  <Faction onOpenJoinFaction={joinFactionDisclosure.onOpen} />
                 </SectionContainer>
               </FactionSection>
             </DashboardContainer>
+            <FactionModal {...joinFactionDisclosure} />
           </>
         ) : (
           <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>

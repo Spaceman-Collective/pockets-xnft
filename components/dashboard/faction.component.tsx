@@ -1,6 +1,9 @@
 import { Flex, Text, Button } from "@chakra-ui/react";
+import { FC } from "react";
 
-export const Faction = () => {
+export const Faction: FC<{ onOpenJoinFaction: () => void }> = ({
+  onOpenJoinFaction,
+}) => {
   return (
     <Flex
       flexDirection="column"
@@ -13,7 +16,9 @@ export const Faction = () => {
         AW SHUCKS ANON,
         <br /> YOU’RE NOT IN A FACTION!
       </Text>
-      <Button variant="outline">Join a Faction</Button>
+      <Button variant="outline" onClick={onOpenJoinFaction}>
+        Join a Faction
+      </Button>
       <Button variant="outline">Create a Faction</Button>
     </Flex>
   );
