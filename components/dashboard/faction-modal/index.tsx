@@ -13,6 +13,7 @@ import { FC } from "react";
 import { GiMagnifyingGlass, GiSpyglass } from "react-icons/gi";
 import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
+import { FactionBox } from "./faction-item.component";
 
 export const FactionModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
   onClose,
@@ -29,6 +30,7 @@ export const FactionModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
         bg="blacks.500"
         color="brand.secondary"
         borderRadius="1rem"
+        overflow="auto"
       >
         <ModalBody>
           <Flex
@@ -56,34 +58,6 @@ export const FactionModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
         </ModalBody>
       </ModalContent>
     </Modal>
-  );
-};
-
-const FactionBox = () => {
-  return (
-    <>
-      <Flex
-        bg="brand.primary"
-        w="100%"
-        h="13rem"
-        borderRadius="0.5rem"
-        alignItems="center"
-        justifyContent="space-between"
-        p="2rem"
-      >
-        <Flex gap="2rem" alignItems="center">
-          <Box bg="blacks.500" h="10rem" w="10rem" />
-          <Box>
-            <Text>population</Text>
-            <Text>Faction Name</Text>
-            <Text>factionsite.com</Text>
-          </Box>
-        </Flex>
-        <Box>
-          <Button>join</Button>
-        </Box>
-      </Flex>
-    </>
   );
 };
 
