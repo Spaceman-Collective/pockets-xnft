@@ -1,33 +1,124 @@
 import { Box, Text } from "@chakra-ui/react";
-import { getLadImageURL } from "@/lib/apiClient";
+import { colors } from "@/styles/defaultTheme";
 
 export const DashboardInfo = () => {
   return (
     <Box
-      cursor="pointer"
-      position="relative"
-      transition="all 0.25s ease-in-out"
-      bgColor="green"
-      _hover={{
-        transform: "scale(1.2)",
-      }}
+      display="flex"
+      justifyContent="space-between"
     >
       <Text
-        opacity="0.7"
-        position="absolute"
-        top="0.2rem"
-        left="0.2rem"
-        bg="brand.primary"
-        borderRadius="1rem"
+        bg={colors.brand.primary}
+        borderRadius="0.5rem"
         p="0.25rem"
-        fontSize="1.25rem"
-        fontWeight={700}
-        letterSpacing="1px"
-        zIndex={10}
+        fontSize="18px"
+        fontWeight={600}
+        letterSpacing="3px"
+        h="3rem"
+        flex="1"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        marginRight="1rem"
       >
-        DASH DASH
+        FACTION
+      </Text>
+      <Text
+        bg={colors.brand.primary}
+        borderRadius="0.5rem"
+        p="0.25rem"
+        fontSize="18px"
+        fontWeight={600}
+        letterSpacing="3px"
+        h="3rem"
+        flex="1"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        marginRight="1rem"
+      >
+        LEVEL
+      </Text>
+      <Text
+        bg={colors.brand.primary}
+        borderRadius="0.5rem"
+        p="0.25rem"
+        fontSize="18px"
+        fontWeight={600}
+        letterSpacing="3px"
+        h="3rem"
+        flex="1"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        marginLeft="1rem"
+      >
+        FACTIONS
+      </Text>
+      <Text
+        bg={colors.brand.primary}
+        borderRadius="0.5rem"
+        p="0.25rem"
+        fontSize="18px"
+        fontWeight={600}
+        letterSpacing="3px"
+        h="3rem"
+        flex="1"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        marginLeft="1rem"
+      >
+        TOTAL RFS
+      </Text>
+      <Text
+        bg={colors.brand.primary}
+        borderRadius="0.5rem"
+        p="0.25rem"
+        fontSize="18px"
+        fontWeight={600}
+        letterSpacing="3px"
+        h="3rem"
+        flex="1"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        marginLeft="1rem"
+      >
+        PLAYERS
+      </Text>
+      <Text
+        bg={colors.brand.primary}
+        borderRadius="0.5rem"
+        p="0.25rem"
+        fontSize="18px"
+        fontWeight={600}
+        letterSpacing="3px"
+        h="3rem"
+        flex="1"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        marginLeft="1rem"
+      >
+        LEADERBOARD
+      </Text>
+      <Text
+        bg={colors.brand.primary}
+        borderRadius="0.5rem"
+        p="0.25rem"
+        fontSize="18px"
+        fontWeight={600}
+        letterSpacing="3px"
+        h="3rem"
+        flex="1"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        marginLeft="1rem"
+      >
+        LOGS
       </Text>
     </Box>
   );
 };
-

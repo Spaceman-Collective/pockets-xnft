@@ -5,6 +5,16 @@ import { Box, Button, Grid, Text } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useRouter } from "next/router";
 import { useSolana } from "@/hooks/useSolana";
+import { Character } from "@/types/server";
+import { timeout } from "@/lib/utils";
+import {
+  DashboardMenuContainer,
+  DashboardInfoContainer,
+  DashboardContainer,
+  CharacterListContainer,
+  SectionContainer
+} from "@/components/Containers.styled";
+import { DashboardInfo, DashboardMenu, Personal } from "@/components/dashboard";
 
 export default function Home() {
   const router = useRouter();
@@ -21,9 +31,43 @@ export default function Home() {
       <NavBar />
       <Grid placeItems="center" minH="50vh">
         {account ? (
-          <Button variant="outline" onClick={() => router.push("/wizard")}>
-            Create a Char
-          </Button>
+          <>
+            <DashboardContainer>
+              <DashboardInfoContainer>
+                <DashboardInfo />
+              </DashboardInfoContainer>
+              <DashboardMenuContainer>
+                <DashboardMenu />
+              </DashboardMenuContainer>
+              <Box>
+
+              </Box>
+              <PersonalSection>
+              <CharacterListContainer>
+                <Button
+                  variant="solid"
+                  width="100%"
+                  onClick={() => router.push("/wizard")}
+                >
+                  Create a Char +
+                </Button>
+                <Text>
+                  insert character list here
+                </Text>
+                <Button
+                  variant="outline"
+                  width="100%"
+                  onClick={() => router.push("/wizard")}
+                >
+                  Confirm
+                </Button>
+              </CharacterListContainer>
+                <SectionContainer>
+                <Personal/>
+                </SectionContainer>
+              </PersonalSection>
+            </DashboardContainer>
+          </>
         ) : (
           <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
         )}
@@ -32,17 +76,8 @@ export default function Home() {
   );
 }
 
-const WizardContainer = styled(Box)`
+const PersonalSection = styled(Box)`
   margin: 0 auto;
-  padding: 2rem 3rem;
-  max-width: 700px;
-  border-radius: 0.5rem;
-  background-color: ${colors.blacks[500]};
-`;
-
-const BubbleBox = styled(Box)`
-  border-radius: 1rem;
-  width: 95%;
-  height: 5rem;
-  transition: all 1s ease;
+  display: flex;
+  flex-direction: row;
 `;

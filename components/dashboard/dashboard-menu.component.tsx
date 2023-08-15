@@ -1,32 +1,43 @@
-import { Box, Text } from "@chakra-ui/react";
-import { getLadImageURL } from "@/lib/apiClient";
+import { Box, Button } from "@chakra-ui/react";
+import { useRouter } from "next/router"; // Import the useRouter hook
+import { colors } from "@/styles/defaultTheme";
 
 export const DashboardMenu = () => {
+  const router = useRouter(); // Get the current route
+
   return (
     <Box
       cursor="pointer"
-      position="relative"
-      transition="all 0.25s ease-in-out"
-      bgColor="green"
-      _hover={{
-        transform: "scale(1.2)",
-      }}
+      display="flex"
+      justifyContent="space-between"
     >
-      <Text
-        opacity="0.7"
-        position="absolute"
-        top="0.2rem"
-        left="0.2rem"
-        bg="brand.primary"
-        borderRadius="1rem"
+      <Button
+        bg={colors.brand.primary}
+        color={router.pathname === "/" ? colors.brand.quaternary : colors.brand.primary}
+        borderRadius="0.5rem"
         p="0.25rem"
-        fontSize="1.25rem"
-        fontWeight={700}
-        letterSpacing="1px"
-        zIndex={10}
+        fontSize="18px"
+        fontWeight={600}
+        letterSpacing="3px"
+        h="6rem"
+        flex="1" 
+        mr="1rem"
       >
-        DASH DASH
-      </Text>
+        PERSONAL
+      </Button>
+      <Button
+        bg={colors.brand.primary}
+        color={router.pathname === "/faction" ? colors.brand.quaternary : colors.brand.secondary}        borderRadius="0.5rem"
+        p="0.25rem"
+        fontSize="18px"
+        fontWeight={600}
+        letterSpacing="3px"
+        h="6rem"
+        flex="1"
+        ml="1rem"
+      >
+        FACTION
+      </Button>
     </Box>
   );
 };

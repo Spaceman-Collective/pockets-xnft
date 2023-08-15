@@ -9,6 +9,10 @@ import {
   DashboardMenuContainer,
   DashboardInfoContainer,
 } from "@/components/Containers.styled";
+import { Button } from "@chakra-ui/react";
+import { useRouter } from "next/router";
+
+
 
 export default function Faction() {
   const {
@@ -16,6 +20,8 @@ export default function Faction() {
     isLoading: allAssetDataIsLoading,
     refetch,
   } = useAssets();
+  const router = useRouter();
+
 
   useEffect(() => {}, []);
 
@@ -33,6 +39,9 @@ export default function Faction() {
       </DashboardInfoContainer>
       <DashboardMenuContainer>
         <DashboardMenu />
+        <Button variant="outline" onClick={() => router.push("/wizard")}>
+            Create a Char
+          </Button>
       </DashboardMenuContainer>
     </>
   );

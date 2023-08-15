@@ -7,7 +7,7 @@ export const colors = {
     primary: "#222",
     secondary: "#F8F8F8",
     tertiary: "#B1B7BF",
-    quternary: "#DDCEBE",
+    quaternary: "#DDCEBE",
   },
   blacks: {
     500: "#1B1A1A",
