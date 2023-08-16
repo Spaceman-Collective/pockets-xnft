@@ -45,7 +45,19 @@ export const CreateFaction = () => {
   };
 
   const handleCreateFaction = async () => {
-    // Your create faction logic here
+    const payload = {
+      mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
+      timestamp: Date.now().toString(),
+      faction,
+    };     
+    console.log('total: ', numOfFactions?.total)    
+    console.log('fcm: ', FACTION_CREATION_MULTIPLIER)    
+
+    const ix = handleTransferSplInstruction({account, mint: SPL_TOKENS.bonk.mint, amount: FACTION_CREATION_MULTIPLIER * BigInt(numOfFactions?.total), decimals: SPL_TOKENS.bonk.decimals});
+    const encodedSignedTx = await handleSignTransaction({account, connection, signTransaction, txInstructions: [handleSignMemo({account, payload}), ix]});
+    if (!encodedSignedTx) throw Error("No Tx");
+    mutate({ signedTx: encodedSignedTx }, { onSuccess });
+    closeModal();
   };
 
   const [confetti, setConfetti] = useState(false);
@@ -92,21 +104,7 @@ export const CreateFaction = () => {
           <ModalFooter>
             <Button
               bg={colors.brand.quaternary}
-              onClick={async () => {
-                const payload = {
-                  mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
-                  timestamp: Date.now().toString(),
-                  faction,
-                };     
-                console.log('total: ', numOfFactions?.total)    
-                console.log('fcm: ', FACTION_CREATION_MULTIPLIER)    
-
-                const ix = handleTransferSplInstruction({account, mint: SPL_TOKENS.bonk.mint, amount: FACTION_CREATION_MULTIPLIER * BigInt(numOfFactions?.total), decimals: SPL_TOKENS.bonk.decimals});
-                const encodedSignedTx = await handleSignTransaction({account, connection, signTransaction, txInstructions: [handleSignMemo({account, payload}), ix]});
-                if (!encodedSignedTx) throw Error("No Tx");
-                mutate({ signedTx: encodedSignedTx }, { onSuccess });
-                closeModal();
-              }}
+              onClick={handleCreateFaction}
             >
               Create a Faction
             </Button>

@@ -11,14 +11,13 @@ export default function Web3Buttons() {
   return (
     <>
       <Flex gap="1rem">
-      {!window?.xnft?.solana?.isXnft ? (
+      {/* {!window?.xnft?.solana?.isXnft ? ( */}
         <WalletMultiButton />
-      ) : (
+      {/* ) : (
         <div>
         </div>
       )
-      }
-        {/* <WalletDisconnectButton /> */}
+      } */}
       </Flex>
     </>
   );

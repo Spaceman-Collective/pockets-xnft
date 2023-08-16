@@ -64,7 +64,7 @@ export const useSolana = () => {
         });
       }
     }
-    new Promise((resolve) => setTimeout(resolve, 2000)).then(() => {
+    new Promise((resolve) => setTimeout(resolve, 500)).then(() => {
       init()
     })
 

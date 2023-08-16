@@ -64,7 +64,7 @@ export const fetchFactions = async ({
         take: 0,
       },
     });
-    return data;
+    return data; // returns number of Factions
   } catch (err) {
     console.error(err);
     return;
