@@ -24,11 +24,18 @@ import { skip } from "node:test";
 import { useFactionsInfo } from "@/hooks/useFactionsInfo";
 import { connect } from "http2";
 
-
 export const CreateFaction: FC<{
   fire: () => void;
 }> = ({ fire: fireConfetti }) => {
-  const { connection, walletAddress, signTransaction, buildMemoIx, buildTransferIx, encodeTransaction, getBonkBalance } = useSolana();
+  const {
+    connection,
+    walletAddress,
+    signTransaction,
+    buildMemoIx,
+    buildTransferIx,
+    encodeTransaction,
+    getBonkBalance,
+  } = useSolana();
   const { data: numOfFactions } = useFactionsInfo();
   const { mutate } = useCreateFaction();
   const [faction, setFaction] = useState({
@@ -51,34 +58,32 @@ export const CreateFaction: FC<{
       external_link: "",
       description: "",
     };
-  
+
     let isValid = true;
-  
+
     if (!faction.name.trim()) {
       errors.name = "Faction Name is required.";
       isValid = false;
     }
-  
+
     if (!faction.image.trim()) {
       errors.image = "Image URL is required.";
       isValid = false;
     }
-  
+
     if (!faction.external_link.trim()) {
       errors.external_link = "External Url is required.";
       isValid = false;
     }
-  
+
     if (!faction.description.trim()) {
       errors.description = "Description is required.";
       isValid = false;
     }
-  
+
     setInputErrors(errors);
     return isValid;
   };
-  
-  
 
   // const [faction, setFaction] = useState({
   //   name: "Test Faction",
@@ -87,9 +92,7 @@ export const CreateFaction: FC<{
   //   description: "OG Madlads Test Faction",
   // });
 
-  const { isOpen, onOpen, onClose } = useDisclosure()
-
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const onSuccess = (data: any) => {
     fireConfetti();
@@ -97,7 +100,10 @@ export const CreateFaction: FC<{
   };
 
   const handleCreateFaction = async () => {
-    console.log('faction: ', faction)
+    if (!validateInputs()) {
+      return;
+    }
+    console.log("faction: ", faction);
     const payload = {
       mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
       timestamp: Date.now().toString(),
@@ -105,25 +111,45 @@ export const CreateFaction: FC<{
     };
 
     const totalFactions = numOfFactions?.total;
-    const requiredBONK = FACTION_CREATION_MULTIPLIER * BigInt(numOfFactions?.total);
+    const requiredBONK =
+      FACTION_CREATION_MULTIPLIER * BigInt(numOfFactions?.total);
     const bonkInWallet = 20000000000000;
     // const bonkInWallet = getBonkBalance(walletAddress, connection);
     if (bonkInWallet < requiredBONK) {
-      throw alert('You have insufficient BONK in your wallet. Please add more BONK and try again!');
+      throw alert(
+        "You have insufficient BONK in your wallet. Please add more BONK and try again!"
+      );
     }
     const bonkMint = SPL_TOKENS.bonk.mint;
     const dcms = SPL_TOKENS.bonk.decimals;
-    console.log(`Total Factions: ${totalFactions} Required Bonk ${requiredBONK}  Bonk Mint ${bonkMint}  Decimals ${dcms}`);
+    console.log(
+      `Total Factions: ${totalFactions} Required Bonk ${requiredBONK}  Bonk Mint ${bonkMint}  Decimals ${dcms}`
+    );
 
-    const ix = await buildTransferIx({ walletAddress, mint: bonkMint, amount: requiredBONK, decimals: dcms });
-    const encodedSignedTx = await encodeTransaction({ walletAddress, connection, signTransaction, txInstructions: [buildMemoIx({ walletAddress, payload }), ix] });
+    const ix = await buildTransferIx({
+      walletAddress,
+      mint: bonkMint,
+      amount: requiredBONK,
+      decimals: dcms,
+    });
+    const encodedSignedTx = await encodeTransaction({
+      walletAddress,
+      connection,
+      signTransaction,
+      txInstructions: [buildMemoIx({ walletAddress, payload }), ix],
+    });
     if (!encodedSignedTx) throw Error("No Tx");
     mutate({ signedTx: encodedSignedTx }, { onSuccess });
-
   };
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" cursor="pointer">
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      cursor="pointer"
+    >
       <Button
         mt="1rem"
         bg={colors.brand.quaternary}
@@ -148,77 +174,96 @@ export const CreateFaction: FC<{
           p={10}
           display="flex"
           flexDirection="column"
-          borderRadius="1rem">
+          borderRadius="1rem"
+        >
           <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">
             CREATE A FACTION
           </ModalHeader>
           <ModalCloseButton position="absolute" top="30px" right="30px" />
           <ModalBody flex="1">
             <Box w="100%" h="100%">
+              <Box mb="2rem">
+                <Input
+                  type="text"
+                  placeholder="Faction Name"
+                  value={faction.name}
+                  onChange={(e) =>
+                    setFaction({ ...faction, name: e.target.value })
+                  }
+                  bg={colors.blacks[600]}
+                  h="5rem"
+                  w="100%"
+                  borderRadius="4"
+                  py="1rem"
+                  px="2rem"
+                  isInvalid={!!inputErrors.name}
+                />
+                {inputErrors.name && (
+                  <Text color="red.500">{inputErrors.name}</Text>
+                )}
+              </Box>
 
-              <Input
-                type="text"
-                placeholder="Faction Name"
-                value={faction.name}
-                onChange={(e) => setFaction({ ...faction, name: e.target.value })}
-                bg={colors.blacks[600]}
-                h="5rem"
-                w="100%"
-                borderRadius="4"
-                py="1rem"
-                px="2rem"
-                mb="2rem"
-                isInvalid={!!inputErrors.name}
-              />
-              {inputErrors.name && <Text color="red.500">{inputErrors.name}</Text>}
+              <Box mb="2rem">
+                <Input
+                  type="text"
+                  placeholder="Image URL"
+                  value={faction.image}
+                  onChange={(e) =>
+                    setFaction({ ...faction, image: e.target.value })
+                  }
+                  bg={colors.blacks[600]}
+                  h="5rem"
+                  w="100%"
+                  borderRadius="4"
+                  py="1rem"
+                  px="2rem"
+                  isInvalid={!!inputErrors.image}
+                />
+                {inputErrors.image && (
+                  <Text color="red.500">{inputErrors.image}</Text>
+                )}
+              </Box>
 
-              <Input
-                type="text"
-                placeholder="Image URL"
-                value={faction.image}
-                onChange={(e) => setFaction({ ...faction, image: e.target.value })}
-                bg={colors.blacks[600]}
-                h="5rem"
-                w="100%"
-                borderRadius="4"
-                py="1rem"
-                px="2rem"
-                mb="2rem"
-                isInvalid={!!inputErrors.image}
-              />
-              {inputErrors.image && <Text color="red.500">{inputErrors.image}</Text>}
+              <Box mb="2rem">
+                <Input
+                  type="text"
+                  placeholder="External Url"
+                  value={faction.external_link}
+                  onChange={(e) =>
+                    setFaction({ ...faction, external_link: e.target.value })
+                  }
+                  bg={colors.blacks[600]}
+                  h="5rem"
+                  w="100%"
+                  borderRadius="4"
+                  py="1rem"
+                  px="2rem"
+                  isInvalid={!!inputErrors.external_link}
+                />
+                {inputErrors.external_link && (
+                  <Text color="red.500">{inputErrors.external_link}</Text>
+                )}
+              </Box>
 
-              <Input
-                type="text"
-                placeholder="External Url"
-                value={faction.external_link}
-                onChange={(e) => setFaction({ ...faction, external_link: e.target.value })}
-                bg={colors.blacks[600]}
-                h="5rem"
-                w="100%"
-                borderRadius="4"
-                py="1rem"
-                px="2rem"
-                mb="2rem"
-                isInvalid={!!inputErrors.external_link}
-              />
-              {inputErrors.external_link && <Text color="red.500">{inputErrors.external_link}</Text>}
-
-              <Textarea
-                placeholder="Description"
-                value={faction.description}
-                onChange={(e) => setFaction({ ...faction, description: e.target.value })}
-                bg={colors.blacks[600]}
-                h="15rem"
-                w="100%"
-                borderRadius="4"
-                py="1rem"
-                px="2rem"
-                mb="2rem"
-                isInvalid={!!inputErrors.description}
-              />
-              {inputErrors.description && <Text color="red.500">{inputErrors.description}</Text>}
-
+              <Box mb="2rem">
+                <Textarea
+                  placeholder="Description"
+                  value={faction.description}
+                  onChange={(e) =>
+                    setFaction({ ...faction, description: e.target.value })
+                  }
+                  bg={colors.blacks[600]}
+                  h="15rem"
+                  w="100%"
+                  borderRadius="4"
+                  py="1rem"
+                  px="2rem"
+                  isInvalid={!!inputErrors.description}
+                />
+                {inputErrors.description && (
+                  <Text color="red.500">{inputErrors.description}</Text>
+                )}
+              </Box>
             </Box>
           </ModalBody>
           <ModalFooter>
@@ -235,6 +280,4 @@ export const CreateFaction: FC<{
       </Modal>
     </Box>
   );
-
-
 };

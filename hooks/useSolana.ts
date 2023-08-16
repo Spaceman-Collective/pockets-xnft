@@ -79,17 +79,17 @@ export const useSolana = () => {
 };
 
 const buildMemoIx = ({
-  account,
+  walletAddress,
   payload
 }: {
-  account: string;
+  walletAddress: string;
   payload: any;
 }) => {
 
   const TxInstruct = new TransactionInstruction({
     keys: [
       {
-        pubkey:  new PublicKey(account),
+        pubkey:  new PublicKey(walletAddress),
         isSigner: true,
         isWritable: false,
       },
@@ -102,30 +102,30 @@ const buildMemoIx = ({
 };
 
 const buildTransferIx = ({
-  account,
+  walletAddress,
   mint,
   amount,
   decimals
 }: {
-  account: string,
+  walletAddress: string,
   mint: string,
   amount: bigint,
   decimals: number
 }) => { 
-  const senderATA = getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(account));
+  const senderATA = getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(walletAddress));
   const serverATA = getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(SERVER_KEY));  
   console.log('amount: ', amount);
-  const ix = createTransferCheckedInstruction(senderATA, new PublicKey(mint), serverATA, new PublicKey(account), amount, decimals);
+  const ix = createTransferCheckedInstruction(senderATA, new PublicKey(mint), serverATA, new PublicKey(walletAddress), amount, decimals);
   return ix;
 }
 
 const encodeTransaction = async ({
-  account,
+  walletAddress,
   connection,
   signTransaction,
   txInstructions
 }: {
-  account: string;
+  walletAddress: string;
   connection: Connection;
   signTransaction: any;
   txInstructions: TransactionInstruction[]
@@ -134,7 +134,7 @@ const encodeTransaction = async ({
   console.log("Blockhash: ", blockhash);
 
   const txMsg = new TransactionMessage({
-    payerKey: new PublicKey(account),
+    payerKey: new PublicKey(walletAddress),
     recentBlockhash: blockhash,
     instructions: txInstructions,
   }).compileToLegacyMessage();
