@@ -12,7 +12,7 @@ import {
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { UnsafeBurnerWalletAdapter } from "@solana/wallet-adapter-wallets";
+import { PhantomWalletAdapter, BackpackWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
@@ -23,10 +23,12 @@ const headerFont = Roboto({ weight: ["400", "700"], subsets: ["latin"] });
 const bodyFont = Montserrat({ weight: ["400", "700"], subsets: ["latin"] });
 
 export default function App({ Component, pageProps }: AppProps) {
-  const network = WalletAdapterNetwork.Devnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const network = WalletAdapterNetwork.Mainnet;
+  // const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const endpoint = 'https://rpc.helius.xyz/?api-key=1b21b073-a222-47bb-8628-564145e58f4e';
+  console.log('endpoint: ', endpoint);
   const wallets = useMemo(
-    () => [new UnsafeBurnerWalletAdapter()],
+    () => [new BackpackWalletAdapter, new PhantomWalletAdapter],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [network]
   );

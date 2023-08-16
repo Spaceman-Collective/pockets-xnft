@@ -13,7 +13,7 @@ export const fetchAssets = async ({
 }: {
   walletAddress: string;
 }) => {
-  const URL = API_BASE_URL + "/assets";
+  const URL = API_BASE_URL + "/wallet/characters";
   try {
     const { data } = await fetch.get<any>(URL, {
       params: {
@@ -44,7 +44,7 @@ export const postCreateFaction = async ({ signedTx }: { signedTx: string }) => {
   const URL = API_BASE_URL + "/faction/create";
   try {
     const { data } = await fetch.post<any>(URL, {
-      signedTx,
+      signedTx
     });
       return data // returns Faction
   } catch (error) {
@@ -54,9 +54,7 @@ export const postCreateFaction = async ({ signedTx }: { signedTx: string }) => {
 };
 
 export const fetchFactions = async ({
-  walletAddress,
 }: {
-  walletAddress: string;
 }) => {
   const URL = API_BASE_URL + "/factions";
   try {
@@ -66,7 +64,7 @@ export const fetchFactions = async ({
         take: 0,
       },
     });
-    return data.total;
+    return data;
   } catch (err) {
     console.error(err);
     return;

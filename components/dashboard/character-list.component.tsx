@@ -21,8 +21,7 @@ export const CharacterList: FC<{ data?: Character[] }> = ({ data }) => {
       >
         Character +
       </Button>
-      <Text>
-        <Flex direction='column' gap='1rem' my='1rem'>
+      <Flex direction='column' gap='1rem' my='1rem'>
           {data?.map(char => {
             return (
               <Flex key={char.mint} flex='auto 1 auto' justifyContent='space-between' p='1rem' bg='blacks.500' borderRadius='1rem'>
@@ -42,7 +41,6 @@ export const CharacterList: FC<{ data?: Character[] }> = ({ data }) => {
             )
           })}
         </Flex>
-      </Text>
       <Button
         variant="outline"
         width="100%"

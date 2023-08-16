@@ -6,11 +6,11 @@ export const FACTION_CREATION_MULTIPLIER = BigInt(1000000);
 export const RESOURCE_FIELD_CREATION_MULTIPLIER = BigInt(500000); 
 
 export const SPL_TOKENS: {
-    [token: string]: { mint: PublicKey; decimals: number };
+    [token: string]: { mint: string; decimals: number };
   } = {
     bonk: {
-      mint: new PublicKey("DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"),
-      decimals: 1e5,
+      mint: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      decimals: 5,
     },
   };
 

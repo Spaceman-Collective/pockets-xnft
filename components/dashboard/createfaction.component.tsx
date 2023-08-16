@@ -18,12 +18,15 @@ import { timeout } from "@/lib/utils";
 import { Faction } from "@/types/server/Faction";
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
 import { skip } from "node:test";
+import { useFactionsInfo } from "@/hooks/useFactionsInfo";
 
 
 export const CreateFaction = () => {
-  const { handleSignTransaction, handleSignMemo, handleTransferSplInstruction, account } = useSolana();
-
-  const { numOfFactions } = useFactionsInfo();
+  const { handleSignTransaction, handleSignMemo, handleTransferSplInstruction, account, signTransaction, connection } = useSolana();
+  console.log('connection: ', connection);
+  console.log('account: ', account);
+  const { data: numOfFactions} = useFactionsInfo();
+  console.log(numOfFactions);
   const { mutate } = useCreateFaction();
   const [isOpen, setIsOpen] = useState(false);
   const [faction, setFaction] = useState({
@@ -94,8 +97,12 @@ export const CreateFaction = () => {
                   mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
                   timestamp: Date.now().toString(),
                   faction,
-                };
-                const encodedSignedTx = await handleSignTransaction([handleSignMemo(payload), handleTransferSplInstruction(account, SPL_TOKENS.bonk.mint, FACTION_CREATION_MULTIPLIER * numOfFactions(), SPL_TOKENS.bonk.decimals)]);
+                };     
+                console.log('total: ', numOfFactions?.total)    
+                console.log('fcm: ', FACTION_CREATION_MULTIPLIER)    
+
+                const ix = handleTransferSplInstruction({account, mint: SPL_TOKENS.bonk.mint, amount: FACTION_CREATION_MULTIPLIER * BigInt(numOfFactions?.total), decimals: SPL_TOKENS.bonk.decimals});
+                const encodedSignedTx = await handleSignTransaction({account, connection, signTransaction, txInstructions: [handleSignMemo({account, payload}), ix]});
                 if (!encodedSignedTx) throw Error("No Tx");
                 mutate({ signedTx: encodedSignedTx }, { onSuccess });
                 closeModal();
@@ -112,7 +119,3 @@ export const CreateFaction = () => {
     </Box>
   );
 };
-function useFactionsInfo(): { numOfFactions: any; } {
-    throw new Error("Function not implemented.");
-}
-

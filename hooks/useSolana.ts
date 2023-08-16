@@ -5,7 +5,7 @@ declare global {
 }
 import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { createTransferCheckedInstruction, getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { createTransferCheckedInstruction, createTransferInstruction, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import {
   Connection,
   PublicKey,
@@ -14,71 +14,72 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import { encode } from "bs58";
+import { decode, encode } from "bs58";
 import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants";
 
 type TxType = VersionedTransaction | Transaction;
 
 export const useSolana = () => {
-  // const [memoPayload, setMPayload] = useState<{
-  //   account?: string;
-  //   signTransaction?: any;
-  //   handleSignTransaction?: any;
-  // }>({
-  //   account: undefined,
-  //   signTransaction: undefined,
-  //   handleSignTransaction: undefined,
-  // });
   const [payload, setPayload] = useState<{
     account?: string;
     signTransaction?: any;
     handleSignTransaction: any,
     handleSignMemo?: any;
     handleTransferSplInstruction?: any;
-
+    connection?: any
   }>({
     account: undefined,
     signTransaction: undefined,
     handleSignTransaction: undefined,
     handleSignMemo: undefined,
     handleTransferSplInstruction: undefined,
+    connection: undefined
   });
 
   const { connection } = useConnection();
   const { publicKey, signTransaction, signAllTransactions } = useWallet();
 
   useEffect(() => {
-    if (window?.xnft?.solana?.isXnft) {
-      const accountXnft = window.xnft.solana.publicKey?.toString();
-      setPayload({
-        account: accountXnft,
-        signTransaction: window.xnft.solana.signTransaction,
-        handleSignMemo: handleSignMemo,
-        handleTransferSplInstruction: handleTransferSplInstruction,
-        handleSignTransaction: handleSignTransaction
-    });
-    } else {
-      setPayload({
-        account: publicKey?.toString(),
-        signTransaction,
-        handleSignMemo: handleSignMemo,
-        handleTransferSplInstruction: handleTransferSplInstruction,
-        handleSignTransaction: handleSignTransaction
+
+    const init = () => {
+      if (window?.xnft?.solana?.isXnft) {  
+        const accountXnft = window.xnft.solana.publicKey?.toString();
+        console.log('in an xnft');
+        setPayload({
+          account: accountXnft,
+          signTransaction: window.xnft.solana.signTransaction,
+          handleSignMemo: handleSignMemo,
+          handleTransferSplInstruction: handleTransferSplInstruction,
+          handleSignTransaction: handleSignTransaction,
+          connection: window.xnft.solana.connection
       });
+      } else {
+        setPayload({
+          account: publicKey?.toString(),
+          signTransaction,
+          handleSignMemo: handleSignMemo,
+          handleTransferSplInstruction: handleTransferSplInstruction,
+          handleSignTransaction: handleSignTransaction,
+          connection
+        });
+      }
     }
-  }, [publicKey]);
+    new Promise((resolve) => setTimeout(resolve, 2000)).then(() => {
+      init()
+    })
+
+  }, [connection, publicKey, signTransaction]);
 
   return payload;
 };
 
-const handleSignMemo = async ({
+const handleSignMemo = ({
   account,
   payload
 }: {
   account: string;
   payload: any;
 }) => {
-
   const TxInstruct = new TransactionInstruction({
     keys: [
       {
@@ -102,15 +103,13 @@ const handleTransferSplInstruction = ({
 }: {
   account: string,
   mint: string,
-  amount: string
+  amount: bigint,
   decimals: number
 }) => { 
-
   const senderATA = getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(account));
-  const serverATA = getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(SERVER_KEY));
-  
-  const ix = createTransferCheckedInstruction(senderATA, new PublicKey(mint), serverATA, new PublicKey(account), BigInt(amount), decimals);
-
+  const serverATA = getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(SERVER_KEY));  
+  console.log('amount: ', amount);
+  const ix = createTransferCheckedInstruction(senderATA, new PublicKey(mint), serverATA, new PublicKey(account), amount, decimals);
   return ix;
 }
 
@@ -125,7 +124,9 @@ const handleSignTransaction = async ({
   signTransaction: any;
   txInstructions: TransactionInstruction[]
 }) => { 
-  const { blockhash } = await connection?.getLatestBlockhash();
+  const { blockhash } = await connection!.getLatestBlockhash();
+  console.log("Blockhash: ", blockhash);
+
   const txMsg = new TransactionMessage({
     payerKey: new PublicKey(account),
     recentBlockhash: blockhash,
@@ -133,9 +134,9 @@ const handleSignTransaction = async ({
   }).compileToLegacyMessage();
 
   const tx = new VersionedTransaction(txMsg);
-
+  console.log("TX: ", tx);
   const signedTx = await signTransaction(tx);
-
   const encodedSignedTx = encode(signedTx!.serialize());
+
   return encodedSignedTx;
 };
