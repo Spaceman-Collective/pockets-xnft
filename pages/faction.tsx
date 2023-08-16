@@ -4,7 +4,6 @@ import { NavBar } from "@/components/nav";
 import {
   DashboardInfo,
   DashboardMenu,
-  Faction,
   CharacterList,
 } from "@/components/dashboard";
 import { useAssets } from "@/hooks/useAssets";
@@ -14,24 +13,19 @@ import {
   DashboardContainer,
   SectionContainer,
 } from "@/components/Containers.styled";
-import {
-  Box,
-  Grid,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  Text,
-  useDisclosure,
-} from "@chakra-ui/react";
+import { Box, Grid, Tabs, Text, useDisclosure } from "@chakra-ui/react";
 import { useSolana } from "@/hooks/useSolana";
 import { FactionModal } from "@/components/dashboard/faction/faction-modal";
+import { NoFaction } from "@/components/dashboard/faction/no-faction.component";
+import { FactionTabs } from "@/components/dashboard/faction/tabs";
 
 export default function FactionPage() {
   const { data: allAssetData } = useAssets();
   const { walletAddress } = useSolana();
   const joinFactionDisclosure = useDisclosure();
+
+  // TODO: replace with api
+  const isInFaction = true;
 
   return (
     <>
@@ -55,25 +49,13 @@ export default function FactionPage() {
               <FactionSection>
                 <CharacterList data={allAssetData?.characters} />
                 <SectionContainer>
-                  <Tabs isFitted variant="enclosed">
-                    <TabList mb="1em">
-                      <Tab>Services</Tab>
-                      <Tab>Politics</Tab>
-                      <Tab>Resources</Tab>
-                    </TabList>
-                    <TabPanels>
-                      <TabPanel>
-                        <p>one!</p>
-                      </TabPanel>
-                      <TabPanel>
-                        <p>two!</p>
-                      </TabPanel>
-                      <TabPanel>
-                        <p>3!</p>
-                      </TabPanel>
-                    </TabPanels>
-                  </Tabs>
-                  <Faction onOpenJoinFaction={joinFactionDisclosure.onOpen} />
+                  {isInFaction ? (
+                    <FactionTabs />
+                  ) : (
+                    <NoFaction
+                      onOpenJoinFaction={joinFactionDisclosure.onOpen}
+                    />
+                  )}
                 </SectionContainer>
               </FactionSection>
             </DashboardContainer>
