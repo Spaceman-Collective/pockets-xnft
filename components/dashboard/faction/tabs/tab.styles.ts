@@ -1,6 +1,19 @@
-import { Flex } from "@chakra-ui/react";
+import { fonts } from "@/styles/defaultTheme";
+import { Box, Text } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 
-export const PanelContainer = styled(Flex)`
+export const PanelContainer = styled(Box)`
   padding: 1.5rem 3rem;
+`;
+
+export const Label = styled(Text)`
+  font-size: 1.25rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+`;
+export const Value = styled(Text)`
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
 `;
