@@ -37,6 +37,48 @@ export const CreateFaction: FC<{
     external_link: "",
     description: "",
   });
+  const [inputErrors, setInputErrors] = useState({
+    name: "",
+    image: "",
+    external_link: "",
+    description: "",
+  });
+
+  const validateInputs = () => {
+    let errors = {
+      name: "",
+      image: "",
+      external_link: "",
+      description: "",
+    };
+  
+    let isValid = true;
+  
+    if (!faction.name.trim()) {
+      errors.name = "Faction Name is required.";
+      isValid = false;
+    }
+  
+    if (!faction.image.trim()) {
+      errors.image = "Image URL is required.";
+      isValid = false;
+    }
+  
+    if (!faction.external_link.trim()) {
+      errors.external_link = "External Url is required.";
+      isValid = false;
+    }
+  
+    if (!faction.description.trim()) {
+      errors.description = "Description is required.";
+      isValid = false;
+    }
+  
+    setInputErrors(errors);
+    return isValid;
+  };
+  
+  
 
   // const [faction, setFaction] = useState({
   //   name: "Test Faction",
@@ -55,6 +97,7 @@ export const CreateFaction: FC<{
   };
 
   const handleCreateFaction = async () => {
+    console.log('faction: ', faction)
     const payload = {
       mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
       timestamp: Date.now().toString(),
@@ -63,19 +106,19 @@ export const CreateFaction: FC<{
 
     const totalFactions = numOfFactions?.total;
     const requiredBONK = FACTION_CREATION_MULTIPLIER * BigInt(numOfFactions?.total);
-    const bonkInWallet = getBonkBalance(walletAddress, connection);
+    const bonkInWallet = 20000000000000;
+    // const bonkInWallet = getBonkBalance(walletAddress, connection);
     if (bonkInWallet < requiredBONK) {
       throw alert('You have insufficient BONK in your wallet. Please add more BONK and try again!');
-    } else {
-      const bonkMint = SPL_TOKENS.bonk.mint;
-      const dcms = SPL_TOKENS.bonk.decimals;
-      console.log(`Total Factions: ${totalFactions} Required Bonk ${requiredBONK}  Bonk Mint ${bonkMint}  Decimals ${dcms}`);
-
-      const ix = await buildTransferIx({ walletAddress, mint: bonkMint, amount: requiredBONK, decimals: dcms });
-      const encodedSignedTx = await encodeTransaction({ walletAddress, connection, signTransaction, txInstructions: [buildMemoIx({ walletAddress, payload }), ix] });
-      if (!encodedSignedTx) throw Error("No Tx");
-      mutate({ signedTx: encodedSignedTx }, { onSuccess });
     }
+    const bonkMint = SPL_TOKENS.bonk.mint;
+    const dcms = SPL_TOKENS.bonk.decimals;
+    console.log(`Total Factions: ${totalFactions} Required Bonk ${requiredBONK}  Bonk Mint ${bonkMint}  Decimals ${dcms}`);
+
+    const ix = await buildTransferIx({ walletAddress, mint: bonkMint, amount: requiredBONK, decimals: dcms });
+    const encodedSignedTx = await encodeTransaction({ walletAddress, connection, signTransaction, txInstructions: [buildMemoIx({ walletAddress, payload }), ix] });
+    if (!encodedSignedTx) throw Error("No Tx");
+    mutate({ signedTx: encodedSignedTx }, { onSuccess });
 
   };
 
@@ -100,7 +143,7 @@ export const CreateFaction: FC<{
         <ModalContent
           bg={colors.brand.primary}
           maxW="75rem"
-          h="60rem"
+          minH="50rem"
           m="auto"
           p={10}
           display="flex"
@@ -124,8 +167,10 @@ export const CreateFaction: FC<{
                 borderRadius="4"
                 py="1rem"
                 px="2rem"
-                mb="1rem"
+                mb="2rem"
+                isInvalid={!!inputErrors.name}
               />
+              {inputErrors.name && <Text color="red.500">{inputErrors.name}</Text>}
 
               <Input
                 type="text"
@@ -138,8 +183,10 @@ export const CreateFaction: FC<{
                 borderRadius="4"
                 py="1rem"
                 px="2rem"
-                mb="1rem"
+                mb="2rem"
+                isInvalid={!!inputErrors.image}
               />
+              {inputErrors.image && <Text color="red.500">{inputErrors.image}</Text>}
 
               <Input
                 type="text"
@@ -152,20 +199,26 @@ export const CreateFaction: FC<{
                 borderRadius="4"
                 py="1rem"
                 px="2rem"
-                mb="1rem"
+                mb="2rem"
+                isInvalid={!!inputErrors.external_link}
               />
+              {inputErrors.external_link && <Text color="red.500">{inputErrors.external_link}</Text>}
 
               <Textarea
                 placeholder="Description"
                 value={faction.description}
                 onChange={(e) => setFaction({ ...faction, description: e.target.value })}
                 bg={colors.blacks[600]}
-                h="20rem"
+                h="15rem"
                 w="100%"
                 borderRadius="4"
                 py="1rem"
                 px="2rem"
+                mb="2rem"
+                isInvalid={!!inputErrors.description}
               />
+              {inputErrors.description && <Text color="red.500">{inputErrors.description}</Text>}
+
             </Box>
           </ModalBody>
           <ModalFooter>
@@ -173,8 +226,9 @@ export const CreateFaction: FC<{
               w="100%"
               bg={colors.brand.quaternary}
               onClick={handleCreateFaction}
+              mb="1rem"
             >
-              Create a Faction
+              Create
             </Button>
           </ModalFooter>
         </ModalContent>

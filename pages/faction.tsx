@@ -26,7 +26,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useSolana } from "@/hooks/useSolana";
-import { FactionModal } from "@/components/dashboard/faction-modal";
+import { FactionModal } from "@/components/dashboard/faction/faction-modal";
 
 export default function FactionPage() {
   const { data: allAssetData } = useAssets();
