@@ -1,13 +1,11 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { Flex, Text, Button } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
-import { useSolana } from "@/hooks/useSolana";
-import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { CreateFaction } from "./createfaction.component";
 import Confetti from "@/components/Confetti";
 import { timeout } from "@/lib/utils";
 
-export const Faction: FC<{ onOpenJoinFaction: () => void }> = ({
+export const NoFaction: FC<{ onOpenJoinFaction: () => void }> = ({
   onOpenJoinFaction,
 }) => {
   const [confetti, setConfetti] = useState(false);
