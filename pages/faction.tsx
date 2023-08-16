@@ -25,10 +25,12 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import { useSolana } from "@/hooks/useSolana";
 import { FactionModal } from "@/components/dashboard/faction-modal";
 
 export default function FactionPage() {
   const { data: allAssetData } = useAssets();
+  const { account } = useSolana();
   const joinFactionDisclosure = useDisclosure();
 
   return (
@@ -41,7 +43,7 @@ export default function FactionPage() {
       </Head>
       <NavBar />
       <Grid placeItems="center" minH="50vh">
-        {true ? (
+        {account ? (
           <>
             <DashboardContainer>
               <DashboardInfoContainer>
@@ -53,7 +55,7 @@ export default function FactionPage() {
               <FactionSection>
                 <CharacterList data={allAssetData?.characters} />
                 <SectionContainer>
-                  <Tabs>
+                  <Tabs isFitted variant="enclosed">
                     <TabList mb="1em">
                       <Tab>Services</Tab>
                       <Tab>Politics</Tab>
