@@ -1,5 +1,5 @@
-import { Box } from "@chakra-ui/react";
+import { PanelContainer } from "./tab.styles";
 
 export const FactionTabResources = () => {
-  return <Box>resources panel</Box>;
+  return <PanelContainer>resources panel</PanelContainer>;
 };
