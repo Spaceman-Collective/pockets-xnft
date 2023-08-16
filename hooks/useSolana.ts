@@ -21,19 +21,19 @@ type TxType = VersionedTransaction | Transaction;
 
 export const useSolana = () => {
   const [payload, setPayload] = useState<{
-    account?: string;
-    signTransaction?: any;
-    handleSignTransaction: any,
-    handleSignMemo?: any;
-    handleTransferSplInstruction?: any;
-    connection?: any
+    connection?: any,
+    account?: string,
+    signTransaction?: any,
+    buildMemoIx?: any,
+    buildTransferIx?: any,
+    encodeTransaction: any
   }>({
+    connection: undefined,
     account: undefined,
     signTransaction: undefined,
-    handleSignTransaction: undefined,
-    handleSignMemo: undefined,
-    handleTransferSplInstruction: undefined,
-    connection: undefined
+    buildMemoIx: undefined,
+    buildTransferIx: undefined,
+    encodeTransaction: undefined
   });
 
   const { connection } = useConnection();
@@ -46,21 +46,22 @@ export const useSolana = () => {
         const accountXnft = window.xnft.solana.publicKey?.toString();
         console.log('in an xnft');
         setPayload({
+          connection: window.xnft.solana.connection,
           account: accountXnft,
           signTransaction: window.xnft.solana.signTransaction,
-          handleSignMemo: handleSignMemo,
-          handleTransferSplInstruction: handleTransferSplInstruction,
-          handleSignTransaction: handleSignTransaction,
-          connection: window.xnft.solana.connection
+          buildMemoIx: buildMemoIx,
+          buildTransferIx: buildTransferIx,
+          encodeTransaction: encodeTransaction,
       });
       } else {
         setPayload({
+          connection,
           account: publicKey?.toString(),
           signTransaction,
-          handleSignMemo: handleSignMemo,
-          handleTransferSplInstruction: handleTransferSplInstruction,
-          handleSignTransaction: handleSignTransaction,
-          connection
+          buildMemoIx: buildMemoIx,
+          buildTransferIx: buildTransferIx,
+          encodeTransaction: encodeTransaction,
+          
         });
       }
     }
@@ -73,17 +74,18 @@ export const useSolana = () => {
   return payload;
 };
 
-const handleSignMemo = ({
+const buildMemoIx = ({
   account,
   payload
 }: {
   account: string;
   payload: any;
 }) => {
+
   const TxInstruct = new TransactionInstruction({
     keys: [
       {
-        pubkey: new PublicKey(account),
+        pubkey:  new PublicKey(account),
         isSigner: true,
         isWritable: false,
       },
@@ -95,7 +97,7 @@ const handleSignMemo = ({
   return TxInstruct;
 };
 
-const handleTransferSplInstruction = ({
+const buildTransferIx = ({
   account,
   mint,
   amount,
@@ -113,7 +115,7 @@ const handleTransferSplInstruction = ({
   return ix;
 }
 
-const handleSignTransaction = async ({
+const encodeTransaction = async ({
   account,
   connection,
   signTransaction,

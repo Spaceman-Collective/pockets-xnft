@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FC, useState } from "react";
 import {
   Box,
   Text,
@@ -22,14 +22,16 @@ import { skip } from "node:test";
 import { useFactionsInfo } from "@/hooks/useFactionsInfo";
 
 
-export const CreateFaction = () => {
-  const { handleSignTransaction, handleSignMemo, handleTransferSplInstruction, account, signTransaction, connection } = useSolana();
+export const CreateFaction: FC<{
+  fire: () => void;
+}> = ({fire: fireConfetti}) => {
+  const { connection, account, signTransaction, buildMemoIx, buildTransferIx, encodeTransaction } = useSolana();
   console.log('connection: ', connection);
   console.log('account: ', account);
   const { data: numOfFactions } = useFactionsInfo();
   console.log(numOfFactions);
   const { mutate } = useCreateFaction();
-  // const [isOpen, setIsOpen] = useState(false);
+
   const [faction, setFaction] = useState({
     name: "Test Faction",
     image: "https://img-cdn.magiceden.dev/rs:fill:400:400:0:0/plain/https://creator-hub-prod.s3.us-east-2.amazonaws.com/mad_lads_pfp_1682211343777.png",
@@ -37,13 +39,14 @@ export const CreateFaction = () => {
     description: "OG Madlads Test Faction",
   });
 
-  // const closeModal = () => {
-  //   setIsOpen(false);
-  // };
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
-  // const openModal = () => {
-  //   setIsOpen(true);
-  // };
+
+
+  const onSuccess = (data: any) => {
+    fireConfetti();
+    onClose();
+  };
 
   const handleCreateFaction = async () => {
     const payload = {
@@ -51,29 +54,17 @@ export const CreateFaction = () => {
       timestamp: Date.now().toString(),
       faction,
     };
-    console.log('total: ', numOfFactions?.total)
-    console.log('fcm: ', FACTION_CREATION_MULTIPLIER)
 
-    const ix = handleTransferSplInstruction({ account, mint: SPL_TOKENS.bonk.mint, amount: FACTION_CREATION_MULTIPLIER * BigInt(numOfFactions?.total), decimals: SPL_TOKENS.bonk.decimals });
-    const encodedSignedTx = await handleSignTransaction({ account, connection, signTransaction, txInstructions: [handleSignMemo({ account, payload }), ix] });
+    const totalFactions = numOfFactions?.total;
+    const requiredBONK = FACTION_CREATION_MULTIPLIER * BigInt(numOfFactions?.total);
+    const bonkMint = SPL_TOKENS.bonk.mint;
+    const dcms = SPL_TOKENS.bonk.decimals;
+    console.log(`Total Factions: ${totalFactions} Required Bonk ${requiredBONK}  Bonk Mint ${bonkMint}  Decimals ${dcms}` );
+
+    const ix = await buildTransferIx({ account, mint: bonkMint, amount: requiredBONK, decimals: dcms});
+    const encodedSignedTx = await encodeTransaction({ account, connection, signTransaction, txInstructions: [buildMemoIx({ account, payload }), ix]});
     if (!encodedSignedTx) throw Error("No Tx");
     mutate({ signedTx: encodedSignedTx }, { onSuccess });
-    // closeModal();
-  };
-
-  const [confetti, setConfetti] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure()
-
-
-  const fireConfetti = async () => {
-    if (confetti) return;
-    setConfetti(true);
-    await timeout(3600);
-    setConfetti(false);
-  };
-
-  const onSuccess = (data: any) => {
-    fireConfetti();
   };
 
   return (

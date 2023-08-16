@@ -2,7 +2,8 @@ import { PublicKey } from "@solana/web3.js";
 
 export const SERVER_KEY = 'pockmZEzU9m8bkgHMtA3bmHASDFKv8N3kwkEbvQdd9K';
 
-export const FACTION_CREATION_MULTIPLIER = BigInt(1000000); 
+// export const FACTION_CREATION_MULTIPLIER = BigInt(1000000); 
+export const FACTION_CREATION_MULTIPLIER = BigInt(100000000000); 
 export const RESOURCE_FIELD_CREATION_MULTIPLIER = BigInt(500000); 
 
 export const SPL_TOKENS: {

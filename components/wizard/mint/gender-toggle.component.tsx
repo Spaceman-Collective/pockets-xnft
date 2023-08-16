@@ -11,7 +11,7 @@ export const GenderToggleContainer = ({
 }) => {
   return (
     <>
-      <Flex justifyContent="center" alignItems="center" gap="2rem">
+      <Flex justifyContent="center" alignItems="center" gap="2rem" m="2rem">
         <Text>Female</Text>
         <BiFemaleSign
           style={{

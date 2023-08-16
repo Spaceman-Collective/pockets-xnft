@@ -5,14 +5,16 @@ import { useSolana } from "@/hooks/useSolana";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { CreateFaction } from "./createfaction.component";
 import Confetti from "@/components/Confetti";
-
+import { timeout } from "@/lib/utils";
 
 export const Faction = () => {
-
-  const { handleSignTransaction } = useSolana();
-
-  const { mutate } = useCreateFaction();
-  
+  const [confetti, setConfetti] = useState(false);
+  const fireConfetti = async () => {
+    if (confetti) return;
+    setConfetti(true);
+    await timeout(3600);
+    setConfetti(false);
+  };
 
   return (
     <Box
@@ -21,13 +23,18 @@ export const Faction = () => {
       alignItems="center"
       justifyContent="center"
     >
-      <Text mt="2rem" textAlign="center" fontSize="24px" fontWeight="800" maxWidth="50rem" letterSpacing="1px"
-
->
+      <Text
+        mt="2rem"
+        textAlign="center"
+        fontSize="24px"
+        fontWeight="800"
+        maxWidth="50rem"
+        letterSpacing="1px"
+      >
         AW SHUCKS ANON, YOU’RE NOT IN A FACTION!
       </Text>
       <Button
-       cursor="pointer"
+        cursor="pointer"
         mt="3rem"
         bg={colors.brand.tertiary}
         borderRadius="0.5rem"
@@ -40,7 +47,8 @@ export const Faction = () => {
       >
         Join a Faction
       </Button>
-      <CreateFaction/>
+      <CreateFaction fire={fireConfetti} />
+      {confetti && <Confetti canFire={confetti} />}
     </Box>
   );
 };
