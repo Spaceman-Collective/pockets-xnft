@@ -7,7 +7,6 @@ import {
   Faction,
   CharacterList,
 } from "@/components/dashboard";
-import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
 import {
   DashboardMenuContainer,
@@ -15,20 +14,22 @@ import {
   DashboardContainer,
   SectionContainer,
 } from "@/components/Containers.styled";
-import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react";
-import { useSolana } from "@/hooks/useSolana";
+import {
+  Box,
+  Grid,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { FactionModal } from "@/components/dashboard/faction-modal";
-import { join } from "path";
 
 export default function FactionPage() {
-  const {
-    data: allAssetData,
-    isLoading: allAssetDataIsLoading,
-    refetch,
-  } = useAssets();
-  const { account } = useSolana();
+  const { data: allAssetData } = useAssets();
   const joinFactionDisclosure = useDisclosure();
-  console.log({ allAssetData });
 
   return (
     <>
@@ -40,7 +41,7 @@ export default function FactionPage() {
       </Head>
       <NavBar />
       <Grid placeItems="center" minH="50vh">
-        {account ? (
+        {true ? (
           <>
             <DashboardContainer>
               <DashboardInfoContainer>
@@ -52,6 +53,24 @@ export default function FactionPage() {
               <FactionSection>
                 <CharacterList data={allAssetData?.characters} />
                 <SectionContainer>
+                  <Tabs>
+                    <TabList mb="1em">
+                      <Tab>Services</Tab>
+                      <Tab>Politics</Tab>
+                      <Tab>Resources</Tab>
+                    </TabList>
+                    <TabPanels>
+                      <TabPanel>
+                        <p>one!</p>
+                      </TabPanel>
+                      <TabPanel>
+                        <p>two!</p>
+                      </TabPanel>
+                      <TabPanel>
+                        <p>3!</p>
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
                   <Faction onOpenJoinFaction={joinFactionDisclosure.onOpen} />
                 </SectionContainer>
               </FactionSection>
