@@ -1,7 +1,12 @@
 import Head from "next/head";
 import styled from "@emotion/styled";
 import { NavBar } from "@/components/nav";
-import { DashboardInfo, DashboardMenu, Faction, CharacterList } from "@/components/dashboard";
+import {
+  DashboardInfo,
+  DashboardMenu,
+  Faction,
+  CharacterList,
+} from "@/components/dashboard";
 import { useEffect, useState } from "react";
 import { useAssets } from "@/hooks/useAssets";
 import {
@@ -23,6 +28,7 @@ export default function FactionPage() {
   } = useAssets();
   const { account } = useSolana();
   const joinFactionDisclosure = useDisclosure();
+  console.log({ allAssetData });
 
   return (
     <>
@@ -56,7 +62,6 @@ export default function FactionPage() {
           <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
         )}
       </Grid>
-      
     </>
   );
 }
