@@ -5,7 +5,7 @@ declare global {
 }
 import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { createTransferCheckedInstruction, createTransferInstruction, getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { createTransferCheckedInstruction, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import {
   Connection,
   PublicKey,
@@ -13,6 +13,7 @@ import {
   TransactionInstruction,
   TransactionMessage,
   VersionedTransaction,
+  LAMPORTS_PER_SOL
 } from "@solana/web3.js";
 import { decode, encode } from "bs58";
 import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants";
@@ -22,18 +23,20 @@ type TxType = VersionedTransaction | Transaction;
 export const useSolana = () => {
   const [payload, setPayload] = useState<{
     connection?: any,
-    account?: string,
+    walletAddress?: string,
     signTransaction?: any,
     buildMemoIx?: any,
     buildTransferIx?: any,
-    encodeTransaction: any
+    encodeTransaction: any,
+    getBonkBalance: any
   }>({
     connection: undefined,
-    account: undefined,
+    walletAddress: undefined,
     signTransaction: undefined,
     buildMemoIx: undefined,
     buildTransferIx: undefined,
-    encodeTransaction: undefined
+    encodeTransaction: undefined,
+    getBonkBalance: undefined
   });
 
   const { connection } = useConnection();
@@ -47,21 +50,22 @@ export const useSolana = () => {
         console.log('in an xnft');
         setPayload({
           connection: window.xnft.solana.connection,
-          account: accountXnft,
+          walletAddress: accountXnft,
           signTransaction: window.xnft.solana.signTransaction,
           buildMemoIx: buildMemoIx,
           buildTransferIx: buildTransferIx,
           encodeTransaction: encodeTransaction,
+          getBonkBalance: getBonkBalance
       });
       } else {
         setPayload({
           connection,
-          account: publicKey?.toString(),
+          walletAddress: publicKey?.toString(),
           signTransaction,
           buildMemoIx: buildMemoIx,
           buildTransferIx: buildTransferIx,
           encodeTransaction: encodeTransaction,
-          
+          getBonkBalance: getBonkBalance
         });
       }
     }
@@ -141,4 +145,24 @@ const encodeTransaction = async ({
   const encodedSignedTx = encode(signedTx!.serialize());
 
   return encodedSignedTx;
+};
+
+const getBonkBalance = async ({
+  walletAddress,
+  connection,
+}: {
+  walletAddress: string;
+  connection: Connection;
+  signTransaction: any;
+  txInstructions: TransactionInstruction[]
+}) => { 
+
+
+  let balance = await connection.getBalance(new PublicKey(walletAddress));
+  console.log(`Wallet Balance: ${balance/LAMPORTS_PER_SOL}`)
+
+  console.log(`Bonk Balance: ${balance/LAMPORTS_PER_SOL}`)
+
+
+  // return currentBonkBalance;
 };

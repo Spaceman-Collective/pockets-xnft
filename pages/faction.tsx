@@ -30,7 +30,7 @@ import { FactionModal } from "@/components/dashboard/faction-modal";
 
 export default function FactionPage() {
   const { data: allAssetData } = useAssets();
-  const { account } = useSolana();
+  const { walletAddress } = useSolana();
   const joinFactionDisclosure = useDisclosure();
 
   return (
@@ -43,7 +43,7 @@ export default function FactionPage() {
       </Head>
       <NavBar />
       <Grid placeItems="center" minH="50vh">
-        {account ? (
+        {walletAddress ? (
           <>
             <DashboardContainer>
               <DashboardInfoContainer>
