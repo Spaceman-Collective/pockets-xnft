@@ -26,9 +26,8 @@ export const Faction: FC<{ onOpenJoinFaction: () => void }> = ({
       h="100%"
     >
       <Text
-        mt="2rem"
         textAlign="center"
-        fontSize="4rem"
+        fontSize="3rem"
         fontWeight="800"
         maxWidth="50rem"
         letterSpacing="1px"
@@ -36,13 +35,11 @@ export const Faction: FC<{ onOpenJoinFaction: () => void }> = ({
         AW SHUCKS ANON,
         <br /> YOU’RE NOT IN A FACTION!
       </Text>
-
-      <Button variant="outline">Create a Faction</Button>
       <Button
         cursor="pointer"
-        mt="3rem"
         bg={colors.brand.tertiary}
         borderRadius="0.5rem"
+        mt="1rem"
         p="1rem"
         width="40rem"
         fontSize="2rem"

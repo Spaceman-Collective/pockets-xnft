@@ -70,7 +70,7 @@ export const CreateFaction: FC<{
   return (
     <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" cursor="pointer">
       <Button
-        mt="2rem"
+        mt="1rem"
         bg={colors.brand.quaternary}
         borderRadius="0.5rem"
         p="1rem"
