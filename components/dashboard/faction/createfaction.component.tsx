@@ -92,7 +92,17 @@ export const CreateFaction: FC<{
   //   description: "OG Madlads Test Faction",
   // });
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose: chakraOnClose } = useDisclosure();
+
+  const onClose = () => {
+    setFaction({
+      name: "",
+      image: "",
+      external_link: "",
+      description: "",
+    });
+    chakraOnClose();
+  };
 
   const onSuccess = (data: any) => {
     fireConfetti();
