@@ -20,20 +20,22 @@ export const Faction = () => {
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      cursor="pointer"
     >
-      <Text mt="2rem" textAlign="center" fontSize="1.5rem">
+      <Text mt="2rem" textAlign="center" fontSize="24px" fontWeight="800" maxWidth="50rem" letterSpacing="1px"
+
+>
         AW SHUCKS ANON, YOU’RE NOT IN A FACTION!
       </Text>
       <Button
-        mt="1rem"
-        bg={colors.brand.primary}
+       cursor="pointer"
+        mt="3rem"
+        bg={colors.brand.tertiary}
         borderRadius="0.5rem"
-        p="0.5rem"
-        fontSize="1.25rem"
+        p="1rem"
+        width="40rem"
+        fontSize="2rem"
         fontWeight={600}
         letterSpacing="1px"
-        width="12rem"
         onClick={() => {}}
       >
         Join a Faction
