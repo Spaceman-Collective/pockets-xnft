@@ -3,11 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useSolana } from "./useSolana";
 
 export const useAssets = () => {
-  const { account } = useSolana();
+  const { walletAddress } = useSolana();
 
   return useQuery(
     ["assets"],
-    () => fetchAssets({ walletAddress: account ?? "" }),
-    { enabled: account !== undefined }
+    () => fetchAssets({ walletAddress: walletAddress ?? "" }),
+    { enabled: walletAddress !== undefined }
   );
 };

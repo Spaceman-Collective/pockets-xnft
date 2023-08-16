@@ -21,7 +21,7 @@ export default function FactionPage() {
     isLoading: allAssetDataIsLoading,
     refetch,
   } = useAssets();
-  const { account } = useSolana();
+  const { walletAddress } = useSolana();
   const joinFactionDisclosure = useDisclosure();
 
   return (
@@ -34,7 +34,7 @@ export default function FactionPage() {
       </Head>
       <NavBar />
       <Grid placeItems="center" minH="50vh">
-        {account ? (
+        {walletAddress ? (
           <>
             <DashboardContainer>
               <DashboardInfoContainer>

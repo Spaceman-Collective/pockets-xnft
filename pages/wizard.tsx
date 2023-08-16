@@ -21,7 +21,7 @@ export default function Wizard() {
   const back = () => setWizardStep(wizardStep - 1);
   const [selectedMint, setSelectedMint] = useState<string | undefined>();
   const [reviewMint, setReviewMint] = useState<Character | undefined>();
-  const { account } = useSolana();
+  const { walletAddress } = useSolana();
 
   const {
     data: allAssetData,
@@ -63,7 +63,7 @@ export default function Wizard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      {account ? (
+      {walletAddress ? (
         <WizardContainer>
           {wizardStep === 0 && <Collection next={next} />}
           {wizardStep === 1 && (
@@ -100,11 +100,11 @@ export default function Wizard() {
               }}
             />
           )}
+        {confetti && <Confetti canFire={confetti} />}
         </WizardContainer>
       ) : (
         <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
       )}
-      {confetti && <Confetti canFire={confetti} />}
     </>
   );
 }

@@ -28,7 +28,7 @@ export const Generate: FC<{
     fireConfetti();
   };
 
-  const { connection, account, signTransaction, buildMemoIx, buildTransferIx, encodeTransaction } = useSolana();
+  const { connection, walletAddress, signTransaction, buildMemoIx, buildTransferIx, encodeTransaction } = useSolana();
 
   return (
     <>
@@ -58,7 +58,7 @@ export const Generate: FC<{
                 name,
               };
 
-              const encodedSignedTx = await encodeTransaction({ account, connection, signTransaction, txInstructions: [buildMemoIx({ account, payload })]});
+              const encodedSignedTx = await encodeTransaction({ walletAddress, connection, signTransaction, txInstructions: [buildMemoIx({ walletAddress, payload })]});
               
               if (!encodedSignedTx) throw Error("No Tx");
               mutate({ signedTx: encodedSignedTx }, { onSuccess });

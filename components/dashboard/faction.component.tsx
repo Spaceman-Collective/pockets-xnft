@@ -10,7 +10,7 @@ import { timeout } from "@/lib/utils";
 export const Faction: FC<{ onOpenJoinFaction: () => void }> = ({
   onOpenJoinFaction,
 }) => {
-    const [confetti, setConfetti] = useState(false);
+  const [confetti, setConfetti] = useState(false);
   const fireConfetti = async () => {
     if (confetti) return;
     setConfetti(true);

@@ -18,7 +18,7 @@ import {
 import { useAssets } from "@/hooks/useAssets";
 
 export default function Home() {
-  const { account } = useSolana();
+  const { walletAddress } = useSolana();
   const { data: assets } = useAssets();
 
   return (
@@ -31,7 +31,7 @@ export default function Home() {
       </Head>
       <NavBar />
       <Grid placeItems="center" minH="50vh">
-        {account ? (
+        {walletAddress ? (
           <>
             <DashboardContainer>
               <DashboardInfoContainer>

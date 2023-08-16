@@ -1,6 +1,7 @@
 import { FC, useState } from "react";
 import {
   Box,
+  Input,
   Text,
   Button,
   Modal,
@@ -11,6 +12,7 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
+  Textarea,
 } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useSolana } from "@/hooks/useSolana";
@@ -20,24 +22,28 @@ import { Faction } from "@/types/server/Faction";
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
 import { skip } from "node:test";
 import { useFactionsInfo } from "@/hooks/useFactionsInfo";
+import { connect } from "http2";
 
 
 export const CreateFaction: FC<{
   fire: () => void;
-}> = ({fire: fireConfetti}) => {
-  const { connection, account, signTransaction, buildMemoIx, buildTransferIx, encodeTransaction } = useSolana();
-  console.log('connection: ', connection);
-  console.log('account: ', account);
+}> = ({ fire: fireConfetti }) => {
+  const { connection, walletAddress, signTransaction, buildMemoIx, buildTransferIx, encodeTransaction, getBonkBalance } = useSolana();
   const { data: numOfFactions } = useFactionsInfo();
-  console.log(numOfFactions);
   const { mutate } = useCreateFaction();
-
   const [faction, setFaction] = useState({
-    name: "Test Faction",
-    image: "https://img-cdn.magiceden.dev/rs:fill:400:400:0:0/plain/https://creator-hub-prod.s3.us-east-2.amazonaws.com/mad_lads_pfp_1682211343777.png",
-    external_link: "https://www.madlads.com/",
-    description: "OG Madlads Test Faction",
+    name: "",
+    image: "",
+    external_link: "",
+    description: "",
   });
+
+  // const [faction, setFaction] = useState({
+  //   name: "Test Faction",
+  //   image: "https://img-cdn.magiceden.dev/rs:fill:400:400:0:0/plain/https://creator-hub-prod.s3.us-east-2.amazonaws.com/mad_lads_pfp_1682211343777.png",
+  //   external_link: "https://www.madlads.com/",
+  //   description: "OG Madlads Test Faction",
+  // });
 
   const { isOpen, onOpen, onClose } = useDisclosure()
 
@@ -57,14 +63,20 @@ export const CreateFaction: FC<{
 
     const totalFactions = numOfFactions?.total;
     const requiredBONK = FACTION_CREATION_MULTIPLIER * BigInt(numOfFactions?.total);
-    const bonkMint = SPL_TOKENS.bonk.mint;
-    const dcms = SPL_TOKENS.bonk.decimals;
-    console.log(`Total Factions: ${totalFactions} Required Bonk ${requiredBONK}  Bonk Mint ${bonkMint}  Decimals ${dcms}` );
+    const bonkInWallet = getBonkBalance(walletAddress, connection);
+    if (bonkInWallet < requiredBONK) {
+      throw alert('You have insufficient BONK in your wallet. Please add more BONK and try again!');
+    } else {
+      const bonkMint = SPL_TOKENS.bonk.mint;
+      const dcms = SPL_TOKENS.bonk.decimals;
+      console.log(`Total Factions: ${totalFactions} Required Bonk ${requiredBONK}  Bonk Mint ${bonkMint}  Decimals ${dcms}`);
 
-    const ix = await buildTransferIx({ account, mint: bonkMint, amount: requiredBONK, decimals: dcms});
-    const encodedSignedTx = await encodeTransaction({ account, connection, signTransaction, txInstructions: [buildMemoIx({ account, payload }), ix]});
-    if (!encodedSignedTx) throw Error("No Tx");
-    mutate({ signedTx: encodedSignedTx }, { onSuccess });
+      const ix = await buildTransferIx({ walletAddress, mint: bonkMint, amount: requiredBONK, decimals: dcms });
+      const encodedSignedTx = await encodeTransaction({ walletAddress, connection, signTransaction, txInstructions: [buildMemoIx({ walletAddress, payload }), ix] });
+      if (!encodedSignedTx) throw Error("No Tx");
+      mutate({ signedTx: encodedSignedTx }, { onSuccess });
+    }
+
   };
 
   return (
@@ -85,9 +97,9 @@ export const CreateFaction: FC<{
       </Button>
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay backdropFilter="blur(5px)" />
-        <ModalContent 
-              bg={colors.brand.primary}
-              maxW="75rem"
+        <ModalContent
+          bg={colors.brand.primary}
+          maxW="75rem"
           h="60rem"
           m="auto"
           p={10}
@@ -100,12 +112,61 @@ export const CreateFaction: FC<{
           <ModalCloseButton position="absolute" top="30px" right="30px" />
           <ModalBody flex="1">
             <Box w="100%" h="100%">
-              <Text>Faction Name:</Text>
-              <Text>Image:</Text>
-              <Text>External Url:</Text>
-              <Text>Description:</Text>
-            </Box>
 
+              <Input
+                type="text"
+                placeholder="Faction Name"
+                value={faction.name}
+                onChange={(e) => setFaction({ ...faction, name: e.target.value })}
+                bg={colors.blacks[600]}
+                h="5rem"
+                w="100%"
+                borderRadius="4"
+                py="1rem"
+                px="2rem"
+                mb="1rem"
+              />
+
+              <Input
+                type="text"
+                placeholder="Image URL"
+                value={faction.image}
+                onChange={(e) => setFaction({ ...faction, image: e.target.value })}
+                bg={colors.blacks[600]}
+                h="5rem"
+                w="100%"
+                borderRadius="4"
+                py="1rem"
+                px="2rem"
+                mb="1rem"
+              />
+
+              <Input
+                type="text"
+                placeholder="External Url"
+                value={faction.external_link}
+                onChange={(e) => setFaction({ ...faction, external_link: e.target.value })}
+                bg={colors.blacks[600]}
+                h="5rem"
+                w="100%"
+                borderRadius="4"
+                py="1rem"
+                px="2rem"
+                mb="1rem"
+              />
+
+              <Textarea
+                placeholder="Description"
+                value={faction.description}
+                onChange={(e) => setFaction({ ...faction, description: e.target.value })}
+                bg={colors.blacks[600]}
+                h="20rem"
+                w="100%"
+                borderRadius="4"
+                py="1rem"
+                px="2rem"
+              />
+            </Box>
           </ModalBody>
           <ModalFooter>
             <Button
@@ -120,4 +181,6 @@ export const CreateFaction: FC<{
       </Modal>
     </Box>
   );
+
+
 };
