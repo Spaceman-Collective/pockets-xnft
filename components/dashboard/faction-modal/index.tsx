@@ -4,13 +4,10 @@ import {
   ModalContent,
   ModalBody,
   Input,
-  Text,
   Flex,
-  Box,
-  Button,
 } from "@chakra-ui/react";
 import { FC } from "react";
-import { GiMagnifyingGlass, GiSpyglass } from "react-icons/gi";
+import { GiMagnifyingGlass } from "react-icons/gi";
 import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
 import { FactionBox } from "./faction-item.component";

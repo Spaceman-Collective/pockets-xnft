@@ -1,8 +1,12 @@
 import Head from "next/head";
 import styled from "@emotion/styled";
 import { NavBar } from "@/components/nav";
-import { DashboardInfo, DashboardMenu, Faction, CharacterList } from "@/components/dashboard";
-import { useEffect, useState } from "react";
+import {
+  DashboardInfo,
+  DashboardMenu,
+  Faction,
+  CharacterList,
+} from "@/components/dashboard";
 import { useAssets } from "@/hooks/useAssets";
 import {
   DashboardMenuContainer,
@@ -10,17 +14,22 @@ import {
   DashboardContainer,
   SectionContainer,
 } from "@/components/Containers.styled";
-import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react";
+import {
+  Box,
+  Grid,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { useSolana } from "@/hooks/useSolana";
 import { FactionModal } from "@/components/dashboard/faction-modal";
-import { join } from "path";
 
 export default function FactionPage() {
-  const {
-    data: allAssetData,
-    isLoading: allAssetDataIsLoading,
-    refetch,
-  } = useAssets();
+  const { data: allAssetData } = useAssets();
   const { walletAddress } = useSolana();
   const joinFactionDisclosure = useDisclosure();
 
@@ -46,6 +55,24 @@ export default function FactionPage() {
               <FactionSection>
                 <CharacterList data={allAssetData?.characters} />
                 <SectionContainer>
+                  <Tabs isFitted variant="enclosed">
+                    <TabList mb="1em">
+                      <Tab>Services</Tab>
+                      <Tab>Politics</Tab>
+                      <Tab>Resources</Tab>
+                    </TabList>
+                    <TabPanels>
+                      <TabPanel>
+                        <p>one!</p>
+                      </TabPanel>
+                      <TabPanel>
+                        <p>two!</p>
+                      </TabPanel>
+                      <TabPanel>
+                        <p>3!</p>
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
                   <Faction onOpenJoinFaction={joinFactionDisclosure.onOpen} />
                 </SectionContainer>
               </FactionSection>
@@ -56,7 +83,6 @@ export default function FactionPage() {
           <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
         )}
       </Grid>
-      
     </>
   );
 }

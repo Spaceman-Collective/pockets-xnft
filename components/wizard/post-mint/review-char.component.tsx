@@ -14,7 +14,6 @@ export const ReviewMint = ({
   back: () => void;
   data?: Character;
 }) => {
-  console.log({ data });
   const router = useRouter();
 
   if (!data)
@@ -109,7 +108,9 @@ export const ReviewMint = ({
         >
           Mint another
         </Button>
-        <Button w="100%" onClick={() => router.push("/")}>Continue</Button>
+        <Button w="100%" onClick={() => router.push("/")}>
+          Continue
+        </Button>
       </Flex>
     </Flex>
   );
