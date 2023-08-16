@@ -9,6 +9,7 @@ import type { Character, NFT } from "@/types/server";
 import { getRandomName } from "@/lib/utils";
 import { useSolana } from "@/hooks/useSolana";
 import { useCreateCharacter } from "@/hooks/useCreateCharacter";
+import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
 
 export const Generate: FC<{
   fire: () => void;
@@ -27,7 +28,7 @@ export const Generate: FC<{
     fireConfetti();
   };
 
-  const { handleSignTransaction } = useSolana();
+  const { connection, account, signTransaction, buildMemoIx, buildTransferIx, encodeTransaction } = useSolana();
 
   return (
     <>
@@ -35,17 +36,19 @@ export const Generate: FC<{
         <H3>Generate your Character</H3>
         <GenImg img={nft.cached_image_uri} name={nft.name} />
         <Box>
-          <RumbleInput name={name} shake={getNewName} />
           <GenderToggleContainer isMale={isMale} setIsMale={setIsMale} />
+          <RumbleInput name={name} shake={getNewName} />
         </Box>
         <Flex gap="2rem">
           <Button variant="outline" w="100%" alignSelf="end" onClick={backStep}>
             Back
           </Button>
           <Button
-            bg="brand.quternary"
-            color="brand.primary"
-            _hover={{ bg: "brand.tertiary" }}
+            bg="brand.quaternary"
+            color="brand.secondary"
+            border="2px solid"
+            borderColor="brand.quaternary"
+            _hover={{ bg: "brand.tertiary", borderColor: "brand.tertiary" }}
             w="100%"
             alignSelf="end"
             onClick={async () => {
@@ -54,12 +57,14 @@ export const Generate: FC<{
                 timestamp: Date.now().toString(),
                 name,
               };
-              const encodedSignedTx = await handleSignTransaction(payload);
+
+              const encodedSignedTx = await encodeTransaction({ account, connection, signTransaction, txInstructions: [buildMemoIx({ account, payload })]});
+              
               if (!encodedSignedTx) throw Error("No Tx");
               mutate({ signedTx: encodedSignedTx }, { onSuccess });
             }}
           >
-            Mint Charachter
+            Mint Character
           </Button>
         </Flex>
       </Flex>

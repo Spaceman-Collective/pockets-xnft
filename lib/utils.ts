@@ -10,6 +10,10 @@ export function isLad(collectionAddress: string) {
   return collectionAddress === "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w";
 }
 
+export function isPog(collectionAddress: string) {
+  return collectionAddress === "J1S9H3QjnRtBbbuD4HjPV6RpRhwuk4zKbxsnCHuTgh9w";
+}
+
 function generateSeededRandom(seed: number) {
   let m_w = seed;
   let m_z = 987654321;
