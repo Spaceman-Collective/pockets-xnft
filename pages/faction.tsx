@@ -40,7 +40,7 @@ export default function FactionPage() {
 
 
   useEffect(() => {
-      if (data?.faction?.id) {
+      if (data?.faction) {
         setIsInFaction(true);
       }
   }, [data, isInFaction]);
