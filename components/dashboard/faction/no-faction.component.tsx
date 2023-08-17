@@ -4,9 +4,11 @@ import { colors } from "@/styles/defaultTheme";
 import { CreateFaction } from "./create-faction.component";
 import Confetti from "@/components/Confetti";
 import { timeout } from "@/lib/utils";
+import { useCharacter} from "@/hooks/useCharacter";
+import { Character } from "@/types/server";
 
 export const NoFaction: FC<{ onOpenJoinFaction: () => void }> = ({
-  onOpenJoinFaction,
+  onOpenJoinFaction
 }) => {
   const [confetti, setConfetti] = useState(false);
   const fireConfetti = async () => {

@@ -2,6 +2,7 @@ import { Station } from "./Station";
 
 export interface Faction {
   id: string;
+  pubkey: string;
   creator: string;
   name: string;
   image: string;
@@ -9,4 +10,9 @@ export interface Faction {
   description: string;
   townhallLevel: number;
   stations: Station[];
+  lastLooted: String;
+  construction: {
+    finishedAt: String;
+    station: Station;
+  };
 }

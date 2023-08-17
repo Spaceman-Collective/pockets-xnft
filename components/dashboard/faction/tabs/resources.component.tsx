@@ -4,9 +4,10 @@ import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
 import { useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
+import { Character } from "@/types/server";
 
 const spacing = "1rem";
-export const FactionTabResources = () => {
+export const FactionTabResources: React.FC<{  currentCharacter: Character }> = ({ currentCharacter }) => {
   // NOTE: use this to handle local search through teasury items
   // when the api is available
   const [search, setSearch] = useState<string>("");

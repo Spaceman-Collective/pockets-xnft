@@ -1,4 +1,4 @@
-import type { NFT } from "@/types/server";
+import type { NFT, Character, Faction } from "@/types/server";
 import fetch from "axios";
 const API_BASE_URL = "https://api.pockets.gg";
 
@@ -21,6 +21,23 @@ export const fetchAssets = async ({
       },
     });
     return data as { nfts?: NFT[]; characters?: any[] };
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+};
+
+
+export const fetchCharacter = async ({ mint }: { mint: string }) => {
+  const URL = API_BASE_URL + "/character";
+  try {
+    const { data } = await fetch.get<any>(URL, {
+      params: {
+        mint: mint,
+      },
+    });
+    console.log('data: ', data);
+    return data as { character?: Character; faction?: Faction }; // returns { character, faction }
   } catch (err) {
     console.error(err);
     return;
@@ -91,16 +108,33 @@ export const fetchFaction = async ({
 };
 
 
-export const postLeaveFaction = async ({ signedTx }: { signedTx: string }) => {
-  const URL = API_BASE_URL + "/faction/leave";
+export const postJoinFaction = async ({ signedTx }: { signedTx: string }) => {
+  const URL = API_BASE_URL + "/faction/join";
   try {
     const { data } = await fetch.post<any>(URL, {
       signedTx,
     });
+    console.log('faction: ', data);
     return data;
   } catch (err) {
     console.error(err);
     return;
   }
 };
+
+export const postLeaveFaction = async ({ signedTx }: { signedTx: string }) => {
+  const URL = API_BASE_URL + "/faction/leave";
+  try {
+    const { data } = await fetch.post<any>(URL, {
+      signedTx,
+    });
+    console.log('faction: ', data);
+    return data;
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+};
+
+
 

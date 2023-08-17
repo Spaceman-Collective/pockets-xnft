@@ -4,9 +4,10 @@ import { colors } from "@/styles/defaultTheme";
 import styled from "@emotion/styled";
 import { useSolana } from "@/hooks/useSolana";
 import { LeaveFactionModal } from "../leave-faction.component";
+import { Character } from "@/types/server";
 
 const spacing = "1rem";
-export const FactionTabPolitics = () => {
+export const FactionTabPolitics: React.FC<{  currentCharacter: Character }> = ({ currentCharacter }) => {
   const {
     connection,
     walletAddress,
@@ -29,7 +30,7 @@ export const FactionTabPolitics = () => {
         >
           citizens
         </CitizensButton>
-        <LeaveFactionModal />
+        <LeaveFactionModal character={currentCharacter} />
       </Flex>
       <VStack gap={spacing}>
         <ProposalLabels />
@@ -115,3 +116,4 @@ const ProposalAction = styled(Flex)`
   align-items: center;
   justify-content: space-between;
 `;
+

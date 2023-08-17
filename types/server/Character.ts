@@ -1,3 +1,4 @@
+import { Faction, Unit } from ".";
 export interface Character {
   name: string;
   mint: string;
@@ -12,23 +13,28 @@ export interface Character {
   skills: {
     [skill in SkillType]: number;
   };
-  army: any[];
+  army: Unit[];
   attributes: any; // NFT Attributes
-  faction?: any;
+  faction?: Faction;
 }
 
-export const SKILLS = [
+export const COMBAT_SKILLS = [
   "Strength",
   "Fighting",
   "Shooting",
   "Athlethics",
   "Psionics",
-  "Spellcasting",
+  "Magic",
+];
+export const NONCOMBAT_SKILLS = [
   "Electronics",
   "Forestry",
   "Farming",
   "Healing",
   "Manufacturing",
   "Mining",
-] as const;
+];
+
+export const SKILLS = [...COMBAT_SKILLS, ...NONCOMBAT_SKILLS] as const;
 export type SkillType = (typeof SKILLS)[number];
+export const SKILL_THRESHOLD_MULTIPLIER = 1000;

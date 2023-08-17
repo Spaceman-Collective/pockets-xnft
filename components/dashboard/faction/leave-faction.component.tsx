@@ -15,9 +15,11 @@ import {
 } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useLeaveFaction } from "@/hooks/useLeaveFaction";
+import { useCharacter} from "@/hooks/useCharacter";
 import { useSolana } from "@/hooks/useSolana";
+import { Character } from "@/types/server";
 
-export const LeaveFactionModal = () => {
+export const LeaveFactionModal: React.FC<{ character: Character}> = ({ character }) => {
   const {
     connection,
     walletAddress,
@@ -26,17 +28,31 @@ export const LeaveFactionModal = () => {
     encodeTransaction,
   } = useSolana();
   const { mutate } = useLeaveFaction();
+  if (!character?.mint) throw Error('No character mint found');
+  const { data, error, isLoading } = useCharacter(character?.mint);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const onSuccess = (data: any) => {
-    onClose;
+    console.log('Left Faction!');
+    onClose();
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (error) {
+    throw Error('Error fetching character')
+  }
+
   const handleLeaveFaction = async () => {
+    console.log('mint: ', character.mint)
+    // const factionId = data?.faction?.id;
+    const factionId = data?.faction;
+    console.log('faction id: ', factionId);
     const payload = {
-      mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
+      mint: character.mint,
       timestamp: Date.now().toString(),
-      name,
+      factionId,
     };
 
     const encodedSignedTx = await encodeTransaction({
