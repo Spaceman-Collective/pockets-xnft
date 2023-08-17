@@ -1,5 +1,12 @@
-import { Box } from "@chakra-ui/react";
+import { PanelContainer } from "./tab.styles";
 
+import { Text } from "@chakra-ui/react";
 export const FactionTabServices = () => {
-  return <Box>services panel</Box>;
+  return (
+    <PanelContainer>
+      <Text>hjkdsa</Text>
+      <Text>hjkdsa</Text>
+      <Text>hjkdsa</Text>
+    </PanelContainer>
+  );
 };

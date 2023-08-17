@@ -19,7 +19,7 @@ const baseStyle = definePartsStyle({
     },
   },
   tabpanel: {
-    fontFamily: "mono", // change the font family
+    // fontFamily: "mono", // change the font family
   },
 });
 
