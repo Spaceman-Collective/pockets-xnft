@@ -4,7 +4,13 @@ import { Character, Faction } from "@/types/server";
 import { Flex, Box, Text, Button } from "@chakra-ui/react";
 import { FC } from "react";
 
-export const FactionBox: FC<{ onClose: () => void; faction: Faction; characterMint: string }> = ({
+interface FactionBoxProps {
+  onClose: () => void;
+  faction: Faction;
+  characterMint?: string;
+}
+
+export const FactionBox: FC<FactionBoxProps> = ({
   onClose,
   faction,
   characterMint
@@ -43,7 +49,6 @@ export const FactionBox: FC<{ onClose: () => void; faction: Faction; characterMi
     mutate({ signedTx: encodedSignedTx }, { onSuccess });
   };
 
-
   return (
     <>
       <Flex
@@ -60,7 +65,7 @@ export const FactionBox: FC<{ onClose: () => void; faction: Faction; characterMi
             bg="blacks.500"
             h="10rem"
             w="10rem"
-            backgroundImage="https://picsum.photos/200"
+            backgroundImage={faction.image}
             backgroundPosition="center"
             backgroundSize="cover"
             borderRadius="0.5rem"
@@ -75,11 +80,12 @@ export const FactionBox: FC<{ onClose: () => void; faction: Faction; characterMi
                   marginLeft: "0.5rem",
                 }}
               >
+                {/* TODO - shouldn't we have faction pop in `faction` */}
                 12
               </span>
             </Text>
             <Text textTransform="uppercase" fontSize="2.5rem" fontWeight={700}>
-              Faction Name
+                {faction.name}
             </Text>
             <Text
               color="brand.tertiary"
@@ -88,7 +94,7 @@ export const FactionBox: FC<{ onClose: () => void; faction: Faction; characterMi
               fontSize="1.5rem"
               textDecor="underline"
             >
-              factionsite.com
+              {faction.external_link}
             </Text>
           </Box>
         </Flex>

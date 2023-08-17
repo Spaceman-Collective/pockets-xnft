@@ -5,7 +5,6 @@ import { FactionTabResources } from "./resources.component";
 import { Character } from "@/types/server";
 
 export const FactionTabs: React.FC<{  currentCharacter: Character }> = ({ currentCharacter }) => {
-  
   return (
     <Tabs>
       <TabList mb="1em">
