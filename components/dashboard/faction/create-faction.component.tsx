@@ -36,7 +36,7 @@ export const CreateFaction: FC<{
     encodeTransaction,
     getBonkBalance,
   } = useSolana();
-  const { data: numOfFactions } = useFetchAllFactions();
+  const { data: currentFactions } = useFetchAllFactions();
   const { mutate } = useCreateFaction();
   const [faction, setFaction] = useState({
     name: "",
@@ -113,9 +113,9 @@ export const CreateFaction: FC<{
       faction,
     };
 
-    const totalFactions = numOfFactions?.total;
+    const totalFactions = currentFactions?.total;
     const requiredBONK =
-      FACTION_CREATION_MULTIPLIER * BigInt(numOfFactions?.total);
+      FACTION_CREATION_MULTIPLIER * BigInt(currentFactions?.total);
     const bonkInWallet = 20000000000000;
     // const bonkInWallet = getBonkBalance(walletAddress, connection);
     if (bonkInWallet < requiredBONK) {

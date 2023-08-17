@@ -2,6 +2,7 @@ import { Box, Text, Button } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { MdLeaderboard, MdNotificationsActive, } from "react-icons/md";
 import { AiFillGold } from "react-icons/ai";
+import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
 
 
 
@@ -9,7 +10,9 @@ export const DashboardInfo = () => {
   const factionName = "MAD OGSSS";
   const userLevel = 0;
 
-  const numOfFactions = 0;
+  const { data: currentFactions } = useFetchAllFactions();
+
+  const numOfFactions = currentFactions?.total;
   const totalRfs = 0;
   const numOfPlayers = 0;
 
