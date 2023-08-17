@@ -54,3 +54,26 @@ export const NoFaction: FC<{ onOpenJoinFaction: () => void }> = ({
     </Flex>
   );
 };
+
+export const NoSelectedCharacter: FC<{}> = ({}) => {
+  return (
+    <Flex
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      gap="2rem"
+      h="100%"
+    >
+      <Text
+        textAlign="center"
+        fontSize="3rem"
+        fontWeight="800"
+        maxWidth="50rem"
+        letterSpacing="1px"
+      >
+        AW SHUCKS ANON,
+        <br /> SELECT A DARN CHARACTER, WILL YA?
+      </Text>
+    </Flex>
+  );
+};

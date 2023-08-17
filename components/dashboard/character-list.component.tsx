@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC,  useState } from "react";
 import { useRouter } from "next/router";
 import { Flex, Button, Text, Box } from "@chakra-ui/react";
 import {
@@ -6,11 +6,27 @@ import {
 } from "@/components/Containers.styled";
 import { Character } from "@/types/server";
 import { Frame } from "../wizard/wizard.components";
+import styled from "@emotion/styled";
 
-export const CharacterList: FC<{ data?: Character[] }> = ({ data }) => {
+import { colors } from "@/styles/defaultTheme";
+
+interface Props  {
+  selectedCharacter: Character | undefined | null,
+  setSelectedCharacter: (char?: Character | null) => void,
+  data?: Character[]
+}
+
+export const CharacterList: FC<Props> = ({ selectedCharacter, setSelectedCharacter, data }: Props) => {
   const router = useRouter();
   const [actionStatus, setActionStatus] = useState(false);
 
+  const handleCharacterSelect = (char: Character) => {
+    if (selectedCharacter?.mint === char.mint) {
+      setSelectedCharacter(undefined);
+    } else {
+      setSelectedCharacter(char);
+    }
+  }
 
   return (
     <CharacterListContainer>
@@ -24,7 +40,7 @@ export const CharacterList: FC<{ data?: Character[] }> = ({ data }) => {
       <Flex direction='column' gap='1rem' my='1rem'>
           {data?.map(char => {
             return (
-              <Flex key={char.mint} flex='auto 1 auto' justifyContent='space-between' p='1rem' bg='blacks.500' borderRadius='1rem'>
+              <CharacterFlex key={char.mint} onClick={() => handleCharacterSelect(char)} selected={char.mint === selectedCharacter?.mint}>
                 <Flex gap='1rem' alignItems='end'>
                   <Frame img={char.image} size='8rem' />
                   <Flex direction='column'>
@@ -37,7 +53,7 @@ export const CharacterList: FC<{ data?: Character[] }> = ({ data }) => {
                   </Flex>
                 </Flex>
                 <Box h='5rem' w='5rem' bg='black' borderRadius='1rem' backgroundImage='' backgroundSize='cover' backgroundPosition='center' />
-              </Flex>
+              </CharacterFlex>
             )
           })}
         </Flex>
@@ -53,3 +69,19 @@ export const CharacterList: FC<{ data?: Character[] }> = ({ data }) => {
     </CharacterListContainer>
   );
 };
+
+const CharacterFlex = styled(Flex)<{ selected?: boolean }>`
+  flex: auto 1 auto;
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  background-color: ${(props) => {
+    return props.selected ? colors.brand.tertiary : colors.blacks[500]
+  }};
+
+  :hover {
+    background-color: ${colors.brand.tertiary};
+  }
+`;

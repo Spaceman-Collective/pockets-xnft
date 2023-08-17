@@ -12,25 +12,30 @@ import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
 import { FactionBox } from "./faction-item.component";
 import { Character, Faction } from "@/types/server";
-import { useSolana } from "@/hooks/useSolana";
-import { useCharacter } from "@/hooks/useCharacter";
 import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
 
-export const FactionModal: FC<{ isOpen: boolean; onClose: () => void; character: Character
-}> = ({
+interface FactionModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  character?: Character | null;
+}
+
+export const FactionModal: FC<FactionModalProps> = ({
   onClose,
   isOpen,
-  character,  
+  character,
 }) => {
+
 
   const [factionsList, setFactionsList] = useState<Faction[]>([])
   const { data } = useFetchAllFactions();
+  const [factionsList, setFactionsList] = useState<Faction[]>([])
 
   useEffect(() => {
     if (data?.total) {
       setFactionsList(data?.factions);
     }
-}, [data, setFactionsList]);
+  }, [data, setFactionsList]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -64,8 +69,8 @@ export const FactionModal: FC<{ isOpen: boolean; onClose: () => void; character:
             />
           </Flex>
           <Flex direction="column" mt="2rem" gap="2rem">
-            {Array.from({ length: factionsList.length }).map((_, i) => (
-              <FactionBox key={i + "faction"} onClose={onClose} faction={factionsList[i]} characterMint={character?.mint} />
+            {factionsList?.map((faction, i) => (
+              <FactionBox key={i + "faction"} onClose={onClose} faction={faction} characterMint={character?.mint} />
             ))}
           </Flex>
         </ModalBody>
