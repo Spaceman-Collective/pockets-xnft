@@ -85,13 +85,6 @@ export const CreateFaction: FC<{
     return isValid;
   };
 
-  // const [faction, setFaction] = useState({
-  //   name: "Test Faction",
-  //   image: "https://img-cdn.magiceden.dev/rs:fill:400:400:0:0/plain/https://creator-hub-prod.s3.us-east-2.amazonaws.com/mad_lads_pfp_1682211343777.png",
-  //   external_link: "https://www.madlads.com/",
-  //   description: "OG Madlads Test Faction",
-  // });
-
   const { isOpen, onOpen, onClose: chakraOnClose } = useDisclosure();
 
   const onClose = () => {

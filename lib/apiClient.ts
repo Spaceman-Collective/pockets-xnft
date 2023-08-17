@@ -79,7 +79,7 @@ export const fetchFactions = async ({
     const { data } = await fetch.get<any>(URL, {
       params: {
         skip: 0,
-        take: 0,
+        take: 10,
       },
     });
     console.log('fetched factions: ', data);

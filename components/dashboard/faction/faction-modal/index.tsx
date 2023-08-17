@@ -6,16 +6,33 @@ import {
   Input,
   Flex,
 } from "@chakra-ui/react";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { GiMagnifyingGlass } from "react-icons/gi";
 import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
 import { FactionBox } from "./faction-item.component";
+import { Character, Faction } from "@/types/server";
+import { useSolana } from "@/hooks/useSolana";
+import { useCharacter } from "@/hooks/useCharacter";
+import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
 
-export const FactionModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
+export const FactionModal: FC<{ isOpen: boolean; onClose: () => void; character: Character
+}> = ({
   onClose,
   isOpen,
+  character,  
 }) => {
+
+  const [factionsList, setFactionsList] = useState<Faction[]>([])
+
+  const { data } = useFetchAllFactions();
+
+  useEffect(() => {
+    if (data?.total) {
+      setFactionsList(data);
+    }
+}, [data, setFactionsList]);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -48,8 +65,8 @@ export const FactionModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
             />
           </Flex>
           <Flex direction="column" mt="2rem" gap="2rem">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <FactionBox key={i + "faction"} />
+            {Array.from({ length: factionsList.length }).map((_, i) => (
+              <FactionBox key={i + "faction"} onClose={onClose} faction={factionsList[i]} characterMint={character?.mint} />
             ))}
           </Flex>
         </ModalBody>
@@ -72,3 +89,4 @@ const SearchBar = styled(Input)`
     outline: none;
   }
 `;
+

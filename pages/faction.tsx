@@ -78,7 +78,7 @@ export default function FactionPage() {
                 </SectionContainer>
               </FactionSection>
             </DashboardContainer>
-            <FactionModal {...joinFactionDisclosure} />
+            <FactionModal character={selectedCharacter} {...joinFactionDisclosure} />
           </>
         ) : (
           <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>

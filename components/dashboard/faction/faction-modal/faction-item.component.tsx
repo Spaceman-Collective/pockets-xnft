@@ -1,6 +1,49 @@
+import { useJoinFaction } from "@/hooks/useJoinFaction";
+import { useSolana } from "@/hooks/useSolana";
+import { Character, Faction } from "@/types/server";
 import { Flex, Box, Text, Button } from "@chakra-ui/react";
+import { FC } from "react";
 
-export const FactionBox = () => {
+export const FactionBox: FC<{ onClose: () => void; faction: Faction; characterMint: string }> = ({
+  onClose,
+  faction,
+  characterMint
+}) => {
+  const {
+    connection,
+    walletAddress,
+    signTransaction,
+    buildMemoIx,
+    encodeTransaction,
+  } = useSolana();
+
+  const { mutate } = useJoinFaction();
+
+  const onSuccess = (data: any) => {
+    console.log('Left Faction!');
+    onClose();
+  };
+
+  const handleJoinFaction = async () => {
+
+    const payload = {
+      mint: characterMint,
+      timestamp: Date.now().toString(),
+      factionId: faction?.id,
+    };
+
+    const encodedSignedTx = await encodeTransaction({
+      walletAddress,
+      connection,
+      signTransaction,
+      txInstructions: [buildMemoIx({ walletAddress, payload })],
+    });
+
+    if (!encodedSignedTx) throw Error("No Tx");
+    mutate({ signedTx: encodedSignedTx }, { onSuccess });
+  };
+
+
   return (
     <>
       <Flex
@@ -50,7 +93,7 @@ export const FactionBox = () => {
           </Box>
         </Flex>
         <Box>
-          <Button>join</Button>
+          <Button onClick={handleJoinFaction}>join</Button>
         </Box>
       </Flex>
     </>
