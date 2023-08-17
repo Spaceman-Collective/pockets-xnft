@@ -5,6 +5,7 @@ import {
   DashboardInfo,
   DashboardMenu,
   CharacterList,
+  ManageCharacter,
 } from "@/components/dashboard";
 import { useAssets } from "@/hooks/useAssets";
 import {
@@ -68,13 +69,7 @@ export default function CharacterPage() {
               <FactionSection>
                 <CharacterList data={allAssetData?.characters} />
                 <SectionContainer>
-                  {isInFaction ? (
-                    <FactionTabs currentCharacter={selectedCharacter} />
-                  ) : (
-                    <NoFaction
-                      onOpenJoinFaction={joinFactionDisclosure.onOpen}
-                    />
-                  )}
+                  <ManageCharacter/>
                 </SectionContainer>
               </FactionSection>
             </DashboardContainer>

@@ -28,7 +28,7 @@ export const DashboardMenu = () => {
       </Button>
       <Button
         bg={colors.brand.primary}
-        color={router.pathname === "/faction" ? colors.brand.quaternary : colors.brand.secondary}        
+        color={router.pathname === "/character" ? colors.brand.quaternary : colors.brand.secondary}        
         borderRadius="0.5rem"
         p="0.25rem"
         fontSize="18px"
