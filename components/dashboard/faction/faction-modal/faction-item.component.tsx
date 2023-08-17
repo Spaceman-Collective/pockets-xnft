@@ -1,6 +1,13 @@
+import { Faction } from "@/types/server";
 import { Flex, Box, Text, Button } from "@chakra-ui/react";
+import { FC } from "react";
 
-export const FactionBox = () => {
+interface Props {
+  joinFaction: () => void;
+  faction: Faction,
+}
+
+export const FactionBox: FC<Props> = ({joinFaction, faction}: Props) => {
   return (
     <>
       <Flex
@@ -17,7 +24,7 @@ export const FactionBox = () => {
             bg="blacks.500"
             h="10rem"
             w="10rem"
-            backgroundImage="https://picsum.photos/200"
+            backgroundImage={faction.image}
             backgroundPosition="center"
             backgroundSize="cover"
             borderRadius="0.5rem"
@@ -32,11 +39,12 @@ export const FactionBox = () => {
                   marginLeft: "0.5rem",
                 }}
               >
+                {/* TODO - shouldn't we have faction pop in `faction` */}
                 12
               </span>
             </Text>
             <Text textTransform="uppercase" fontSize="2.5rem" fontWeight={700}>
-              Faction Name
+                {faction.name}
             </Text>
             <Text
               color="brand.tertiary"
@@ -45,12 +53,12 @@ export const FactionBox = () => {
               fontSize="1.5rem"
               textDecor="underline"
             >
-              factionsite.com
+              {faction.external_link}
             </Text>
           </Box>
         </Flex>
         <Box>
-          <Button>join</Button>
+          <Button onClick={joinFaction}>join</Button>
         </Box>
       </Flex>
     </>

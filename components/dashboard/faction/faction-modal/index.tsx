@@ -11,11 +11,43 @@ import { GiMagnifyingGlass } from "react-icons/gi";
 import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
 import { FactionBox } from "./faction-item.component";
+import { useFetchAllFactions, useFetchAllFactionsDummy } from "@/hooks/useFetchAllFactions";
+import { useJoinFaction } from "@/hooks/useJoinFaction";
+import { useSolana } from "@/hooks/useSolana";
+import { Character, Faction } from "@/types/server";
 
-export const FactionModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
+export const FactionModal: FC<{ isOpen: boolean; onClose: () => void; selectedCharacter?: Character | null}> = ({
   onClose,
   isOpen,
+  selectedCharacter
 }) => {
+  // TODO: Uncomment this with for real fetch
+  // const { data: numOfFactions } = useFetchAllFactions();
+  const { data: numOfFactions } = useFetchAllFactionsDummy();
+
+  const { connection, walletAddress, signTransaction, buildMemoIx, encodeTransaction } = useSolana();
+  const { mutate } = useJoinFaction();
+
+  const handleJoinClick = async (faction: Faction) => {
+    const payload = {
+      mint: selectedCharacter?.mint,
+      timestamp: Date.now().toString(),
+      factionId: faction.id
+    };
+
+    // console.log('[FactionModal] handleJoinClick payload: ', payload);
+
+    const encodedSignedTx = await encodeTransaction({
+      walletAddress,
+      connection,
+      signTransaction,
+      txInstructions: [buildMemoIx({ walletAddress, payload })],
+    });
+
+    if (!encodedSignedTx) throw Error("No Tx");
+    mutate({ signedTx: encodedSignedTx });
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -48,8 +80,11 @@ export const FactionModal: FC<{ isOpen: boolean; onClose: () => void }> = ({
             />
           </Flex>
           <Flex direction="column" mt="2rem" gap="2rem">
-            {Array.from({ length: 7 }).map((_, i) => (
-              <FactionBox key={i + "faction"} />
+            {/* {Array.from({ length: 7 }).map((_, i) => (
+              <FactionBox key={i + "faction"} joinFaction={handleJoinClick}/>
+            ))} */}
+            {numOfFactions.map((faction, i) => (
+              <FactionBox key={i + "faction"} joinFaction={() => handleJoinClick(faction)} faction={faction}/>
             ))}
           </Flex>
         </ModalBody>
