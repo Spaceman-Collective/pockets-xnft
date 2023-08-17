@@ -24,7 +24,7 @@ export const DashboardMenu = () => {
         mr="1rem"
         onClick={() => router.push("/")}
       >
-        PERSONAL
+        WALLET
       </Button>
       <Button
         bg={colors.brand.primary}
