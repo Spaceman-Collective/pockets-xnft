@@ -1,148 +1,282 @@
 import styled from "@emotion/styled";
-import { Box, Flex, Grid, HStack, Input, Text, VStack } from "@chakra-ui/react";
-import { Label, PanelContainer, Value } from "./manage-character.styled";
+import { Box, Button, Flex, Grid, HStack, Input, Text, VStack } from "@chakra-ui/react";
+import { PanelContainer } from "../personal/personal.styled";
 import { colors } from "@/styles/defaultTheme";
-import { useState } from "react";
-import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
+import { IconSkill } from "@/components/icons";
+import { FC, ReactNode } from "react";
+import { Frame } from "@/components/wizard/wizard.components";
 
 
 const spacing = "1rem";
 export const ManageCharacter: React.FC<{  currentCharacter: Character }> = ({ currentCharacter }) => {
-  // NOTE: use this to handle local search through teasury items
-  // when the api is available
-  const [search, setSearch] = useState<string>("");
-  const debouncedSearch = useDebounce(search, 400);
-  const onSearch = (e: any) => setSearch(e.target.value);
-  console.log(debouncedSearch);
+
+  const combatSkillKeys = [
+    "fighting",
+    "shooting",
+    "fighting",
+    "strength",
+    "healing",
+    "psionics",
+    "magic",
+  ];
+
+  const experienceKeys = Object.keys(currentCharacter.experience) as Array<
+    keyof typeof currentCharacter.experience
+  >;
 
   return (
-    <Box
-    >
-    <PanelContainer display="flex" flexDirection="column" gap="4rem">
-      <Header characterName={currentCharacter.name} />
-      <VStack gap={spacing}>
-        <ResourceLabels />
-
-        {Array.from({ length: 3 }).map((_, i) => (
-          <ResourceAction key={"res" + i}>
-            <Text>#{i + 1}</Text>
-            <HStack>
-              <Label>next harvest in:</Label>
-              <Value>
-                10<span style={{ fontSize: "1rem" }}>s</span>
-              </Value>
-            </HStack>
-            <HStack>
-              <Label>amount:</Label>
-              <Value>1{i}</Value>
-            </HStack>
-            <MenuText
-              color={i > 0 ? "brand.quaternary" : "purple.700"}
-              opacity={i > 1 ? "0.5" : 1}
-              cursor={i > 1 ? "not-allowed" : "pointer"}
-            >
-              {i !== 0 ? "Harvest" : "Prospect"}
-            </MenuText>
-          </ResourceAction>
-        ))}
-      </VStack>
-      <Box>
-        <Flex justifyContent="space-between" alignItems="end" mb="1rem">
-          <MenuTitle mb="1rem">Treasury</MenuTitle>
-          <Input
-            bg="blacks.500"
-            outline="none"
-            placeholder="Search Items"
-            p="0.5rem 2rem"
-            borderRadius="1rem"
-            opacity="0.5"
-            onChange={onSearch}
-          />
-        </Flex>
-        <Grid
-          templateColumns="repeat(auto-fit, minmax(100px,1fr))"
-          gap={spacing}
-        >
-          {Array.from({ length: 222 }).map((_, i) => (
-            <Flex
-              key={i}
-              bg="blacks.500"
-              minH="5rem"
-              alignItems="center"
-              justifyContent="space-between"
-              p="1rem"
-              borderRadius="1rem"
-              transition="all 0.25s ease-in-out"
-              _hover={{
-                filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.25))",
-                transform: "scale(1.05)",
-              }}
-            >
-              <Box
-                h="4rem"
-                w="4rem"
-                bg="brand.primary"
-                borderRadius="0.5rem"
-                backgroundImage={`https://picsum.photos/seed/${i * 2}/32`}
-              />
-              <Value pr="1rem">78</Value>
-            </Flex>
-          ))}
+    <PanelContainer display="flex" flexDirection="column" gap="2rem">
+        <Header name={currentCharacter!.name} image={currentCharacter?.image} faction={currentCharacter?.faction} />
+        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="1rem">
+          <SkillContainer>
+            {currentCharacter?.experience &&
+              experienceKeys
+                ?.filter((key) => !combatSkillKeys.includes(key.toLowerCase()))
+                ?.sort((a, b) => a.localeCompare(b))
+                .map((key) => (
+                  <SkillBox
+                    key={"noncombat" + key}
+                    name={key}
+                    level={currentCharacter?.skills[key].toString()}
+                    xp={
+                      currentCharacter.experience[key].current.toString() +
+                      "/" +
+                      currentCharacter.experience[key].threshold.toString()
+                    }
+                  />
+                ))}
+          </SkillContainer>
+          <SkillContainer isCombat>
+            {experienceKeys
+              ?.filter((key) => combatSkillKeys.includes(key.toLowerCase()))
+              ?.sort((a, b) => a.localeCompare(b))
+              .map((key) => (
+                <SkillBox
+                  key={"combat" + key}
+                  name={key}
+                  level={currentCharacter?.skills[key].toString()}
+                  xp={
+                    currentCharacter.experience[key].current.toString() +
+                    "/" +
+                    currentCharacter.experience[key].threshold.toString()
+                  }
+                />
+              ))}
+          </SkillContainer>
         </Grid>
-      </Box>
+        <Flex gap="4rem">
+          <Value>ARMY</Value>
+          <HStack>
+            <Label>Equipped</Label>
+            <Value>123/456</Value>
+          </HStack>
+        </Flex>
+        <Grid templateColumns="repeat(auto-fill,minmax(100px,1fr))">
+          <TroopBox num={1} />
+          <TroopBox num={2} />
+          <TroopBox num={3} />
+          <TroopBox />
+        </Grid>
     </PanelContainer>
+  );
+};
+
+const Header: FC<{ image: string; name: string; faction: any }> = ({
+  image,
+  name,
+  faction,
+}) => {
+  return (
+    <Flex gap="1rem" alignItems="end">
+      <Frame img={image} />
+      <Box>
+        <Text fontFamily="header" fontSize="5rem" fontWeight={700}>
+          {name}
+        </Text>
+        <Flex gap="1rem" alignItems="center">
+          <Text letterSpacing="1px">FACTION:</Text>
+          {faction ? (
+            <Text>{faction}</Text>
+          ) : (
+            <Button fontSize="1rem">Join Faction</Button>
+          )}
+        </Flex>
+      </Box>
+    </Flex>
+  );
+};
+
+// const Header = ({ characterName } : { characterName: string; }) => {
+//   return (
+//     <Flex justifyContent="space-between" alignItems="end">
+//       <HStack alignItems="end">
+//         <Label mb={3}>selected:</Label>
+//         <Value>{characterName}</Value>
+//       </HStack>
+//     </Flex>
+//   );
+// };
+
+const TroopBox = ({ num = 4 }: { num?: number }) => {
+  const size = "100px";
+  return (
+    <Flex
+      direction="column"
+      justifyContent="space-between"
+      h={size}
+      w={size}
+      bg="brand.primary"
+      p="0.5rem 1rem"
+      borderRadius="0.5rem"
+      backgroundImage={`mock/troop-${num}.png`}
+      backgroundSize="110%"
+      backgroundPosition="center"
+      filter="drop-shadow(0 5px 0 rgba(0,0,0,0.0)) saturate(0.7)"
+      transition="all 0.25s ease-in-out"
+      _hover={{
+        filter: "drop-shadow(0 5px 10px rgba(0,0,0,0.9)) saturate(1.5)",
+        transform: "scale(1.05)",
+      }}
+    >
+      <Flex justifyContent="space-between">
+        <Badge>10</Badge>
+        <Badge>-</Badge>
+      </Flex>
+
+      <Flex justifyContent="space-between">
+        <Badge>10</Badge>
+        <Badge>+</Badge>
+      </Flex>
+    </Flex>
+  );
+};
+
+const Badge = ({ children }: { children: ReactNode }) => {
+  return (
+    <Grid
+      bg="black"
+      placeItems="center"
+      px="0.5rem"
+      borderRadius="3px"
+      opacity=".5"
+      transition="all 0.25s ease-in-out"
+      _hover={{
+        opacity: "1",
+      }}
+    >
+      <Text fontWeight={700} letterSpacing="1px" w="fit-content">
+        {children}
+      </Text>
+    </Grid>
+  );
+};
+
+const SkillContainer: FC<{ children: ReactNode; isCombat?: boolean }> = ({
+  children,
+  isCombat,
+}) => {
+  return (
+    <Box>
+      <Value>{!isCombat && "NON-"}Combat Skills</Value>
+      <Grid templateColumns="1fr 1fr" gap="1rem">
+        {children}
+      </Grid>
     </Box>
   );
 };
 
-const Header = ({ characterName } : { characterName: string; }) => {
+const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
+  name,
+  level,
+  xp,
+}) => {
+  const Icon = () => {
+    function is(value: string) {
+      return name.toLowerCase() === value.toLowerCase();
+    }
+    const style = {
+      color: colors.brand.quaternary,
+      fontSize: "4rem",
+    };
+    return is("athlethics") ? (
+      <IconSkill.athletics {...style} />
+    ) : is("electronics") ? (
+      <IconSkill.electronics {...style} />
+    ) : is("farming") ? (
+      <IconSkill.farming {...style} />
+    ) : is("fighting") ? (
+      <IconSkill.fighting {...style} />
+    ) : is("forestry") ? (
+      <IconSkill.forestry {...style} />
+    ) : is("healing") ? (
+      <IconSkill.healing {...style} />
+    ) : is("manufacturing") ? (
+      <IconSkill.manufacturing {...style} />
+    ) : is("mining") ? (
+      <IconSkill.mining {...style} />
+    ) : is("psionics") ? (
+      <IconSkill.psionics {...style} />
+    ) : is("shooting") ? (
+      <IconSkill.shooting {...style} />
+    ) : is("magic") ? (
+      <IconSkill.magic {...style} />
+    ) : is("strength") ? (
+      <IconSkill.strength {...style} />
+    ) : (
+      <div />
+    );
+  };
+
   return (
-    <Flex justifyContent="space-between" alignItems="end">
-      <HStack alignItems="end">
-        <Label mb={3}>selected:</Label>
-        <Value>{characterName}</Value>
-      </HStack>
+    <Flex
+      bg="brand.primary"
+      h="8rem"
+      alignItems="center"
+      gap="1rem"
+      borderRadius="0.5rem"
+      title={name}
+      opacity={level === "0" ? "0.25" : "1"}
+      _hover={{
+        opacity: 1,
+      }}
+      transition="all 0.25s ease-in-out"
+    >
+      <Grid
+        bg="blacks.500"
+        h="6rem"
+        w="6rem"
+        ml="1rem"
+        borderRadius="0.65rem"
+        title={name}
+        placeItems="center"
+      >
+        <Icon />
+      </Grid>
+      <Flex direction="column">
+        <HStack>
+          <Label>LVL:</Label>
+          <Value>{level}</Value>
+        </HStack>
+        <HStack>
+          <Label>XP:</Label>
+          <Value>{xp}</Value>
+        </HStack>
+      </Flex>
     </Flex>
   );
 };
 
-const ResourceLabels = () => {
-  return (
-    <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
-      <MenuTitle>favors</MenuTitle>
-      <HStack gap="4rem" alignItems="end">
-        <MenuText color="brand.quaternary">harvest all</MenuText>
-        <MenuText color="brand.tertiary">discover</MenuText>
-      </HStack>
-    </Flex>
-  );
-};
-
-const Title = styled(Text)`
+const Label = styled(Text)`
   text-transform: uppercase;
-  font-size: 3rem;
-  font-weight: 700;
-`;
-
-const MenuTitle = styled(Text)`
+  letter-spacing: 1px;
+  opacity: 0.5;
+  font-weight: 400;
   font-size: 1.75rem;
+`;
+
+const Value = styled(Text)`
   font-weight: 700;
+  font-size: 2rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  text-decoration: underline;
-`;
-const MenuText = styled(Text)`
-  font-size: 1.5rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-`;
-const ResourceAction = styled(Flex)`
-  background-color: ${colors.blacks[500]};
-  width: 100%;
-  padding: 1.5rem;
-  border-radius: ${spacing};
-  align-items: center;
-  justify-content: space-between;
 `;

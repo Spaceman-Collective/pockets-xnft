@@ -24,7 +24,7 @@ const IconSkill = {
   mining: GiMining,
   psionics: GiAllSeeingEye,
   shooting: GiSawedOffShotgun,
-  spellcasting: GiBoltSpellCast,
+  magic: GiBoltSpellCast,
   strength: GiFist,
 };
 

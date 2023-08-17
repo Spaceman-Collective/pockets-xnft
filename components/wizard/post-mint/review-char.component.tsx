@@ -30,7 +30,7 @@ export const ReviewMint = ({
     );
   const combatSkillKeys = [
     "fighting",
-    "spellcasting",
+    "magic",
     "shooting",
     "fighting",
     "strength",
@@ -90,7 +90,6 @@ export const ReviewMint = ({
             <Value>123/456</Value>
           </HStack>
         </Flex>
-
         <Grid templateColumns="repeat(auto-fill,minmax(100px,1fr))">
           <TroopBox num={1} />
           <TroopBox num={2} />
@@ -242,8 +241,8 @@ const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
       <IconSkill.psionics {...style} />
     ) : is("shooting") ? (
       <IconSkill.shooting {...style} />
-    ) : is("spellcasting") ? (
-      <IconSkill.spellcasting {...style} />
+    ) : is("magic") ? (
+      <IconSkill.magic {...style} />
     ) : is("strength") ? (
       <IconSkill.strength {...style} />
     ) : (
