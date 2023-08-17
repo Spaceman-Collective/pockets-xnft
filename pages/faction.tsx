@@ -16,11 +16,11 @@ import {
 import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react";
 import { useSolana } from "@/hooks/useSolana";
 import { FactionModal } from "@/components/dashboard/faction/faction-modal";
-import { NoFaction } from "@/components/dashboard/faction/no-faction.component";
+import { NoFaction, NoSelectedCharacter } from "@/components/dashboard/faction/no-faction.component";
 import { FactionTabs } from "@/components/dashboard/faction/tabs";
 import { useEffect, useState } from "react";
-import { useCharacter} from "@/hooks/useCharacter";
 import { Character } from "@/types/server";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 
 export default function FactionPage() {
@@ -28,23 +28,11 @@ export default function FactionPage() {
   const { walletAddress } = useSolana();
   const joinFactionDisclosure = useDisclosure();
   const [isInFaction, setIsInFaction] = useState(false);
-  const [selectedCharacter, setSelectedCharacter] = useState<Character>(character);
-
-  const { data, error, isLoading } = useCharacter(character.mint);
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   useEffect(() => {
-    if (data?.character) {
-      setSelectedCharacter(data.character);
-    }
-}, [data, isInFaction]);
-
-
-  useEffect(() => {
-      if (data?.faction) {
-        setIsInFaction(true);
-      }
-  }, [data, isInFaction]);
-
+    setIsInFaction(!!selectedCharacter?.faction)
+}, [selectedCharacter]);
 
   return (
     <>
@@ -66,10 +54,12 @@ export default function FactionPage() {
                 <DashboardMenu />
               </DashboardMenuContainer>
               <FactionSection>
-                <CharacterList data={allAssetData?.characters} />
+                <CharacterList data={allAssetData?.characters} selectedCharacter={selectedCharacter} setSelectedCharacter={setSelectedCharacter} />
                 <SectionContainer>
-                  {isInFaction ? (
-                    <FactionTabs currentCharacter={selectedCharacter} />
+                  {!selectedCharacter ? (
+                    <NoSelectedCharacter />
+                  ) : isInFaction ? (
+                    <FactionTabs currentCharacter={selectedCharacter!} />
                   ) : (
                     <NoFaction
                       onOpenJoinFaction={joinFactionDisclosure.onOpen}

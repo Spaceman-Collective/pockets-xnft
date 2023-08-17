@@ -1,6 +1,6 @@
-import { FC, useEffect, useState } from "react";
+import { FC,  useState } from "react";
 import { useRouter } from "next/router";
-import { Flex, Button, Text, Box, Input } from "@chakra-ui/react";
+import { Flex, Button, Text } from "@chakra-ui/react";
 import {
   CharacterListContainer,
 } from "@/components/Containers.styled";
@@ -9,12 +9,16 @@ import { Frame } from "../wizard/wizard.components";
 import styled from "@emotion/styled";
 
 import { colors } from "@/styles/defaultTheme";
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
-export const CharacterList: FC<{ data?: Character[] }> = ({ data }) => {
+interface Props  {
+  selectedCharacter: Character | undefined | null,
+  setSelectedCharacter: (char?: Character | null) => void,
+  data?: Character[]
+}
+
+export const CharacterList: FC<Props> = ({ selectedCharacter, setSelectedCharacter, data }: Props) => {
   const router = useRouter();
   const [actionStatus, setActionStatus] = useState(false);
-  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   const handleCharacterSelect = (char: Character) => {
     if (selectedCharacter?.mint === char.mint) {
