@@ -24,12 +24,11 @@ export const FactionModal: FC<{ isOpen: boolean; onClose: () => void; character:
 }) => {
 
   const [factionsList, setFactionsList] = useState<Faction[]>([])
-
   const { data } = useFetchAllFactions();
 
   useEffect(() => {
     if (data?.total) {
-      setFactionsList(data);
+      setFactionsList(data?.factions);
     }
 }, [data, setFactionsList]);
 
