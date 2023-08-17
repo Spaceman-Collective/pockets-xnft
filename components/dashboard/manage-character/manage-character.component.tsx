@@ -9,14 +9,13 @@ import { Frame } from "@/components/wizard/wizard.components";
 
 
 const spacing = "1rem";
-export const ManageCharacter: React.FC<{  currentCharacter: Character }> = ({ currentCharacter }) => {
+export const ManageCharacter: React.FC<{  currentCharacter: Character; }> = ({ currentCharacter }) => {
 
   const combatSkillKeys = [
+    "strength",
     "fighting",
     "shooting",
-    "fighting",
-    "strength",
-    "healing",
+    "athletics",
     "psionics",
     "magic",
   ];
@@ -27,10 +26,10 @@ export const ManageCharacter: React.FC<{  currentCharacter: Character }> = ({ cu
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="2rem">
-        <Header name={currentCharacter!.name} image={currentCharacter?.image} faction={currentCharacter?.faction} />
+        <Header name={currentCharacter.name} image={currentCharacter.image} faction={currentCharacter.faction?.id} />
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="1rem">
           <SkillContainer>
-            {currentCharacter?.experience &&
+            {currentCharacter.experience &&
               experienceKeys
                 ?.filter((key) => !combatSkillKeys.includes(key.toLowerCase()))
                 ?.sort((a, b) => a.localeCompare(b))
@@ -38,7 +37,7 @@ export const ManageCharacter: React.FC<{  currentCharacter: Character }> = ({ cu
                   <SkillBox
                     key={"noncombat" + key}
                     name={key}
-                    level={currentCharacter?.skills[key].toString()}
+                    level={currentCharacter.skills[key].toString()}
                     xp={
                       currentCharacter.experience[key].current.toString() +
                       "/" +
@@ -55,7 +54,7 @@ export const ManageCharacter: React.FC<{  currentCharacter: Character }> = ({ cu
                 <SkillBox
                   key={"combat" + key}
                   name={key}
-                  level={currentCharacter?.skills[key].toString()}
+                  level={currentCharacter.skills[key].toString()}
                   xp={
                     currentCharacter.experience[key].current.toString() +
                     "/" +

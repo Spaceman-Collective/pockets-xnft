@@ -17,7 +17,7 @@ import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
 interface FactionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  character?: Character | null;
+  character?: Character;
 }
 
 export const FactionModal: FC<FactionModalProps> = ({

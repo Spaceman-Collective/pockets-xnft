@@ -22,6 +22,7 @@ import { FactionTabs } from "@/components/dashboard/faction/tabs";
 import { useEffect, useState } from "react";
 import { useCharacter} from "@/hooks/useCharacter";
 import { Character } from "@/types/server";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 
 export default function CharacterPage() {
@@ -29,23 +30,11 @@ export default function CharacterPage() {
   const { walletAddress } = useSolana();
   const joinFactionDisclosure = useDisclosure();
   const [isInFaction, setIsInFaction] = useState(false);
-  const [selectedCharacter, setSelectedCharacter] = useState<Character>(character);
-
-  const { data, error, isLoading } = useCharacter(character.mint);
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   useEffect(() => {
-    if (data?.character) {
-      setSelectedCharacter(data.character);
-    }
-}, [data, isInFaction]);
-
-
-  useEffect(() => {
-      if (data?.faction) {
-        setIsInFaction(true);
-      }
-  }, [data, isInFaction]);
-
+    setIsInFaction(!!selectedCharacter?.faction)
+}, [selectedCharacter]);
 
   return (
     <>
@@ -67,15 +56,13 @@ export default function CharacterPage() {
                 <DashboardMenu />
               </DashboardMenuContainer>
               <FactionSection>
-                <CharacterList data={allAssetData?.characters} selectedCharacter={undefined} setSelectedCharacter={function (char?: Character | null | undefined): void {
-                  throw new Error("Function not implemented.");
-                } } />
+              <CharacterList data={allAssetData?.characters} selectedCharacter={selectedCharacter} setSelectedCharacter={setSelectedCharacter} />
                 <SectionContainer>
-                  <ManageCharacter currentCharacter={character}/>
+                  <ManageCharacter currentCharacter={selectedCharacter!}/>
                 </SectionContainer>
               </FactionSection>
             </DashboardContainer>
-            <FactionModal character={selectedCharacter} {...joinFactionDisclosure} />
+            <FactionModal character={selectedCharacter!} {...joinFactionDisclosure} />
           </>
         ) : (
           <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>

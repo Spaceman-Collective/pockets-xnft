@@ -1,6 +1,6 @@
 import { Text, Button, Flex, Box, Grid, HStack } from "@chakra-ui/react";
 import styled from "@emotion/styled";
-import type { Character } from "@/types/server";
+import type { Character, Faction } from "@/types/server";
 import { Frame } from "../wizard.components";
 import { FC, ReactNode } from "react";
 import { IconSkill } from "@/components/icons";
@@ -29,13 +29,12 @@ export const ReviewMint = ({
       </Button>
     );
   const combatSkillKeys = [
-    "fighting",
-    "magic",
-    "shooting",
-    "fighting",
     "strength",
-    "healing",
+    "fighting",
+    "shooting",
+    "athletics",
     "psionics",
+    "magic",
   ];
 
   const experienceKeys = Object.keys(data.experience) as Array<
@@ -169,7 +168,7 @@ const Badge = ({ children }: { children: ReactNode }) => {
   );
 };
 
-const Header: FC<{ image: string; name: string; faction: any }> = ({
+const Header: FC<{ image: string; name: string; faction: Faction | undefined; }> = ({
   image,
   name,
   faction,
@@ -184,7 +183,7 @@ const Header: FC<{ image: string; name: string; faction: any }> = ({
         <Flex gap="1rem" alignItems="center">
           <Text letterSpacing="1px">FACTION:</Text>
           {faction ? (
-            <Text>{faction}</Text>
+            <Text>{faction?.id}</Text>
           ) : (
             <Button fontSize="1rem">Join Faction</Button>
           )}
