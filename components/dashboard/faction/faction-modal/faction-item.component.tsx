@@ -20,7 +20,7 @@ export const FactionBox: FC<{ onClose: () => void; faction: Faction; characterMi
   const { mutate } = useJoinFaction();
 
   const onSuccess = (data: any) => {
-    console.log('Left Faction!');
+    console.log('Joined Faction!');
     onClose();
   };
 
