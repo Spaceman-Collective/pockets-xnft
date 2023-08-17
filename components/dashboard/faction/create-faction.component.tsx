@@ -21,7 +21,7 @@ import { timeout } from "@/lib/utils";
 import { Faction } from "@/types/server/Faction";
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
 import { skip } from "node:test";
-import { useFactionsInfo } from "@/hooks/useFactionsInfo";
+import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
 import { connect } from "http2";
 
 export const CreateFaction: FC<{
@@ -36,7 +36,7 @@ export const CreateFaction: FC<{
     encodeTransaction,
     getBonkBalance,
   } = useSolana();
-  const { data: numOfFactions } = useFactionsInfo();
+  const { data: numOfFactions } = useFetchAllFactions();
   const { mutate } = useCreateFaction();
   const [faction, setFaction] = useState({
     name: "",
