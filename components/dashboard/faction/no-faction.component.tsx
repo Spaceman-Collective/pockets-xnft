@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { Flex, Text, Button } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
-import { CreateFaction } from "./createfaction.component";
+import { CreateFaction } from "./create-faction.component";
 import Confetti from "@/components/Confetti";
 import { timeout } from "@/lib/utils";
 

@@ -71,3 +71,16 @@ export const fetchFactions = async ({
   }
 };
 
+export const postLeaveFaction = async ({ signedTx }: { signedTx: string }) => {
+  const URL = API_BASE_URL + "/faction/leave";
+  try {
+    const { data } = await fetch.post<any>(URL, {
+      signedTx,
+    });
+    return data;
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+};
+

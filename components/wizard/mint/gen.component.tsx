@@ -28,7 +28,7 @@ export const Generate: FC<{
     fireConfetti();
   };
 
-  const { connection, walletAddress, signTransaction, buildMemoIx, buildTransferIx, encodeTransaction } = useSolana();
+  const { connection, walletAddress, signTransaction, buildMemoIx, encodeTransaction } = useSolana();
 
   return (
     <>

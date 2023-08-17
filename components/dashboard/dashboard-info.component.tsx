@@ -26,7 +26,8 @@ export const DashboardInfo = () => {
             borderRadius="0.5rem"
             p="0.5rem"
             fontSize="12px"
-            fontWeight={600}
+            fontWeight={400}
+            letterSpacing="1px"
             color={colors.brand.tertiary}
           >
             FACTION:
@@ -51,7 +52,8 @@ export const DashboardInfo = () => {
             borderRadius="0.5rem"
             p="0.5rem"
             fontSize="12px"
-            fontWeight={600}
+            fontWeight={400}
+            letterSpacing="1px"
             color={colors.brand.tertiary}
             flex="1"
             display="flex"
@@ -88,7 +90,8 @@ export const DashboardInfo = () => {
             borderRadius="0.5rem"
             p="0.5rem"
             fontSize="12px"
-            fontWeight={600}
+            fontWeight={400}
+            letterSpacing="1px"
             color={colors.brand.tertiary}
           >
             FACTIONS:
@@ -114,7 +117,8 @@ export const DashboardInfo = () => {
             borderRadius="0.5rem"
             p="0.5rem"
             fontSize="12px"
-            fontWeight={600}
+            fontWeight={400}
+            letterSpacing="1px"
             color={colors.brand.tertiary}
           >
             TOTAL RFS:
@@ -140,7 +144,8 @@ export const DashboardInfo = () => {
             borderRadius="0.5rem"
             p="0.5rem"
             fontSize="12px"
-            fontWeight={600}
+            fontWeight={400}
+            letterSpacing="1px"
             color={colors.brand.tertiary}
           >
             PLAYERS:
