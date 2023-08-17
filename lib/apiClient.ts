@@ -36,7 +36,7 @@ export const fetchCharacter = async ({ mint }: { mint: string }) => {
         mint: mint,
       },
     });
-    console.log('data: ', data);
+    console.log('character: ', data);
     return data as { character?: Character; faction?: Faction }; // returns { character, faction }
   } catch (err) {
     console.error(err);
@@ -63,6 +63,7 @@ export const postCreateFaction = async ({ signedTx }: { signedTx: string }) => {
     const { data } = await fetch.post<any>(URL, {
       signedTx
     });
+    console.log('create faction: ', data);
       return data // returns Faction
   } catch (error) {
     console.error(error);
@@ -81,6 +82,7 @@ export const fetchFactions = async ({
         take: 0,
       },
     });
+    console.log('fetched factions: ', data);
     return data; // returns number of Factions
   } catch (err) {
     console.error(err);
@@ -100,6 +102,7 @@ export const fetchFaction = async ({
         id: factionId
       },
     });
+    console.log('retrieved faction: ', data);
     return data; // returns Faction
   } catch (err) {
     console.error(err);
@@ -114,7 +117,7 @@ export const postJoinFaction = async ({ signedTx }: { signedTx: string }) => {
     const { data } = await fetch.post<any>(URL, {
       signedTx,
     });
-    console.log('faction: ', data);
+    console.log('join faction: ', data);
     return data;
   } catch (err) {
     console.error(err);
@@ -128,7 +131,7 @@ export const postLeaveFaction = async ({ signedTx }: { signedTx: string }) => {
     const { data } = await fetch.post<any>(URL, {
       signedTx,
     });
-    console.log('faction: ', data);
+    console.log('leave faction: ', data);
     return data;
   } catch (err) {
     console.error(err);
