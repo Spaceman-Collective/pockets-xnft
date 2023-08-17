@@ -19,3 +19,9 @@ export const Value = styled(Text)`
   font-weight: 700;
   text-transform: uppercase;
 `;
+
+export const ValueCalculation = styled(Text)`
+  font-size: 1.25rem;
+  font-weight: 400;
+  text-transform: uppercase;
+`;

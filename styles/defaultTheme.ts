@@ -10,6 +10,7 @@ export const colors = {
     quaternary: "#E7B987",
   },
   blacks: {
+    400: "#2D2D2D",
     500: "#1B1A1A",
     600: "#151414",
     700: "#0D0D0D",
