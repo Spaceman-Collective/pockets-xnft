@@ -69,7 +69,7 @@ export default function CharacterPage() {
               <FactionSection>
                 <CharacterList data={allAssetData?.characters} />
                 <SectionContainer>
-                  <ManageCharacter/>
+                  <ManageCharacter currentCharacter={character}/>
                 </SectionContainer>
               </FactionSection>
             </DashboardContainer>
