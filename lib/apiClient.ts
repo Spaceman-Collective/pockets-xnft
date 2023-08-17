@@ -1,5 +1,5 @@
 import type { NFT, Character, Faction, Station } from "@/types/server";
-import fetch, { AxiosResponse } from "axios";
+import fetch from "axios";
 const API_BASE_URL = "https://api.pockets.gg";
 
 export const getLadImageURL = (ladNumber: number) =>
