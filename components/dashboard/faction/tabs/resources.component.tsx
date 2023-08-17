@@ -2,17 +2,46 @@ import { Box, Flex, Grid, HStack, Input, Text, VStack } from "@chakra-ui/react";
 import { Label, PanelContainer, Value } from "./tab.styles";
 import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
+import { useState } from "react";
+import { useDebounce } from "@uidotdev/usehooks";
 
 const spacing = "1rem";
 export const FactionTabResources = () => {
+  // NOTE: use this to handle local search through teasury items
+  // when the api is available
+  const [search, setSearch] = useState<string>("");
+  const debouncedSearch = useDebounce(search, 400);
+  const onSearch = (e: any) => setSearch(e.target.value);
+  console.log(debouncedSearch);
+
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header />
       <VStack gap={spacing}>
         <ResourceLabels />
-        <ResourceAction>hjkl</ResourceAction>
-        <ResourceAction>hjkl</ResourceAction>
-        <ResourceAction>hjkl</ResourceAction>
+
+        {Array.from({ length: 3 }).map((_, i) => (
+          <ResourceAction key={"res" + i}>
+            <Text>#{i + 1}</Text>
+            <HStack>
+              <Label>next harvest in:</Label>
+              <Value>
+                10<span style={{ fontSize: "1rem" }}>s</span>
+              </Value>
+            </HStack>
+            <HStack>
+              <Label>amount:</Label>
+              <Value>1{i}</Value>
+            </HStack>
+            <MenuText
+              color={i > 0 ? "brand.quaternary" : "purple.700"}
+              opacity={i > 1 ? "0.5" : 1}
+              cursor={i > 1 ? "not-allowed" : "pointer"}
+            >
+              {i !== 0 ? "Harvest" : "Prospect"}
+            </MenuText>
+          </ResourceAction>
+        ))}
       </VStack>
       <Box>
         <Flex justifyContent="space-between" alignItems="end" mb="1rem">
@@ -24,6 +53,7 @@ export const FactionTabResources = () => {
             p="0.5rem 2rem"
             borderRadius="1rem"
             opacity="0.5"
+            onChange={onSearch}
           />
         </Flex>
         <Grid
@@ -113,4 +143,6 @@ const ResourceAction = styled(Flex)`
   width: 100%;
   padding: 1.5rem;
   border-radius: ${spacing};
+  align-items: center;
+  justify-content: space-between;
 `;
