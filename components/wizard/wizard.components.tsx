@@ -22,7 +22,7 @@ export const Frame = ({
       }}
       onClick={select}
     >
-      <Img width="200" height="100" style={{ height: size, width: size }} alt="lad" src={img} />
+      <Img width="200" height="100" style={{ height: size, width: size }} alt="nft" src={img} />
     </Box>
   );
 };
