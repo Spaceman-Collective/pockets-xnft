@@ -8,18 +8,10 @@ import styled from "@emotion/styled";
 export const Personal = () => {
   return (
     <Box
-      cursor="pointer"
-      position="relative"
-      transition="all 0.25s ease-in-out"
-      _hover={{
-        transform: "scale(1.2)",
-      }}
     >
       <Text
         opacity="0.7"
-        position="absolute"
         top="0.2rem"
-        left="0.2rem"
         bg="brand.primary"
         borderRadius="0.5rem"
         p="0.25rem"
@@ -28,7 +20,20 @@ export const Personal = () => {
         letterSpacing="1px"
         zIndex={10}
       >
-        personal
+        FAVORS
+      </Text>
+      <Text
+        opacity="0.7"
+        top="0.2rem"
+        bg="brand.primary"
+        borderRadius="0.5rem"
+        p="0.25rem"
+        fontSize="1.25rem"
+        fontWeight={700}
+        letterSpacing="1px"
+        zIndex={10}
+      >
+        MY RESOURCES
       </Text>
     </Box>
   );

@@ -41,7 +41,7 @@ export const CharacterList: FC<{ data?: Character[] }> = ({ data }) => {
             )
           })}
         </Flex>
-      <Button
+      {/* <Button
         variant="outline"
         width="100%"
         alignSelf='center'
@@ -49,7 +49,7 @@ export const CharacterList: FC<{ data?: Character[] }> = ({ data }) => {
         onClick={() => { }}
       >
         Confirm
-      </Button>
+      </Button> */}
     </CharacterListContainer>
   );
 };
