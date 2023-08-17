@@ -34,7 +34,7 @@ export default function CharacterPage() {
 
   useEffect(() => {
     setIsInFaction(!!selectedCharacter?.faction)
-}, [selectedCharacter]);
+  }, [selectedCharacter]);
 
   return (
     <>

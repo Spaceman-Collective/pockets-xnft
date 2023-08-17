@@ -8,12 +8,14 @@ interface FactionBoxProps {
   onClose: () => void;
   faction: Faction;
   characterMint?: string;
+  setFactionStatus: (value: boolean) => void;
 }
 
 export const FactionBox: FC<FactionBoxProps> = ({
   onClose,
   faction,
-  characterMint
+  characterMint,
+  setFactionStatus
 }) => {
   const {
     connection,
@@ -26,6 +28,7 @@ export const FactionBox: FC<FactionBoxProps> = ({
   const { mutate } = useJoinFaction();
 
   const onSuccess = (data: any) => {
+    setFactionStatus(true);
     console.log('Joined Faction!');
     onClose();
   };

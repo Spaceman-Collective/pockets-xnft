@@ -26,12 +26,16 @@ export default function FactionPage() {
   const { data: allAssetData } = useAssets();
   const { walletAddress } = useSolana();
   const joinFactionDisclosure = useDisclosure();
-  const [isInFaction, setIsInFaction] = useState(false);
+  const [isInFaction, setIsInFaction] = useState(true);
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   useEffect(() => {
     setIsInFaction(!!selectedCharacter?.faction)
-}, [selectedCharacter]);
+  }, [selectedCharacter]);
+
+  const handleSetFactionStatus = (status: boolean) => {
+    setIsInFaction(status);
+  }
 
   return (
     <>
@@ -58,7 +62,7 @@ export default function FactionPage() {
                   {!selectedCharacter ? (
                     <NoSelectedCharacter />
                   ) : isInFaction ? (
-                    <FactionTabs currentCharacter={selectedCharacter!} />
+                    <FactionTabs currentCharacter={selectedCharacter!} setFactionStatus={handleSetFactionStatus} />
                   ) : (
                     <NoFaction
                       onOpenJoinFaction={joinFactionDisclosure.onOpen}
@@ -67,7 +71,7 @@ export default function FactionPage() {
                 </SectionContainer>
               </FactionSection>
             </DashboardContainer>
-            <FactionModal character={selectedCharacter!} {...joinFactionDisclosure} />
+            <FactionModal character={selectedCharacter!} {...joinFactionDisclosure} setFactionStatus={handleSetFactionStatus} />
           </>
         ) : (
           <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>

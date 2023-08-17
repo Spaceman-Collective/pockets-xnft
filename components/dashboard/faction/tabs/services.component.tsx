@@ -3,7 +3,7 @@ import { PanelContainer } from "./tab.styles";
 import styled from "@emotion/styled";
 import { Flex, Text } from "@chakra-ui/react";
 
-export const FactionTabServices: React.FC<{  currentCharacter: Character }> = ({ currentCharacter }) => {
+export const FactionTabServices: React.FC<{  currentCharacter: Character; setFactionStatus: (value: boolean) => void; }> = ({ currentCharacter, setFactionStatus }) => {
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header />

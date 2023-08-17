@@ -18,8 +18,9 @@ import { useLeaveFaction } from "@/hooks/useLeaveFaction";
 import { useCharacter} from "@/hooks/useCharacter";
 import { useSolana } from "@/hooks/useSolana";
 import { Character } from "@/types/server";
+import { useEffect } from "react";
 
-export const LeaveFactionModal: React.FC<{ character: Character}> = ({ character }) => {
+export const LeaveFactionModal: React.FC<{ character: Character; setFactionStatus: (value: boolean) => void; }> = ({ character, setFactionStatus }) => {
   const {
     connection,
     walletAddress,
@@ -32,7 +33,13 @@ export const LeaveFactionModal: React.FC<{ character: Character}> = ({ character
   const { data, error, isLoading } = useCharacter(character?.mint);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+
+  useEffect(() => {
+    setFactionStatus(!!character?.faction)
+  }, [character, setFactionStatus]);
+
   const onSuccess = (data: any) => {
+    setFactionStatus(false);
     console.log('Left Faction!');
     onClose();
   };

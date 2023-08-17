@@ -18,12 +18,14 @@ interface FactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   character?: Character;
+  setFactionStatus: (value: boolean) => void;
 }
 
 export const FactionModal: FC<FactionModalProps> = ({
   onClose,
   isOpen,
   character,
+  setFactionStatus
 }) => {
 
   const [factionsList, setFactionsList] = useState<Faction[]>([])
@@ -68,7 +70,7 @@ export const FactionModal: FC<FactionModalProps> = ({
           </Flex>
           <Flex direction="column" mt="2rem" gap="2rem">
             {factionsList?.map((faction, i) => (
-              <FactionBox key={i + "faction"} onClose={onClose} faction={faction} characterMint={character?.mint} />
+              <FactionBox key={i + "faction"} onClose={onClose} faction={faction} characterMint={character?.mint} setFactionStatus={setFactionStatus}/>
             ))}
           </Flex>
         </ModalBody>

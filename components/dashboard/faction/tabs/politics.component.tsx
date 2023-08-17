@@ -5,9 +5,10 @@ import styled from "@emotion/styled";
 import { useSolana } from "@/hooks/useSolana";
 import { LeaveFactionModal } from "../leave-faction.component";
 import { Character } from "@/types/server";
+import { useEffect } from "react";
 
 const spacing = "1rem";
-export const FactionTabPolitics: React.FC<{  currentCharacter: Character }> = ({ currentCharacter }) => {
+export const FactionTabPolitics: React.FC<{  currentCharacter: Character; setFactionStatus: (value: boolean) => void; }> = ({ currentCharacter, setFactionStatus }) => {
   const {
     connection,
     walletAddress,
@@ -15,6 +16,10 @@ export const FactionTabPolitics: React.FC<{  currentCharacter: Character }> = ({
     buildMemoIx,
     encodeTransaction,
   } = useSolana();
+
+  useEffect(() => {
+    setFactionStatus(!!currentCharacter?.faction)
+  }, [currentCharacter, setFactionStatus]);
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
@@ -30,7 +35,7 @@ export const FactionTabPolitics: React.FC<{  currentCharacter: Character }> = ({
         >
           citizens
         </CitizensButton>
-        <LeaveFactionModal character={currentCharacter} />
+        <LeaveFactionModal character={currentCharacter} setFactionStatus={setFactionStatus} />
       </Flex>
       <VStack gap={spacing}>
         <ProposalLabels />

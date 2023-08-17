@@ -7,7 +7,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
 
 const spacing = "1rem";
-export const FactionTabResources: React.FC<{  currentCharacter: Character }> = ({ currentCharacter }) => {
+export const FactionTabResources: React.FC<{  currentCharacter: Character; setFactionStatus: (value: boolean) => void; }> = ({ currentCharacter }) => {
   // NOTE: use this to handle local search through teasury items
   // when the api is available
   const [search, setSearch] = useState<string>("");

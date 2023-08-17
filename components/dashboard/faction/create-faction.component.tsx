@@ -26,7 +26,8 @@ import { connect } from "http2";
 
 export const CreateFaction: FC<{
   fire: () => void;
-}> = ({ fire: fireConfetti }) => {
+  setFactionStatus: (value: boolean) => void;
+}> = ({ fire: fireConfetti, setFactionStatus }) => {
   const {
     connection,
     walletAddress,
@@ -98,6 +99,7 @@ export const CreateFaction: FC<{
   };
 
   const onSuccess = (data: any) => {
+    setFactionStatus(true);
     fireConfetti();
     onClose();
   };

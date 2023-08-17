@@ -32,6 +32,11 @@ export const CharacterList: FC<Props> = ({ selectedCharacter, setSelectedCharact
     <CharacterListContainer>
       <Button
         variant="solid"
+        border="2px solid"
+        borderColor={colors.blacks[700]}
+        _hover={{
+          borderColor: colors.blacks[700]
+        }}
         width="100%"
         onClick={() => router.push("/wizard")}
       >
@@ -41,7 +46,7 @@ export const CharacterList: FC<Props> = ({ selectedCharacter, setSelectedCharact
           {data?.map(char => {
             return (
               <CharacterFlex key={char.mint} onClick={() => handleCharacterSelect(char)} selected={char.mint === selectedCharacter?.mint}>
-                <Flex gap='1rem' alignItems='end'>
+                <Flex gap='1rem' alignItems='center'>
                   <Frame img={char.image} size='8rem' />
                   <Flex direction='column'>
                     <Text fontSize='2.25rem' letterSpacing='1px'>
@@ -52,20 +57,11 @@ export const CharacterList: FC<Props> = ({ selectedCharacter, setSelectedCharact
                     </Text>
                   </Flex>
                 </Flex>
-                <Box h='5rem' w='5rem' bg='black' borderRadius='1rem' backgroundImage='' backgroundSize='cover' backgroundPosition='center' />
+                <Box h='4rem' w='4rem' bg='black' borderRadius='1rem' backgroundImage='' backgroundSize='cover' backgroundPosition='center' />
               </CharacterFlex>
             )
           })}
         </Flex>
-      {/* <Button
-        variant="outline"
-        width="100%"
-        alignSelf='center'
-        disabled={!actionStatus}
-        onClick={() => { }}
-      >
-        Confirm
-      </Button> */}
     </CharacterListContainer>
   );
 };
@@ -77,11 +73,8 @@ const CharacterFlex = styled(Flex)<{ selected?: boolean }>`
   border-radius: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
-  background-color: ${(props) => {
-    return props.selected ? colors.brand.tertiary : colors.blacks[500]
+  background-color: ${colors.blacks[500]};
+  border: 2px solid ${(props) => {
+    return props.selected ? colors.brand.secondary : colors.blacks[500]
   }};
-
-  :hover {
-    background-color: ${colors.brand.tertiary};
-  }
 `;

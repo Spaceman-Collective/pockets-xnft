@@ -15,9 +15,10 @@ import { colors } from "@/styles/defaultTheme";
 import { Character } from "@/types/server";
 import { IconSkill } from "@/components/icons";
 import { FC, ReactNode } from "react";
+import { NoSelectedCharacter } from "../faction/no-faction.component";
 
 const spacing = "1rem";
-export const ManageCharacter: React.FC<{ currentCharacter: Character }> = ({
+export const ManageCharacter: React.FC<{ currentCharacter?: Character }> = ({
   currentCharacter,
 }) => {
   const combatSkillKeys = [
@@ -28,6 +29,10 @@ export const ManageCharacter: React.FC<{ currentCharacter: Character }> = ({
     "psionics",
     "magic",
   ];
+
+  if (!currentCharacter) {
+    return <NoSelectedCharacter/>
+  }
 
   const experienceKeys = Object.keys(currentCharacter.experience) as Array<
     keyof typeof currentCharacter.experience
