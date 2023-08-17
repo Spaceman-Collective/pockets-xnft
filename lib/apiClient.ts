@@ -71,6 +71,26 @@ export const fetchFactions = async ({
   }
 };
 
+export const fetchFaction = async ({
+  factionId,
+}: {
+  factionId: string;
+}) => {
+  const URL = API_BASE_URL + "/faction";
+  try {
+    const { data } = await fetch.get<any>(URL, {
+      params: {
+        id: factionId
+      },
+    });
+    return data; // returns Faction
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+};
+
+
 export const postLeaveFaction = async ({ signedTx }: { signedTx: string }) => {
   const URL = API_BASE_URL + "/faction/leave";
   try {
