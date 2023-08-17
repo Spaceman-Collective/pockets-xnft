@@ -26,10 +26,8 @@ export const FactionModal: FC<FactionModalProps> = ({
   character,
 }) => {
 
-
   const [factionsList, setFactionsList] = useState<Faction[]>([])
   const { data } = useFetchAllFactions();
-  const [factionsList, setFactionsList] = useState<Faction[]>([])
 
   useEffect(() => {
     if (data?.total) {

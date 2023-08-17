@@ -67,7 +67,9 @@ export default function CharacterPage() {
                 <DashboardMenu />
               </DashboardMenuContainer>
               <FactionSection>
-                <CharacterList data={allAssetData?.characters} />
+                <CharacterList data={allAssetData?.characters} selectedCharacter={undefined} setSelectedCharacter={function (char?: Character | null | undefined): void {
+                  throw new Error("Function not implemented.");
+                } } />
                 <SectionContainer>
                   <ManageCharacter/>
                 </SectionContainer>
