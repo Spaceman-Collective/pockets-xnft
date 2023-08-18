@@ -32,11 +32,12 @@ export const ModalStation: FC<{ isOpen: boolean; onClose: () => void }> = ({
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
         <ModalBody>
           <ModalHeader />
-          <Grid templateColumns="repeat(3, 1fr)" mt="2rem">
+          <Grid templateColumns="repeat(3, 1fr)" mt="4rem">
             <ResourceContainer
               resources={[
-                { img: "https://picsum.photos/seed/1/200" },
-                { img: "https://picsum.photos/seed/2/200" },
+                { img: "https://picsum.photos/seed/1/200/200" },
+                { img: "https://picsum.photos/seed/2/200/200" },
+                { img: "https://picsum.photos/seed/3/200/200" },
               ]}
             />
             <Grid minH="20rem" placeItems="center">
@@ -101,7 +102,7 @@ const ResourceContainer: FC<{ resources: { img: string }[] }> = ({
             transition="all 0.25s ease-in-out"
             _hover={{ transform: "scale(1.1)" }}
           >
-            <Resource alt="resource" src="https://picsum.photos/200" />
+            <Resource alt="resource" src={resource.img} />
             <Text
               position="absolute"
               bottom="0"
