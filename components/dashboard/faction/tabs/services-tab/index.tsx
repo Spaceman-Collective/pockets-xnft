@@ -1,7 +1,17 @@
 import { Character } from "@/types/server";
-import { Label, PanelContainer, Value } from "./tab.styles";
+import { Label, PanelContainer, Value } from "../tab.styles";
 import styled from "@emotion/styled";
-import { Box, Flex, Grid, HStack, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Grid,
+  HStack,
+  Text,
+  VStack,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { ModalStation } from "./station-modal.component";
+import { FC } from "react";
 
 const stationSize = "7rem";
 
@@ -9,35 +19,50 @@ export const FactionTabServices: React.FC<{
   currentCharacter: Character;
   setFactionStatus: (value: boolean) => void;
 }> = ({ currentCharacter, setFactionStatus }) => {
+  const stationDisclosure = useDisclosure();
   console.log({ currentCharacter });
+
   return (
-    <PanelContainer display="flex" flexDirection="column">
-      <HeaderStats
-        factionName={currentCharacter.faction?.name}
-        description={currentCharacter?.faction?.description}
+    <>
+      <ModalStation
+        isOpen={stationDisclosure.isOpen}
+        onClose={stationDisclosure.onClose}
       />
-      <Grid
-        bg="blacks.700"
-        p="1.5rem"
-        gap="1rem"
-        borderRadius="0 1rem 1rem 1rem"
-        templateColumns={`repeat(auto-fill, minmax(${stationSize}, 1fr))`}
-        templateRows={stationSize}
-      >
-        {Array.from({ length: 50 }).map((_, i) =>
-          true ? (
-            <Station key={i + "station"} />
-          ) : (
-            <Box
-              key={"dsadadsad" + i}
-              bg="brand.primary"
-              h={stationSize}
-              w={stationSize}
-            />
-          ),
-        )}
-      </Grid>
-    </PanelContainer>
+      <PanelContainer display="flex" flexDirection="column">
+        <HeaderStats
+          factionName={currentCharacter.faction?.name}
+          description={currentCharacter?.faction?.description}
+        />
+        <Grid
+          bg="blacks.700"
+          p="1.5rem"
+          gap="1rem"
+          borderRadius="0 1rem 1rem 1rem"
+          templateColumns={`repeat(auto-fill, minmax(${stationSize}, 1fr))`}
+          templateRows={stationSize}
+        >
+          {Array.from({ length: 32 }).map((_, i) =>
+            i < 18 ? (
+              <Station
+                key={i + "station"}
+                onClick={() => {
+                  console.log("station: " + i);
+                  stationDisclosure.onOpen();
+                }}
+              />
+            ) : (
+              <Box
+                key={"dsadadsad" + i}
+                bg="brand.primary"
+                h={stationSize}
+                w={stationSize}
+                onClick={stationDisclosure.onOpen}
+              />
+            ),
+          )}
+        </Grid>
+      </PanelContainer>
+    </>
   );
 };
 
@@ -89,14 +114,19 @@ const TownHall = () => {
       borderRadius="1rem 1rem 0 0"
       alignSelf="end"
     >
-      <Station />
+      <Station
+        onClick={() => {
+          console.log("townhall coming soon");
+        }}
+      />
     </Box>
   );
 };
 
-const Station = () => {
+const Station: FC<{ onClick: () => void }> = ({ onClick }) => {
   return (
     <Box
+      onClick={onClick}
       minH={stationSize}
       minW={stationSize}
       w="100%"
