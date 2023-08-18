@@ -45,7 +45,7 @@ const defaultPayload: SolanaContext = {
   getBonkBalance: undefined,
 };
 
-const SolanaContext = createContext<SolanaContext>(defaultPayload)
+const SolanaContext = createContext<SolanaContext>(defaultPayload);
 
 export const useSolana = () => {
   return useContext<SolanaContext>(SolanaContext);
@@ -53,36 +53,43 @@ export const useSolana = () => {
 
 // Returns true if the `window.xnft` object is ready to be used.
 function useDidLaunch() {
-  const [didConnect, setDidConnect] = useState(false)
-  console.log("in a useDidLaunch");
-  useEffect(() => {
-    // This will ensure window is accessed only on the client side
-    if (typeof window !== 'undefined' && window.xnft) {
-      setDidConnect(window?.xnft?.connection)
-    window.addEventListener("load", () => {
-      window.xnft.on("connect", () => {
-        console.log("connected to wallet")
-        setDidConnect(true);
-      });
-      window.xnft.on("disconnect", () => {
-                console.log("disconectedc to wallet")
+  const [didConnect, setDidConnect] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.xnft) {
+      // Set initial state based on connection status
+      setDidConnect(!!window?.xnft?.connection);
+
+      const onConnect = () => {
+        console.log("connected to wallet");
+        setDidConnect(true);
+      };
+
+      const onDisconnect = () => {
+        console.log("disconnected from wallet");
         setDidConnect(false);
-      });
-    });
+      };
+
+      // Add event listeners
+      window.xnft.on("connect", onConnect);
+      window.xnft.on("disconnect", onDisconnect);
+
+      // Cleanup: Remove event listeners when component unmounts
+      return () => {
+        window.xnft.off("connect", onConnect);
+        window.xnft.off("disconnect", onDisconnect);
+      };
     }
   }, []);
+
   return didConnect;
 }
 
 const BackpackProvider = ({ children }) => {
-  const [payload, setPayload] = useState<SolanaContext>(defaultPayload)
+  const [payload, setPayload] = useState<SolanaContext>(defaultPayload);
 
   useEffect(() => {
-    console.log("in a backpack");
-    console.log("loading backpack");
-    const accountXnft = window.xnft.solana.publicKey?.toString();
-    console.log("in an xnft");
+    const accountXnft = window?.xnft?.solana.publicKey?.toString();
     setPayload({
       connection: window.xnft.solana.connection,
       walletAddress: accountXnft,
@@ -99,22 +106,20 @@ const BackpackProvider = ({ children }) => {
   );
 };
 
-const WebWalletProivder = ({ children }) => {
-  const [payload, setPayload] = useState<SolanaContext>(defaultPayload)
+const WebWalletProvider = ({ children }) => {
+  const [payload, setPayload] = useState<SolanaContext>(defaultPayload);
   const { connection } = useConnection();
   const { publicKey, signTransaction, signAllTransactions } = useWallet();
-
   useEffect(() => {
-        console.log("loading inside of a wallet");
     setPayload({
-          connection,
-          walletAddress: publicKey?.toString(),
-          signTransaction,
-          buildMemoIx: buildMemoIx,
-          buildTransferIx: buildTransferIx,
-          encodeTransaction: encodeTransaction,
-          getBonkBalance: getBonkBalance
-        });
+      connection,
+      walletAddress: publicKey?.toString(),
+      signTransaction,
+      buildMemoIx: buildMemoIx,
+      buildTransferIx: buildTransferIx,
+      encodeTransaction: encodeTransaction,
+      getBonkBalance: getBonkBalance,
+    });
   }, [connection, publicKey, signTransaction]);
 
   return (
@@ -122,28 +127,21 @@ const WebWalletProivder = ({ children }) => {
   );
 };
 
-
 export const SolanaProvider = ({ children }) => {
-  const isInsideWallet = false;
+  const [isInsideWallet, setInsideWallet] = useState(useDidLaunch());
 
   if (isInsideWallet) {
-    return (
-      <BackpackProvider>
-        {children}
-      </BackpackProvider>
-    );
+    return <BackpackProvider>{children}</BackpackProvider>;
   } else {
-    console.log("returning this")
     return (
       <ContextProvider>
         <WalletModalProvider>
-          {children}
+          <WebWalletProvider>{children}</WebWalletProvider>
         </WalletModalProvider>
       </ContextProvider>
     );
   }
-}
-
+};
 
 const buildMemoIx = ({
   walletAddress,
