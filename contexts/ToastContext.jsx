@@ -18,7 +18,6 @@ export const ToastContextProvider = ({ children }) => {
   };
 
   const success = (message) => {
-    console.log("successing")
     addToast("success", message);
   };
 
