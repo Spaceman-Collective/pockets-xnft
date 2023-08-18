@@ -106,6 +106,10 @@ const Station = () => {
       backgroundImage="https://picsum.photos/200"
       backgroundSize="cover"
       backgroundPosition="center"
+      transition="all 0.25s ease-in-out"
+      _hover={{
+        transform: "scale(1.2)",
+      }}
     />
   );
 };
