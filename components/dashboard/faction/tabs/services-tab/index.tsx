@@ -20,7 +20,6 @@ export const FactionTabServices: React.FC<{
   setFactionStatus: (value: boolean) => void;
 }> = ({ currentCharacter, setFactionStatus }) => {
   const stationDisclosure = useDisclosure();
-  console.log({ currentCharacter });
 
   return (
     <>
