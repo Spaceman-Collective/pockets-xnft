@@ -37,6 +37,7 @@ export const DashboardMenu = () => {
         h="6rem"
         flex="1"
         ml="1rem"
+        mr="1rem"
         onClick={() => router.push("/character")}
       >
         CHARACTER

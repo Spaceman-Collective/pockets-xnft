@@ -16,7 +16,7 @@ import {
 } from "@/components/Containers.styled";
 import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react";
 import { useSolana } from "@/hooks/useSolana";
-import { FactionModal } from "@/components/dashboard/faction/faction-modal";
+import { FactionModal } from "@/components/dashboard/faction/join-faction-modal";
 import { NoFaction } from "@/components/dashboard/faction/no-faction.component";
 import { FactionTabs } from "@/components/dashboard/faction/tabs";
 import { useEffect, useState } from "react";
