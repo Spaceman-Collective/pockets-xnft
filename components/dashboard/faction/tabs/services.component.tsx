@@ -6,17 +6,17 @@ import { Flex, Text } from "@chakra-ui/react";
 export const FactionTabServices: React.FC<{  currentCharacter: Character; setFactionStatus: (value: boolean) => void; }> = ({ currentCharacter, setFactionStatus }) => {
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
-      <Header />
+      <Header factionName={currentCharacter?.faction?.name}/>
       <Text>hjkdsa</Text>
       <Text>hjkdsa</Text>
     </PanelContainer>
   );
 };
 
-const Header = () => {
+const Header: React.FC<{factionName: string | undefined }> = ({ factionName })  => {
   return (
     <Flex justifyContent="space-between" alignItems="end">
-      <Title verticalAlign="end">Mad OGs</Title>
+      <Title verticalAlign="end">{factionName!}</Title>
     </Flex>
   );
 };

@@ -23,7 +23,7 @@ export const FactionTabPolitics: React.FC<{  currentCharacter: Character; setFac
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
-      <Header />
+      <Header factionName={currentCharacter?.faction?.name}/>
       <Flex>
         <CitizensButton
           onClick={() => {}}
@@ -49,10 +49,10 @@ export const FactionTabPolitics: React.FC<{  currentCharacter: Character; setFac
   );
 };
 
-const Header = () => {
+const Header: React.FC<{factionName: string | undefined }> = ({ factionName })  => {
   return (
     <Flex justifyContent="space-between" alignItems="end">
-      <Title verticalAlign="end">Mad OGs</Title>
+      <Title verticalAlign="end">{factionName!}</Title>
     </Flex>
   );
 };

@@ -17,7 +17,7 @@ export const FactionTabResources: React.FC<{  currentCharacter: Character; setFa
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
-      <Header />
+      <Header factionName={currentCharacter?.faction?.name}/>
       <VStack gap={spacing}>
         <ResourceLabels />
 
@@ -92,10 +92,10 @@ export const FactionTabResources: React.FC<{  currentCharacter: Character; setFa
   );
 };
 
-const Header = () => {
+const Header: React.FC<{factionName: string | undefined }> = ({ factionName })  => {
   return (
     <Flex justifyContent="space-between" alignItems="end">
-      <Title verticalAlign="end">Mad OGs</Title>
+      <Title verticalAlign="end">{factionName!}</Title>
       <HStack alignItems="end">
         <Label>RF Prospect Cost:</Label>
         <Value>10k BONK</Value>
