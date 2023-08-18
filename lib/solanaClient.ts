@@ -33,6 +33,14 @@ export function getProposalPDA(proposalId: string): PublicKey {
   return proposalPDA;
 }
 
+export function getResourceFieldPDA(rfId: string): PublicKey {
+  const [proposalPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("rf"), Buffer.from(rfId)],
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
+  );
+  return proposalPDA;
+}
+
 export function getCitizenPDA(characterMint: PublicKey): PublicKey {
   const [citizenPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("citizen"), Buffer.from(characterMint.toBuffer())],
@@ -342,4 +350,21 @@ export async function returnVoteDelegation(
     .instruction();
 
   return ix;
+}
+
+export async function getResourceField(
+  rfId?: string,
+) {
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID
+  );
+
+  const rfPDA = getResourceFieldPDA(rfId ?? "");
+
+  const rfAcc = await POCKETS_PROGRAM.account.resourceField.fetchNullable(
+    rfPDA
+  );
+
+  return rfAcc
 }

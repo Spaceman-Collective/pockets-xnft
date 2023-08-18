@@ -67,7 +67,7 @@ export function getLocalImage({
 export const formatBalance = (balance: number) => {
     let format = ''
     if (balance > 1000000000) {
-        format = (balance / 1000000000).toFixed(2) + 'B'      
+        format = (balance / 1000000000).toFixed(2) + 'B'
     } else if (balance > 1000000) {
         format = (balance / 1000000).toFixed(2) + 'M'
     } else if (balance > 1000) {
