@@ -17,6 +17,7 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { ContextProvider } from "@/contexts/ContextProvider";
+import { ToastContextProvider } from "@/contexts/ToastContext";
 
 const queryClient = new QueryClient();
 const headerFont = Roboto({ weight: ["400", "700"], subsets: ["latin"] });
@@ -45,6 +46,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <ContextProvider>
         <WalletModalProvider>
             {/* APP */}
+            <ToastContextProvider>
             <QueryClientProvider client={queryClient}>
               <ChakraBaseProvider theme={defaultTheme}>
                 <main className={bodyFont.className}>
@@ -55,6 +57,7 @@ export default function App({ Component, pageProps }: AppProps) {
               </ChakraBaseProvider>
             </QueryClientProvider>
             {/* APP */}
+          </ToastContextProvider>
           </WalletModalProvider>
         </ContextProvider>
     </>
