@@ -72,7 +72,7 @@ export const fetchCharacter = async ({ mint }: { mint: string }): Promise<{ char
   }
 };
 
-export const postCharCreate = async ({ signedTx }: { signedTx: string }): Promise<CharacterModel> => {
+export const postCharCreate = async ({ signedTx }: { signedTx: string }): Promise<Character> => {
   const URL = API_BASE_URL + "/character/create";
   try {
     const response = await fetch.post<any>(URL, { signedTx });
