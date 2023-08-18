@@ -12,122 +12,217 @@ export const fetchAssets = async ({
   walletAddress,
 }: {
   walletAddress: string;
-}) => {
+}): Promise<{ nfts?: NFT[]; characters?: any[] }> => {
   const URL = API_BASE_URL + "/wallet/characters";
   try {
-    const { data } = await fetch.get<any>(URL, {
+    const response = await fetch.get<any>(URL, {
       params: {
         wallet: walletAddress,
       },
     });
-    return data as { nfts?: NFT[]; characters?: any[] };
-  } catch (err) {
-    console.error(err);
-    return;
+    
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as { nfts?: NFT[]; characters?: any[] };
+    } else {
+      console.log(
+        "Server Error while fetching assets for wallet:",
+        response,
+      );
+      throw new Error("Server Error while fetching assets for wallet");
+    }
+    
+  } catch (error) {
+    console.error(
+      "Network Error while fetching assets for wallet:",
+      error,
+    );
+    throw error;
   }
 };
 
-export const fetchCharacter = async ({ mint }: { mint: string }) => {
+export const fetchCharacter = async ({ mint }: { mint: string }): Promise<{ character?: Character; faction?: Faction }> => {
   const URL = API_BASE_URL + "/character";
   try {
-    const { data } = await fetch.get<any>(URL, {
+    const response = await fetch.get<any>(URL, {
       params: {
         mint: mint,
       },
     });
-    console.log('character: ', data);
-    return data as { character?: Character; faction?: Faction }; // returns { character, faction }
-  } catch (err) {
-    console.error(err);
-    return;
+    
+    if (response.status === 200) {
+      const data = await response.data;
+      console.log('character: ', data);
+      return data as { character?: Character; faction?: Faction };
+    } else {
+      console.log(
+        "Server Error while fetching character:",
+        response,
+      );
+      throw new Error("Server Error while fetching character");
+    }
+    
+  } catch (error) {
+    console.error(
+      "Network Error while fetching character:",
+      error,
+    );
+    throw error;
   }
 };
 
-export const postCharCreate = async ({ signedTx }: { signedTx: string }) => {
+export const postCharCreate = async ({ signedTx }: { signedTx: string }): Promise<CharacterModel> => {
   const URL = API_BASE_URL + "/character/create";
   try {
-    const { data } = await fetch.post<any>(URL, {
-      signedTx,
-    });
-    return data; // returns CharacterModel
-  } catch (err) {
-    console.error(err);
-    return;
+    const response = await fetch.post<any>(URL, { signedTx });
+    
+    if (response.status === 200) {
+      const data = await response.data;
+      return data;
+    } else {
+      console.log(
+        "Server Error while creating character:",
+        response,
+      );
+      throw new Error("Server Error while creating character");
+    }
+
+  } catch (error) {
+    console.error(
+      "Network Error while creating character:",
+      error,
+    );
+    throw error;
   }
 };
 
-export const postCreateFaction = async ({ signedTx }: { signedTx: string }) => {
+export const postCreateFaction = async ({ signedTx }: { signedTx: string }): Promise<Faction> => {
   const URL = API_BASE_URL + "/faction/create";
   try {
-    const { data } = await fetch.post<any>(URL, {
-      signedTx,
-    });
-    console.log('create faction: ', data);
-      return data // returns Faction
+    const response = await fetch.post<any>(URL, { signedTx });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      console.log('create faction: ', data);
+      return data;
+    } else {
+      console.log(
+        "Server Error while creating faction:",
+        response,
+      );
+      throw new Error("Server Error while creating faction");
+    }
+
   } catch (error) {
-    console.error(error);
-    return null;
+    console.error(
+      "Network Error while creating faction:",
+      error,
+    );
+    throw error;
   }
 };
 
-export const fetchFactions = async ({ }: {}) => {
+export const fetchFactions = async (): Promise<number> => {
   const URL = API_BASE_URL + "/factions";
   try {
-    const { data } = await fetch.get<any>(URL, {
-      params: {
-        skip: 0,
-        take: 10,
-      },
-    });
-    console.log('fetched factions: ', data);
-    return data; // returns number of Factions
-  } catch (err) {
-    console.error(err);
-    return;
+    const response = await fetch.get<any>(URL, { params: { skip: 0, take: 10 } });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      console.log('fetched factions: ', data);
+      return data;
+    } else {
+      console.log(
+        "Server Error while fetching factions:",
+        response,
+      );
+      throw new Error("Server Error while fetching factions");
+    }
+
+  } catch (error) {
+    console.error(
+      "Network Error while fetching factions:",
+      error,
+    );
+    throw error;
   }
 };
 
-export const fetchFaction = async ({ factionId }: { factionId: string }) => {
+export const fetchFaction = async ({ factionId }: { factionId: string }): Promise<Faction> => {
   const URL = API_BASE_URL + "/faction";
   try {
-    const { data } = await fetch.get<any>(URL, {
-      params: {
-        id: factionId,
-      },
-    });
-    console.log('retrieved faction: ', data);
-    return data; // returns Faction
-  } catch (err) {
-    console.error(err);
-    return;
+    const response = await fetch.get<any>(URL, { params: { id: factionId } });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      console.log('retrieved faction: ', data);
+      return data;
+    } else {
+      console.log(
+        "Server Error while retrieving faction:",
+        response,
+      );
+      throw new Error("Server Error while retrieving faction");
+    }
+
+  } catch (error) {
+    console.error(
+      "Network Error while retrieving faction:",
+      error,
+    );
+    throw error;
   }
 };
 
-export const postJoinFaction = async ({ signedTx }: { signedTx: string }) => {
+export const postJoinFaction = async ({ signedTx }: { signedTx: string }): Promise<any> => {
   const URL = API_BASE_URL + "/faction/join";
   try {
-    const { data } = await fetch.post<any>(URL, {
-      signedTx,
-    });
-    console.log('join faction: ', data);
-    return data;
-  } catch (err) {
-    console.error(err);
-    return;
+    const response = await fetch.post<any>(URL, { signedTx });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      console.log('join faction: ', data);
+      return data;
+    } else {
+      console.log(
+        "Server Error while joining faction:",
+        response,
+      );
+      throw new Error("Server Error while joining faction");
+    }
+
+  } catch (error) {
+    console.error(
+      "Network Error while joining faction:",
+      error,
+    );
+    throw error;
   }
 };
 
-export const postLeaveFaction = async ({ signedTx }: { signedTx: string }) => {
+export const postLeaveFaction = async ({ signedTx }: { signedTx: string }): Promise<any> => {
   const URL = API_BASE_URL + "/faction/leave";
   try {
-    const { data } = await fetch.post<any>(URL, {
-      signedTx,
-    });
-    console.log('leave faction: ', data);
-    return data;
-  } catch (err) {
-    console.error(err);
-    return;
+    const response = await fetch.post<any>(URL, { signedTx });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      console.log('leave faction: ', data);
+      return data;
+    } else {
+      console.log(
+        "Server Error while leaving faction:",
+        response,
+      );
+      throw new Error("Server Error while leaving faction");
+    }
+
+  } catch (error) {
+    console.error(
+      "Network Error while leaving faction:",
+      error,
+    );
+    throw error;
   }
 };
 
