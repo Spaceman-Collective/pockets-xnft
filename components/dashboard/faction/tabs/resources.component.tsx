@@ -7,17 +7,19 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
 
 const spacing = "1rem";
-export const FactionTabResources: React.FC<{  currentCharacter: Character; setFactionStatus: (value: boolean) => void; }> = ({ currentCharacter }) => {
+export const FactionTabResources: React.FC<{
+  currentCharacter: Character;
+  setFactionStatus: (value: boolean) => void;
+}> = ({ currentCharacter }) => {
   // NOTE: use this to handle local search through teasury items
   // when the api is available
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
   const onSearch = (e: any) => setSearch(e.target.value);
-  console.log(debouncedSearch);
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
-      <Header factionName={currentCharacter?.faction?.name}/>
+      <Header factionName={currentCharacter?.faction?.name} />
       <VStack gap={spacing}>
         <ResourceLabels />
 
@@ -92,7 +94,9 @@ export const FactionTabResources: React.FC<{  currentCharacter: Character; setFa
   );
 };
 
-const Header: React.FC<{factionName: string | undefined }> = ({ factionName })  => {
+const Header: React.FC<{ factionName: string | undefined }> = ({
+  factionName,
+}) => {
   return (
     <Flex justifyContent="space-between" alignItems="end">
       <Title verticalAlign="end">{factionName!}</Title>

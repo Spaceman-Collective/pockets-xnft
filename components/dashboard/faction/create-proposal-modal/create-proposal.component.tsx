@@ -43,8 +43,7 @@ enum ProposalType {
   TAX = "TAX PERCENTAGE",
 }
 
-export const CreateProposal: React.FC<{ currentCharacter?: Character; 
-}> = ({
+export const CreateProposal: React.FC<{ currentCharacter?: Character }> = ({
   currentCharacter,
 }) => {
   const { mutate } = useCreateProposal();
@@ -79,13 +78,13 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;
   const [proposalType, setProposalType] = useState<ProposalType | "">("");
 
   const handleProposalTypeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     setProposalType(event.target.value as ProposalType);
     setProposal({
       ...proposal,
       type: event.target.value,
-    })
+    });
   };
   const [inputErrors, setInputErrors] = useState({
     type: "",
@@ -207,7 +206,10 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;
     // TAX
     if (
       proposalType === ProposalType.TAX &&
-      (proposal.tax === null || proposal.tax === undefined || proposal.tax === "0" || !proposal.tax.trim())
+      (proposal.tax === null ||
+        proposal.tax === undefined ||
+        proposal.tax === "0" ||
+        !proposal.tax.trim())
     ) {
       errors.tax = "Tax value is required";
       isValid = false;
@@ -218,7 +220,7 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;
   };
 
   const onSuccess = (data: any) => {
-    console.log('proposal created!');
+    console.log("proposal created!");
   };
 
   const handleCreateProposal = async () => {
@@ -229,14 +231,19 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;
     const prpsl = {
       type: "TAX",
       blueprintName: Number(proposal?.tax),
-    }
-    const payload = {
-      mint: 'CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ',
-      timestamp: Date.now().toString(),
-      proposal: prpsl
     };
-    const encodedSignedTx = await encodeTransaction({ walletAddress, connection, signTransaction, txInstructions: [buildMemoIx({ walletAddress, payload })]});
-      
+    const payload = {
+      mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
+      timestamp: Date.now().toString(),
+      proposal: prpsl,
+    };
+    const encodedSignedTx = await encodeTransaction({
+      walletAddress,
+      connection,
+      signTransaction,
+      txInstructions: [buildMemoIx({ walletAddress, payload })],
+    });
+
     if (!encodedSignedTx) throw Error("No Tx");
     mutate({ signedTx: encodedSignedTx }, { onSuccess });
     onClose();
