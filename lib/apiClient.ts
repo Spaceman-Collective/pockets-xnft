@@ -1,4 +1,5 @@
 import type { NFT, Character, Faction, Station } from "@/types/server";
+import { QueryFunctionContext } from "@tanstack/react-query";
 import fetch from "axios";
 const API_BASE_URL = "https://api.pockets.gg";
 
@@ -70,7 +71,7 @@ export const postCreateFaction = async ({ signedTx }: { signedTx: string }) => {
   }
 };
 
-export const fetchFactions = async ({ }: {}) => {
+export const fetchFactions = async ({}: {}) => {
   const URL = API_BASE_URL + "/factions";
   try {
     const { data } = await fetch.get<any>(URL, {
@@ -255,6 +256,80 @@ export const harvestResourceField = async ({
     throw error;
   }
 };
+
+export const postCreateProposal = async ({ signedTx, mint, timestamp, proposal }: {
+  signedTx: string;
+  mint: string;
+  timestamp: string;
+  proposal: {
+    type: string;
+    station?: string;
+    factionId?: string;
+    rfId?: string;
+    citizen?: string;
+    resources?: { resourceId: string; amount: number }[];
+    bonk?: string;
+    newSharesToMint?: string;
+    newThreshold?: string;
+    warband?: string[];
+    newTaxRate?: number;
+  };
+}) => {
+  const URL = API_BASE_URL + "/proposal/create";
+  try {
+    const { data } = await fetch.post<any>(URL, {
+      signedTx,
+      mint,
+      timestamp,
+      proposal
+    });
+    console.log('create proposal: ', data);
+    return data; // Depending on what your backend returns
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+export const fetchProposal = async (context: QueryFunctionContext<string[], { proposalId: string }>) => {
+  const proposalId = context.queryKey[1]; // or context.queryKey[0] depending on the order you pass the query key
+  const URL = `${API_BASE_URL}/proposal`;
+  try {
+    const { data } = await fetch.get<any>(URL, {
+      params: {
+        id: proposalId,
+      },
+    });
+    console.log('retrieved proposal: ', data);
+    return data; // returns the proposal object
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+};
+
+export const fetchProposalsByFaction = async (context: QueryFunctionContext<string[]>) => {
+  const faction = context.queryKey[0];
+  const skip = context.queryKey[1] ? Number(context.queryKey[1]) : 0;
+  const take = context.queryKey[2] ? Number(context.queryKey[2]) : 10;
+
+  const URL = `${API_BASE_URL}/proposals`;
+  try {
+    const { data } = await fetch.get<any>(URL, {
+      params: {
+        faction,
+        skip,
+        take,
+      },
+    });
+    console.log('retrieved proposals by faction: ', data);
+    return data; // returns an object with proposals, skip, take, and total count
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+};
+
 
 type CompleteConstructionResponse = {
   faction: Faction;
