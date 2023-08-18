@@ -20,6 +20,7 @@ import {
 } from "@solana/web3.js";
 import { decode, encode } from "bs58";
 import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants";
+import { get } from "http";
 
 type TxType = VersionedTransaction | Transaction;
 
@@ -156,18 +157,65 @@ const encodeTransaction = async ({
   return encodedSignedTx;
 };
 
+async function getTokenAccountBalance(
+  wallet: string,
+  solanaConnection: Connection,
+  mint: string
+) {
+  const filters: any[] = [
+    {
+      dataSize: 165, //size of account (bytes)
+    },
+    {
+      memcmp: {
+        offset: 32, //location of our query in the account (bytes)
+        bytes: wallet, //our search criteria, a base58 encoded string
+      },
+    },
+  ];
+
+  const accounts = await solanaConnection.getParsedProgramAccounts(
+    new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), // TOKEN_PROGRAM_ID
+    { filters: filters }
+  );
+
+  // console.log(
+  //   `Found ${accounts.length} token account(s) for wallet ${wallet}.`
+  // );
+
+  let retTokenBalance: number = 0;
+  accounts.forEach((account, i) => {
+    //Parse the account data
+    const parsedAccountInfo: any = account.account.data;
+    const mintAddress: string = parsedAccountInfo["parsed"]["info"]["mint"];
+    const tokenBalance: number =
+      parsedAccountInfo["parsed"]["info"]["tokenAmount"]["uiAmount"];
+
+    //Log results
+    // console.log(`Token Account No. ${i + 1}: ${account.pubkey.toString()}`);
+    // console.log(`--Token Mint: ${mintAddress}`);
+    // console.log(`--Token Balance: ${tokenBalance}`);
+
+    if (mintAddress === mint) {
+      retTokenBalance = tokenBalance;
+    }
+  });
+
+  return retTokenBalance;
+}
+
 const getBonkBalance = async ({
   walletAddress,
   connection,
 }: {
   walletAddress: string;
   connection: Connection;
-  signTransaction: any;
-  txInstructions: TransactionInstruction[];
 }) => {
-  let balance = await connection.getBalance(new PublicKey(walletAddress));
-  console.info(`Wallet Balance: ${balance / LAMPORTS_PER_SOL}`);
-  console.info(`Bonk Balance: ${balance / LAMPORTS_PER_SOL}`);
+  const bonkBalance = await getTokenAccountBalance(
+    walletAddress,
+    connection,
+    SPL_TOKENS.bonk.mint
+  );
 
-  // return currentBonkBalance;
+  return bonkBalance;
 };

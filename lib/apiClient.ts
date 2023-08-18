@@ -291,7 +291,7 @@ export const allocateResourceField = async ({
   }
 };
 
-type HarvestTimer = {
+export type HarvestTimer = {
   mint: string;
   rf: string;
   newTimer: string | undefined;
@@ -299,7 +299,7 @@ type HarvestTimer = {
   amount: bigint | undefined;
 };
 
-type HarvestResouceFieldResponse = {
+export type HarvestResouceFieldResponse = {
   harvestTimers: HarvestTimer[];
   sigs: string[];
 };
