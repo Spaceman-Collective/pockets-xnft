@@ -1,4 +1,11 @@
-import { Box, Flex, HStack, Button, Text, VStack } from "@chakra-ui/react";
+import { Box, Flex, HStack, Button, Text, VStack,   Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useDisclosure, } from "@chakra-ui/react";
 import { Label, PanelContainer, Value, ValueCalculation } from "./tab.styles";
 import { colors } from "@/styles/defaultTheme";
 import styled from "@emotion/styled";
@@ -6,6 +13,7 @@ import { useSolana } from "@/hooks/useSolana";
 import { LeaveFactionModal } from "../leave-faction.component";
 import { Character } from "@/types/server";
 import { useEffect } from "react";
+import { CreateProposal } from "../create-proposal-modal/create-proposal.component";
 
 const spacing = "1rem";
 export const FactionTabPolitics: React.FC<{  currentCharacter: Character; setFactionStatus: (value: boolean) => void; }> = ({ currentCharacter, setFactionStatus }) => {
@@ -58,6 +66,8 @@ const Header: React.FC<{factionName: string | undefined }> = ({ factionName })  
 };
 
 const ProposalLabels = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <MenuTitle>proposals</MenuTitle>
@@ -67,9 +77,7 @@ const ProposalLabels = () => {
         <ValueCalculation color={colors.brand.tertiary} pl="0.25rem" pb="0.25rem">(30 + 10)</ValueCalculation>
       </HStack>
       <HStack gap="4rem" alignItems="end">
-        <MenuText color="brand.secondary" cursor="pointer" onClick={() => {}}>
-          create +
-        </MenuText>
+        <CreateProposal/>
       </HStack>
     </Flex>
   );

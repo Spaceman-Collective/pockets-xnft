@@ -292,7 +292,7 @@ export const postCreateProposal = async ({ signedTx, mint, timestamp, proposal }
 };
 
 export const fetchProposal = async (context: QueryFunctionContext<string[], { proposalId: string }>) => {
-  const proposalId = context.queryKey[1]; // or context.queryKey[0] depending on the order you pass the query key
+  const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order you pass the query key?
   const URL = `${API_BASE_URL}/proposal`;
   try {
     const { data } = await fetch.get<any>(URL, {
@@ -301,7 +301,7 @@ export const fetchProposal = async (context: QueryFunctionContext<string[], { pr
       },
     });
     console.log('retrieved proposal: ', data);
-    return data; // returns the proposal object
+    return data;
   } catch (err) {
     console.error(err);
     return;
