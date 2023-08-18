@@ -1,5 +1,5 @@
 import "@/styles/global.css";
-import { FC, useMemo, useEffect, useState } from "react";
+import { FC, useMemo } from "react";
 import type { AppProps } from "next/app";
 import { ChakraBaseProvider } from "@chakra-ui/react";
 import { defaultTheme } from "@/styles/defaultTheme";
@@ -13,9 +13,10 @@ import {
 } from "@solana/wallet-adapter-react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 // import { PhantomWalletAdapter, BackpackWalletAdapter } from "@solana/wallet-adapter-wallets";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { clusterApiUrl } from "@solana/web3.js";
-import { SolanaProvider } from "../hooks/useSolana";
 import "@solana/wallet-adapter-react-ui/styles.css";
+import { ContextProvider } from "@/contexts/ContextProvider";
 
 const queryClient = new QueryClient();
 const headerFont = Roboto({ weight: ["400", "700"], subsets: ["latin"] });
@@ -41,19 +42,21 @@ export default function App({ Component, pageProps }: AppProps) {
           }
         `}
       </style>
-      <SolanaProvider>
-        {/* APP */}
-        <QueryClientProvider client={queryClient}>
-          <ChakraBaseProvider theme={defaultTheme}>
-            <main className={bodyFont.className}>
-              <Layout>
-                <Component {...pageProps} />
-              </Layout>
-            </main>
-          </ChakraBaseProvider>
-        </QueryClientProvider>
-        {/* APP */}
-      </SolanaProvider>
+        <ContextProvider>
+        <WalletModalProvider>
+            {/* APP */}
+            <QueryClientProvider client={queryClient}>
+              <ChakraBaseProvider theme={defaultTheme}>
+                <main className={bodyFont.className}>
+                  <Layout>
+                    <Component {...pageProps} />
+                  </Layout>
+                </main>
+              </ChakraBaseProvider>
+            </QueryClientProvider>
+            {/* APP */}
+          </WalletModalProvider>
+        </ContextProvider>
     </>
   );
 }
