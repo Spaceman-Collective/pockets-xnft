@@ -7,7 +7,7 @@ import {
   ReviewMint,
 } from "@/components/wizard";
 import { useEffect, useState } from "react";
-import { useAssets } from "@/hooks/useAssets";
+import { useAssets } from "@/hooks/useCharacters";
 import { Character } from "@/types/server";
 import { timeout } from "@/lib/utils";
 import Confetti from "@/components/Confetti";

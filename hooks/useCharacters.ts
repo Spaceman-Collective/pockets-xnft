@@ -1,4 +1,4 @@
-import { fetchAssets } from "@/lib/apiClient";
+import { fetchCharacters } from "@/lib/apiClient";
 import { useQuery } from "@tanstack/react-query";
 import { useSolana } from "./useSolana";
 
@@ -7,7 +7,7 @@ export const useAssets = () => {
 
   return useQuery(
     ["assets"],
-    () => fetchAssets({ walletAddress: walletAddress ?? "" }),
+    () => fetchCharacters({ walletAddress: walletAddress ?? "" }),
     { enabled: walletAddress !== undefined }
   );
 };

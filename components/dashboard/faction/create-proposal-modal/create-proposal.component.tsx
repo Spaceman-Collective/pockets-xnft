@@ -208,7 +208,7 @@ export const CreateProposal: React.FC = () => {
   return (
     <>
       <Text color="brand.secondary" cursor="pointer" onClick={onOpen}>
-        create +
+        CREATE +
       </Text>
       <Modal isOpen={isOpen} onClose={chakraOnClose} size="xl">
         <ModalOverlay backdropFilter="blur(5px)" />

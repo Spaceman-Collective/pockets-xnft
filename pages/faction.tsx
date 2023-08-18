@@ -6,7 +6,7 @@ import {
   DashboardMenu,
   CharacterList,
 } from "@/components/dashboard";
-import { useAssets } from "@/hooks/useAssets";
+import { useAssets } from "@/hooks/useCharacters";
 import {
   DashboardMenuContainer,
   DashboardInfoContainer,

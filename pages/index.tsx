@@ -15,7 +15,7 @@ import {
   Personal,
   CharacterList,
 } from "@/components/dashboard";
-import { useAssets } from "@/hooks/useAssets";
+import { useAssets } from "@/hooks/useCharacters";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 export default function Home() {
