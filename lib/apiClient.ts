@@ -9,7 +9,7 @@ export const getLadImageURL = (ladNumber: number) =>
 export const getPogImageURL = (pogNumber: number) =>
   `https://storage.googleapis.com/fractal-launchpad-public-assets/pogs/okb/assets/collectors/assets/${pogNumber}.png`;
 
-export const fetchAssets = async ({
+export const fetchCharacters = async ({
   walletAddress,
 }: {
   walletAddress: string;
@@ -294,6 +294,23 @@ export const postCreateProposal = async ({ signedTx, mint, timestamp, proposal }
 export const fetchProposal = async (context: QueryFunctionContext<string[], { proposalId: string }>) => {
   const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order you pass the query key?
   const URL = `${API_BASE_URL}/proposal`;
+  try {
+    const { data } = await fetch.get<any>(URL, {
+      params: {
+        id: proposalId,
+      },
+    });
+    console.log('retrieved proposal: ', data);
+    return data;
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+};
+
+export const processProposal = async (context: QueryFunctionContext<string[], { proposalId: string }>) => {
+  const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order you pass the query key?
+  const URL = `${API_BASE_URL}/proposal/process`;
   try {
     const { data } = await fetch.get<any>(URL, {
       params: {
