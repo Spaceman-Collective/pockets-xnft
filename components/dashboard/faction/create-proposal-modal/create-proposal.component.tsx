@@ -1,6 +1,5 @@
 import {
   Box,
-  Input,
   Text,
   Button,
   Modal,
@@ -11,9 +10,9 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
-  Select as ChakraSelect,
-  Input as ChakraInput,
-  Textarea as ChakraTextarea,
+  Select,
+  Input,
+  Textarea,
   VStack,
   NumberInput,
   NumberInputField,
@@ -26,6 +25,10 @@ import { colors } from "@/styles/defaultTheme";
 import { useState } from "react";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
+import { useCreateFaction } from "@/hooks/useCreateFaction";
+import { useSolana } from "@/hooks/useSolana";
+import { Character } from "@/types/server";
+import { useCreateProposal } from "@/hooks/useCreateProposal";
 
 enum ProposalType {
   BUILD = "BUILD",
@@ -40,20 +43,33 @@ enum ProposalType {
   TAX = "TAX PERCENTAGE",
 }
 
-export const CreateProposal: React.FC = () => {
-  const { isOpen, onOpen, onClose: chakraOnClose } = useDisclosure();
+export const CreateProposal: React.FC<{ currentCharacter?: Character; 
+}> = ({
+  currentCharacter,
+}) => {
+  const { mutate } = useCreateProposal();
+  const {
+    connection,
+    walletAddress,
+    signTransaction,
+    buildMemoIx,
+    buildTransferIx,
+    encodeTransaction,
+    getBonkBalance,
+  } = useSolana();
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [proposal, setProposal] = useState({
-    title: "",
-    description: "",
+    type: "",
     blueprintName: "",
-    stationID: "",
+    station: "",
     factionID: "",
     rfID: "",
     characterMint: "",
     resourceName: "",
-    bonkValue: "",
+    bonk: "",
     newSharesToMint: "",
-    citizenValue: "",
+    citizen: "",
     amount: "",
     newThreshold: "",
     warband: "",
@@ -66,18 +82,22 @@ export const CreateProposal: React.FC = () => {
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setProposalType(event.target.value as ProposalType);
+    setProposal({
+      ...proposal,
+      type: event.target.value,
+    })
   };
   const [inputErrors, setInputErrors] = useState({
-    description: "",
+    type: "",
     blueprintName: "",
-    stationID: "",
+    station: "",
     factionID: "",
     rfID: "",
     characterMint: "",
     resourceName: "",
-    bonkValue: "",
+    bonk: "",
     newSharesToMint: "",
-    citizenValue: "",
+    citizen: "",
     amount: "",
     newThreshold: "",
     warband: "",
@@ -86,16 +106,16 @@ export const CreateProposal: React.FC = () => {
 
   const validateInputs = () => {
     let errors = {
-      description: "",
+      type: "",
       blueprintName: "",
-      stationID: "",
+      station: "",
       factionID: "",
       rfID: "",
       characterMint: "",
       resourceName: "",
-      bonkValue: "",
+      bonk: "",
       newSharesToMint: "",
-      citizenValue: "",
+      citizen: "",
       amount: "",
       newThreshold: "",
       warband: "",
@@ -111,8 +131,8 @@ export const CreateProposal: React.FC = () => {
     }
 
     // UPGRADE
-    if (proposalType === ProposalType.UPGRADE && !proposal.stationID.trim()) {
-      errors.stationID = "Station ID or Townhall is required.";
+    if (proposalType === ProposalType.UPGRADE && !proposal.station.trim()) {
+      errors.station = "Station ID or Townhall is required.";
       isValid = false;
     }
 
@@ -142,8 +162,8 @@ export const CreateProposal: React.FC = () => {
         errors.resourceName = "Resource name is required";
         isValid = false;
       }
-      if (!proposal.bonkValue.trim()) {
-        errors.bonkValue = "BONK value is required";
+      if (!proposal.bonk.trim()) {
+        errors.bonk = "BONK value is required";
         isValid = false;
       }
     }
@@ -159,8 +179,8 @@ export const CreateProposal: React.FC = () => {
 
     // ALLOCATE
     if (proposalType === ProposalType.ALLOCATE) {
-      if (!proposal.citizenValue.trim()) {
-        errors.citizenValue = "Citizen value is required";
+      if (!proposal.citizen.trim()) {
+        errors.citizen = "Citizen value is required";
         isValid = false;
       }
       if (!proposal.amount.trim()) {
@@ -197,12 +217,29 @@ export const CreateProposal: React.FC = () => {
     return isValid;
   };
 
+  const onSuccess = (data: any) => {
+    console.log('proposal created!');
+  };
+
   const handleCreateProposal = async () => {
     if (!validateInputs()) {
       return;
     }
     console.log("proposal: ", proposal);
-    // Add proposal creation logic here.
+    const prpsl = {
+      type: "TAX",
+      blueprintName: Number(proposal?.tax),
+    }
+    const payload = {
+      mint: 'CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ',
+      timestamp: Date.now().toString(),
+      proposal: prpsl
+    };
+    const encodedSignedTx = await encodeTransaction({ walletAddress, connection, signTransaction, txInstructions: [buildMemoIx({ walletAddress, payload })]});
+      
+    if (!encodedSignedTx) throw Error("No Tx");
+    mutate({ signedTx: encodedSignedTx }, { onSuccess });
+    onClose();
   };
 
   return (
@@ -210,7 +247,7 @@ export const CreateProposal: React.FC = () => {
       <Text color="brand.secondary" cursor="pointer" onClick={onOpen}>
         CREATE +
       </Text>
-      <Modal isOpen={isOpen} onClose={chakraOnClose} size="xl">
+      <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay backdropFilter="blur(5px)" />
         <ModalContent
           bg={colors.brand.primary}
@@ -263,17 +300,17 @@ export const CreateProposal: React.FC = () => {
                   <Box mb="2rem" w="100%">
                     <StyledInput
                       placeholder="Enter station ID or Townhall"
-                      value={proposal.stationID}
+                      value={proposal.station}
                       onChange={(e) =>
                         setProposal({
                           ...proposal,
-                          stationID: e.target.value,
+                          station: e.target.value,
                         })
                       }
-                      isInvalid={!!inputErrors.stationID}
+                      isInvalid={!!inputErrors.station}
                     />
-                    {inputErrors.stationID && (
-                      <Text color="red.500">{inputErrors.stationID}</Text>
+                    {inputErrors.station && (
+                      <Text color="red.500">{inputErrors.station}</Text>
                     )}
                   </Box>
                 )}
@@ -382,17 +419,17 @@ export const CreateProposal: React.FC = () => {
                     <Box mb="2rem" w="100%">
                       <StyledInput
                         placeholder="Enter BONK value"
-                        value={proposal.bonkValue}
+                        value={proposal.bonk}
                         onChange={(e) =>
                           setProposal({
                             ...proposal,
-                            bonkValue: e.target.value,
+                            bonk: e.target.value,
                           })
                         }
-                        isInvalid={!!inputErrors.bonkValue}
+                        isInvalid={!!inputErrors.bonk}
                       />
-                      {inputErrors.bonkValue && (
-                        <Text color="red.500">{inputErrors.bonkValue}</Text>
+                      {inputErrors.bonk && (
+                        <Text color="red.500">{inputErrors.bonk}</Text>
                       )}
                     </Box>
                   </Stack>
@@ -422,19 +459,19 @@ export const CreateProposal: React.FC = () => {
                   <Stack spacing={4} w="100%">
                     <Box mb="2rem" w="100%">
                       <StyledInput
-                        value={proposal.citizenValue}
+                        value={proposal.citizen}
                         onChange={(e) =>
                           setProposal({
                             ...proposal,
-                            citizenValue: e.target.value,
+                            citizen: e.target.value,
                           })
                         }
                         placeholder="Enter citizen value"
                         w="100%"
-                        isInvalid={!!inputErrors.citizenValue}
+                        isInvalid={!!inputErrors.citizen}
                       />
-                      {inputErrors.citizenValue && (
-                        <Text color="red.500">{inputErrors.citizenValue}</Text>
+                      {inputErrors.citizen && (
+                        <Text color="red.500">{inputErrors.citizen}</Text>
                       )}
                     </Box>
                     <Box mb="2rem" w="100%">
@@ -558,14 +595,14 @@ const inputStyles = css`
   letter-spacing: 1px;
 `;
 
-const StyledSelect = styled(ChakraSelect)`
+const StyledSelect = styled(Select)`
   ${selectStyles}
 `;
 
-const StyledInput = styled(ChakraInput)`
+const StyledInput = styled(Input)`
   ${inputStyles}
 `;
 
-const StyledTextarea = styled(ChakraTextarea)`
+const StyledTextarea = styled(Textarea)`
   ${inputStyles}
 `;

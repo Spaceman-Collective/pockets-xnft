@@ -3,8 +3,19 @@ import { FactionTabServices } from "./services.component";
 import { FactionTabPolitics } from "./politics.component";
 import { FactionTabResources } from "./resources.component";
 import { Character } from "@/types/server";
+import Confetti from "@/components/Confetti";
+import { useState } from "react";
+import { timeout } from "@/lib/utils";
 
 export const FactionTabs: React.FC<{  currentCharacter: Character; setFactionStatus: (value: boolean) => void }> = ({ currentCharacter, setFactionStatus}) => {
+  const [confetti, setConfetti] = useState(false);
+  const fireConfetti = async () => {
+    if (confetti) return;
+    setConfetti(true);
+    await timeout(3600);
+    setConfetti(false);
+  };
+  
   return (
     <Tabs>
       <TabList mb="1em">
@@ -23,6 +34,7 @@ export const FactionTabs: React.FC<{  currentCharacter: Character; setFactionSta
           <FactionTabResources currentCharacter={currentCharacter} setFactionStatus={setFactionStatus!}/>
         </TabPanel>
       </TabPanels>
+      {confetti && <Confetti canFire={fireConfetti} />}
     </Tabs>
   );
 };

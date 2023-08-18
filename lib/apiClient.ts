@@ -257,31 +257,33 @@ export const harvestResourceField = async ({
   }
 };
 
-export const postCreateProposal = async ({ signedTx, mint, timestamp, proposal }: {
+// export const postCreateProposal = async ({ signedTx, mint, timestamp, proposal }: {
+  export const postCreateProposal = async ({ signedTx }: {
+
   signedTx: string;
-  mint: string;
-  timestamp: string;
-  proposal: {
-    type: string;
-    station?: string;
-    factionId?: string;
-    rfId?: string;
-    citizen?: string;
-    resources?: { resourceId: string; amount: number }[];
-    bonk?: string;
-    newSharesToMint?: string;
-    newThreshold?: string;
-    warband?: string[];
-    newTaxRate?: number;
-  };
+  // mint: string;
+  // timestamp: string;
+  // proposal: {
+  //   type: string;
+  //   station?: string;
+  //   factionId?: string;
+  //   rfId?: string;
+  //   citizen?: string;
+  //   resources?: { resourceId: string; amount: number }[];
+  //   bonk?: string;
+  //   newSharesToMint?: string;
+  //   newThreshold?: string;
+  //   warband?: string[];
+  //   newTaxRate?: number;
+  // };
 }) => {
-  const URL = API_BASE_URL + "/proposal/create";
+  const URL = `${API_BASE_URL}/faction/proposal/create`;
   try {
     const { data } = await fetch.post<any>(URL, {
       signedTx,
-      mint,
-      timestamp,
-      proposal
+      // mint,
+      // timestamp,
+      // proposal
     });
     console.log('create proposal: ', data);
     return data; // Depending on what your backend returns
@@ -293,7 +295,7 @@ export const postCreateProposal = async ({ signedTx, mint, timestamp, proposal }
 
 export const fetchProposal = async (context: QueryFunctionContext<string[], { proposalId: string }>) => {
   const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order you pass the query key?
-  const URL = `${API_BASE_URL}/proposal`;
+  const URL = `${API_BASE_URL}/faction/proposal`;
   try {
     const { data } = await fetch.get<any>(URL, {
       params: {
@@ -310,7 +312,7 @@ export const fetchProposal = async (context: QueryFunctionContext<string[], { pr
 
 export const processProposal = async (context: QueryFunctionContext<string[], { proposalId: string }>) => {
   const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order you pass the query key?
-  const URL = `${API_BASE_URL}/proposal/process`;
+  const URL = `${API_BASE_URL}/faction/proposal/process`;
   try {
     const { data } = await fetch.get<any>(URL, {
       params: {

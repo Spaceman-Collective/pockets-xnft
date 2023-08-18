@@ -1,11 +1,19 @@
-import { Box, Flex, HStack, Button, Text, VStack,   Modal,
+import {
+  Box,
+  Flex,
+  HStack,
+  Button,
+  Text,
+  VStack,
+  Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  useDisclosure, } from "@chakra-ui/react";
+  useDisclosure,
+} from "@chakra-ui/react";
 import { Label, PanelContainer, Value, ValueCalculation } from "./tab.styles";
 import { colors } from "@/styles/defaultTheme";
 import styled from "@emotion/styled";
@@ -16,7 +24,12 @@ import { useEffect } from "react";
 import { CreateProposal } from "../create-proposal-modal/create-proposal.component";
 
 const spacing = "1rem";
-export const FactionTabPolitics: React.FC<{  currentCharacter: Character; setFactionStatus: (value: boolean) => void; }> = ({ currentCharacter, setFactionStatus }) => {
+export const FactionTabPolitics: React.FC<{
+  currentCharacter: Character;
+  setFactionStatus: (value: boolean) => void;
+  fire: () => void;
+}> = ({ currentCharacter, setFactionStatus, fire: fireConfetti
+}) => {
   const {
     connection,
     walletAddress,
@@ -26,12 +39,12 @@ export const FactionTabPolitics: React.FC<{  currentCharacter: Character; setFac
   } = useSolana();
 
   useEffect(() => {
-    setFactionStatus(!!currentCharacter?.faction)
+    setFactionStatus(!!currentCharacter?.faction);
   }, [currentCharacter, setFactionStatus]);
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
-      <Header factionName={currentCharacter?.faction?.name}/>
+      <Header factionName={currentCharacter?.faction?.name} />
       <Flex>
         <CitizensButton
           onClick={() => {}}
@@ -43,10 +56,13 @@ export const FactionTabPolitics: React.FC<{  currentCharacter: Character; setFac
         >
           citizens
         </CitizensButton>
-        <LeaveFactionModal character={currentCharacter} setFactionStatus={setFactionStatus} />
+        <LeaveFactionModal
+          character={currentCharacter}
+          setFactionStatus={setFactionStatus}
+        />
       </Flex>
       <VStack gap={spacing}>
-        <ProposalLabels />
+        <ProposalLabels fire={fireConfetti}/>
         {Array.from({ length: 3 }).map((_, i) => (
           <ProposalAction key={"res" + i}>
             <ProposalTitle>PROPOSAL #{i + 1}</ProposalTitle>
@@ -57,7 +73,9 @@ export const FactionTabPolitics: React.FC<{  currentCharacter: Character; setFac
   );
 };
 
-const Header: React.FC<{factionName: string | undefined }> = ({ factionName })  => {
+const Header: React.FC<{ factionName: string | undefined }> = ({
+  factionName,
+}) => {
   return (
     <Flex justifyContent="space-between" alignItems="end">
       <Title verticalAlign="end">{factionName!}</Title>
@@ -65,19 +83,30 @@ const Header: React.FC<{factionName: string | undefined }> = ({ factionName })  
   );
 };
 
-const ProposalLabels = () => {
+const ProposalLabels: React.FC<{
+  fire: () => void;
+}> = ({ fire: fireConfetti
+}) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <MenuTitle>proposals</MenuTitle>
       <HStack alignItems="end">
-        <Label color={colors.brand.tertiary} pb="0.25rem" >Voting Power:</Label>
+        <Label color={colors.brand.tertiary} pb="0.25rem">
+          Voting Power:
+        </Label>
         <Value>40/40</Value>
-        <ValueCalculation color={colors.brand.tertiary} pl="0.25rem" pb="0.25rem">(30 + 10)</ValueCalculation>
+        <ValueCalculation
+          color={colors.brand.tertiary}
+          pl="0.25rem"
+          pb="0.25rem"
+        >
+          (30 + 10)
+        </ValueCalculation>
       </HStack>
       <HStack gap="4rem" alignItems="end">
-        <CreateProposal/>
+        <CreateProposal fire={fireConfetti} />
       </HStack>
     </Flex>
   );
@@ -104,7 +133,7 @@ const ProposalTitle = styled(Text)`
   text-transform: uppercase;
   font-size: 1.75rem;
   font-weight: 800;
-  font-spacing: 3px
+  font-spacing: 3px;
 `;
 
 const MenuTitle = styled(Text)`
@@ -129,4 +158,3 @@ const ProposalAction = styled(Flex)`
   align-items: center;
   justify-content: space-between;
 `;
-

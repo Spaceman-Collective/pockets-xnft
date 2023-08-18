@@ -7,8 +7,10 @@ import { timeout } from "@/lib/utils";
 import { useCharacter} from "@/hooks/useCharacter";
 import { Character } from "@/types/server";
 
-export const NoFaction: FC<{ onOpenJoinFaction: () => void }> = ({
-  onOpenJoinFaction
+export const NoFaction: FC<{ onOpenJoinFaction: () => void; setFactionStatus: (value: boolean) => void;
+}> = ({
+  onOpenJoinFaction,
+  setFactionStatus
 }) => {
   const [confetti, setConfetti] = useState(false);
   const fireConfetti = async () => {
@@ -49,7 +51,7 @@ export const NoFaction: FC<{ onOpenJoinFaction: () => void }> = ({
       >
         Join a Faction
       </Button>
-      <CreateFaction fire={fireConfetti} />
+      <CreateFaction fire={fireConfetti} setFactionStatus={setFactionStatus} />
       {confetti && <Confetti canFire={confetti} />}
     </Flex>
   );

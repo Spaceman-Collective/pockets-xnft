@@ -65,8 +65,7 @@ export default function FactionPage() {
                     <FactionTabs currentCharacter={selectedCharacter!} setFactionStatus={handleSetFactionStatus} />
                   ) : (
                     <NoFaction
-                      onOpenJoinFaction={joinFactionDisclosure.onOpen}
-                    />
+                      onOpenJoinFaction={joinFactionDisclosure.onOpen} setFactionStatus={handleSetFactionStatus} />
                   )}
                 </SectionContainer>
               </FactionSection>
