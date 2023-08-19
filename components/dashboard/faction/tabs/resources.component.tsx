@@ -1,10 +1,21 @@
-import { Box, Flex, Grid, HStack, Input, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Grid,
+  HStack,
+  Input,
+  Text,
+  VStack,
+  Image,
+} from "@chakra-ui/react";
 import { Label, PanelContainer, Value } from "./tab.styles";
 import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
 import { useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
+import { useFaction } from "@/hooks/useFaction";
+import { getLocalImage } from "@/lib/utils";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -16,6 +27,10 @@ export const FactionTabResources: React.FC<{
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
   const onSearch = (e: any) => setSearch(e.target.value);
+  const { data: factionData } = useFaction({
+    factionId: currentCharacter?.faction?.id ?? "",
+  });
+  console.log("x", factionData);
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
@@ -63,9 +78,9 @@ export const FactionTabResources: React.FC<{
           templateColumns="repeat(auto-fit, minmax(100px,1fr))"
           gap={spacing}
         >
-          {Array.from({ length: 222 }).map((_, i) => (
+          {factionData?.resources?.map((resource, i) => (
             <Flex
-              key={i}
+              key={resource?.name + "resource"}
               bg="blacks.500"
               minH="5rem"
               alignItems="center"
@@ -78,14 +93,14 @@ export const FactionTabResources: React.FC<{
                 transform: "scale(1.05)",
               }}
             >
-              <Box
-                h="4rem"
-                w="4rem"
-                bg="brand.primary"
+              <Image
+                alt={resource.name}
+                src={getLocalImage({ type: "resources", name: resource.name })}
+                fallbackSrc="https://via.placeholder.com/150"
                 borderRadius="0.5rem"
-                backgroundImage={`https://picsum.photos/seed/${i * 2}/32`}
+                w="5rem"
               />
-              <Value pr="1rem">78</Value>
+              <Value pr="1rem">{i + 3 * 7}</Value>
             </Flex>
           ))}
         </Grid>

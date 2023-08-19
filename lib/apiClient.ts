@@ -139,7 +139,7 @@ export const fetchFaction = async ({
   factionId,
 }: {
   factionId: string;
-}): Promise<Faction> => {
+}): Promise<{ faction: Faction; resources: { name: string }[] }> => {
   const URL = API_BASE_URL + "/faction";
   try {
     const response = await fetch.get<any>(URL, { params: { id: factionId } });
