@@ -243,7 +243,14 @@ export const fetchCharTimers = async ({
   mint,
 }: {
   mint: string;
-}): Promise<any> => {
+}): Promise<{
+  rfTimers: {
+    character: string;
+    finished: string;
+    id: string;
+    rf: string;
+  }[];
+}> => {
   const URL = API_BASE_URL + "/character/timers";
   const errorMsg = "Server Error while character timers";
 
@@ -270,7 +277,15 @@ export const fetchResources = async ({
   factionId,
 }: {
   factionId: string;
-}): Promise<any> => {
+}): Promise<{
+  rfs: {
+    amount: string;
+    faction: string;
+    id: string;
+    resource: string;
+    timer: string;
+  }[];
+}> => {
   const URL = API_BASE_URL + "/faction/rfs";
   const errorMsg = "Server Error while fetching resource fields";
 
