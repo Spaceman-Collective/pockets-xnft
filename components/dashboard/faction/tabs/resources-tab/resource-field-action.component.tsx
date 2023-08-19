@@ -17,22 +17,21 @@ export const ResourceFieldAction: FC<{
     rf: string;
   };
 }> = ({ rf, timer }) => {
-  console.log({ rf, timer });
+  // show harvest button on timer undefined
   const finishedDate = timer?.finished && +timer?.finished;
   const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
+  console.table({ date: new Date(finishedTime) });
 
-  const t = Date.now() - 1000 * 10;
-  console.log("sdad", formatTime(t));
+  const remainingTime = (finishedTime - Date.now()) / 1000;
 
-  const totalTimeInSeconds = Math.floor((finishedTime - Date.now()) / 1000);
-  console.table({ now: Date.now(), finishedTime, totalTimeInSeconds });
   const [count, { startCountdown, stopCountdown, resetCountdown }] =
     useCountdown({
-      countStart: totalTimeInSeconds,
+      countStart: remainingTime,
       intervalMs: 1000,
     });
 
   useEffect(() => {
+    if (!timer) return;
     startCountdown();
   }, []);
 
@@ -54,7 +53,7 @@ export const ResourceFieldAction: FC<{
         <Value>{rf.amount}</Value>
       </HStack>
       <HStack>
-        <Value>{timeAgo(count)}</Value>
+        {timer ? <Value>{timeAgo(count)}</Value> : "Harvest"}
         {/* <Value>{formatTime(finishedTime)}</Value> */}
       </HStack>
     </ResourceActionContainer>
