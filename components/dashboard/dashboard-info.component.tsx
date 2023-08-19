@@ -1,9 +1,10 @@
-import { Box, Text, Button } from "@chakra-ui/react";
+import { Box, Text, Button, Flex } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { MdLeaderboard, MdNotificationsActive } from "react-icons/md";
 import { AiFillGold } from "react-icons/ai";
 import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
 import { useSolana } from "@/hooks/useSolana";
+import styled from "@emotion/styled";
 
 export const DashboardInfo = () => {
   const factionName = "MAD OGSSS";
@@ -18,193 +19,38 @@ export const DashboardInfo = () => {
   const bonkbalance = getBonkBalance;
 
   return (
-    <Box display="flex" justifyContent="space-between">
-      <Box display="flex" justifyContent="flex-start">
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-          >
-            FACTION:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-          >
-            {factionName}
-          </Text>
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-            flex="1"
-            display="flex"
-            alignItems="start"
-            justifyContent="start"
-          >
-            LVL:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-            flex="1"
-            display="flex"
-            alignItems="flex-end"
-            justifyContent="center"
-          >
-            {userLevel}
-          </Text>
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-            flex="1"
-            display="flex"
-            alignItems="start"
-            justifyContent="start"
-          >
-            BONK:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-            flex="1"
-            display="flex"
-            alignItems="flex-end"
-            justifyContent="center"
-          >
-            {userLevel}
-          </Text>
-        </Box>
-      </Box>
-      <Box display="flex" justifyContent="flex-start">
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-          marginLeft="2rem"
-        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-          >
-            FACTIONS:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-          >
-            {numOfFactions}
-          </Text>
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-          >
-            TOTAL RFS:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-          >
-            {totalRfs}
-          </Text>
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-          >
-            PLAYERS:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-          >
-            {numOfPlayers}
-          </Text>
-        </Box>
-      </Box>
-      <Box display="flex" justifyContent="flex-start">
+    <Flex justifyContent="space-between">
+      <Flex gap="2rem">
+        <Flex alignItems="flex-end">
+          <Label>FACTION:</Label>
+          <Value>{factionName}</Value>
+        </Flex>
+        <Flex alignItems="flex-end">
+          <Label>LVL:</Label>
+          <Value>{userLevel}</Value>
+        </Flex>
+        <Flex alignItems="flex-end">
+          <Label>BONK:</Label>
+          <Value>{userLevel}</Value>
+        </Flex>
+      </Flex>
+      <Flex gap="2rem">
+        <Flex alignItems="flex-end">
+          <Label>FACTIONS:</Label>
+          <Value>{numOfFactions}</Value>
+        </Flex>
+        <Flex alignItems="flex-end">
+          <Label>TOTAL RFS:</Label>
+          <Value>{totalRfs}</Value>
+        </Flex>
+        <Flex alignItems="flex-end">
+          <Label>PLAYERS:</Label>
+          <Value>{numOfPlayers}</Value>
+        </Flex>
+      </Flex>
+      <Flex gap="2rem">
         <Button
           display="flex"
-          justifyContent="flex-start"
           alignItems="flex-end"
           marginRight="2rem"
           p="0.5rem"
@@ -216,7 +62,6 @@ export const DashboardInfo = () => {
         </Button>
         <Button
           display="flex"
-          justifyContent="flex-start"
           alignItems="flex-end"
           marginRight="2rem"
           p="0.5rem"
@@ -228,7 +73,6 @@ export const DashboardInfo = () => {
         </Button>
         <Button
           display="flex"
-          justifyContent="flex-start"
           alignItems="flex-end"
           p="0.5rem"
           onClick={() => {
@@ -237,7 +81,24 @@ export const DashboardInfo = () => {
         >
           <MdNotificationsActive size={24} color={colors.brand.secondary} />
         </Button>
-      </Box>
-    </Box>
+      </Flex>
+    </Flex>
   );
 };
+
+const Label = styled(Text)`
+  margin: 0 auto;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: ${colors.brand.tertiary};
+`;
+const Value = styled(Text)`
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+`;
