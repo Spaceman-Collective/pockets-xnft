@@ -31,7 +31,7 @@ export const ManageCharacter: React.FC<{ currentCharacter?: Character }> = ({
   ];
 
   if (!currentCharacter) {
-    return <NoSelectedCharacter/>
+    return <NoSelectedCharacter />;
   }
 
   const experienceKeys = Object.keys(currentCharacter.experience) as Array<
@@ -43,7 +43,7 @@ export const ManageCharacter: React.FC<{ currentCharacter?: Character }> = ({
       <Header
         name={currentCharacter.name}
         image={currentCharacter.image}
-        faction={currentCharacter.faction?.id}
+        faction={currentCharacter.faction?.name}
       />
       <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="1rem">
         <SkillContainer>
@@ -184,7 +184,7 @@ const SkillContainer: FC<{ children: ReactNode; isCombat?: boolean }> = ({
   isCombat,
 }) => {
   return (
-    <Box >
+    <Box>
       <Value mb="1rem">{!isCombat && "NON-"}Combat Skills</Value>
       <Grid templateColumns="1fr 1fr" gap="1rem">
         {children}
