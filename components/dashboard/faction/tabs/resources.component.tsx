@@ -20,6 +20,7 @@ import { useFaction } from "@/hooks/useFaction";
 import { getLocalImage } from "@/lib/utils";
 import { TIP } from "@/components/tooltip/constants";
 import { Tip } from "@/components/tooltip";
+import { useResourceField } from "@/hooks/useResourceField";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -34,6 +35,11 @@ export const FactionTabResources: React.FC<{
   const { data: factionData, isLoading: factionIsLoading } = useFaction({
     factionId: currentCharacter?.faction?.id ?? "",
   });
+
+  const { data: rfData } = useResourceField({
+    factionId: currentCharacter?.faction?.id,
+  });
+  console.log({ rfData });
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
@@ -54,13 +60,6 @@ export const FactionTabResources: React.FC<{
               <Label>amount:</Label>
               <Value>1{i}</Value>
             </HStack>
-            <MenuText
-              color={i > 0 ? "brand.quaternary" : "purple.700"}
-              opacity={i > 1 ? "0.5" : 1}
-              cursor={i > 1 ? "not-allowed" : "pointer"}
-            >
-              {i !== 0 ? "Harvest" : "Prospect"}
-            </MenuText>
           </ResourceAction>
         ))}
       </VStack>

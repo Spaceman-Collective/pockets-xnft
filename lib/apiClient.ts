@@ -239,6 +239,33 @@ export const fetchAllAssets = async ({
   }
 };
 
+export const fetchResources = async ({
+  factionId,
+}: {
+  factionId: string;
+}): Promise<any> => {
+  const URL = API_BASE_URL + "/faction/rfs";
+  const errorMsg = "Server Error while fetching resource fields";
+
+  try {
+    const response = await fetch.get<any>(URL, {
+      params: {
+        factionId,
+      },
+    });
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as any;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error(errorMsg, error);
+    throw error;
+  }
+};
+
 export const consumeResources = async ({
   signedTx,
 }: {
