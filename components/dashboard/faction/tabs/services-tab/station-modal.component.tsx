@@ -10,15 +10,34 @@ import {
   VStack,
   Image,
   Grid,
+  Progress,
 } from "@chakra-ui/react";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import styled from "@emotion/styled";
+import { useCountdown } from "usehooks-ts";
 
 export const ModalStation: FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
   onClose,
 }) => {
-  console.log({ isOpen });
+  const totalTimeInSeconds = 60;
+  const [count, { startCountdown, stopCountdown, resetCountdown }] =
+    useCountdown({
+      countStart: totalTimeInSeconds,
+      intervalMs: 100,
+    });
+
+  useEffect(() => {
+    startCountdown();
+  }, [startCountdown, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) return;
+    resetCountdown();
+  }, [isOpen]);
+
+  const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -34,16 +53,29 @@ export const ModalStation: FC<{ isOpen: boolean; onClose: () => void }> = ({
           <ModalHeader />
           <Grid templateColumns="repeat(3, 1fr)" mt="4rem">
             <ResourceContainer
+              isDisabled={progress === 100}
               resources={[
                 { img: "https://picsum.photos/seed/1/200/200" },
                 { img: "https://picsum.photos/seed/2/200/200" },
-                { img: "https://picsum.photos/seed/3/200/200" },
               ]}
             />
-            <Grid minH="20rem" placeItems="center">
-              init materials
-            </Grid>
+            <Flex
+              minH="20rem"
+              direction="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Progress
+                hasStripe={progress === 100 ? false : true}
+                value={progress}
+                w="100%"
+                h="2rem"
+                colorScheme={progress === 100 ? "green" : "blue"}
+              />
+              <Text>{count}</Text>
+            </Flex>
             <ResourceContainer
+              isDisabled={progress !== 100}
               resources={[{ img: "https://picsum.photos/seed/1/200" }]}
             />
           </Grid>
@@ -80,9 +112,10 @@ const ModalHeader = () => {
   );
 };
 
-const ResourceContainer: FC<{ resources: { img: string }[] }> = ({
-  resources,
-}) => {
+const ResourceContainer: FC<{
+  isDisabled?: boolean;
+  resources: { img: string }[];
+}> = ({ resources, isDisabled }) => {
   return (
     <Grid
       borderRadius="1rem"
@@ -90,6 +123,7 @@ const ResourceContainer: FC<{ resources: { img: string }[] }> = ({
       minH="20rem"
       placeItems="center"
       p="4rem"
+      opacity={isDisabled ? 0.5 : 1}
     >
       <Grid
         templateColumns={resources?.length > 1 ? "1fr 1fr" : "1fr"}
