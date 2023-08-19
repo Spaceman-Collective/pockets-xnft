@@ -4,7 +4,7 @@ import { Connection, Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { Buffer } from "buffer";
 
-const pocketsIDL = require("./pockets-program/pockets_program.json");
+const pocketsIDL = require("./program/pockets_program");
 
 const POCKETS_PROGRAM_PROGRAMID =
   "GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ";
@@ -32,6 +32,14 @@ export async function getProposalAccount(
 export function getProposalPDA(proposalId: string): PublicKey {
   const [proposalPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("proposal"), Buffer.from(proposalId)],
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
+  );
+  return proposalPDA;
+}
+
+export function getResourceFieldPDA(rfId: string): PublicKey {
+  const [proposalPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("rf"), Buffer.from(rfId)],
     new PublicKey(POCKETS_PROGRAM_PROGRAMID),
   );
   return proposalPDA;
@@ -339,4 +347,60 @@ export async function returnVoteDelegation(
     .instruction();
 
   return ix;
+}
+
+export async function prospectResourceField(
+  connection: Connection,
+  wallet: PublicKey,
+  characterMint: PublicKey,
+  factionId: string,
+  rf: PublicKey,
+) {
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    new AnchorProvider(connection, new Wallet(Keypair.generate()), {
+      commitment: "confirmed",
+    })
+  );
+
+  const walletAta = getAssociatedTokenAddressSync(characterMint, wallet);
+  const citizen = getCitizenPDA(characterMint);
+  const faction = getFactionPDA(factionId);
+  // const rf = getResourceFieldPDA(rfId);
+
+  const ix = POCKETS_PROGRAM.methods
+    .developResourceField()
+    .accounts({
+      wallet,
+      walletAta,
+      systemProgram: SystemProgram.programId,
+      citizen,
+      rf,
+      faction,
+    })
+    .instruction();
+
+  return ix;
+}
+
+export async function getResourceField(
+  connection: Connection,
+  rfId: string,
+) {
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    new AnchorProvider(connection, new Wallet(Keypair.generate()), {
+      commitment: "confirmed",
+    })
+  );
+
+  const rfPDA = getResourceFieldPDA(rfId);
+
+  const rfAcc = await POCKETS_PROGRAM.account.resourceField.fetchNullable(
+    rfPDA
+  );
+
+  return rfAcc
 }

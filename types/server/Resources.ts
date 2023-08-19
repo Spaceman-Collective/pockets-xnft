@@ -154,3 +154,30 @@ export const RESOURCES: Resource[] = [
   },
 ];
 
+export const RESOURCE_FIELDS: ResourceField[] = [
+  {
+    id: "1",
+    faction: "STORMSHADOW LEAGUE",
+    resource: "Psychedelics",
+    amount: "100",
+    timer: "1000",
+    timers: {}
+  },
+  {
+    id: "2",
+    faction: "STORMSHADOW LEAGUE",
+    resource: "Golden Apples",
+    amount: "9",
+    timer: "900",
+    timers: {}
+  },
+  {
+    id: "3",
+    faction: "STORMSHADOW LEAGUE",
+    resource: "Runic Circuits",
+    amount: "1",
+    timer: "1000",
+    timers: {}
+  }
+
+];

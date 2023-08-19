@@ -21,7 +21,7 @@ import {
 import { Label, PanelContainer, Value } from "./tab.styles";
 import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
-import { FC, Dispatch, SetStateAction, useState } from "react";
+import { FC, Dispatch, SetStateAction, useState, useEffect } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
 import { useFaction } from "@/hooks/useFaction";
@@ -29,7 +29,16 @@ import { getLocalImage } from "@/lib/utils";
 import { useAllocateResourceField } from "@/hooks/useAllocateResourceField";
 import { useSolana } from "@/hooks/useSolana";
 import { usePocketsProgram } from "@/hooks/usePocketsProgram";
-import { ResourceField, RESOURCES } from "@/types/server/Resources";
+import { RESOURCE_FIELDS, RESOURCES, Resource, ResourceField } from "@/types/server/Resources";
+import { getResourceField, prospectResourceField } from "@/lib/solanaClient";
+import { useHarvestResourceField } from "@/hooks/useHarvestResourceField";
+import { useFetchAllResourceFields } from "@/hooks/useFetchAllResourceFields";
+import { HarvestResouceFieldResponse } from "@/lib/apiClient";
+import { RESOURCE_FIELD_CREATION_MULTIPLIER, SPL_TOKENS } from "@/constants";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+
+const dummyPDA = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263" //bonk token!
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -46,12 +55,16 @@ export const FactionTabResources: React.FC<{
     factionId: currentCharacter?.faction?.id ?? "",
   });
   const { mutate } = useAllocateResourceField();
+  const { mutate: mutateHarvest } = useHarvestResourceField();
+
   const {
     connection,
     walletAddress,
     signTransaction,
     buildMemoIx,
+    buildTransferIx,
     encodeTransaction,
+    getBonkBalance
   } = useSolana();
   const {
     isOpen: isStatusOpen,
@@ -66,42 +79,79 @@ export const FactionTabResources: React.FC<{
 
   const [numProspectTransactions, setNumProspectTransactions] = useState<number>(1);
   const [discoverBtnLabel, setdiscoverBtnLabel] = useState<string>("prospect");
-  const [statusLabel, setStatuslabel] = useState<string>("Success");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isHarvestLoading, setIsHarvestLoading] = useState<boolean>(false);
 
-  const [resourceFieldPDA, setResourceFieldPDA] = useState<string>("");
+  const [discoveredRFPDA, setDiscoveredRFPDA] = useState<string>(dummyPDA);
   const [resourceFieldList, setResourceFieldList] = useState<ResourceField[]>([]);
+  const [discoveredResrouce, setDiscoveredResource] = useState<Resource>();
+
+  const { data: currentResourceFields } = useFetchAllResourceFields();
+
+  useEffect(() => {
+    setResourceFieldList(currentResourceFields);
+  }, [currentResourceFields])
 
   const handleDiscoverResource = async () => {
-    if (discoverBtnLabel === "discover") {
-      const payload = {};
+    if (!walletAddress || !connection) {
+      console.log("No wallet or connection");
+      return;
+    };
 
+    if (discoverBtnLabel === "discover") {
       try {
         setIsLoading(true);
+        const payload = {};
+
+        const requiredBONK =
+          RESOURCE_FIELD_CREATION_MULTIPLIER *
+          BigInt(currentResourceFields.length ?? 0);
+        const bonkInWallet = await getBonkBalance({walletAddress, connection});
+
+        console.log("bonkInWallet: ", bonkInWallet);
+        if (bonkInWallet < requiredBONK) {
+          throw alert(
+            "You have insufficient BONK in your wallet. Please add more BONK and try again!"
+          );
+        }
+
+        const ix = await buildTransferIx({
+          walletAddress,
+          mint: SPL_TOKENS.bonk.mint,
+          amount: requiredBONK,
+          decimals: SPL_TOKENS.bonk.decimals,
+        });
+
         const encodedSignedTx = await encodeTransaction({
           walletAddress,
           connection,
           signTransaction,
-          txInstructions: [buildMemoIx({ walletAddress, payload })],
+          txInstructions: [buildMemoIx({ walletAddress, payload }), ix],
         });
 
         if (!encodedSignedTx) throw Error("No Tx");
         mutate(
           { signedTx: encodedSignedTx },
           {
-            onSuccess: (data: String) => {
+            onSuccess: async (data: String) => {
               console.log("[handleDiscoverResource] success");
-              setIsLoading(false);
+
+              // let program = await fetchProgram;
+              // let RFAcc = program?.account.resourceField.fetchNullable(data as string);
+              // let resourceName = rfAcc.harvest!.resource!.name;
+              // let type = 'Legendary';
+
+              let resourceDiscovered =
+                RESOURCES[Math.floor(Math.random() % RESOURCES.length)];
+              setDiscoveredResource(resourceDiscovered);
+
               setdiscoverBtnLabel("prospect");
-              setStatuslabel("Success");
-              setResourceFieldPDA(data);
+              setDiscoveredRFPDA(data as string);
               onStatusOpen();
             },
             onError: () => {
               console.log("[handleDiscoverResource] error");
-              setIsLoading(false);
-              setStatuslabel("Error");
+              setDiscoveredResource(undefined);
               onStatusOpen();
             },
           }
@@ -110,26 +160,64 @@ export const FactionTabResources: React.FC<{
         console.log("[handleDiscoverResource] error");
         setIsLoading(false);
       }
+
+      setIsLoading(false);
     } else if (discoverBtnLabel === "prospect") {
       // Handle the prospecting
       onProspectOpen();
     }
   };
 
-  const handleHarvest = async () => {
-    setIsHarvestLoading(true);
+  const handleHarvest = async (rf: ResourceField) => {
     console.log("harvesting ...");
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      setIsHarvestLoading(true);
 
-    console.log("done harvesting ...");
+      const payload = {};
+      const encodedSignedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        txInstructions: [buildMemoIx({ walletAddress, payload })],
+      });
+      if (!encodedSignedTx) throw Error("No Tx");
 
-    setIsHarvestLoading(false);
-    setdiscoverBtnLabel('discover');
+      mutateHarvest(
+        { signedTx: encodedSignedTx },
+        {
+          onSuccess: (response: HarvestResouceFieldResponse) => {
+            console.log("[mutateHarvest] success", response);
 
-    const program = await fetchProgram;
-    const rfAcc = await program?.account.resourceField.fetchNullable(resourceFieldPDA);
-    
+            /* TODO: Update RF with the response or fetched data from db or blockchain ?! */
+
+            const newAmount: number = Number(rf.amount) - 1;
+            if (newAmount === 0) {
+              /* Remove element from the resourceFieldList */
+              let index = resourceFieldList.findIndex((r) => r.id === rf.id);
+              let temp = [...resourceFieldList];
+              temp.splice(index, 1);
+              setResourceFieldList(temp);
+
+              setdiscoverBtnLabel("discover");
+            } else {
+              let index = resourceFieldList.findIndex((r) => r.id === rf.id);
+              let temp = [...resourceFieldList];
+              temp[index] = { ...rf, amount: newAmount.toString() };
+              setResourceFieldList(temp);
+            }
+          },
+          onError: () => {
+            console.log("[mutateHarvest] error");
+          },
+        }
+      );
+    } catch (error) {
+      console.log("[handleHarvest] error");
+    } finally {
+      setIsHarvestLoading(false);
+      console.log("done harvesting ...");
+    }
   };
 
   return (
@@ -155,13 +243,12 @@ export const FactionTabResources: React.FC<{
               <Label>amount:</Label>
               <Value>{rf.amount}</Value>
             </HStack>
-            <MenuText
-              color={i > 0 ? "brand.quaternary" : "purple.700"}
-              opacity={i > 1 ? "0.5" : 1}
-              cursor={i > 1 ? "not-allowed" : "pointer"}
+            <HarvestButton
+              isLoading={isHarvestLoading}
+              onClick={() => handleHarvest(rf)}
             >
-              {i !== 0 ? "Harvest" : "Prospect"}
-            </MenuText>
+              Harvest
+            </HarvestButton>
           </ResourceAction>
         ))}
       </VStack>
@@ -205,7 +292,7 @@ export const FactionTabResources: React.FC<{
       <ResourcesStatusModal
         isOpen={isStatusOpen}
         onClose={onStatusClose}
-        status={statusLabel}
+        discoveredResource={discoveredResrouce}
       />
       <ProspectModal
         isOpen={isProspectOpen}
@@ -213,8 +300,9 @@ export const FactionTabResources: React.FC<{
         programPromise={fetchProgram}
         setNumProspectTxs={setNumProspectTransactions}
         numProspectTxs={numProspectTransactions}
-        rfPDA={resourceFieldPDA}
+        rfPDA={discoveredRFPDA}
         wallet={walletAddress}
+        connection={connection}
         resourceFieldList={resourceFieldList}
         setResourceFieldList={setResourceFieldList}
       />
@@ -229,7 +317,7 @@ const Header: React.FC<{ factionName: string | undefined }> = ({
     <Flex justifyContent="space-between" alignItems="end">
       <Title verticalAlign="end">{factionName!}</Title>
       <HStack alignItems="end">
-        <Label>RF Prospect Cost:</Label>
+        <Label>RF Harvest Cost:</Label>
         <Value>10k BONK</Value>
       </HStack>
       <HStack alignItems="end">
@@ -244,13 +332,13 @@ interface ResourceStatusModalProps {
   isOpen: boolean;
   onOpen?: () => void;
   onClose: () => void;
-  status?: string;
+  discoveredResource?: Resource;
 }
 
 const ResourcesStatusModal: React.FC<ResourceStatusModalProps> = ({
   isOpen,
   onClose,
-  status
+  discoveredResource
 }: ResourceStatusModalProps) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">
@@ -266,13 +354,64 @@ const ResourcesStatusModal: React.FC<ResourceStatusModalProps> = ({
         borderRadius="1rem"
       >
         <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">
-          Status
+          {!!discoveredResource ? (
+            <Text>Discovered Resource Field</Text>
+          ) : (
+            <Text>Failed to discover Resource Field</Text>
+          )}
         </ModalHeader>
         <ModalCloseButton position="absolute" top="30px" right="30px" />
-        <ModalBody flex="1">
-          <Box w="100%" h="100%">
-            {status}
-          </Box>
+        <ModalBody
+          flex="1"
+          fontSize="18px"
+          fontWeight="bold"
+          letterSpacing="2px"
+        >
+          <Flex w="100%" h="300">
+            {!!discoveredResource ? (
+              <Flex
+                w="100%"
+                h="100%"
+                justifyContent="center"
+                alignItems="center"
+                flexDirection="column"
+                gap={'2rem'}
+              >
+                <Text>
+                  With {discoveredResource.tier} Resource:{" "}
+                </Text>
+                <Flex
+                  bg="blacks.500"
+                  minH="5rem"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  p="1rem"
+                  borderRadius="1rem"
+                  transition="all 0.25s ease-in-out"
+                  _hover={{
+                    filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.25))",
+                    transform: "scale(1.05)",
+                  }}
+                  position="relative"
+                  w='50%'
+                >
+                  <Image
+                    alt={discoveredResource.name}
+                    src={getLocalImage({
+                      type: "resources",
+                      name: discoveredResource.name,
+                    })}
+                    fallbackSrc="https://via.placeholder.com/150"
+                    borderRadius="0.5rem"
+                    w="7rem"
+                  />
+                  <Value pr="1rem">{discoveredResource.name}</Value>
+                </Flex>
+              </Flex>
+            ) : (
+              <Text>Nothing to see here, move along!</Text>
+            )}
+          </Flex>
         </ModalBody>
       </ModalContent>
     </Modal>
@@ -286,10 +425,11 @@ interface ProspectModalProps {
   programPromise: any;
   setNumProspectTxs: (num: number) => void;
   numProspectTxs: number;
-  rfPDA: string;
+  rfPDA?: string;
   setResourceFieldList: Dispatch<SetStateAction<ResourceField[]>>;
   resourceFieldList: ResourceField[];
   wallet?: string;
+  connection?: Connection;
 }
 
 const ProspectModal: React.FC<ProspectModalProps> = ({
@@ -302,60 +442,62 @@ const ProspectModal: React.FC<ProspectModalProps> = ({
   setResourceFieldList,
   resourceFieldList,
   wallet,
+  connection
 }: ProspectModalProps) => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [selectedChar, _] = useSelectedCharacter();
 
   const handleProspect = async () => {
-    if (!programPromise) return;
-    // if (!rfPDA || rfPDA === "") return;
-    if (!wallet) return;
+    if (!programPromise || !wallet || !connection) return;
 
     try {
       setLoading(true);
+      // console.log(
+      //   "prospecting with wallet: ",
+      //   wallet,
+      //   " selectedChar: ",
+      //   selectedChar,
+      //   " rfPDA: ",
+      //   rfPDA,
+      //   " connection: ",
+      //   connection,
+      //   " numProspectTxs: ",
+      //   numProspectTxs,
+      //   " programPromise: ",
+      //   programPromise,
+      //   " resourceFieldList: ",
+      //   resourceFieldList,
+      //   " setResourceFieldList: ",
+      //   setResourceFieldList
+      // );
 
-      console.log('prospecting ...');
-      /*
-      const program = await programPromise;
-      const id = "";
+      for (let i = 0; i < numProspectTxs; i++) {
+        await prospectResourceField(
+          connection,
+          new PublicKey(wallet),
+          new PublicKey(selectedChar?.mint ?? ""),
+          selectedChar?.faction?.id ?? "",
+          new PublicKey(rfPDA ?? "")
+        );
 
-      const ix = await program?.methods
-        .allocateResourceField(id)
-        .accounts({
-          server: "",
-          systemProgram: "",
-          rf: "",
-        })
-        .instruction();
+        // let rfAcc = { initalClaimant: wallet }
+        let rfAcc = await getResourceField(connection, "");
+        if (rfAcc?.initalClaimant?.toString() === wallet) {
+          // Jackpot
+          // TODO: This is test code, remove it
+          // TODO: What ResourceField should I add to the list?
 
-      const rfAcc = await program.account.resourceField.fetchNullable(rfPDA);
-      */
-      // Dummy test code
-      let rfAcc = { initalClaimant: wallet }
+          let temp = [...resourceFieldList];
+          let i = Math.floor(Math.random() * 3);
+          temp.push(RESOURCE_FIELDS[i]);
+          setResourceFieldList(temp);
 
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      console.log('done prospecting ...');
-      if (rfAcc?.initalClaimant.toString() === wallet) {
-        // Jackpot
-        // TODO 1 - setResourceField could be an array here
-        // TODO 2 - Do we have the correct object to set in rfAcc?
-        let temp = [...resourceFieldList];
-        let dummyResource = RESOURCES[0];
-
-        temp.push({
-          id: "123",
-          faction: "",
-          resource: dummyResource.name,
-          amount: "12",
-          timer: "",
-          timers: {},
-        });
-        setResourceFieldList(temp);
+          break;
+        }
       }
-
-      setLoading(false);
     } catch (error) {
       console.log(error);
+    } finally {
       setLoading(false);
     }
   };
@@ -394,8 +536,7 @@ const ProspectModal: React.FC<ProspectModalProps> = ({
                   }
                 }}
               >
-                {" "}
-                -{" "}
+                -
               </Button>
               <Text>{numProspectTxs}</Text>
               <Button
@@ -404,8 +545,7 @@ const ProspectModal: React.FC<ProspectModalProps> = ({
                   setNumProspectTxs(numProspectTxs + 1);
                 }}
               >
-                {" "}
-                +{" "}
+                +
               </Button>
             </HStack>
           </Flex>
