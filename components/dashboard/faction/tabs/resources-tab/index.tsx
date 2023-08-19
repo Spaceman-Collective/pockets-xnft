@@ -10,7 +10,7 @@ import {
   Skeleton,
   useDisclosure,
 } from "@chakra-ui/react";
-import { Label, PanelContainer, Value } from "./tab.styles";
+import { Label, PanelContainer, Value } from "../tab.styles";
 import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
 import { FC, useState } from "react";
@@ -20,6 +20,13 @@ import { useFaction } from "@/hooks/useFaction";
 import { getLocalImage } from "@/lib/utils";
 import { TIP } from "@/components/tooltip/constants";
 import { Tip } from "@/components/tooltip";
+import { useResourceField } from "@/hooks/useResourceField";
+import { useCharTimers } from "@/hooks/useCharTimers";
+import { getLocationOrigin } from "next/dist/shared/lib/utils";
+import {
+  ResourceActionContainer,
+  ResourceFieldAction,
+} from "./resource-field-action.component";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -35,35 +42,34 @@ export const FactionTabResources: React.FC<{
     factionId: currentCharacter?.faction?.id ?? "",
   });
 
+  const { data: rfData } = useResourceField({
+    factionId: currentCharacter?.faction?.id,
+  });
+
+  const { data: timersData } = useCharTimers({
+    mint: currentCharacter?.mint,
+  });
+
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header factionName={currentCharacter?.faction?.name} />
-      <VStack gap={spacing}>
+      <Box>
         <ResourceLabels />
-
-        {Array.from({ length: 3 }).map((_, i) => (
-          <ResourceAction key={"res" + i}>
-            <Text>#{i + 1}</Text>
-            <HStack>
-              <Label>next harvest in:</Label>
-              <Value>
-                10<span style={{ fontSize: "1rem" }}>s</span>
-              </Value>
-            </HStack>
-            <HStack>
-              <Label>amount:</Label>
-              <Value>1{i}</Value>
-            </HStack>
-            <MenuText
-              color={i > 0 ? "brand.quaternary" : "purple.700"}
-              opacity={i > 1 ? "0.5" : 1}
-              cursor={i > 1 ? "not-allowed" : "pointer"}
-            >
-              {i !== 0 ? "Harvest" : "Prospect"}
-            </MenuText>
-          </ResourceAction>
-        ))}
-      </VStack>
+        <Grid templateColumns="1fr 1fr" gap={spacing}>
+          {rfData?.rfs.map((rf) => (
+            <ResourceFieldAction
+              key={rf.id}
+              rf={rf}
+              timer={timersData?.rfTimers.find((timer) => timer.rf === rf.id)}
+            />
+          ))}
+          {rfData?.rfs &&
+            rfData?.rfs?.length < 2 &&
+            Array.from({ length: 2 - rfData?.rfs.length }).map((_, i) => (
+              <ResourceActionContainer key={"empty" + i} />
+            ))}
+        </Grid>
+      </Box>
       <Box>
         <Flex justifyContent="space-between" alignItems="end" mb="1rem">
           <MenuTitle mb="1rem">Treasury</MenuTitle>
@@ -216,12 +222,4 @@ const MenuText = styled(Text)`
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-`;
-const ResourceAction = styled(Flex)`
-  background-color: ${colors.blacks[500]};
-  width: 100%;
-  padding: 1.5rem;
-  border-radius: ${spacing};
-  align-items: center;
-  justify-content: space-between;
 `;

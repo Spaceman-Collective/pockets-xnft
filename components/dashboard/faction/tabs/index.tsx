@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { FactionTabServices } from "./services-tab";
 import { FactionTabPolitics } from "./politics.component";
-import { FactionTabResources } from "./resources.component";
+import { FactionTabResources } from "./resources-tab";
 import { Character } from "@/types/server";
 import Confetti from "@/components/Confetti";
 import { useState } from "react";
@@ -28,7 +28,7 @@ export const FactionTabs: React.FC<{
 
   return (
     <Tabs>
-      <TabList mb="1em" >
+      <TabList mb="1em">
         <Tab>Services</Tab>
         <Tab>Politics</Tab>
         <Tab>Resources</Tab>
@@ -41,7 +41,11 @@ export const FactionTabs: React.FC<{
           />
         </TabPanel>
         <TabPanel>
-        <FactionTabPolitics currentCharacter={currentCharacter} setFactionStatus={setFactionStatus!} fire={fireConfetti}/>
+          <FactionTabPolitics
+            currentCharacter={currentCharacter}
+            setFactionStatus={setFactionStatus!}
+            fire={fireConfetti}
+          />
         </TabPanel>
         <TabPanel>
           <FactionTabResources
