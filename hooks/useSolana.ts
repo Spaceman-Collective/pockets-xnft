@@ -20,7 +20,6 @@ import {
 } from "@solana/web3.js";
 import { decode, encode } from "bs58";
 import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants";
-import { get } from "http";
 
 type TxType = VersionedTransaction | Transaction;
 

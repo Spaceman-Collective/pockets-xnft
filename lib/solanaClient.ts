@@ -3,8 +3,8 @@ import { PocketsProgram } from "./program/pockets_program";
 import { Connection, Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
 import { Buffer } from "buffer";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
-
-const pocketsIDL = require("./program/pockets_program");
+import { useAnchorWallet } from '@solana/wallet-adapter-react';
+const pocketsIDL = require("./program/pockets_program.json");
 
 const POCKETS_PROGRAM_PROGRAMID =
   "GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ";
