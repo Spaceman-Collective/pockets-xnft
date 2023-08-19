@@ -21,6 +21,7 @@ import { getLocalImage } from "@/lib/utils";
 import { TIP } from "@/components/tooltip/constants";
 import { Tip } from "@/components/tooltip";
 import { useResourceField } from "@/hooks/useResourceField";
+import { useCharTimers } from "@/hooks/useCharTimers";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -39,7 +40,13 @@ export const FactionTabResources: React.FC<{
   const { data: rfData } = useResourceField({
     factionId: currentCharacter?.faction?.id,
   });
+
+  const { data: timersData } = useCharTimers({
+    mint: currentCharacter?.mint,
+  });
+
   console.log({ rfData });
+  console.log({ timersData });
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">

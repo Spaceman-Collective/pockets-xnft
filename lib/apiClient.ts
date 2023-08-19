@@ -239,6 +239,33 @@ export const fetchAllAssets = async ({
   }
 };
 
+export const fetchCharTimers = async ({
+  mint,
+}: {
+  mint: string;
+}): Promise<any> => {
+  const URL = API_BASE_URL + "/character/timers";
+  const errorMsg = "Server Error while character timers";
+
+  try {
+    const response = await fetch.get<any>(URL, {
+      params: {
+        mint,
+      },
+    });
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as any;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error(errorMsg, error);
+    throw error;
+  }
+};
+
 export const fetchResources = async ({
   factionId,
 }: {
