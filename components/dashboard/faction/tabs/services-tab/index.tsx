@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { ModalStation } from "./station-modal.component";
 import { FC } from "react";
+import { useFaction } from "@/hooks/useFaction";
 
 const stationSize = "7rem";
 

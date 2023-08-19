@@ -25,7 +25,7 @@ import { useEffect, useState } from "react";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 export default function FactionPage() {
-  const { data: allAssetData } = useAssets();
+  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
   const { walletAddress } = useSolana();
   const joinFactionDisclosure = useDisclosure();
   const [isInFaction, setIsInFaction] = useState(true);
@@ -61,6 +61,7 @@ export default function FactionPage() {
               <FactionSection>
                 <CharacterList
                   data={allAssetData?.characters}
+                  isLoading={allAssetDataIsLoading}
                   selectedCharacter={selectedCharacter}
                   setSelectedCharacter={setSelectedCharacter}
                 />
