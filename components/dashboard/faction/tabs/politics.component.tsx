@@ -56,7 +56,6 @@ export const FactionTabPolitics: React.FC<{
   const { data: factionData } = useFaction({
     factionId: currentCharacter?.faction?.id ?? "",
   });
-  console.log({ factionData });
 
   const {
     data: allProposals,

@@ -9,10 +9,10 @@ import {
   Image,
   Skeleton,
   useDisclosure,
+  Spinner,
 } from "@chakra-ui/react";
 import { Label, PanelContainer, Value } from "../tab.styles";
 import styled from "@emotion/styled";
-import { colors } from "@/styles/defaultTheme";
 import { FC, useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
@@ -22,11 +22,11 @@ import { TIP } from "@/components/tooltip/constants";
 import { Tip } from "@/components/tooltip";
 import { useResourceField } from "@/hooks/useResourceField";
 import { useCharTimers } from "@/hooks/useCharTimers";
-import { getLocationOrigin } from "next/dist/shared/lib/utils";
 import {
   ResourceActionContainer,
   ResourceFieldAction,
 } from "./resource-field-action.component";
+import { useRfAllocation } from "@/hooks/useRf";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -50,11 +50,14 @@ export const FactionTabResources: React.FC<{
     mint: currentCharacter?.mint,
   });
 
+  const { data: discoverData } = useRfAllocation();
+  console.log({ discoverData });
+
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header factionName={currentCharacter?.faction?.name} />
       <Box>
-        <ResourceLabels />
+        <ResourceLabels isDiscoverable={discoverData?.isDiscoverable} />
         <Grid templateColumns="1fr 1fr" gap={spacing}>
           {rfData?.rfs.map((rf) => (
             <ResourceFieldAction
@@ -129,7 +132,9 @@ const Header: React.FC<{ factionName: string | undefined }> = ({
   );
 };
 
-const ResourceLabels = () => {
+const ResourceLabels: FC<{ isDiscoverable?: boolean }> = ({
+  isDiscoverable,
+}) => {
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <Tip label={TIP.RESOURCE_FIELDS} placement="top">
@@ -137,7 +142,13 @@ const ResourceLabels = () => {
       </Tip>
       <HStack gap="4rem" alignItems="end">
         <MenuText color="brand.quaternary">harvest all</MenuText>
-        <MenuText color="brand.tertiary">discover</MenuText>
+        {isDiscoverable === undefined && <Spinner mb="0.75rem" mr="1rem" />}
+        {isDiscoverable === true && (
+          <MenuText color="brand.tertiary">discover</MenuText>
+        )}
+        {isDiscoverable === false && (
+          <MenuText color="brand.quaternary">prospect</MenuText>
+        )}
       </HStack>
     </Flex>
   );

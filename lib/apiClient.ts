@@ -308,6 +308,73 @@ export const fetchResources = async ({
   }
 };
 
+export const fetchRfAllocation = async (): Promise<{
+  isDiscoverable: boolean;
+  id: string;
+}> => {
+  const URL = API_BASE_URL + "/rf/allocation";
+  const errorMsg = "Server Error while fetching resource field allocation";
+
+  try {
+    const response = await fetch.get<any>(URL);
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as any;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error(errorMsg, error);
+    throw error;
+  }
+};
+
+export const postRfAllocate = async ({
+  signedTx,
+}: {
+  signedTx: string;
+}): Promise<ResourceFieldPDA> => {
+  const URL = API_BASE_URL + "/rf/allocate";
+  const errorMsg = "Server Error while posting resource field allocation";
+  try {
+    const response = await fetch.post<any>(URL, { signedTx });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data.rfPDA as ResourceFieldPDA;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error("Network Error while allocating resources:", error);
+    throw error;
+  }
+};
+
+export const postRfHarvest = async ({
+  signedTx,
+}: {
+  signedTx: string;
+}): Promise<HarvestResouceFieldResponse> => {
+  const URL = API_BASE_URL + "/rf/harvest";
+  try {
+    const response = await fetch.post<any>(URL, { signedTx });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as HarvestResouceFieldResponse;
+    } else {
+      console.error("Server Error while harvesting resources:", response);
+      throw new Error("Server Error while harvesting resources");
+    }
+  } catch (error) {
+    console.error("Network Error while harvesting resources:", error);
+    throw error;
+  }
+};
+
 export const consumeResources = async ({
   signedTx,
 }: {
@@ -338,28 +405,6 @@ export const consumeResources = async ({
 
 type ResourceFieldPDA = String;
 
-export const allocateResourceField = async ({
-  signedTx,
-}: {
-  signedTx: string;
-}): Promise<ResourceFieldPDA> => {
-  const URL = API_BASE_URL + "/rf/allocate";
-  try {
-    const response = await fetch.post<any>(URL, { signedTx });
-
-    if (response.status === 200) {
-      const data = await response.data;
-      return data.rfPDA as ResourceFieldPDA;
-    } else {
-      console.error("Server Error while allocating resources:", response);
-      throw new Error("Server Error while allocating resources");
-    }
-  } catch (error) {
-    console.error("Network Error while allocating resources:", error);
-    throw error;
-  }
-};
-
 type HarvestTimer = {
   mint: string;
   rf: string;
@@ -371,28 +416,6 @@ type HarvestTimer = {
 type HarvestResouceFieldResponse = {
   harvestTimers: HarvestTimer[];
   sigs: string[];
-};
-
-export const harvestResourceField = async ({
-  signedTx,
-}: {
-  signedTx: string;
-}): Promise<HarvestResouceFieldResponse> => {
-  const URL = API_BASE_URL + "/rf/harvest";
-  try {
-    const response = await fetch.post<any>(URL, { signedTx });
-
-    if (response.status === 200) {
-      const data = await response.data;
-      return data as HarvestResouceFieldResponse;
-    } else {
-      console.error("Server Error while harvesting resources:", response);
-      throw new Error("Server Error while harvesting resources");
-    }
-  } catch (error) {
-    console.error("Network Error while harvesting resources:", error);
-    throw error;
-  }
 };
 
 // export const postCreateProposal = async ({ signedTx, mint, timestamp, proposal }: {
