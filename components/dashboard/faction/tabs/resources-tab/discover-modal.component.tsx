@@ -27,7 +27,7 @@ export const ModalRfDiscover: FC<{
     encodeTransaction,
   } = useSolana();
 
-  const rfCount = typeof rf?.rfCount === "number" ? rf?.rfCount + 1 : 0;
+  const rfCount = typeof rf?.rfCount === "number" ? rf?.rfCount : 0;
   const bonkForNextField =
     (BigInt(rfCount) * RESOURCE_FIELD_CREATION_MULTIPLIER) / BigInt(1e5);
 
