@@ -1,9 +1,11 @@
-import { Box, Text, Button } from "@chakra-ui/react";
+import Link from "next/link";
+import { Box, Text, Button, Flex } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { MdLeaderboard, MdNotificationsActive } from "react-icons/md";
 import { AiFillGold } from "react-icons/ai";
 import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
 import { useSolana } from "@/hooks/useSolana";
+import styled from "@emotion/styled";
 
 export const DashboardInfo = () => {
   const factionName = "MAD OGSSS";
@@ -18,226 +20,105 @@ export const DashboardInfo = () => {
   const bonkbalance = getBonkBalance;
 
   return (
-    <Box display="flex" justifyContent="space-between">
-      <Box display="flex" justifyContent="flex-start">
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-          >
-            FACTION:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-          >
-            {factionName}
-          </Text>
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-            flex="1"
-            display="flex"
-            alignItems="start"
-            justifyContent="start"
-          >
-            LVL:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-            flex="1"
-            display="flex"
-            alignItems="flex-end"
-            justifyContent="center"
-          >
-            {userLevel}
-          </Text>
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-            flex="1"
-            display="flex"
-            alignItems="start"
-            justifyContent="start"
-          >
-            BONK:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-            flex="1"
-            display="flex"
-            alignItems="flex-end"
-            justifyContent="center"
-          >
-            {userLevel}
-          </Text>
-        </Box>
-      </Box>
-      <Box display="flex" justifyContent="flex-start">
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-          marginLeft="2rem"
-        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-          >
-            FACTIONS:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-          >
-            {numOfFactions}
-          </Text>
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-          >
-            TOTAL RFS:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-          >
-            {totalRfs}
-          </Text>
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-        >
-          <Text
-            margin="0 auto"
-            borderRadius="0.5rem"
-            p="0.5rem"
-            fontSize="12px"
-            fontWeight={400}
-            letterSpacing="1px"
-            color={colors.brand.tertiary}
-          >
-            PLAYERS:
-          </Text>
-          <Text
-            borderRadius="0.5rem"
-            p="0.25rem"
-            fontSize="16px"
-            fontWeight={600}
-            letterSpacing="1px"
-          >
-            {numOfPlayers}
-          </Text>
-        </Box>
-      </Box>
-      <Box display="flex" justifyContent="flex-start">
-        <Button
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-          p="0.5rem"
+    <Flex justifyContent="space-between">
+      <Flex gap="2rem">
+        <TextContainer>
+          <Label>FACTION:</Label>
+          <Value>{factionName}</Value>
+        </TextContainer>
+        <TextContainer>
+          <Label>LVL:</Label>
+          <Value>{userLevel}</Value>
+        </TextContainer>
+        <TextContainer>
+          <Label>BONK:</Label>
+          <Value>{userLevel}</Value>
+          <Link href="https://jup.ag/swap/SOL-Bonk" target="_blank">
+            <Button
+              variant="outline"
+              fontSize="1rem"
+              py="0.5rem"
+              ml="0.5rem"
+              mb="0.25rem"
+              opacity="0.15"
+              _hover={{
+                opacity: 0.6,
+              }}
+            >
+              Buy
+            </Button>
+          </Link>
+        </TextContainer>
+      </Flex>
+      <Flex gap="2rem">
+        <TextContainer>
+          <Label>FACTIONS:</Label>
+          <Value>{numOfFactions}</Value>
+        </TextContainer>
+        <TextContainer>
+          <Label>TOTAL RFS:</Label>
+          <Value>{totalRfs}</Value>
+        </TextContainer>
+        <TextContainer>
+          <Label>PLAYERS:</Label>
+          <Value>{numOfPlayers}</Value>
+        </TextContainer>
+      </Flex>
+      <Flex gap="2rem">
+        <IconButton
           onClick={() => {
             // Handle the click event for the first icon
           }}
         >
           <AiFillGold size={24} color={colors.brand.secondary} />
-        </Button>
-        <Button
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          marginRight="2rem"
-          p="0.5rem"
+        </IconButton>
+        <IconButton
           onClick={() => {
             // Handle the click event for the second icon
           }}
         >
           <MdLeaderboard size={24} color={colors.brand.secondary} />
-        </Button>
-        <Button
-          display="flex"
-          justifyContent="flex-start"
-          alignItems="flex-end"
-          p="0.5rem"
+        </IconButton>
+        <IconButton
           onClick={() => {
             // Handle the click event for the third icon
           }}
         >
           <MdNotificationsActive size={24} color={colors.brand.secondary} />
-        </Button>
-      </Box>
-    </Box>
+        </IconButton>
+      </Flex>
+    </Flex>
   );
 };
+
+const Label = styled(Text)`
+  margin: 0 auto;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: ${colors.brand.tertiary};
+`;
+const Value = styled(Text)`
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+`;
+const TextContainer = styled(Flex)`
+  align-items: end;
+`;
+
+const IconButton = styled(Button)`
+  align-items: end;
+  padding: 0.5rem;
+
+  svg {
+    transition: all 0.25s ease-in-out;
+  }
+  svg:hover {
+    fill: ${colors.brand.quaternary};
+  }
+`;

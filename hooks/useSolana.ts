@@ -49,7 +49,6 @@ export const useSolana = () => {
     const init = () => {
       if (window?.xnft?.solana?.isXnft) {
         const accountXnft = window.xnft.solana.publicKey?.toString();
-        console.log("in an xnft");
         setPayload({
           connection: window.xnft.solana.connection,
           walletAddress: accountXnft,
@@ -167,9 +166,8 @@ const getBonkBalance = async ({
   txInstructions: TransactionInstruction[];
 }) => {
   let balance = await connection.getBalance(new PublicKey(walletAddress));
-  console.log(`Wallet Balance: ${balance / LAMPORTS_PER_SOL}`);
-
-  console.log(`Bonk Balance: ${balance / LAMPORTS_PER_SOL}`);
+  console.info(`Wallet Balance: ${balance / LAMPORTS_PER_SOL}`);
+  console.info(`Bonk Balance: ${balance / LAMPORTS_PER_SOL}`);
 
   // return currentBonkBalance;
 };

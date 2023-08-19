@@ -27,7 +27,7 @@ export const fetchCharacters = async ({
       const data = await response.data;
       return data as { nfts?: NFT[]; characters?: any[] };
     } else {
-      console.log("Server Error while fetching assets for wallet:", response);
+      console.error("Server Error while fetching assets for wallet:", response);
       throw new Error("Server Error while fetching assets for wallet");
     }
   } catch (error) {
@@ -51,10 +51,9 @@ export const fetchCharacter = async ({
 
     if (response.status === 200) {
       const data = await response.data;
-      console.log("character: ", data);
       return data as { character?: Character; faction?: Faction };
     } else {
-      console.log("Server Error while fetching character:", response);
+      console.error("Server Error while fetching character:", response);
       throw new Error("Server Error while fetching character");
     }
   } catch (error) {
@@ -76,7 +75,7 @@ export const postCharCreate = async ({
       const data = await response.data;
       return data;
     } else {
-      console.log("Server Error while creating character:", response);
+      console.error("Server Error while creating character:", response);
       throw new Error("Server Error while creating character");
     }
   } catch (error) {
@@ -96,10 +95,9 @@ export const postCreateFaction = async ({
 
     if (response.status === 200) {
       const data = await response.data;
-      console.log("create faction: ", data);
       return data;
     } else {
-      console.log("Server Error while creating faction:", response);
+      console.error("Server Error while creating faction:", response);
       throw new Error("Server Error while creating faction");
     }
   } catch (error) {
@@ -124,10 +122,9 @@ export const fetchFactions = async (): Promise<FetchFactionsType> => {
 
     if (response.status === 200) {
       const data = await response.data;
-      console.log("fetched factions: ", data);
       return data;
     } else {
-      console.log("Server Error while fetching factions:", response);
+      console.error("Server Error while fetching factions:", response);
       throw new Error("Server Error while fetching factions");
     }
   } catch (error) {
@@ -147,10 +144,9 @@ export const fetchFaction = async ({
 
     if (response.status === 200) {
       const data = await response.data;
-      console.log("retrieved faction: ", data);
       return data;
     } else {
-      console.log("Server Error while retrieving faction:", response);
+      console.error("Server Error while retrieving faction:", response);
       throw new Error("Server Error while retrieving faction");
     }
   } catch (error) {
@@ -170,10 +166,9 @@ export const postJoinFaction = async ({
 
     if (response.status === 200) {
       const data = await response.data;
-      console.log("join faction: ", data);
       return data;
     } else {
-      console.log("Server Error while joining faction:", response);
+      console.error("Server Error while joining faction:", response);
       throw new Error("Server Error while joining faction");
     }
   } catch (error) {
@@ -193,10 +188,9 @@ export const postLeaveFaction = async ({
 
     if (response.status === 200) {
       const data = await response.data;
-      console.log("leave faction: ", data);
       return data;
     } else {
-      console.log("Server Error while leaving faction:", response);
+      console.error("Server Error while leaving faction:", response);
       throw new Error("Server Error while leaving faction");
     }
   } catch (error) {
@@ -228,7 +222,7 @@ export const fetchAllAssets = async ({
       const data = await response.data;
       return data as CategorizedNFTs;
     } else {
-      console.log(
+      console.error(
         "Server Error while fetching compressed assets for wallet:",
         response,
       );
@@ -258,7 +252,7 @@ export const consumeResources = async ({
       const data = await response.data;
       return data.character;
     } else {
-      console.log(
+      console.error(
         "Server Error while consuming resources for character:",
         response,
       );
@@ -288,7 +282,7 @@ export const allocateResourceField = async ({
       const data = await response.data;
       return data.rfPDA as ResourceFieldPDA;
     } else {
-      console.log("Server Error while allocating resources:", response);
+      console.error("Server Error while allocating resources:", response);
       throw new Error("Server Error while allocating resources");
     }
   } catch (error) {
@@ -323,7 +317,7 @@ export const harvestResourceField = async ({
       const data = await response.data;
       return data as HarvestResouceFieldResponse;
     } else {
-      console.log("Server Error while harvesting resources:", response);
+      console.error("Server Error while harvesting resources:", response);
       throw new Error("Server Error while harvesting resources");
     }
   } catch (error) {
@@ -361,7 +355,6 @@ export const postCreateProposal = async ({
       // timestamp,
       // proposal
     });
-    console.log("create proposal: ", data);
     return data; // Depending on what your backend returns
   } catch (error) {
     console.error(error);
@@ -377,7 +370,6 @@ export const fetchProposal = async (proposalId: string) => {
         id: proposalId,
       },
     });
-    console.log("retrieved proposal: ", data);
     return data;
   } catch (err) {
     console.error(err);
@@ -410,8 +402,7 @@ export const fetchProposalsByFaction = async (
         take,
       },
     });
-    console.log('retrieved proposals by faction: ', data);
-    return data; 
+    return data;
   } catch (err) {
     console.error(err);
     throw new Error("Failed to fetch proposals by faction");
@@ -419,33 +410,31 @@ export const fetchProposalsByFaction = async (
 };
 
 export const fetchFactionVotingInfo = async (
-  proposalId: string
+  proposalId: string,
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/accounts/faction`;
   try {
     const { data } = await fetch.get<FetchResponse>(URL, {
       params: {
-        id: proposalId
+        id: proposalId,
       },
     });
-    return data; 
+    return data;
   } catch (err) {
     console.error(err);
     throw new Error("Failed to fetch faction voting info");
   }
 };
 
-export const fetchCitizen = async (
-  mint: string
-): Promise<FetchResponse> => {
+export const fetchCitizen = async (mint: string): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/accounts/citizen`;
   try {
     const { data } = await fetch.get<FetchResponse>(URL, {
       params: {
-        mint
+        mint,
       },
     });
-    return data; 
+    return data;
   } catch (err) {
     console.error(err);
     throw new Error("Failed to fetch citizen");
@@ -458,7 +447,7 @@ enum ProposalStatus {
   CLOSED = "CLOSED",
 }
 
-interface ProposalAccount{
+interface ProposalAccount {
   id: string;
   faction: string;
   voteAmt: string;
@@ -466,17 +455,16 @@ interface ProposalAccount{
 }
 
 export const fetchProposalAccount = async (
-  proposalId: string
+  proposalId: string,
 ): Promise<ProposalAccount> => {
   const URL = `${API_BASE_URL}/accounts/proposal`;
   try {
     const { data } = await fetch.get<ProposalAccount>(URL, {
       params: {
-        id: proposalId
+        id: proposalId,
       },
     });
-    console.log('retrieved proposal account: ', data);
-    return data; 
+    return data;
   } catch (err) {
     console.error(err);
     throw new Error("Failed to fetch proposal account");
@@ -489,17 +477,17 @@ interface VoteResponse {
 
 export const voteOnProposal = async (
   mint: string,
-  proposalId: string
+  proposalId: string,
 ): Promise<VoteResponse> => {
   const URL = `${API_BASE_URL}/accounts/vote`;
   try {
     const { data } = await fetch.get<VoteResponse>(URL, {
       params: {
-        mint, 
-        proposalId 
+        mint,
+        proposalId,
       },
     });
-    return data; 
+    return data;
   } catch (err) {
     console.error(err);
     throw new Error("Failed to vote on proposal");
@@ -508,34 +496,32 @@ export const voteOnProposal = async (
 
 export const delegateVotes = async (
   mint: string,
-  recipientMint: string
+  recipientMint: string,
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/accounts/delegation`;
   try {
     const { data } = await fetch.get<FetchResponse>(URL, {
       params: {
         mint,
-        recipientMint
+        recipientMint,
       },
     });
-    return data; 
+    return data;
   } catch (err) {
     console.error(err);
     throw new Error("Failed to delegate votes");
   }
 };
 
-export const fetchRfsFromChain = async (
-  id: string
-): Promise<FetchResponse> => {
+export const fetchRfsFromChain = async (id: string): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/accounts/rf`;
   try {
     const { data } = await fetch.get<FetchResponse>(URL, {
       params: {
-        id
+        id,
       },
     });
-    return data; 
+    return data;
   } catch (err) {
     console.error(err);
     throw new Error("Failed to fetch rfs from chain");
@@ -553,7 +539,6 @@ export const processProposal = async (
         id: proposalId,
       },
     });
-    console.log("retrieved proposal: ", data);
     return data;
   } catch (err) {
     console.error(err);
@@ -584,7 +569,7 @@ export const completeConstruction = async ({
       const data = await response.data;
       return data as CompleteConstructionResponse;
     } else {
-      console.log("Server Error while constructing on faction:", response);
+      console.error("Server Error while constructing on faction:", response);
       throw new Error("Server Error while constructing on faction");
     }
   } catch (error) {

@@ -43,11 +43,10 @@ enum ProposalType {
   TAX = "TAX PERCENTAGE",
 }
 
-export const CreateProposal: React.FC<{ currentCharacter?: Character;   fire: () => void;
-}> = ({
-  currentCharacter,
-  fire: fireConfetti
-}) => {
+export const CreateProposal: React.FC<{
+  currentCharacter?: Character;
+  fire: () => void;
+}> = ({ currentCharacter, fire: fireConfetti }) => {
   const { mutate } = useCreateProposal();
   const {
     connection,
@@ -223,14 +222,12 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;   fire: ()
 
   const onSuccess = (data: any) => {
     fireConfetti();
-    console.log('proposal created!');
   };
 
   const handleCreateProposal = async () => {
     if (!validateInputs()) {
       return;
     }
-    console.log("proposal: ", proposal);
     const prpsl = {
       type: "TAX",
       newTaxRate: Number(proposal?.tax),
@@ -254,7 +251,12 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;   fire: ()
 
   return (
     <>
-      <Text fontSize="1.5rem" color="brand.secondary" cursor="pointer" onClick={onOpen}>
+      <Text
+        fontSize="1.5rem"
+        color="brand.secondary"
+        cursor="pointer"
+        onClick={onOpen}
+      >
         CREATE +
       </Text>
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
@@ -574,7 +576,7 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;   fire: ()
               onClick={handleCreateProposal}
               _hover={{
                 backgroundColor: colors.blacks[700],
-                border: `2px solid ${colors.blacks[700]}`
+                border: `2px solid ${colors.blacks[700]}`,
               }}
             >
               Create Proposal
