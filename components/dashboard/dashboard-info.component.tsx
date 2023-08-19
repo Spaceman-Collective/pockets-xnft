@@ -1,10 +1,8 @@
 import { Box, Text, Button } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
-import { MdLeaderboard, MdNotificationsActive, } from "react-icons/md";
+import { MdLeaderboard, MdNotificationsActive } from "react-icons/md";
 import { AiFillGold } from "react-icons/ai";
 import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
-
-
 
 export const DashboardInfo = () => {
   const factionName = "MAD OGSSS";
@@ -23,7 +21,8 @@ export const DashboardInfo = () => {
           display="flex"
           justifyContent="flex-start"
           alignItems="flex-end"
-          marginRight="2rem"        >
+          marginRight="2rem"
+        >
           <Text
             margin="0 auto"
             borderRadius="0.5rem"
@@ -49,7 +48,8 @@ export const DashboardInfo = () => {
           display="flex"
           justifyContent="flex-start"
           alignItems="flex-end"
-          marginRight="2rem"        >
+          marginRight="2rem"
+        >
           <Text
             margin="0 auto"
             borderRadius="0.5rem"
@@ -204,5 +204,3 @@ export const DashboardInfo = () => {
     </Box>
   );
 };
-
-

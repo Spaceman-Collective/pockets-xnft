@@ -27,9 +27,8 @@ const spacing = "1rem";
 export const FactionTabPolitics: React.FC<{
   currentCharacter: Character;
   setFactionStatus: (value: boolean) => void;
-  fire: () => void;
-}> = ({ currentCharacter, setFactionStatus, fire: fireConfetti
-}) => {
+  fire?: () => void;
+}> = ({ currentCharacter, setFactionStatus, fire: fireConfetti }) => {
   const {
     connection,
     walletAddress,
@@ -62,7 +61,7 @@ export const FactionTabPolitics: React.FC<{
         />
       </Flex>
       <VStack gap={spacing}>
-        <ProposalLabels fire={fireConfetti}/>
+        <ProposalLabels fire={fireConfetti} />
         {Array.from({ length: 3 }).map((_, i) => (
           <ProposalAction key={"res" + i}>
             <ProposalTitle>PROPOSAL #{i + 1}</ProposalTitle>
@@ -84,9 +83,8 @@ const Header: React.FC<{ factionName: string | undefined }> = ({
 };
 
 const ProposalLabels: React.FC<{
-  fire: () => void;
-}> = ({ fire: fireConfetti
-}) => {
+  fire?: () => void;
+}> = ({ fire: fireConfetti }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -106,7 +104,7 @@ const ProposalLabels: React.FC<{
         </ValueCalculation>
       </HStack>
       <HStack gap="4rem" alignItems="end">
-        <CreateProposal fire={fireConfetti} />
+        <CreateProposal />
       </HStack>
     </Flex>
   );
