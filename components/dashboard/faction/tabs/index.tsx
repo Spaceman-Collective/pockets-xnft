@@ -18,7 +18,7 @@ export const FactionTabs: React.FC<{  currentCharacter: Character; setFactionSta
   
   return (
     <Tabs>
-      <TabList mb="1em">
+      <TabList mb="1em" >
         <Tab>Services</Tab>
         <Tab>Politics</Tab>
         <Tab>Resources</Tab>
@@ -28,7 +28,7 @@ export const FactionTabs: React.FC<{  currentCharacter: Character; setFactionSta
           <FactionTabServices currentCharacter={currentCharacter} setFactionStatus={setFactionStatus!}/>
         </TabPanel>
         <TabPanel>
-        <FactionTabPolitics currentCharacter={currentCharacter} setFactionStatus={setFactionStatus!}/>
+        <FactionTabPolitics currentCharacter={currentCharacter} setFactionStatus={setFactionStatus!} fire={fireConfetti}/>
         </TabPanel>
         <TabPanel>
           <FactionTabResources currentCharacter={currentCharacter} setFactionStatus={setFactionStatus!}/>

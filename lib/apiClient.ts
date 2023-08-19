@@ -1,3 +1,4 @@
+import { Proposal } from "@/types/Proposal";
 import type { NFT, Character, Faction, Station } from "@/types/server";
 import { QueryFunctionContext } from "@tanstack/react-query";
 import fetch from "axios";
@@ -123,7 +124,7 @@ export const postCreateFaction = async ({ signedTx }: { signedTx: string }): Pro
   }
 };
 
-export const fetchFactions = async (): Promise<number> => {
+export const fetchFactions = async (): Promise<any> => {
   const URL = API_BASE_URL + "/factions";
   try {
     const response = await fetch.get<any>(URL, { params: { skip: 0, take: 10 } });
@@ -389,7 +390,7 @@ export const harvestResourceField = async ({
 };
 
 export const fetchProposal = async (context: QueryFunctionContext<string[], { proposalId: string }>) => {
-  const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order you pass the query key?
+  const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order we pass the query key?
   const URL = `${API_BASE_URL}/faction/proposal`;
   try {
     const { data } = await fetch.get<any>(URL, {
@@ -404,6 +405,38 @@ export const fetchProposal = async (context: QueryFunctionContext<string[], { pr
     return;
   }
 };
+
+export type FetchResponse = {
+  proposals: Proposal[];
+  skip: string;
+  take: string;
+  total: number;
+};
+
+export const fetchProposalsByFaction = async (
+  context: QueryFunctionContext<any[]>,
+  faction: string,
+  skip: number,
+  take: number,
+): Promise<FetchResponse> => {
+  const URL = `${API_BASE_URL}/faction/proposals`;
+  try {
+    const { data } = await fetch.get<FetchResponse>(URL, {
+      params: {
+        faction,
+        skip,
+        take,
+      },
+    });
+    console.log('retrieved proposals by faction: ', data);
+    return data; 
+  } catch (err) {
+    console.error(err);
+    throw new Error("Failed to fetch proposals by faction");
+  }
+};
+
+
 
 export const processProposal = async (context: QueryFunctionContext<string[], { proposalId: string }>) => {
   const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order you pass the query key?
@@ -421,29 +454,6 @@ export const processProposal = async (context: QueryFunctionContext<string[], { 
     return;
   }
 };
-
-export const fetchProposalsByFaction = async (context: QueryFunctionContext<string[]>) => {
-  const faction = context.queryKey[0];
-  const skip = context.queryKey[1] ? Number(context.queryKey[1]) : 0;
-  const take = context.queryKey[2] ? Number(context.queryKey[2]) : 10;
-
-  const URL = `${API_BASE_URL}/proposals`;
-  try {
-    const { data } = await fetch.get<any>(URL, {
-      params: {
-        faction,
-        skip,
-        take,
-      },
-    });
-    console.log('retrieved proposals by faction: ', data);
-    return data; // returns an object with proposals, skip, take, and total count
-  } catch (err) {
-    console.error(err);
-    return;
-  }
-};
-
 
 type CompleteConstructionResponse = {
   faction: Faction;
