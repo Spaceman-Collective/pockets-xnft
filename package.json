@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.0",
-    "@coral-xyz/anchor": "^0.28.1-beta.1",
+    "@coral-xyz/anchor": "^0.28.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@solana/spl-token": "^0.3.8",

@@ -43,8 +43,10 @@ enum ProposalType {
   TAX = "TAX PERCENTAGE",
 }
 
-export const CreateProposal: React.FC<{ currentCharacter?: Character }> = ({
+export const CreateProposal: React.FC<{ currentCharacter?: Character;   fire: () => void;
+}> = ({
   currentCharacter,
+  fire: fireConfetti
 }) => {
   const { mutate } = useCreateProposal();
   const {
@@ -220,7 +222,8 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character }> = ({
   };
 
   const onSuccess = (data: any) => {
-    console.log("proposal created!");
+    fireConfetti();
+    console.log('proposal created!');
   };
 
   const handleCreateProposal = async () => {
@@ -230,7 +233,7 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character }> = ({
     console.log("proposal: ", proposal);
     const prpsl = {
       type: "TAX",
-      blueprintName: Number(proposal?.tax),
+      newTaxRate: Number(proposal?.tax),
     };
     const payload = {
       mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
@@ -251,7 +254,7 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character }> = ({
 
   return (
     <>
-      <Text color="brand.secondary" cursor="pointer" onClick={onOpen}>
+      <Text fontSize="1.5rem" color="brand.secondary" cursor="pointer" onClick={onOpen}>
         CREATE +
       </Text>
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
@@ -567,14 +570,15 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character }> = ({
             </Box>
           </ModalBody>
           <ModalFooter>
-            <Button
-              w="100%"
-              bg={colors.brand.quaternary}
+            <CreateButton
               onClick={handleCreateProposal}
-              mb="1rem"
+              _hover={{
+                backgroundColor: colors.blacks[700],
+                border: `2px solid ${colors.blacks[700]}`
+              }}
             >
               Create Proposal
-            </Button>
+            </CreateButton>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -599,6 +603,17 @@ const inputStyles = css`
   border-radius: 4px;
   padding: 1rem 2rem;
   font-weight: 500;
+  letter-spacing: 1px;
+`;
+
+const CreateButton = styled(Button)`
+  background-color: ${colors.brand.quaternary};
+  border: 2px solid ${colors.brand.quaternary};
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  font-size: 1.75rem;
+  font-weight: 600;
   letter-spacing: 1px;
 `;
 
