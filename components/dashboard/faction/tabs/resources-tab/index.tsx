@@ -23,6 +23,10 @@ import { Tip } from "@/components/tooltip";
 import { useResourceField } from "@/hooks/useResourceField";
 import { useCharTimers } from "@/hooks/useCharTimers";
 import { getLocationOrigin } from "next/dist/shared/lib/utils";
+import {
+  ResourceActionContainer,
+  ResourceFieldAction,
+} from "./resource-field-action.component";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -55,36 +59,11 @@ export const FactionTabResources: React.FC<{
       <Box>
         <ResourceLabels />
         <Grid templateColumns="1fr 1fr" gap={spacing}>
-          {rfData?.rfs.map((rf) => (
-            <ResourceAction key={rf.id}>
-              <HStack>
-                <Tip label={rf.resource}>
-                  <Image
-                    width="5rem"
-                    borderRadius="1rem"
-                    alt={rf.resource}
-                    src={getLocalImage({
-                      type: "resources",
-                      name: rf.resource,
-                    })}
-                  />
-                </Tip>
-                <Label>amount:</Label>
-                <Value>{rf.amount}</Value>
-              </HStack>
-              <HStack>
-                <Label>Harvests In:</Label>
-                <Value>
-                  {/* {timersData?.rfTimers.find((t) => t.rf === rf.id)?.finished - Date.now() } */}
-                  <span style={{ fontSize: "1rem" }}>s</span>
-                </Value>
-              </HStack>
-            </ResourceAction>
-          ))}
+          {rfData?.rfs.map((rf) => <ResourceFieldAction key={rf.id} rf={rf} />)}
           {rfData?.rfs &&
             rfData?.rfs?.length < 2 &&
             Array.from({ length: 2 - rfData?.rfs.length }).map((_, i) => (
-              <ResourceAction key={"empty" + i} />
+              <ResourceActionContainer key={"empty" + i} />
             ))}
         </Grid>
       </Box>
@@ -240,12 +219,4 @@ const MenuText = styled(Text)`
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-`;
-const ResourceAction = styled(Flex)`
-  background-color: ${colors.blacks[500]};
-  width: 100%;
-  padding: 1.5rem;
-  border-radius: ${spacing};
-  align-items: center;
-  justify-content: space-between;
 `;
