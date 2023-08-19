@@ -326,36 +326,17 @@ export const harvestResourceField = async ({
   }
 };
 
-// export const postCreateProposal = async ({ signedTx, mint, timestamp, proposal }: {
 export const postCreateProposal = async ({
   signedTx,
 }: {
   signedTx: string;
-  // mint: string;
-  // timestamp: string;
-  // proposal: {
-  //   type: string;
-  //   station?: string;
-  //   factionId?: string;
-  //   rfId?: string;
-  //   citizen?: string;
-  //   resources?: { resourceId: string; amount: number }[];
-  //   bonk?: string;
-  //   newSharesToMint?: string;
-  //   newThreshold?: string;
-  //   warband?: string[];
-  //   newTaxRate?: number;
-  // };
 }) => {
   const URL = `${API_BASE_URL}/faction/proposal/create`;
   try {
     const { data } = await fetch.post<any>(URL, {
       signedTx,
-      // mint,
-      // timestamp,
-      // proposal
     });
-    return data; // Depending on what your backend returns
+    return data;
   } catch (error) {
     console.error(error);
     return null;
@@ -475,9 +456,9 @@ interface VoteResponse {
   vote: string;
 }
 
-export const voteOnProposal = async (
+export const fetchProposalVotesByCitizen = async (
   mint: string,
-  proposalId: string,
+  proposalId: string
 ): Promise<VoteResponse> => {
   const URL = `${API_BASE_URL}/accounts/vote`;
   try {

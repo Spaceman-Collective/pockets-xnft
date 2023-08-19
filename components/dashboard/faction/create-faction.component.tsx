@@ -18,7 +18,7 @@ import { colors } from "@/styles/defaultTheme";
 import { useSolana } from "@/hooks/useSolana";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
-import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
+import { useFetchAllFactions } from "@/hooks/useAllFactions";
 
 export const CreateFaction: FC<{
   fire: () => void;

@@ -6,6 +6,8 @@ import { defaultTheme } from "@/styles/defaultTheme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Montserrat, Roboto } from "next/font/google";
 import { Layout } from "@/components/layout";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
 
 import {
   ConnectionProvider,
@@ -53,6 +55,7 @@ export default function App({ Component, pageProps }: AppProps) {
                   </Layout>
                 </main>
               </ChakraBaseProvider>
+              <ReactQueryDevtools initialIsOpen={false} />
             </QueryClientProvider>
             {/* APP */}
           </WalletModalProvider>

@@ -222,6 +222,7 @@ export const CreateProposal: React.FC<{
 
   const onSuccess = (data: any) => {
     fireConfetti();
+    onClose();
   };
 
   const handleCreateProposal = async () => {
@@ -246,7 +247,6 @@ export const CreateProposal: React.FC<{
 
     if (!encodedSignedTx) throw Error("No Tx");
     mutate({ signedTx: encodedSignedTx }, { onSuccess });
-    onClose();
   };
 
   return (
