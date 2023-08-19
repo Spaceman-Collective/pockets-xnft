@@ -61,6 +61,5 @@ export function getLocalImage({
 }) {
   const transformedName = name.toLowerCase().replace(" ", "_");
   const path = `assets/${type}/${transformedName}.png`;
-  console.log({ name, path });
   return path;
 }

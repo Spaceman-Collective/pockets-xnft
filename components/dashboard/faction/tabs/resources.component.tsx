@@ -7,6 +7,7 @@ import {
   Text,
   VStack,
   Image,
+  Spinner,
 } from "@chakra-ui/react";
 import { Label, PanelContainer, Value } from "./tab.styles";
 import styled from "@emotion/styled";
@@ -27,10 +28,10 @@ export const FactionTabResources: React.FC<{
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
   const onSearch = (e: any) => setSearch(e.target.value);
-  const { data: factionData } = useFaction({
+  const { data: factionData, isLoading: factionIsLoading } = useFaction({
     factionId: currentCharacter?.faction?.id ?? "",
   });
-  console.log("x", factionData);
+  console.log("x", factionIsLoading, factionData);
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
@@ -78,6 +79,7 @@ export const FactionTabResources: React.FC<{
           templateColumns="repeat(auto-fit, minmax(100px,1fr))"
           gap={spacing}
         >
+          {factionIsLoading ?? <Spinner />}
           {factionData?.resources?.map((resource, i) => (
             <Flex
               key={resource?.name + "resource"}
