@@ -28,18 +28,10 @@ export const useSolana = () => {
     connection?: any;
     walletAddress?: string;
     signTransaction?: any;
-    buildMemoIx?: any;
-    buildTransferIx?: any;
-    encodeTransaction: any;
-    getBonkBalance: any;
   }>({
     connection: undefined,
     walletAddress: undefined,
     signTransaction: undefined,
-    buildMemoIx: undefined,
-    buildTransferIx: undefined,
-    encodeTransaction: undefined,
-    getBonkBalance: undefined,
   });
 
   const { connection } = useConnection();
@@ -53,20 +45,12 @@ export const useSolana = () => {
           connection: window.xnft.solana.connection,
           walletAddress: accountXnft,
           signTransaction: window.xnft.solana.signTransaction,
-          buildMemoIx: buildMemoIx,
-          buildTransferIx: buildTransferIx,
-          encodeTransaction: encodeTransaction,
-          getBonkBalance: getBonkBalance,
         });
       } else {
         setPayload({
           connection,
           walletAddress: publicKey?.toString(),
           signTransaction,
-          buildMemoIx: buildMemoIx,
-          buildTransferIx: buildTransferIx,
-          encodeTransaction: encodeTransaction,
-          getBonkBalance: getBonkBalance,
         });
       }
     };
@@ -75,7 +59,13 @@ export const useSolana = () => {
     });
   }, [connection, publicKey, signTransaction]);
 
-  return payload;
+  return {
+    ...payload,
+    buildTransferIx,
+    buildMemoIx,
+    encodeTransaction,
+    getBonkBalance,
+  };
 };
 
 const buildMemoIx = ({
@@ -106,11 +96,12 @@ const buildTransferIx = ({
   amount,
   decimals,
 }: {
-  walletAddress: string;
+  walletAddress?: string;
   mint: string;
   amount: bigint;
   decimals: number;
 }) => {
+  if (!walletAddress) return;
   const senderATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
     new PublicKey(walletAddress),

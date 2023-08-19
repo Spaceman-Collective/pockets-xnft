@@ -1,4 +1,5 @@
-import { RESOURCE_FIELD_CREATION_MULTIPLIER } from "@/constants";
+import { BONK_MINT, RESOURCE_FIELD_CREATION_MULTIPLIER } from "@/constants";
+import { useSolana } from "@/hooks/useSolana";
 import {
   Text,
   Modal,
@@ -16,11 +17,20 @@ export const ModalRfDiscover: FC<{
   onClose: () => void;
   rf?: { rfCount: number };
 }> = ({ isOpen, onClose, rf }) => {
-  console.log({ rf });
+  const { walletAddress, buildTransferIx, encodeTransaction } = useSolana();
+
   const rfCount = typeof rf?.rfCount === "number" ? rf?.rfCount + 1 : 0;
   const bonkForNextField =
     (BigInt(rfCount) * RESOURCE_FIELD_CREATION_MULTIPLIER) / BigInt(1e5);
 
+  let ix =
+    buildTransferIx &&
+    buildTransferIx({
+      walletAddress,
+      mint: BONK_MINT.toString(),
+      decimals: 5,
+      amount: bonkForNextField * BigInt(1e5),
+    });
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
