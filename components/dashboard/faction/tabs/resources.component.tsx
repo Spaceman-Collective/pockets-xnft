@@ -9,11 +9,12 @@ import {
   Image,
   Spinner,
   Skeleton,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { Label, PanelContainer, Value } from "./tab.styles";
 import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
-import { useState } from "react";
+import { FC, useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
 import { useFaction } from "@/hooks/useFaction";
@@ -99,32 +100,7 @@ export const FactionTabResources: React.FC<{
               return isWithinSearchParams;
             })
             ?.map((resource, i) => (
-              <Flex
-                key={resource?.name + "resource"}
-                bg="blacks.500"
-                minH="5rem"
-                alignItems="center"
-                justifyContent="space-between"
-                p="1rem"
-                borderRadius="1rem"
-                transition="all 0.25s ease-in-out"
-                _hover={{
-                  filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.25))",
-                  transform: "scale(1.05)",
-                }}
-              >
-                <Image
-                  alt={resource.name}
-                  src={getLocalImage({
-                    type: "resources",
-                    name: resource.name,
-                  })}
-                  fallbackSrc="https://via.placeholder.com/150"
-                  borderRadius="0.5rem"
-                  w="5rem"
-                />
-                <Value pr="1rem">{i + 3 * 7}</Value>
-              </Flex>
+              <ResourceItem key={resource.name} resource={resource} />
             ))}
         </Grid>
       </Box>
@@ -158,6 +134,67 @@ const ResourceLabels = () => {
         <MenuText color="brand.quaternary">harvest all</MenuText>
         <MenuText color="brand.tertiary">discover</MenuText>
       </HStack>
+    </Flex>
+  );
+};
+
+const ResourceItem: FC<{ resource: { name: string } }> = ({ resource }) => {
+  const hoverProps = useDisclosure();
+  return (
+    <Flex
+      title={resource?.name}
+      key={resource?.name + "resource"}
+      bg="blacks.500"
+      minH="5rem"
+      alignItems="center"
+      justifyContent="space-between"
+      p="1rem"
+      borderRadius="1rem"
+      transition="all 0.25s ease-in-out"
+      _hover={{
+        filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.25))",
+        transform: "scale(1.05)",
+      }}
+      onMouseOver={hoverProps.onOpen}
+      onMouseOut={hoverProps.onClose}
+      position="relative"
+    >
+      <Image
+        alt={resource.name}
+        src={getLocalImage({
+          type: "resources",
+          name: resource.name,
+        })}
+        fallbackSrc="https://via.placeholder.com/150"
+        borderRadius="0.5rem"
+        w="5rem"
+      />
+      <Value pr="1rem">{29}</Value>
+      {hoverProps.isOpen && (
+        <Flex
+          position="absolute"
+          bg="blacks.700"
+          top="-10rem"
+          left="-50%"
+          gap="1rem"
+          alignItems="center"
+          borderRadius="1rem"
+        >
+          <Image
+            alt={resource?.name}
+            src={getLocalImage({
+              type: "resources",
+              name: resource?.name,
+            })}
+            fallbackSrc="https://via.placeholder.com/150"
+            borderRadius="0.5rem"
+            minW="10rem"
+          />
+          <Text fontWeight={700} w="fit-content" pr="2rem">
+            {resource?.name}
+          </Text>
+        </Flex>
+      )}
     </Flex>
   );
 };
