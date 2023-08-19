@@ -4,11 +4,38 @@ import { Tip } from "@/components/tooltip";
 import { getLocalImage } from "@/lib/utils";
 import { Label, Value } from "../tab.styles";
 import { colors } from "@/styles/defaultTheme";
-import { FC } from "react";
+import { FC, useEffect } from "react";
+import { formatRelative } from "date-fns";
+import { useCountdown } from "usehooks-ts";
 
 export const ResourceFieldAction: FC<{
   rf: { id: string; resource: string; amount: string };
-}> = ({ rf }) => {
+  timer?: {
+    character: string;
+    finished: string;
+    id: string;
+    rf: string;
+  };
+}> = ({ rf, timer }) => {
+  console.log({ rf, timer });
+  const finishedDate = timer?.finished && +timer?.finished;
+  const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
+
+  const t = Date.now() - 1000 * 10;
+  console.log("sdad", formatTime(t));
+
+  const totalTimeInSeconds = Math.floor((finishedTime - Date.now()) / 1000);
+  console.table({ now: Date.now(), finishedTime, totalTimeInSeconds });
+  const [count, { startCountdown, stopCountdown, resetCountdown }] =
+    useCountdown({
+      countStart: totalTimeInSeconds,
+      intervalMs: 1000,
+    });
+
+  useEffect(() => {
+    startCountdown();
+  }, []);
+
   return (
     <ResourceActionContainer key={rf.id}>
       <HStack>
@@ -27,15 +54,42 @@ export const ResourceFieldAction: FC<{
         <Value>{rf.amount}</Value>
       </HStack>
       <HStack>
-        <Label>Harvests In:</Label>
-        <Value>
-          {/* {timersData?.rfTimers.find((t) => t.rf === rf.id)?.finished - Date.now() } */}
-          <span style={{ fontSize: "1rem" }}>s</span>
-        </Value>
+        <Value>{timeAgo(count)}</Value>
+        {/* <Value>{formatTime(finishedTime)}</Value> */}
       </HStack>
     </ResourceActionContainer>
   );
 };
+
+// const formatTime = (ms: number) => {
+//   const seconds = Math.floor(ms / 1000);
+//   const minutes = Math.floor(seconds / 60);
+//   const hours = Math.floor(minutes / 60);
+
+//   const rel = formatRelative(ms, Date.now(), {add});
+//   // return `${hours}hrs ${minutes}mins ${seconds}s`;
+//   return rel;
+// };
+
+function timeAgo(timestamp: number): string {
+  const timeDifference = Math.floor(timestamp); // Convert to seconds
+  const hours = Math.floor(timeDifference / 3600);
+  const minutes = Math.floor((timeDifference % 3600) / 60);
+  const seconds = timeDifference % 60;
+
+  return `${hours}h ${minutes}m ${seconds}s`;
+}
+
+function formatTime(timestamp: number): string {
+  const currentTime = Date.now();
+  const timeDifference = Math.floor((currentTime - timestamp) / 1000); // Convert to seconds
+
+  const hours = Math.floor(timeDifference / 3600);
+  const minutes = Math.floor((timeDifference % 3600) / 60);
+  const seconds = timeDifference % 60;
+
+  return `${hours}h ${minutes}m ${seconds}s`;
+}
 
 export const ResourceActionContainer = styled(Flex)`
   background-color: ${colors.blacks[500]};
