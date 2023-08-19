@@ -8,6 +8,7 @@ import {
   VStack,
   Image,
   Spinner,
+  Skeleton,
 } from "@chakra-ui/react";
 import { Label, PanelContainer, Value } from "./tab.styles";
 import styled from "@emotion/styled";
@@ -79,7 +80,15 @@ export const FactionTabResources: React.FC<{
           templateColumns="repeat(auto-fit, minmax(100px,1fr))"
           gap={spacing}
         >
-          {factionIsLoading ?? <Spinner />}
+          {factionIsLoading &&
+            Array.from({ length: 12 }).map((_, i) => (
+              <Skeleton
+                key={"resouce" + i + "load"}
+                w="100%"
+                h="7rem"
+                borderRadius="1rem"
+              />
+            ))}
           {factionData?.resources?.map((resource, i) => (
             <Flex
               key={resource?.name + "resource"}
