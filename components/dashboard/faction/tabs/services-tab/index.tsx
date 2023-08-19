@@ -46,7 +46,6 @@ export const FactionTabServices: React.FC<{
               <Station
                 key={i + "station"}
                 onClick={() => {
-                  console.log("station: " + i);
                   stationDisclosure.onOpen();
                 }}
               />
@@ -116,7 +115,7 @@ const TownHall = () => {
     >
       <Station
         onClick={() => {
-          console.log("townhall coming soon");
+          console.info("townhall coming soon");
         }}
       />
     </Box>

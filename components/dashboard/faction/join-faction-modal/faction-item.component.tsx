@@ -15,7 +15,7 @@ export const FactionBox: FC<FactionBoxProps> = ({
   onClose,
   faction,
   characterMint,
-  setFactionStatus
+  setFactionStatus,
 }) => {
   const {
     connection,
@@ -29,12 +29,10 @@ export const FactionBox: FC<FactionBoxProps> = ({
 
   const onSuccess = (data: any) => {
     setFactionStatus(true);
-    console.log('Joined Faction!');
     onClose();
   };
 
   const handleJoinFaction = async () => {
-
     const payload = {
       mint: characterMint,
       timestamp: Date.now().toString(),
@@ -88,7 +86,7 @@ export const FactionBox: FC<FactionBoxProps> = ({
               </span>
             </Text>
             <Text textTransform="uppercase" fontSize="2.5rem" fontWeight={700}>
-                {faction.name}
+              {faction.name}
             </Text>
             <Text
               color="brand.tertiary"

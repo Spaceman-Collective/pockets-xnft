@@ -7,7 +7,6 @@ import {
   Text,
   VStack,
   Image,
-  Spinner,
   Skeleton,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -33,7 +32,6 @@ export const FactionTabResources: React.FC<{
   const { data: factionData, isLoading: factionIsLoading } = useFaction({
     factionId: currentCharacter?.faction?.id ?? "",
   });
-  console.log("x", factionIsLoading, factionData);
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
@@ -96,7 +94,7 @@ export const FactionTabResources: React.FC<{
               const isWithinSearchParams = flatName.includes(search);
               return isWithinSearchParams;
             })
-            ?.map((resource, i) => (
+            ?.map((resource) => (
               <ResourceItem key={resource.name} resource={resource} />
             ))}
         </Grid>

@@ -15,12 +15,15 @@ import {
 } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useLeaveFaction } from "@/hooks/useLeaveFaction";
-import { useCharacter} from "@/hooks/useCharacter";
+import { useCharacter } from "@/hooks/useCharacter";
 import { useSolana } from "@/hooks/useSolana";
 import { Character } from "@/types/server";
 import { useEffect } from "react";
 
-export const LeaveFactionModal: React.FC<{ character: Character; setFactionStatus: (value: boolean) => void; }> = ({ character, setFactionStatus }) => {
+export const LeaveFactionModal: React.FC<{
+  character: Character;
+  setFactionStatus: (value: boolean) => void;
+}> = ({ character, setFactionStatus }) => {
   const {
     connection,
     walletAddress,
@@ -29,18 +32,16 @@ export const LeaveFactionModal: React.FC<{ character: Character; setFactionStatu
     encodeTransaction,
   } = useSolana();
   const { mutate } = useLeaveFaction();
-  if (!character?.mint) throw Error('No character mint found');
+  if (!character?.mint) throw Error("No character mint found");
   const { data, error, isLoading } = useCharacter(character?.mint);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-
   useEffect(() => {
-    setFactionStatus(!!character?.faction)
+    setFactionStatus(!!character?.faction);
   }, [character, setFactionStatus]);
 
   const onSuccess = (data: any) => {
     setFactionStatus(false);
-    console.log('Left Faction!');
     onClose();
   };
 
@@ -48,14 +49,12 @@ export const LeaveFactionModal: React.FC<{ character: Character; setFactionStatu
     return <div>Loading...</div>;
   }
   if (error) {
-    throw Error('Error fetching character')
+    throw Error("Error fetching character");
   }
 
   const handleLeaveFaction = async () => {
-    console.log('mint: ', character.mint)
     // const factionId = data?.faction?.id;
     const factionId = data?.faction;
-    console.log('faction id: ', factionId);
     const payload = {
       mint: character.mint,
       timestamp: Date.now().toString(),

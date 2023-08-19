@@ -104,7 +104,6 @@ export const CreateFaction: FC<{
     if (!validateInputs()) {
       return;
     }
-    console.log("faction: ", faction);
     const payload = {
       mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
       timestamp: Date.now().toString(),
@@ -123,9 +122,6 @@ export const CreateFaction: FC<{
     }
     const bonkMint = SPL_TOKENS.bonk.mint;
     const dcms = SPL_TOKENS.bonk.decimals;
-    console.log(
-      `Total Factions: ${totalFactions} Required Bonk ${requiredBONK}  Bonk Mint ${bonkMint}  Decimals ${dcms}`,
-    );
 
     const ix = await buildTransferIx({
       walletAddress,
