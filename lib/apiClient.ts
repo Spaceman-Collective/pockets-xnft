@@ -389,8 +389,7 @@ export const harvestResourceField = async ({
   }
 };
 
-export const fetchProposal = async (context: QueryFunctionContext<string[], { proposalId: string }>) => {
-  const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order we pass the query key?
+export const fetchProposal = async (proposalId: string) => {
   const URL = `${API_BASE_URL}/faction/proposal`;
   try {
     const { data } = await fetch.get<any>(URL, {
@@ -414,7 +413,6 @@ export type FetchResponse = {
 };
 
 export const fetchProposalsByFaction = async (
-  context: QueryFunctionContext<any[]>,
   faction: string,
   skip: number,
   take: number,
@@ -436,7 +434,129 @@ export const fetchProposalsByFaction = async (
   }
 };
 
+export const fetchFactionVotingInfo = async (
+  proposalId: string
+): Promise<FetchResponse> => {
+  const URL = `${API_BASE_URL}/accounts/faction`;
+  try {
+    const { data } = await fetch.get<FetchResponse>(URL, {
+      params: {
+        id: proposalId
+      },
+    });
+    return data; 
+  } catch (err) {
+    console.error(err);
+    throw new Error("Failed to fetch faction voting info");
+  }
+};
 
+export const fetchCitizen = async (
+  mint: string
+): Promise<FetchResponse> => {
+  const URL = `${API_BASE_URL}/accounts/citizen`;
+  try {
+    const { data } = await fetch.get<FetchResponse>(URL, {
+      params: {
+        mint
+      },
+    });
+    return data; 
+  } catch (err) {
+    console.error(err);
+    throw new Error("Failed to fetch citizen");
+  }
+};
+
+enum ProposalStatus {
+  VOTING = "VOTING",
+  PASSED = "PASSED",
+  CLOSED = "CLOSED",
+}
+
+interface ProposalAccount{
+  id: string;
+  faction: string;
+  voteAmt: string;
+  status: ProposalStatus;
+}
+
+export const fetchProposalAccount = async (
+  proposalId: string
+): Promise<ProposalAccount> => {
+  const URL = `${API_BASE_URL}/accounts/proposal`;
+  try {
+    const { data } = await fetch.get<ProposalAccount>(URL, {
+      params: {
+        id: proposalId
+      },
+    });
+    console.log('retrieved proposal account: ', data);
+    return data; 
+  } catch (err) {
+    console.error(err);
+    throw new Error("Failed to fetch proposal account");
+  }
+};
+
+interface VoteResponse {
+  vote: string;
+}
+
+export const voteOnProposal = async (
+  mint: string,
+  proposalId: string
+): Promise<VoteResponse> => {
+  const URL = `${API_BASE_URL}/accounts/vote`;
+  try {
+    const { data } = await fetch.get<VoteResponse>(URL, {
+      params: {
+        mint, 
+        proposalId 
+      },
+    });
+    return data; 
+  } catch (err) {
+    console.error(err);
+    throw new Error("Failed to vote on proposal");
+  }
+};
+
+export const delegateVotes = async (
+  mint: string,
+  recipientMint: string
+): Promise<FetchResponse> => {
+  const URL = `${API_BASE_URL}/accounts/delegation`;
+  try {
+    const { data } = await fetch.get<FetchResponse>(URL, {
+      params: {
+        mint,
+        recipientMint
+      },
+    });
+    return data; 
+  } catch (err) {
+    console.error(err);
+    throw new Error("Failed to delegate votes");
+  }
+};
+
+export const fetchRfsFromChain = async (
+  id: string
+): Promise<FetchResponse> => {
+  const URL = `${API_BASE_URL}/accounts/rf`;
+  try {
+    const { data } = await fetch.get<FetchResponse>(URL, {
+      params: {
+        id
+      },
+    });
+    return data; 
+  } catch (err) {
+    console.error(err);
+    throw new Error("Failed to fetch rfs from chain");
+  }
+};
 
 export const processProposal = async (context: QueryFunctionContext<string[], { proposalId: string }>) => {
   const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order you pass the query key?

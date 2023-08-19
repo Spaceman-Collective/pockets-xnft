@@ -28,6 +28,12 @@ import { CreateProposal } from "../create-proposal-modal/create-proposal.compone
 import { useFetchProposalsByFaction } from "@/hooks/useFetchProposalsByFaction";
 import { Proposal } from "@/types/Proposal";
 import { FetchResponse } from "@/lib/apiClient";
+import { useProposalAccount } from "@/hooks/useProposalAccount";
+import { Connection, PublicKey } from "@solana/web3.js";
+import { getProposalAccount } from "@/lib/solanaClient";
+import { useProposalAccountServer } from "@/hooks/useProposalAccountServer";
+import { BN } from "@coral-xyz/anchor";
+import { useVoteOnProposal } from "@/hooks/useVoteOnProposal";
 
 const spacing = "1rem";
 export const FactionTabPolitics: React.FC<{
@@ -35,8 +41,8 @@ export const FactionTabPolitics: React.FC<{
   setFactionStatus: (value: boolean) => void;
   fire: () => void;
 }> = ({ currentCharacter, setFactionStatus, fire: fireConfetti }) => {
-  const [vote, setVote] = useState("");
-  const [inputError, setInputError] = useState("");
+  const [votes, setVotes] = useState<Record<string, string>>({});
+  const [inputErrors, setInputErrors] = useState<Record<string, string>>({});
 
   const {
     connection,
@@ -45,15 +51,15 @@ export const FactionTabPolitics: React.FC<{
     buildMemoIx,
     encodeTransaction,
   } = useSolana();
+
   const {
     data: allProposals,
     isLoading: allProposalsIsLoading,
     isError,
-  } = useFetchProposalsByFaction(currentCharacter?.faction!.id, 0, 10) as {
-    data: FetchResponse | undefined;
-    isLoading: boolean;
-    isError: boolean;
-  };
+    refetch,
+  } = useFetchProposalsByFaction(currentCharacter?.faction!.id, 0, 10);
+
+  const { mutate, isLoading, data, error } = useVoteOnProposal();
 
   useEffect(() => {
     setFactionStatus(!!currentCharacter?.faction);
@@ -64,25 +70,14 @@ export const FactionTabPolitics: React.FC<{
     console.log("ap: ", allProposals);
   }, [allProposals]);
 
-  const validateInputs = () => {
-    let errors = {
-      vote: "",
-    };
 
-    let isValid = true;
 
-    // BUILD
-    if (!vote.trim()) {
-      setInputError("Voting power is required to vote");
-      isValid = false;
-    }
-
-    return isValid;
-  };
-
-  const handleVote = () => {
-
-    
+  const handleVote = (votingPower: number, proposalId: string) => {
+      mutate({
+        mint: currentCharacter?.mint,
+        proposalId,
+      });
+      refetch();
   };
 
   return (
@@ -97,143 +92,15 @@ export const FactionTabPolitics: React.FC<{
           setFactionStatus={setFactionStatus}
         />
       </Flex>
-      {allProposals ? (
+      {allProposals && !allProposalsIsLoading && !isError ? (
         <VStack gap={spacing}>
           <ProposalLabels fire={fireConfetti} />
-          {allProposals?.proposals?.map((proposal: Proposal, i: number) => (
-            <ProposalAction key={"res" + i}>
-              <Flex width="100%" flexDirection="column">
-                <Flex justifyContent="space-between" mb="2rem">
-  
-                  <Flex>
-                  <HStack alignItems="end" pr="5rem">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        type:
-                      </Label>
-                      <ProposalTitle>{proposal.type}</ProposalTitle>
-                    </HStack>
-                                  {/* Conditional rendering based on proposal type */}
-                {proposal.type === "BUILD" && (
-                  <HStack alignItems="end">
-                    <Label color={colors.brand.tertiary} pb="0.4rem">
-                      Blueprint Name:
-                    </Label>
-                    <Value>{proposal.blueprintName}</Value>
-                  </HStack>
-                )}
-                {proposal.type === "UPGRADE" && (
-                  <HStack alignItems="end">
-                    <Label color={colors.brand.tertiary} pb="0.4rem">
-                      Station ID:{" "}
-                    </Label>
-                    <Value>{proposal.stationId}</Value>
-                  </HStack>
-                )}
-                {proposal.type === "ATK_CITY" && (
-                  <HStack alignItems="end">
-                    <Label color={colors.brand.tertiary} pb="0.4rem">
-                      Faction ID:{" "}
-                    </Label>
-                    <Value>{proposal.factionId}</Value>
-                  </HStack>
-                )}
-                {proposal.type === "ATK_RF" && (
-                  <HStack alignItems="end">
-                    <Label color={colors.brand.tertiary} pb="0.4rem">
-                      RF ID:{" "}
-                    </Label>
-                    <Value>{proposal.rfId}</Value>
-                  </HStack>
-                )}
-                {proposal.type === "WITHDRAW" && (
-                  <HStack alignItems="end">
-                    <Label color={colors.brand.tertiary} pb="0.4rem">
-                      Citizen:{" "}
-                    </Label>
-                    <Value>{proposal.citizen}</Value>
-                    {/* Handle displaying the resources array */}
-                  </HStack>
-                )}
-                {proposal.type === "MINT" && (
-                  <HStack alignItems="end">
-                    <Label color={colors.brand.tertiary} pb="0.4rem">
-                      New Shares To Mint:{" "}
-                    </Label>
-                    <Value>{proposal.newSharesToMint}</Value>
-                  </HStack>
-                )}
-                {proposal.type === "ALLOCATE" && (
-                  <HStack alignItems="end">
-                    <Label color={colors.brand.tertiary} pb="0.4rem">
-                      Citizen:{" "}
-                    </Label>
-                    <Value>{proposal.citizen}</Value>
-                    <Label color={colors.brand.tertiary} pb="0.4rem">
-                      Amount:{" "}
-                    </Label>
-                    <Value>{proposal.amount}</Value>
-                  </HStack>
-                )}
-                {proposal.type === "THRESHOLD" && (
-                  <HStack alignItems="end">
-                    <Label color={colors.brand.tertiary} pb="0.4rem">
-                      New Threshold:{" "}
-                    </Label>
-                    <Value>{proposal.newThreshold}</Value>
-                  </HStack>
-                )}
-                {proposal.type === "WARBAND" && (
-                  <HStack alignItems="end">
-                    <Label color={colors.brand.tertiary} pb="0.4rem">
-                      Warband:
-                    </Label>
-                    <Value>{proposal.warband?.join(", ")}</Value>
-                  </HStack>
-                )}
-                {proposal.type === "TAX" && (
-                  <HStack alignItems="end">
-                    <Label color={colors.brand.tertiary} pb="0.4rem">
-                      New Tax Rate:{" "}
-                    </Label>
-                    <Value>{proposal.newTaxRate}</Value>
-                  </HStack>
-                )}
-                  </Flex>
-                  <HStack alignItems="end" pl="5rem">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        votes:
-                      </Label>
-                      {proposal.newThreshold ? (
-                        <Value>{proposal.newThreshold}</Value>
-                      ) : (
-                        <Value>0</Value>
-                      )}
-                    </HStack>
-                </Flex>
-
-
-                                  <HStack alignItems="end" mb="14">
-                    <Label color={colors.brand.tertiary} pb="0.25rem">
-                      proposal id:
-                    </Label>
-                    <Value>{proposal.id}</Value>
-                  </HStack>
-              </Flex>
-              <Flex width="100%">
-                <Flex width="100%">
-                  <StyledInput
-                    placeholder="Enter amount of voting power"
-                    value={vote}
-                    onChange={(e) => setVote(e.target.value)}
-                    isInvalid={!!inputError}
-                  />
-                  {inputError && <Text color="red.500">{inputError}</Text>}
-                </Flex>
-                <Button ml="2rem" letterSpacing="1px" onClick={handleVote}>
-                  vote
-                </Button>
-              </Flex>
-            </ProposalAction>
+          {allProposals?.proposals?.map((proposal: Proposal) => (
+            <ProposalItem
+              key={proposal.id}
+              proposal={proposal}
+              handleVote={handleVote}
+            />
           ))}
         </VStack>
       ) : (
@@ -250,13 +117,218 @@ export const FactionTabPolitics: React.FC<{
   );
 };
 
-const Header: React.FC<{ factionName: string | undefined }> = ({
-  factionName,
+type ProposalItemProps = {
+  proposal: Proposal;
+  handleVote: (votingPower: number, proposalId: string) => void;
+};
+
+enum ProposalStatus {
+  VOTING = "VOTING",
+  PASSED = "PASSED",
+  CLOSED = "CLOSED",
+}
+
+interface ProposalAccount {
+  id: string;
+  faction: string;
+  voteAmt: number;
+  status: ProposalStatus;
+}
+
+export const ProposalItem: React.FC<ProposalItemProps> = ({
+  proposal,
+  handleVote,
 }) => {
+  const proposalId = proposal!.id;
+  const [voteAmount, setVoteAmount] = useState(0);
+  const [status, setStatus] = useState("");
+  const [localVote, setLocalVote] = useState<string>("");
+  const [inputError, setInputError] = useState<string | null>(null);
+
+
+  const {
+    data: proposalAccount,
+    error,
+    isLoading,
+  } = useProposalAccountServer(proposalId);
+  const [localProposalAccount, setLocalProposalAccount] =
+    useState<ProposalAccount | null>(null);
+
+  useEffect(() => {
+    if (proposalAccount && localProposalAccount == null) {
+      const voteAmtAsBN = new BN(proposalAccount.voteAmt);
+      setLocalProposalAccount({
+        ...proposalAccount,
+        voteAmt: voteAmtAsBN.toNumber(),
+      });
+    }
+  }, [localProposalAccount, proposalAccount]);
+
+  if (isLoading) return <span>Loading...</span>;
+  if (error) return <span>Error: {(error as Error).message}</span>;
+
+  const validateInput = () => {
+    if (!localVote.trim() || isNaN(parseInt(localVote))) {
+      setInputError("Invalid vote input");
+      return false;
+    }
+    setInputError(null);
+    return true;
+  };
+
   return (
-    <Flex justifyContent="space-between" alignItems="end">
-      <Title verticalAlign="end">{factionName!}</Title>
-    </Flex>
+    <ProposalAction>
+      <Flex width="100%" flexDirection="column">
+        <Flex justifyContent="space-between" mb="2rem">
+          <Flex>
+            <HStack alignItems="end" pr="5rem">
+              <Label color={colors.brand.tertiary} pb="0.4rem">
+                type:
+              </Label>
+              <ProposalTitle>{proposal.type}</ProposalTitle>
+            </HStack>
+            {(() => {
+              switch (proposal.type) {
+                case "BUILD":
+                  return (
+                    <HStack alignItems="end">
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        Blueprint Name:
+                      </Label>
+                      <Value>{proposal.blueprintName}</Value>
+                    </HStack>
+                  );
+                case "UPGRADE":
+                  return (
+                    <HStack alignItems="end">
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        Station ID:
+                      </Label>
+                      <Value>{proposal.stationId}</Value>
+                    </HStack>
+                  );
+                case "ATK_CITY":
+                  return (
+                    <HStack alignItems="end">
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        Faction ID:
+                      </Label>
+                      <Value>{proposal.factionId}</Value>
+                    </HStack>
+                  );
+                case "ATK_RF":
+                  return (
+                    <HStack alignItems="end">
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        RF ID:
+                      </Label>
+                      <Value>{proposal.rfId}</Value>
+                    </HStack>
+                  );
+                case "WITHDRAW":
+                  return (
+                    <HStack alignItems="end">
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        Citizen:
+                      </Label>
+                      <Value>{proposal.citizen}</Value>
+                    </HStack>
+                  );
+                case "MINT":
+                  return (
+                    <HStack alignItems="end">
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        New Shares To Mint:
+                      </Label>
+                      <Value>{proposal.newSharesToMint}</Value>
+                    </HStack>
+                  );
+                case "ALLOCATE":
+                  return (
+                    <HStack alignItems="end">
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        Citizen:
+                      </Label>
+                      <Value>{proposal.citizen}</Value>
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        Amount:
+                      </Label>
+                      <Value>{proposal.amount}</Value>
+                    </HStack>
+                  );
+                case "THRESHOLD":
+                  return (
+                    <HStack alignItems="end">
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        New Threshold:
+                      </Label>
+                      <Value>{proposal.newThreshold}</Value>
+                    </HStack>
+                  );
+                case "WARBAND":
+                  return (
+                    <HStack alignItems="end">
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        Warband:
+                      </Label>
+                      <Value>{proposal.warband?.join(", ")}</Value>
+                    </HStack>
+                  );
+                case "TAX":
+                  return (
+                    <HStack alignItems="end">
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        New Tax Rate:
+                      </Label>
+                      <Value>{proposal.newTaxRate}</Value>
+                    </HStack>
+                  );
+                default:
+                  return null;
+              }
+            })()}
+          </Flex>
+
+          <HStack alignItems="end" pl="5rem">
+            <Label color={colors.brand.tertiary} pb="0.4rem">
+              votes:
+            </Label>
+            <Value>{localProposalAccount?.voteAmt}</Value>
+          </HStack>
+        </Flex>
+
+        <HStack alignItems="end" mb="14">
+          <Label color={colors.brand.tertiary} pb="0.25rem">
+            proposal id:
+          </Label>
+          <Value>{proposal.id}</Value>
+        </HStack>
+      </Flex>
+
+      <Flex width="100%">
+        <Flex width="100%">
+          <StyledInput
+            placeholder="Enter amount of voting power"
+            value={localVote}
+            onChange={(e) => setLocalVote(e.target.value)}
+            isInvalid={!!inputError}
+          />
+
+          {inputError && <Text color="red.500">{inputError}</Text>}
+        </Flex>
+        <Button
+          ml="2rem"
+          letterSpacing="1px"
+          onClick={() => {
+            if (validateInput()) {
+              handleVote(parseInt(localVote), proposalId);
+            }
+          }}
+        >
+          vote
+        </Button>
+      </Flex>
+    </ProposalAction>
   );
 };
 
@@ -284,6 +356,16 @@ const ProposalLabels: React.FC<{
       <Flex alignItems="end">
         <CreateProposal fire={fireConfetti} />
       </Flex>
+    </Flex>
+  );
+};
+
+const Header: React.FC<{ factionName: string | undefined }> = ({
+  factionName,
+}) => {
+  return (
+    <Flex justifyContent="space-between" alignItems="end">
+      <Title verticalAlign="end">{factionName!}</Title>
     </Flex>
   );
 };

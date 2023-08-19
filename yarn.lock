@@ -888,10 +888,10 @@
   resolved "https://registry.yarnpkg.com/@chakra-ui/visually-hidden/-/visually-hidden-2.1.0.tgz#9ec573964e5a07f8682574a060140d78e9f91c32"
   integrity sha512-3OHKqTz78PX7V4qto+a5Y6VvH6TbU3Pg6Z0Z2KnDkOBP3Po8fiz0kk+/OSPzIwdcSsQKiocLi0c1pnnUPdMZPg==
 
-"@coral-xyz/anchor@^0.28.1-beta.1":
-  version "0.28.1-beta.1"
-  resolved "https://registry.yarnpkg.com/@coral-xyz/anchor/-/anchor-0.28.1-beta.1.tgz#0f71a3b62e38527f50d4a80e1fb4d20ba95926e2"
-  integrity sha512-JdKr4IQqY719wts0wzhHIffpAo4fdJ25gPLfFN75d6LMfCKvwPupyDUigaT+ac6UWTw/bDdBbJFY6QSRvlTnrA==
+"@coral-xyz/anchor@^0.28.1":
+  version "0.28.0"
+  resolved "https://registry.yarnpkg.com/@coral-xyz/anchor/-/anchor-0.28.0.tgz#8345c3c9186a91f095f704d7b90cd256f7e8b2dc"
+  integrity sha512-kQ02Hv2ZqxtWP30WN1d4xxT4QqlOXYDxmEd3k/bbneqhV3X5QMO4LAtoUFs7otxyivOgoqam5Il5qx81FuI4vw==
   dependencies:
     "@coral-xyz/borsh" "^0.28.0"
     "@solana/web3.js" "^1.68.0"
