@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Box, Text, Button, Flex } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { MdLeaderboard, MdNotificationsActive } from "react-icons/md";
@@ -32,6 +33,21 @@ export const DashboardInfo = () => {
         <TextContainer>
           <Label>BONK:</Label>
           <Value>{userLevel}</Value>
+          <Link href="https://jup.ag/swap/SOL-Bonk" target="_blank">
+            <Button
+              variant="outline"
+              fontSize="1rem"
+              py="0.5rem"
+              ml="0.5rem"
+              mb="0.25rem"
+              opacity="0.15"
+              _hover={{
+                opacity: 0.6,
+              }}
+            >
+              Buy
+            </Button>
+          </Link>
         </TextContainer>
       </Flex>
       <Flex gap="2rem">
