@@ -27,14 +27,14 @@ import {
   ResourceFieldAction,
 } from "./resource-field-action.component";
 import { useRfAllocation } from "@/hooks/useRf";
+import { ModalRfDiscover } from "./discover-modal.component";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
   currentCharacter: Character;
   setFactionStatus: (value: boolean) => void;
 }> = ({ currentCharacter }) => {
-  // NOTE: use this to handle local search through teasury items
-  // when the api is available
+  const discoverDisclosure = useDisclosure();
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
   const onSearch = (e: any) => setSearch(e.target.value);
@@ -57,7 +57,14 @@ export const FactionTabResources: React.FC<{
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header factionName={currentCharacter?.faction?.name} />
       <Box>
-        <ResourceLabels isDiscoverable={discoverData?.isDiscoverable} />
+        <ResourceLabels
+          onClick={() => {
+            if (discoverData?.isDiscoverable) {
+              discoverDisclosure.onOpen();
+            }
+          }}
+          isDiscoverable={discoverData?.isDiscoverable}
+        />
         <Grid templateColumns="1fr 1fr" gap={spacing}>
           {rfData?.rfs.map((rf) => (
             <ResourceFieldAction
@@ -110,6 +117,7 @@ export const FactionTabResources: React.FC<{
             ))}
         </Grid>
       </Box>
+      <ModalRfDiscover {...discoverDisclosure} />
     </PanelContainer>
   );
 };
@@ -132,8 +140,9 @@ const Header: React.FC<{ factionName: string | undefined }> = ({
   );
 };
 
-const ResourceLabels: FC<{ isDiscoverable?: boolean }> = ({
+const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
   isDiscoverable,
+  onClick,
 }) => {
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
@@ -144,7 +153,9 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean }> = ({
         <MenuText color="brand.quaternary">harvest all</MenuText>
         {isDiscoverable === undefined && <Spinner mb="0.75rem" mr="1rem" />}
         {isDiscoverable === true && (
-          <MenuText color="brand.tertiary">discover</MenuText>
+          <MenuText color="brand.tertiary" onClick={onClick}>
+            discover
+          </MenuText>
         )}
         {isDiscoverable === false && (
           <MenuText color="brand.quaternary">prospect</MenuText>
