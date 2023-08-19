@@ -50,16 +50,19 @@ export const FactionTabResources: React.FC<{
     mint: currentCharacter?.mint,
   });
 
-  console.log({ rfData });
-  console.log({ timersData });
-
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header factionName={currentCharacter?.faction?.name} />
       <Box>
         <ResourceLabels />
         <Grid templateColumns="1fr 1fr" gap={spacing}>
-          {rfData?.rfs.map((rf) => <ResourceFieldAction key={rf.id} rf={rf} />)}
+          {rfData?.rfs.map((rf) => (
+            <ResourceFieldAction
+              key={rf.id}
+              rf={rf}
+              timer={timersData?.rfTimers.find((timer) => timer.rf === rf.id)}
+            />
+          ))}
           {rfData?.rfs &&
             rfData?.rfs?.length < 2 &&
             Array.from({ length: 2 - rfData?.rfs.length }).map((_, i) => (
