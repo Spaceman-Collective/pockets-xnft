@@ -77,7 +77,7 @@ export const FactionTabResources: React.FC<{
           />
         </Flex>
         <Grid
-          templateColumns="repeat(auto-fit, minmax(100px,1fr))"
+          templateColumns="repeat(auto-fill, minmax(100px,1fr))"
           gap={spacing}
         >
           {factionIsLoading &&
@@ -89,31 +89,43 @@ export const FactionTabResources: React.FC<{
                 borderRadius="1rem"
               />
             ))}
-          {factionData?.resources?.map((resource, i) => (
-            <Flex
-              key={resource?.name + "resource"}
-              bg="blacks.500"
-              minH="5rem"
-              alignItems="center"
-              justifyContent="space-between"
-              p="1rem"
-              borderRadius="1rem"
-              transition="all 0.25s ease-in-out"
-              _hover={{
-                filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.25))",
-                transform: "scale(1.05)",
-              }}
-            >
-              <Image
-                alt={resource.name}
-                src={getLocalImage({ type: "resources", name: resource.name })}
-                fallbackSrc="https://via.placeholder.com/150"
-                borderRadius="0.5rem"
-                w="5rem"
-              />
-              <Value pr="1rem">{i + 3 * 7}</Value>
-            </Flex>
-          ))}
+          {factionData?.resources
+            ?.filter((resource) => {
+              if (debouncedSearch === undefined || debouncedSearch === "")
+                return true;
+              const flatName = resource.name.replace(" ", "").toLowerCase();
+              const search = debouncedSearch.toLowerCase();
+              const isWithinSearchParams = flatName.includes(search);
+              return isWithinSearchParams;
+            })
+            ?.map((resource, i) => (
+              <Flex
+                key={resource?.name + "resource"}
+                bg="blacks.500"
+                minH="5rem"
+                alignItems="center"
+                justifyContent="space-between"
+                p="1rem"
+                borderRadius="1rem"
+                transition="all 0.25s ease-in-out"
+                _hover={{
+                  filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.25))",
+                  transform: "scale(1.05)",
+                }}
+              >
+                <Image
+                  alt={resource.name}
+                  src={getLocalImage({
+                    type: "resources",
+                    name: resource.name,
+                  })}
+                  fallbackSrc="https://via.placeholder.com/150"
+                  borderRadius="0.5rem"
+                  w="5rem"
+                />
+                <Value pr="1rem">{i + 3 * 7}</Value>
+              </Flex>
+            ))}
         </Grid>
       </Box>
     </PanelContainer>
