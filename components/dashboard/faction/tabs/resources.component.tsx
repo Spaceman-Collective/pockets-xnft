@@ -77,10 +77,7 @@ export const FactionTabResources: React.FC<{
             onChange={onSearch}
           />
         </Flex>
-        <Grid
-          templateColumns="repeat(auto-fill, minmax(100px,1fr))"
-          gap={spacing}
-        >
+        <Grid templateColumns="repeat(4,1fr)" gap={spacing}>
           {factionIsLoading &&
             Array.from({ length: 12 }).map((_, i) => (
               <Skeleton
@@ -167,14 +164,14 @@ const ResourceItem: FC<{ resource: { name: string } }> = ({ resource }) => {
         })}
         fallbackSrc="https://via.placeholder.com/150"
         borderRadius="0.5rem"
-        w="5rem"
+        w="7rem"
       />
       <Value pr="1rem">{29}</Value>
       {hoverProps.isOpen && (
         <Flex
           position="absolute"
           bg="blacks.700"
-          top="-10rem"
+          top="-14rem"
           left="-50%"
           gap="1rem"
           alignItems="center"
@@ -188,9 +185,9 @@ const ResourceItem: FC<{ resource: { name: string } }> = ({ resource }) => {
             })}
             fallbackSrc="https://via.placeholder.com/150"
             borderRadius="0.5rem"
-            minW="10rem"
+            h="13rem"
           />
-          <Text fontWeight={700} w="fit-content" pr="2rem">
+          <Text fontWeight={700} w="fit-content" mr="2rem">
             {resource?.name}
           </Text>
         </Flex>
