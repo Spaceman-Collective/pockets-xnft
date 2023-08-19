@@ -127,11 +127,12 @@ const encodeTransaction = async ({
   signTransaction,
   txInstructions,
 }: {
-  walletAddress: string;
+  walletAddress?: string;
   connection: Connection;
-  signTransaction: any;
-  txInstructions: TransactionInstruction[];
+  signTransaction?: any;
+  txInstructions?: TransactionInstruction[];
 }) => {
+  if (!walletAddress || !txInstructions || !signTransaction) return;
   const { blockhash } = await connection!.getLatestBlockhash();
 
   const txMsg = new TransactionMessage({
@@ -141,6 +142,7 @@ const encodeTransaction = async ({
   }).compileToLegacyMessage();
 
   const tx = new VersionedTransaction(txMsg);
+  if (!tx) return;
   const signedTx = await signTransaction(tx);
   const encodedSignedTx = encode(signedTx!.serialize());
 

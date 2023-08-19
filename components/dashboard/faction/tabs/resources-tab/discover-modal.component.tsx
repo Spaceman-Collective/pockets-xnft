@@ -1,4 +1,5 @@
 import { BONK_MINT, RESOURCE_FIELD_CREATION_MULTIPLIER } from "@/constants";
+import { useRfAllocate } from "@/hooks/useRf";
 import { useSolana } from "@/hooks/useSolana";
 import {
   Text,
@@ -17,20 +18,42 @@ export const ModalRfDiscover: FC<{
   onClose: () => void;
   rf?: { rfCount: number };
 }> = ({ isOpen, onClose, rf }) => {
-  const { walletAddress, buildTransferIx, encodeTransaction } = useSolana();
+  const { mutate } = useRfAllocate();
+  const {
+    walletAddress,
+    connection,
+    signTransaction,
+    buildTransferIx,
+    encodeTransaction,
+  } = useSolana();
 
   const rfCount = typeof rf?.rfCount === "number" ? rf?.rfCount + 1 : 0;
   const bonkForNextField =
     (BigInt(rfCount) * RESOURCE_FIELD_CREATION_MULTIPLIER) / BigInt(1e5);
 
-  let ix =
-    buildTransferIx &&
-    buildTransferIx({
+  const post = async () => {
+    let ix =
+      buildTransferIx &&
+      buildTransferIx({
+        walletAddress,
+        mint: BONK_MINT.toString(),
+        decimals: 5,
+        amount: bonkForNextField * BigInt(1e5),
+      });
+
+    if (!ix) return;
+    const encodedTx = await encodeTransaction({
+      txInstructions: [ix],
       walletAddress,
-      mint: BONK_MINT.toString(),
-      decimals: 5,
-      amount: bonkForNextField * BigInt(1e5),
+      connection,
+      signTransaction,
     });
+
+    mutate({
+      signedTx: encodedTx ?? "",
+    });
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -48,7 +71,7 @@ export const ModalRfDiscover: FC<{
             <Text>BONK for next Resource Field:</Text>
             <Text> {bonkForNextField.toString()}</Text>
           </HStack>
-          <Button>Allocate</Button>
+          <Button onClick={post}>Allocate</Button>
         </ModalBody>
       </ModalContent>
     </Modal>
