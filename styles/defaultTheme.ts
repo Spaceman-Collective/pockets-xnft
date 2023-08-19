@@ -1,6 +1,6 @@
 import { extendBaseTheme } from "@chakra-ui/react";
 import chakraTheme from "@chakra-ui/theme";
-import { Button, Tabs } from "@/styles/brand-components";
+import { Button, Tabs, ToolTip } from "@/styles/brand-components";
 
 export const colors = {
   brand: {
@@ -61,6 +61,7 @@ export const defaultTheme = extendBaseTheme({
     Tabs,
     Menu,
     Progress,
+    Tooltip: ToolTip,
   },
   colors,
   fonts,

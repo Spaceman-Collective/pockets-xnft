@@ -18,6 +18,8 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
 import { useFaction } from "@/hooks/useFaction";
 import { getLocalImage } from "@/lib/utils";
+import { TIP } from "@/components/tooltip/constants";
+import { Tip } from "@/components/tooltip";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -124,7 +126,9 @@ const Header: React.FC<{ factionName: string | undefined }> = ({
 const ResourceLabels = () => {
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
-      <MenuTitle>resource fields</MenuTitle>
+      <Tip label={TIP.RESOURCE_FIELDS}>
+        <MenuTitle>resource fields</MenuTitle>
+      </Tip>
       <HStack gap="4rem" alignItems="end">
         <MenuText color="brand.quaternary">harvest all</MenuText>
         <MenuText color="brand.tertiary">discover</MenuText>
