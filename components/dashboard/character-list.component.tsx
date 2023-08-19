@@ -7,6 +7,7 @@ import { Frame } from "../wizard/wizard.components";
 import styled from "@emotion/styled";
 
 import { colors } from "@/styles/defaultTheme";
+import { Tip } from "../tooltip";
 
 interface Props {
   selectedCharacter: Character | undefined | null;
@@ -81,14 +82,10 @@ export const CharacterList: FC<Props> = ({
                     </Text>
                   </Flex>
                 </Flex>
-                <Box
-                  h="4rem"
-                  w="4rem"
-                  bg="black"
-                  borderRadius="1rem"
-                  backgroundImage=""
-                  backgroundSize="cover"
-                  backgroundPosition="center"
+                <CharFactionThumbnail
+                  factionName={char?.faction?.name}
+                  factionImage={char?.faction?.image}
+                  charName={char?.name.split(" ")[0]}
                 />
               </CharacterFlex>
             );
@@ -111,4 +108,41 @@ const CharacterFlex = styled(Flex)<{ selected?: boolean }>`
     ${(props) => {
       return props.selected ? colors.brand.secondary : colors.blacks[500];
     }};
+`;
+
+const CharFactionThumbnail: FC<{
+  factionName?: string;
+  factionImage?: string;
+  charName: string;
+}> = ({ factionName, factionImage, charName }) => {
+  return (
+    <>
+      {factionName && (
+        <Tip
+          label={`${charName} in the faction:
+          ${factionName}`}
+          placement="top"
+        >
+          <FactionThumbnail backgroundImage={factionImage} />
+        </Tip>
+      )}
+      {!factionName && (
+        <Tip
+          label={`${charName} is not part of a faction, but can join one!`}
+          placement="top"
+        >
+          <FactionThumbnail />
+        </Tip>
+      )}
+    </>
+  );
+};
+
+const FactionThumbnail = styled(Box)`
+  height: 4rem;
+  width: 4rem;
+  background-color: ${colors.blacks[700]};
+  border-radius: 1rem;
+  background-size: cover;
+  background-position: center;
 `;
