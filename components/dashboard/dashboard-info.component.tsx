@@ -21,66 +21,55 @@ export const DashboardInfo = () => {
   return (
     <Flex justifyContent="space-between">
       <Flex gap="2rem">
-        <Flex alignItems="flex-end">
+        <TextContainer>
           <Label>FACTION:</Label>
           <Value>{factionName}</Value>
-        </Flex>
-        <Flex alignItems="flex-end">
+        </TextContainer>
+        <TextContainer>
           <Label>LVL:</Label>
           <Value>{userLevel}</Value>
-        </Flex>
-        <Flex alignItems="flex-end">
+        </TextContainer>
+        <TextContainer>
           <Label>BONK:</Label>
           <Value>{userLevel}</Value>
-        </Flex>
+        </TextContainer>
       </Flex>
       <Flex gap="2rem">
-        <Flex alignItems="flex-end">
+        <TextContainer>
           <Label>FACTIONS:</Label>
           <Value>{numOfFactions}</Value>
-        </Flex>
-        <Flex alignItems="flex-end">
+        </TextContainer>
+        <TextContainer>
           <Label>TOTAL RFS:</Label>
           <Value>{totalRfs}</Value>
-        </Flex>
-        <Flex alignItems="flex-end">
+        </TextContainer>
+        <TextContainer>
           <Label>PLAYERS:</Label>
           <Value>{numOfPlayers}</Value>
-        </Flex>
+        </TextContainer>
       </Flex>
       <Flex gap="2rem">
-        <Button
-          display="flex"
-          alignItems="flex-end"
-          marginRight="2rem"
-          p="0.5rem"
+        <IconButton
           onClick={() => {
             // Handle the click event for the first icon
           }}
         >
           <AiFillGold size={24} color={colors.brand.secondary} />
-        </Button>
-        <Button
-          display="flex"
-          alignItems="flex-end"
-          marginRight="2rem"
-          p="0.5rem"
+        </IconButton>
+        <IconButton
           onClick={() => {
             // Handle the click event for the second icon
           }}
         >
           <MdLeaderboard size={24} color={colors.brand.secondary} />
-        </Button>
-        <Button
-          display="flex"
-          alignItems="flex-end"
-          p="0.5rem"
+        </IconButton>
+        <IconButton
           onClick={() => {
             // Handle the click event for the third icon
           }}
         >
           <MdNotificationsActive size={24} color={colors.brand.secondary} />
-        </Button>
+        </IconButton>
       </Flex>
     </Flex>
   );
@@ -101,4 +90,19 @@ const Value = styled(Text)`
   font-size: 2rem;
   font-weight: 600;
   letter-spacing: 1px;
+`;
+const TextContainer = styled(Flex)`
+  align-items: end;
+`;
+
+const IconButton = styled(Button)`
+  align-items: end;
+  padding: 0.5rem;
+
+  svg {
+    transition: all 0.25s ease-in-out;
+  }
+  svg:hover {
+    fill: ${colors.brand.quaternary};
+  }
 `;
