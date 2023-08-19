@@ -34,6 +34,7 @@ import { getProposalAccount } from "@/lib/solanaClient";
 import { useProposalAccountServer } from "@/hooks/useProposalAccountServer";
 import { BN } from "@coral-xyz/anchor";
 import { useVoteOnProposal } from "@/hooks/useVoteOnProposal";
+import { useFaction } from "@/hooks/useFaction";
 
 const spacing = "1rem";
 export const FactionTabPolitics: React.FC<{
@@ -52,6 +53,11 @@ export const FactionTabPolitics: React.FC<{
     encodeTransaction,
   } = useSolana();
 
+  const { data: factionData } = useFaction({
+    factionId: currentCharacter?.faction?.id ?? "",
+  });
+  console.log({ factionData });
+
   const {
     data: allProposals,
     isLoading: allProposalsIsLoading,
@@ -63,21 +69,19 @@ export const FactionTabPolitics: React.FC<{
 
   useEffect(() => {
     setFactionStatus(!!currentCharacter?.faction);
-    console.log("c faction: ", currentCharacter?.faction);
   }, [currentCharacter, setFactionStatus]);
 
   useEffect(() => {
-    console.log("ap: ", allProposals);
+    // TODO: update this
+    console.info("ap: ", allProposals);
   }, [allProposals]);
 
-
-
   const handleVote = (votingPower: number, proposalId: string) => {
-      mutate({
-        mint: currentCharacter?.mint,
-        proposalId,
-      });
-      refetch();
+    mutate({
+      mint: currentCharacter?.mint,
+      proposalId,
+    });
+    refetch();
   };
 
   return (
@@ -144,7 +148,6 @@ export const ProposalItem: React.FC<ProposalItemProps> = ({
   const [status, setStatus] = useState("");
   const [localVote, setLocalVote] = useState<string>("");
   const [inputError, setInputError] = useState<string | null>(null);
-
 
   const {
     data: proposalAccount,

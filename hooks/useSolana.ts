@@ -5,7 +5,10 @@ declare global {
 }
 import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { createTransferCheckedInstruction, getAssociatedTokenAddressSync } from "@solana/spl-token";
+import {
+  createTransferCheckedInstruction,
+  getAssociatedTokenAddressSync,
+} from "@solana/spl-token";
 import {
   Connection,
   PublicKey,
@@ -13,7 +16,7 @@ import {
   TransactionInstruction,
   TransactionMessage,
   VersionedTransaction,
-  LAMPORTS_PER_SOL
+  LAMPORTS_PER_SOL,
 } from "@solana/web3.js";
 import { decode, encode } from "bs58";
 import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants";
@@ -22,13 +25,13 @@ type TxType = VersionedTransaction | Transaction;
 
 export const useSolana = () => {
   const [payload, setPayload] = useState<{
-    connection?: any,
-    walletAddress?: string,
-    signTransaction?: any,
-    buildMemoIx?: any,
-    buildTransferIx?: any,
-    encodeTransaction: any,
-    getBonkBalance: any
+    connection?: any;
+    walletAddress?: string;
+    signTransaction?: any;
+    buildMemoIx?: any;
+    buildTransferIx?: any;
+    encodeTransaction: any;
+    getBonkBalance: any;
   }>({
     connection: undefined,
     walletAddress: undefined,
@@ -36,18 +39,16 @@ export const useSolana = () => {
     buildMemoIx: undefined,
     buildTransferIx: undefined,
     encodeTransaction: undefined,
-    getBonkBalance: undefined
+    getBonkBalance: undefined,
   });
 
   const { connection } = useConnection();
   const { publicKey, signTransaction, signAllTransactions } = useWallet();
 
   useEffect(() => {
-
     const init = () => {
-      if (window?.xnft?.solana?.isXnft) {  
+      if (window?.xnft?.solana?.isXnft) {
         const accountXnft = window.xnft.solana.publicKey?.toString();
-        console.log('in an xnft');
         setPayload({
           connection: window.xnft.solana.connection,
           walletAddress: accountXnft,
@@ -55,8 +56,8 @@ export const useSolana = () => {
           buildMemoIx: buildMemoIx,
           buildTransferIx: buildTransferIx,
           encodeTransaction: encodeTransaction,
-          getBonkBalance: getBonkBalance
-      });
+          getBonkBalance: getBonkBalance,
+        });
       } else {
         setPayload({
           connection,
@@ -65,14 +66,13 @@ export const useSolana = () => {
           buildMemoIx: buildMemoIx,
           buildTransferIx: buildTransferIx,
           encodeTransaction: encodeTransaction,
-          getBonkBalance: getBonkBalance
+          getBonkBalance: getBonkBalance,
         });
       }
-    }
+    };
     new Promise((resolve) => setTimeout(resolve, 500)).then(() => {
-      init()
-    })
-
+      init();
+    });
   }, [connection, publicKey, signTransaction]);
 
   return payload;
@@ -80,16 +80,15 @@ export const useSolana = () => {
 
 const buildMemoIx = ({
   walletAddress,
-  payload
+  payload,
 }: {
   walletAddress: string;
   payload: any;
 }) => {
-
   const TxInstruct = new TransactionInstruction({
     keys: [
       {
-        pubkey:  new PublicKey(walletAddress),
+        pubkey: new PublicKey(walletAddress),
         isSigner: true,
         isWritable: false,
       },
@@ -105,33 +104,44 @@ const buildTransferIx = ({
   walletAddress,
   mint,
   amount,
-  decimals
+  decimals,
 }: {
-  walletAddress: string,
-  mint: string,
-  amount: bigint,
-  decimals: number
-}) => { 
-  const senderATA = getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(walletAddress));
-  const serverATA = getAssociatedTokenAddressSync(new PublicKey(mint), new PublicKey(SERVER_KEY));  
-  console.log('amount: ', amount);
-  const ix = createTransferCheckedInstruction(senderATA, new PublicKey(mint), serverATA, new PublicKey(walletAddress), amount, decimals);
+  walletAddress: string;
+  mint: string;
+  amount: bigint;
+  decimals: number;
+}) => {
+  const senderATA = getAssociatedTokenAddressSync(
+    new PublicKey(mint),
+    new PublicKey(walletAddress),
+  );
+  const serverATA = getAssociatedTokenAddressSync(
+    new PublicKey(mint),
+    new PublicKey(SERVER_KEY),
+  );
+  const ix = createTransferCheckedInstruction(
+    senderATA,
+    new PublicKey(mint),
+    serverATA,
+    new PublicKey(walletAddress),
+    amount,
+    decimals,
+  );
   return ix;
-}
+};
 
 const encodeTransaction = async ({
   walletAddress,
   connection,
   signTransaction,
-  txInstructions
+  txInstructions,
 }: {
   walletAddress: string;
   connection: Connection;
   signTransaction: any;
-  txInstructions: TransactionInstruction[]
-}) => { 
+  txInstructions: TransactionInstruction[];
+}) => {
   const { blockhash } = await connection!.getLatestBlockhash();
-  console.log("Blockhash: ", blockhash);
 
   const txMsg = new TransactionMessage({
     payerKey: new PublicKey(walletAddress),
@@ -140,7 +150,6 @@ const encodeTransaction = async ({
   }).compileToLegacyMessage();
 
   const tx = new VersionedTransaction(txMsg);
-  console.log("TX: ", tx);
   const signedTx = await signTransaction(tx);
   const encodedSignedTx = encode(signedTx!.serialize());
 
@@ -154,15 +163,11 @@ const getBonkBalance = async ({
   walletAddress: string;
   connection: Connection;
   signTransaction: any;
-  txInstructions: TransactionInstruction[]
-}) => { 
-
-
+  txInstructions: TransactionInstruction[];
+}) => {
   let balance = await connection.getBalance(new PublicKey(walletAddress));
-  console.log(`Wallet Balance: ${balance/LAMPORTS_PER_SOL}`)
-
-  console.log(`Bonk Balance: ${balance/LAMPORTS_PER_SOL}`)
-
+  console.info(`Wallet Balance: ${balance / LAMPORTS_PER_SOL}`);
+  console.info(`Bonk Balance: ${balance / LAMPORTS_PER_SOL}`);
 
   // return currentBonkBalance;
 };

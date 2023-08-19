@@ -5,17 +5,14 @@ import { colors } from "@/styles/defaultTheme";
 import styled from "@emotion/styled";
 import { useDebounce } from "@uidotdev/usehooks";
 
-
 const spacing = "1rem";
 
 export const Personal = () => {
-
   // NOTE: use this to handle local search through teasury items
   // when the api is available
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
   const onSearch = (e: any) => setSearch(e.target.value);
-  console.log(debouncedSearch);
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">

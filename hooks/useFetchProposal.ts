@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchProposal } from "@/lib/apiClient";
 
-export const useFetchProposal = () => {
-  return useQuery(['fetch-proposal'], fetchProposal);
-};
+// NOTE: not currently being used
+// export const useFetchProposal = () => {
+//   return useQuery(["fetch-proposal"], (id) => fetchProposal(id));
+// };

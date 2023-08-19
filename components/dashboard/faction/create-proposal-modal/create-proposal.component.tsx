@@ -43,12 +43,10 @@ enum ProposalType {
   TAX = "TAX PERCENTAGE",
 }
 
-export const CreateProposal: React.FC<{ currentCharacter?: Character; 
-  fire: () => void
-}> = ({
-  fire: fireConfetti,
-  currentCharacter,
-}) => {
+export const CreateProposal: React.FC<{
+  currentCharacter?: Character;
+  fire: () => void;
+}> = ({ currentCharacter, fire: fireConfetti }) => {
   const { mutate } = useCreateProposal();
   const {
     connection,
@@ -81,13 +79,13 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;
   const [proposalType, setProposalType] = useState<ProposalType | "">("");
 
   const handleProposalTypeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     setProposalType(event.target.value as ProposalType);
     setProposal({
       ...proposal,
       type: event.target.value,
-    })
+    });
   };
   const [inputErrors, setInputErrors] = useState({
     type: "",
@@ -209,7 +207,10 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;
     // TAX
     if (
       proposalType === ProposalType.TAX &&
-      (proposal.tax === null || proposal.tax === undefined || proposal.tax === "0" || !proposal.tax.trim())
+      (proposal.tax === null ||
+        proposal.tax === undefined ||
+        proposal.tax === "0" ||
+        !proposal.tax.trim())
     ) {
       errors.tax = "Tax value is required";
       isValid = false;
@@ -221,25 +222,28 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;
 
   const onSuccess = (data: any) => {
     fireConfetti();
-    console.log('proposal created!');
   };
 
   const handleCreateProposal = async () => {
     if (!validateInputs()) {
       return;
     }
-    console.log("proposal: ", proposal);
     const prpsl = {
       type: "TAX",
       newTaxRate: Number(proposal?.tax),
-    }
-    const payload = {
-      mint: 'CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ',
-      timestamp: Date.now().toString(),
-      proposal: prpsl
     };
-    const encodedSignedTx = await encodeTransaction({ walletAddress, connection, signTransaction, txInstructions: [buildMemoIx({ walletAddress, payload })]});
-      
+    const payload = {
+      mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
+      timestamp: Date.now().toString(),
+      proposal: prpsl,
+    };
+    const encodedSignedTx = await encodeTransaction({
+      walletAddress,
+      connection,
+      signTransaction,
+      txInstructions: [buildMemoIx({ walletAddress, payload })],
+    });
+
     if (!encodedSignedTx) throw Error("No Tx");
     mutate({ signedTx: encodedSignedTx }, { onSuccess });
     onClose();
@@ -247,7 +251,12 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;
 
   return (
     <>
-      <Text fontSize="1.5rem" color="brand.secondary" cursor="pointer" onClick={onOpen}>
+      <Text
+        fontSize="1.5rem"
+        color="brand.secondary"
+        cursor="pointer"
+        onClick={onOpen}
+      >
         CREATE +
       </Text>
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
@@ -567,7 +576,7 @@ export const CreateProposal: React.FC<{ currentCharacter?: Character;
               onClick={handleCreateProposal}
               _hover={{
                 backgroundColor: colors.blacks[700],
-                border: `2px solid ${colors.blacks[700]}`
+                border: `2px solid ${colors.blacks[700]}`,
               }}
             >
               Create Proposal

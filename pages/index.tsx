@@ -20,8 +20,8 @@ import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 export default function Home() {
   const { walletAddress } = useSolana();
-  const { data: assets } = useAssets();
-  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter()
+  const { data: assets, isLoading: assetsIsLoading } = useAssets();
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   return (
     <>
@@ -43,7 +43,12 @@ export default function Home() {
                 <DashboardMenu />
               </DashboardMenuContainer>
               <PersonalSection>
-                <CharacterList data={assets?.characters} selectedCharacter={selectedCharacter} setSelectedCharacter={setSelectedCharacter} />
+                <CharacterList
+                  data={assets?.characters}
+                  isLoading={assetsIsLoading}
+                  selectedCharacter={selectedCharacter}
+                  setSelectedCharacter={setSelectedCharacter}
+                />
                 <SectionContainer>
                   <Personal />
                 </SectionContainer>

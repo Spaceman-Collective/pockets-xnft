@@ -1,6 +1,6 @@
 import { extendBaseTheme } from "@chakra-ui/react";
 import chakraTheme from "@chakra-ui/theme";
-import { Button, Tabs } from "@/styles/brand-components";
+import { Button, Tabs, ToolTip } from "@/styles/brand-components";
 
 export const colors = {
   brand: {
@@ -16,10 +16,10 @@ export const colors = {
     700: "#0D0D0D",
   },
   green: {
-    700: "#00BF63"
+    700: "#00BF63",
   },
   red: {
-    700: "#FF3131"
+    700: "#FF3131",
   },
   purple: {
     700: "#6A527C",
@@ -32,7 +32,8 @@ export const fonts = {
 };
 
 // NOTE: To avoid large initial JS Payload, only import the components used.
-const { Spinner, Switch, Skeleton, Modal } = chakraTheme.components;
+const { Spinner, Switch, Skeleton, Modal, Menu, Progress } =
+  chakraTheme.components;
 
 export const defaultTheme = extendBaseTheme({
   styles: {
@@ -58,6 +59,9 @@ export const defaultTheme = extendBaseTheme({
     Skeleton,
     Modal,
     Tabs,
+    Menu,
+    Progress,
+    Tooltip: ToolTip,
   },
   colors,
   fonts,

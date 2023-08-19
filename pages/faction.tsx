@@ -16,26 +16,28 @@ import {
 import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react";
 import { useSolana } from "@/hooks/useSolana";
 import { FactionModal } from "@/components/dashboard/faction/join-faction-modal";
-import { NoFaction, NoSelectedCharacter } from "@/components/dashboard/faction/no-faction.component";
+import {
+  NoFaction,
+  NoSelectedCharacter,
+} from "@/components/dashboard/faction/no-faction.component";
 import { FactionTabs } from "@/components/dashboard/faction/tabs";
 import { useEffect, useState } from "react";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
-
 export default function FactionPage() {
-  const { data: allAssetData } = useAssets();
+  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
   const { walletAddress } = useSolana();
   const joinFactionDisclosure = useDisclosure();
   const [isInFaction, setIsInFaction] = useState(true);
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   useEffect(() => {
-    setIsInFaction(!!selectedCharacter?.faction)
+    setIsInFaction(!!selectedCharacter?.faction);
   }, [selectedCharacter]);
 
   const handleSetFactionStatus = (status: boolean) => {
     setIsInFaction(status);
-  }
+  };
 
   return (
     <>
@@ -57,20 +59,34 @@ export default function FactionPage() {
                 <DashboardMenu />
               </DashboardMenuContainer>
               <FactionSection>
-                <CharacterList data={allAssetData?.characters} selectedCharacter={selectedCharacter} setSelectedCharacter={setSelectedCharacter} />
+                <CharacterList
+                  data={allAssetData?.characters}
+                  isLoading={allAssetDataIsLoading}
+                  selectedCharacter={selectedCharacter}
+                  setSelectedCharacter={setSelectedCharacter}
+                />
                 <SectionContainer>
                   {!selectedCharacter ? (
                     <NoSelectedCharacter />
                   ) : isInFaction ? (
-                    <FactionTabs currentCharacter={selectedCharacter!} setFactionStatus={handleSetFactionStatus} />
+                    <FactionTabs
+                      currentCharacter={selectedCharacter!}
+                      setFactionStatus={handleSetFactionStatus}
+                    />
                   ) : (
                     <NoFaction
-                      onOpenJoinFaction={joinFactionDisclosure.onOpen} setFactionStatus={handleSetFactionStatus} />
+                      onOpenJoinFaction={joinFactionDisclosure.onOpen}
+                      setFactionStatus={handleSetFactionStatus}
+                    />
                   )}
                 </SectionContainer>
               </FactionSection>
             </DashboardContainer>
-            <FactionModal character={selectedCharacter!} {...joinFactionDisclosure} setFactionStatus={handleSetFactionStatus} />
+            <FactionModal
+              character={selectedCharacter!}
+              {...joinFactionDisclosure}
+              setFactionStatus={handleSetFactionStatus}
+            />
           </>
         ) : (
           <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>

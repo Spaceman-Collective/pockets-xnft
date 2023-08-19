@@ -17,12 +17,8 @@ import {
 import { colors } from "@/styles/defaultTheme";
 import { useSolana } from "@/hooks/useSolana";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
-import { timeout } from "@/lib/utils";
-import { Faction } from "@/types/server/Faction";
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
-import { skip } from "node:test";
 import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
-import { connect } from "http2";
 
 export const CreateFaction: FC<{
   fire: () => void;
@@ -108,7 +104,6 @@ export const CreateFaction: FC<{
     if (!validateInputs()) {
       return;
     }
-    console.log("faction: ", faction);
     const payload = {
       mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
       timestamp: Date.now().toString(),
@@ -117,19 +112,16 @@ export const CreateFaction: FC<{
 
     const totalFactions = currentFactions?.total;
     const requiredBONK =
-      FACTION_CREATION_MULTIPLIER * BigInt(currentFactions?.total);
+      FACTION_CREATION_MULTIPLIER * BigInt(currentFactions?.total ?? 0);
     const bonkInWallet = 20000000000000;
     // const bonkInWallet = getBonkBalance(walletAddress, connection);
     if (bonkInWallet < requiredBONK) {
       throw alert(
-        "You have insufficient BONK in your wallet. Please add more BONK and try again!"
+        "You have insufficient BONK in your wallet. Please add more BONK and try again!",
       );
     }
     const bonkMint = SPL_TOKENS.bonk.mint;
     const dcms = SPL_TOKENS.bonk.decimals;
-    console.log(
-      `Total Factions: ${totalFactions} Required Bonk ${requiredBONK}  Bonk Mint ${bonkMint}  Decimals ${dcms}`
-    );
 
     const ix = await buildTransferIx({
       walletAddress,

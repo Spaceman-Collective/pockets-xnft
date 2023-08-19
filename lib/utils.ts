@@ -51,3 +51,15 @@ export function getRandomName({
 
   return randomFirstName + " " + randomLastName;
 }
+
+export function getLocalImage({
+  type,
+  name,
+}: {
+  type: "resources" | "stations" | "units";
+  name: string;
+}) {
+  const transformedName = name.toLowerCase().replace(" ", "_");
+  const path = `assets/${type}/${transformedName}.png`;
+  return path;
+}
