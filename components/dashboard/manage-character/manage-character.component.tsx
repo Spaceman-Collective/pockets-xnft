@@ -2,13 +2,12 @@ import styled from "@emotion/styled";
 import {
   Box,
   Button,
+  Fade,
   Flex,
   Grid,
   HStack,
   Img,
-  Input,
   Text,
-  VStack,
 } from "@chakra-ui/react";
 import { PanelContainer } from "../personal/personal.styled";
 import { colors } from "@/styles/defaultTheme";
@@ -45,15 +44,33 @@ export const ManageCharacter: React.FC<{ currentCharacter?: Character }> = ({
         image={currentCharacter.image}
         faction={currentCharacter.faction?.name}
       />
-      <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="1rem">
-        <SkillContainer>
-          {currentCharacter.experience &&
-            experienceKeys
-              ?.filter((key) => !combatSkillKeys.includes(key.toLowerCase()))
+      <Fade in={!!currentCharacter?.experience}>
+        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="1rem">
+          <SkillContainer>
+            {currentCharacter.experience &&
+              experienceKeys
+                ?.filter((key) => !combatSkillKeys.includes(key.toLowerCase()))
+                ?.sort((a, b) => a.localeCompare(b))
+                .map((key) => (
+                  <SkillBox
+                    key={"noncombat" + key}
+                    name={key}
+                    level={currentCharacter.skills[key].toString()}
+                    xp={
+                      currentCharacter.experience[key].current.toString() +
+                      "/" +
+                      currentCharacter.experience[key].threshold.toString()
+                    }
+                  />
+                ))}
+          </SkillContainer>
+          <SkillContainer isCombat>
+            {experienceKeys
+              ?.filter((key) => combatSkillKeys.includes(key.toLowerCase()))
               ?.sort((a, b) => a.localeCompare(b))
               .map((key) => (
                 <SkillBox
-                  key={"noncombat" + key}
+                  key={"combat" + key}
                   name={key}
                   level={currentCharacter.skills[key].toString()}
                   xp={
@@ -63,25 +80,9 @@ export const ManageCharacter: React.FC<{ currentCharacter?: Character }> = ({
                   }
                 />
               ))}
-        </SkillContainer>
-        <SkillContainer isCombat>
-          {experienceKeys
-            ?.filter((key) => combatSkillKeys.includes(key.toLowerCase()))
-            ?.sort((a, b) => a.localeCompare(b))
-            .map((key) => (
-              <SkillBox
-                key={"combat" + key}
-                name={key}
-                level={currentCharacter.skills[key].toString()}
-                xp={
-                  currentCharacter.experience[key].current.toString() +
-                  "/" +
-                  currentCharacter.experience[key].threshold.toString()
-                }
-              />
-            ))}
-        </SkillContainer>
-      </Grid>
+          </SkillContainer>
+        </Grid>
+      </Fade>
       <Flex gap="4rem">
         <Value>ARMY</Value>
         <HStack>

@@ -22,7 +22,7 @@ import { Character } from "@/types/server";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 export default function CharacterPage() {
-  const { data: allAssetData } = useAssets();
+  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
   const { walletAddress } = useSolana();
   const joinFactionDisclosure = useDisclosure();
   const [isInFaction, setIsInFaction] = useState(false);
@@ -54,6 +54,7 @@ export default function CharacterPage() {
               <FactionSection>
                 <CharacterList
                   data={allAssetData?.characters}
+                  isLoading={allAssetDataIsLoading}
                   selectedCharacter={selectedCharacter}
                   setSelectedCharacter={setSelectedCharacter}
                 />
