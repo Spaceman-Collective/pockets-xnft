@@ -80,13 +80,13 @@ export const FactionTabResources: React.FC<{
   } = useDisclosure();
 
   const [numProspectTransactions, setNumProspectTransactions] = useState<number>(1);
-  const [discoverBtnLabel, setdiscoverBtnLabel] = useState<string>("prospect");
+  const [discoverBtnLabel, setdiscoverBtnLabel] = useState<string>("discover");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isHarvestLoading, setIsHarvestLoading] = useState<boolean>(false);
 
   const [discoveredRFPDA, setDiscoveredRFPDA] = useState<string>(dummyPDA);
   const [resourceFieldList, setResourceFieldList] = useState<ResourceField[]>([]);
-  const [discoveredResrouce, setDiscoveredResource] = useState<Resource>();
+  const [discoveredRf, setDiscoveredRF] = useState<ResourceField>();
 
   const { data: currentResourceFields } = useFetchAllResourceFields();
 
@@ -138,14 +138,11 @@ export const FactionTabResources: React.FC<{
             onSuccess: async (data: String) => {
               console.log("[handleDiscoverResource] success");
 
-              // let program = await fetchProgram;
-              // let RFAcc = program?.account.resourceField.fetchNullable(data as string);
-              // let resourceName = rfAcc.harvest!.resource!.name;
-              // let type = 'Legendary';
-
-              let resourceDiscovered =
-                RESOURCES[Math.floor(Math.random() % RESOURCES.length)];
-              setDiscoveredResource(resourceDiscovered);
+              // TODO: Currently not working - fix
+              // let rfAcc = await getResourceField(connection, new PublicKey(data as string));
+              let rfAcc =
+                RESOURCE_FIELDS[Math.floor(Math.random() % RESOURCE_FIELDS.length)];
+              setDiscoveredRF(rfAcc);
 
               setdiscoverBtnLabel("prospect");
               setDiscoveredRFPDA(data as string);
@@ -153,7 +150,7 @@ export const FactionTabResources: React.FC<{
             },
             onError: () => {
               console.log("[handleDiscoverResource] error");
-              setDiscoveredResource(undefined);
+              setDiscoveredRF(undefined);
               onStatusOpen();
             },
           }
@@ -294,7 +291,7 @@ export const FactionTabResources: React.FC<{
       <ResourcesStatusModal
         isOpen={isStatusOpen}
         onClose={onStatusClose}
-        discoveredResource={discoveredResrouce}
+        discoveredRF={discoveredRf}
       />
       <ProspectModal
         isOpen={isProspectOpen}
@@ -334,13 +331,13 @@ interface ResourceStatusModalProps {
   isOpen: boolean;
   onOpen?: () => void;
   onClose: () => void;
-  discoveredResource?: Resource;
+  discoveredRF?: ResourceField;
 }
 
 const ResourcesStatusModal: React.FC<ResourceStatusModalProps> = ({
   isOpen,
   onClose,
-  discoveredResource
+  discoveredRF
 }: ResourceStatusModalProps) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">
@@ -356,7 +353,7 @@ const ResourcesStatusModal: React.FC<ResourceStatusModalProps> = ({
         borderRadius="1rem"
       >
         <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">
-          {!!discoveredResource ? (
+          {!!discoveredRF ? (
             <Text>Discovered Resource Field</Text>
           ) : (
             <Text>Failed to discover Resource Field</Text>
@@ -370,7 +367,7 @@ const ResourcesStatusModal: React.FC<ResourceStatusModalProps> = ({
           letterSpacing="2px"
         >
           <Flex w="100%" h="300">
-            {!!discoveredResource ? (
+            {!!discoveredRF ? (
               <Flex
                 w="100%"
                 h="100%"
@@ -380,7 +377,7 @@ const ResourcesStatusModal: React.FC<ResourceStatusModalProps> = ({
                 gap={'2rem'}
               >
                 <Text>
-                  With {discoveredResource.tier} Resource:{" "}
+                  With Resource:{" "}
                 </Text>
                 <Flex
                   bg="blacks.500"
@@ -398,16 +395,16 @@ const ResourcesStatusModal: React.FC<ResourceStatusModalProps> = ({
                   w='50%'
                 >
                   <Image
-                    alt={discoveredResource.name}
+                    alt={discoveredRF.resource}
                     src={getLocalImage({
                       type: "resources",
-                      name: discoveredResource.name,
+                      name: discoveredRF.resource,
                     })}
                     fallbackSrc="https://via.placeholder.com/150"
                     borderRadius="0.5rem"
                     w="7rem"
                   />
-                  <Value pr="1rem">{discoveredResource.name}</Value>
+                  <Value pr="1rem">{discoveredRF.resource}</Value>
                 </Flex>
               </Flex>
             ) : (
@@ -482,8 +479,9 @@ const ProspectModal: React.FC<ProspectModalProps> = ({
           new PublicKey(rfPDA ?? "")
         );
 
-        // let rfAcc = { initalClaimant: wallet }
-        let rfAcc = await getResourceField(connection, "");
+        // TODO: Currently not working - fix
+        // let rfAcc = await getResourceField(connection, new PublicKey(rfPDA ?? ""));
+        let rfAcc: any = { initalClaimant: wallet }
         if (rfAcc?.initalClaimant?.toString() === wallet) {
           // Jackpot
           // TODO: This is test code, remove it
@@ -491,7 +489,7 @@ const ProspectModal: React.FC<ProspectModalProps> = ({
 
           let temp = [...resourceFieldList];
           let i = Math.floor(Math.random() * 3);
-          temp.push(RESOURCE_FIELDS[i]);
+          temp.push(RESOURCE_FIELDS[Math.floor(Math.random() % RESOURCE_FIELDS.length)]);
           setResourceFieldList(temp);
 
           break;
