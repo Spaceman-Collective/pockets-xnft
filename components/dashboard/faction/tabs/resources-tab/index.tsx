@@ -117,7 +117,7 @@ export const FactionTabResources: React.FC<{
             ))}
         </Grid>
       </Box>
-      <ModalRfDiscover {...discoverDisclosure} />
+      <ModalRfDiscover rf={discoverData} {...discoverDisclosure} />
     </PanelContainer>
   );
 };

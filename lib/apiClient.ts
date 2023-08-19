@@ -309,8 +309,9 @@ export const fetchResources = async ({
 };
 
 export const fetchRfAllocation = async (): Promise<{
-  isDiscoverable: boolean;
+  isDiscoverable: boolean; // toggles discover/prospect
   id: string;
+  rfCount: number; // total amount of resource fields in DB
 }> => {
   const URL = API_BASE_URL + "/rf/allocation";
   const errorMsg = "Server Error while fetching resource field allocation";
