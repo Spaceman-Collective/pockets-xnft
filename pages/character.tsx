@@ -17,13 +17,9 @@ import {
 import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react";
 import { useSolana } from "@/hooks/useSolana";
 import { FactionModal } from "@/components/dashboard/faction/join-faction-modal";
-import { NoFaction } from "@/components/dashboard/faction/no-faction.component";
-import { FactionTabs } from "@/components/dashboard/faction/tabs";
 import { useEffect, useState } from "react";
-import { useCharacter} from "@/hooks/useCharacter";
 import { Character } from "@/types/server";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
-
 
 export default function CharacterPage() {
   const { data: allAssetData } = useAssets();
@@ -33,7 +29,7 @@ export default function CharacterPage() {
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   useEffect(() => {
-    setIsInFaction(!!selectedCharacter?.faction)
+    setIsInFaction(!!selectedCharacter?.faction);
   }, [selectedCharacter]);
 
   return (
@@ -56,13 +52,21 @@ export default function CharacterPage() {
                 <DashboardMenu />
               </DashboardMenuContainer>
               <FactionSection>
-              <CharacterList data={allAssetData?.characters} selectedCharacter={selectedCharacter} setSelectedCharacter={setSelectedCharacter} />
+                <CharacterList
+                  data={allAssetData?.characters}
+                  selectedCharacter={selectedCharacter}
+                  setSelectedCharacter={setSelectedCharacter}
+                />
                 <SectionContainer>
-                  <ManageCharacter currentCharacter={selectedCharacter!}/>
+                  <ManageCharacter currentCharacter={selectedCharacter!} />
                 </SectionContainer>
               </FactionSection>
             </DashboardContainer>
-            <FactionModal character={selectedCharacter!} {...joinFactionDisclosure} />
+            <FactionModal
+              setFactionStatus={() => {}}
+              character={selectedCharacter!}
+              {...joinFactionDisclosure}
+            />
           </>
         ) : (
           <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
@@ -82,7 +86,8 @@ const character: Character = {
   name: "Crispin Bonehunter",
   mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
   collection: "OKB POG",
-  image: "https://storage.googleapis.com/fractal-launchpad-public-assets/pogs/okb/assets/collectors/assets/2557.png",
+  image:
+    "https://storage.googleapis.com/fractal-launchpad-public-assets/pogs/okb/assets/collectors/assets/2557.png",
   experience: {
     Strength: { current: 0, threshold: 1000 },
     Fighting: { current: 0, threshold: 1000 },
@@ -109,7 +114,7 @@ const character: Character = {
     Mining: 1,
     Psionics: 1,
     Shooting: 0,
-    Strength: 0
+    Strength: 0,
   },
   army: [],
   attributes: {
@@ -129,7 +134,7 @@ const character: Character = {
     POGArt: "POG Bears",
     POGEnvironment: "Game Stats Circle Midnight Apple",
     POGMaterial: "Cardboard",
-    POGRarity: "Rare"
+    POGRarity: "Rare",
   },
   // faction: "GqMugi26QUaoLiGHnMAED"
 
@@ -142,12 +147,14 @@ const character: Character = {
     external_link: "",
     description: "",
     townhallLevel: 1,
-    stations: [{
-      id: "1",
-      faction: "",
-      blueprint: "",
-      level: "1",
-    }],
+    stations: [
+      {
+        id: "1",
+        faction: "",
+        blueprint: "",
+        level: "1",
+      },
+    ],
     lastLooted: "",
     construction: {
       finishedAt: "",
@@ -156,9 +163,9 @@ const character: Character = {
         faction: "",
         blueprint: "",
         level: "1",
-      }
-    }
-  }
+      },
+    },
+  },
 };
 // export const characterData: Character = {
 //   name: "Crispin Bonehunter",
