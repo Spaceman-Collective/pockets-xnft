@@ -18,6 +18,14 @@ export const SPL_TOKENS: {
   },
 };
 
+// xp multiplier based on rarity
+export const RESOURCE_XP_GAIN = {
+  common: 10,
+  uncommon: 25,
+  rare: 75,
+  legendary: 300,
+};
+
 export const RESOURCES: {
   name: string;
   tier: string;

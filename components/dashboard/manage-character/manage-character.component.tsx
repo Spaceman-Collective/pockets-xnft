@@ -15,20 +15,12 @@ import { Character } from "@/types/server";
 import { IconSkill } from "@/components/icons";
 import { FC, ReactNode } from "react";
 import { NoSelectedCharacter } from "../faction/no-faction.component";
+import { combatSkillKeys } from "./constants";
 
-const spacing = "1rem";
-export const ManageCharacter: React.FC<{ currentCharacter?: Character }> = ({
-  currentCharacter,
-}) => {
-  const combatSkillKeys = [
-    "strength",
-    "fighting",
-    "shooting",
-    "athletics",
-    "psionics",
-    "magic",
-  ];
-
+export const ManageCharacter: React.FC<{
+  currentCharacter?: Character;
+  selectSkill: (skill: string) => void;
+}> = ({ currentCharacter, selectSkill }) => {
   if (!currentCharacter) {
     return <NoSelectedCharacter />;
   }
@@ -54,6 +46,7 @@ export const ManageCharacter: React.FC<{ currentCharacter?: Character }> = ({
                 .map((key) => (
                   <SkillBox
                     key={"noncombat" + key}
+                    onClick={selectSkill}
                     name={key}
                     level={currentCharacter.skills[key].toString()}
                     xp={
@@ -71,6 +64,7 @@ export const ManageCharacter: React.FC<{ currentCharacter?: Character }> = ({
               .map((key) => (
                 <SkillBox
                   key={"combat" + key}
+                  onClick={selectSkill}
                   name={key}
                   level={currentCharacter.skills[key].toString()}
                   xp={
@@ -194,11 +188,13 @@ const SkillContainer: FC<{ children: ReactNode; isCombat?: boolean }> = ({
   );
 };
 
-const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
-  name,
-  level,
-  xp,
-}) => {
+const SkillBox: FC<{
+  name: string;
+  level: string;
+  xp: string;
+  onClick: (skill: string) => void;
+}> = ({ name, level, xp, onClick }) => {
+  const click = () => onClick(name.toLowerCase());
   const Icon = () => {
     function is(value: string) {
       return name.toLowerCase() === value.toLowerCase();
@@ -207,6 +203,7 @@ const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
       color: colors.brand.quaternary,
       fontSize: "3rem",
     };
+
     return is("athletics") ? (
       <IconSkill.athletics {...style} />
     ) : is("electronics") ? (
@@ -249,6 +246,7 @@ const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
         opacity: 1,
       }}
       transition="all 0.25s ease-in-out"
+      onClick={click}
     >
       <Grid
         bg="blacks.700"
