@@ -13,6 +13,7 @@ import {
 import { ModalStation } from "./station-modal.component";
 import { FC } from "react";
 import { useFaction } from "@/hooks/useFaction";
+import { Tip } from "@/components/tooltip";
 
 const stationSize = "7rem";
 
@@ -21,6 +22,14 @@ export const FactionTabServices: React.FC<{
   setFactionStatus: (value: boolean) => void;
 }> = ({ currentCharacter, setFactionStatus }) => {
   const stationDisclosure = useDisclosure();
+  const { data: factionData } = useFaction({
+    factionId: currentCharacter?.faction?.id ?? "",
+  });
+  console.log({ factionData });
+
+  const availableSlots = factionData?.faction?.townhallLevel;
+  const remainingSlots =
+    availableSlots && availableSlots - factionData?.stations.length;
 
   return (
     <>
@@ -42,24 +51,29 @@ export const FactionTabServices: React.FC<{
           templateColumns={`repeat(auto-fill, minmax(${stationSize}, 1fr))`}
           templateRows={stationSize}
         >
-          {Array.from({ length: 32 }).map((_, i) =>
-            i < 18 ? (
-              <Station
-                key={i + "station"}
-                onClick={() => {
-                  stationDisclosure.onOpen();
-                }}
-              />
-            ) : (
-              <Box
-                key={"dsadadsad" + i}
-                bg="brand.primary"
-                h={stationSize}
-                w={stationSize}
-                onClick={stationDisclosure.onOpen}
-              />
-            ),
-          )}
+          {factionData?.stations?.map((station, i) => (
+            <Station
+              key={station.id}
+              onClick={() => {
+                stationDisclosure.onOpen();
+              }}
+            />
+          ))}
+          {remainingSlots &&
+            remainingSlots > 0 &&
+            Array.from({ length: remainingSlots }).map((_, i) => (
+              <Tip
+                key={"emptystation" + i}
+                label={`Townhall Level ${availableSlots}: You have ${remainingSlots}/${availableSlots} remaining station slots`}
+              >
+                <Box
+                  bg="brand.primary"
+                  h={stationSize}
+                  w={stationSize}
+                  onClick={stationDisclosure.onOpen}
+                />
+              </Tip>
+            ))}
         </Grid>
       </PanelContainer>
     </>
@@ -73,7 +87,7 @@ const HeaderStats: React.FC<{
 }> = ({ factionName, factionImage, description }) => {
   return (
     <Flex mt="2rem" w="100%">
-      <TownHall image={factionImage} />
+      <TownHall image={factionImage ?? ""} />
       <Flex
         direction="column"
         justifyContent="space-between"
