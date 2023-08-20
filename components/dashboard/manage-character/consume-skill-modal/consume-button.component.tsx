@@ -34,8 +34,16 @@ export const ConsumeButton: FC<{ isDisabled: boolean; maxValue?: number }> = ({
           h="100%"
         />
         <NumberInputStepper stroke="white">
-          <NumberIncrementStepper />
-          <NumberDecrementStepper />
+          <NumberIncrementStepper
+            bg="blacks.600"
+            border="none"
+            _hover={{ bg: "green.700" }}
+          />
+          <NumberDecrementStepper
+            bg="blacks.600"
+            border="none"
+            _hover={{ bg: "red.700" }}
+          />
         </NumberInputStepper>
       </NumberInput>
       <Button

@@ -120,20 +120,20 @@ const ConsumeItemContainer: FC<{
           gap="0.5rem"
           alignItems="center"
         >
-          <Text textTransform="uppercase" letterSpacing="1px" pl="1rem">
-            Balance:
-          </Text>
           <Text
             fontSize="1.5rem"
             fontWeight={700}
             letterSpacing="1px"
-            borderRadius="0 1rem 1rem 0"
+            borderRadius="1rem 0 0 1rem"
             bg="blacks.600"
             py="0.5rem"
             px="0.75rem"
           >
             {isLoading && <Spinner mb="-2px" />}
             {!isLoading && resourceInWallet?.value + "x"}
+          </Text>
+          <Text textTransform="uppercase" letterSpacing="1px" pr="0.5rem">
+            Balance
           </Text>
         </Flex>
         <ConsumeButton
