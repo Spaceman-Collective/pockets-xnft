@@ -73,6 +73,7 @@ export const useSolana = () => {
     getBonkBalance,
     buildProspectIx,
     getRFAccount,
+    sendTransaction,
   };
 };
 
@@ -155,6 +156,27 @@ const encodeTransaction = async ({
   const encodedSignedTx = encode(signedTx!.serialize());
 
   return encodedSignedTx;
+};
+
+const sendTransaction = async (
+  connection: Connection,
+  ixs: TransactionInstruction[],
+  wallet: string,
+  signTransaction: any
+) => {
+  if (!wallet || !ixs || !signTransaction) return;
+  const { blockhash } = await connection!.getLatestBlockhash();
+
+  const txMsg = new TransactionMessage({
+    payerKey: new PublicKey(wallet),
+    recentBlockhash: blockhash,
+    instructions: ixs,
+  }).compileToLegacyMessage();
+
+  const tx = new VersionedTransaction(txMsg);
+  if (!tx) return;
+  const signedTx = await signTransaction(tx);
+  return await connection.sendRawTransaction(tx.serialize());
 };
 
 const getBonkBalance = async ({
