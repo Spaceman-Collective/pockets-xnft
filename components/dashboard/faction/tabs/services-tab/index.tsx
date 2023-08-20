@@ -73,14 +73,9 @@ export const FactionTabServices: React.FC<{
             Array.from({ length: remainingSlots }).map((_, i) => (
               <Tip
                 key={"emptystation" + i}
-                label={`Townhall Level ${availableSlots}: You have ${remainingSlots}/${availableSlots} remaining station slots`}
+                label={`Townhall Level ${availableSlots}: Your faction has ${remainingSlots}/${availableSlots} remaining station slots`}
               >
-                <Box
-                  bg="brand.primary"
-                  h={stationSize}
-                  w={stationSize}
-                  onClick={stationDisclosure.onOpen}
-                />
+                <Box bg="brand.primary" h={stationSize} w={stationSize} />
               </Tip>
             ))}
         </Grid>

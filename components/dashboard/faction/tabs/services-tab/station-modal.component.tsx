@@ -11,6 +11,7 @@ import {
   Image,
   Grid,
   Progress,
+  Button,
 } from "@chakra-ui/react";
 import { FC, useEffect } from "react";
 import styled from "@emotion/styled";
@@ -18,6 +19,9 @@ import { useCountdown } from "usehooks-ts";
 import { getBlueprint } from "./constants";
 import { getLocalImage } from "@/lib/utils";
 import { Tip } from "@/components/tooltip";
+import { toast } from "react-hot-toast";
+import { useCharTimers } from "@/hooks/useCharTimers";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 export const ModalStation: FC<{
   station?: {
@@ -29,26 +33,35 @@ export const ModalStation: FC<{
   isOpen: boolean;
   onClose: () => void;
 }> = ({ station, isOpen, onClose }) => {
+  const [selectedCharacter, _] = useSelectedCharacter();
+  const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
   const totalTimeInSeconds = 60;
-  const [count, { startCountdown, stopCountdown, resetCountdown }] =
-    useCountdown({
-      countStart: totalTimeInSeconds,
-      intervalMs: 100,
-    });
-
-  useEffect(() => {
-    startCountdown();
-  }, [startCountdown, isOpen]);
+  const [count, { startCountdown, resetCountdown }] = useCountdown({
+    countStart: totalTimeInSeconds,
+    intervalMs: 100,
+  });
 
   useEffect(() => {
     if (isOpen) return;
     resetCountdown();
   }, [isOpen]);
 
+  console.log({ timersData });
+  // TODO: DEV this is where you enter the functions for the build and claim process
+  // I'll help add the timers. The data is visiable in the above console.log
+
+  const startStationProcess = async () => {
+    toast.success("You've started a build in the " + station?.blueprint);
+    startCountdown();
+  };
+  const claimStationReward = async () => {
+    console.log("CLAIM");
+    toast.success("You've claimed the reward from the " + station?.blueprint);
+  };
+
   const stationBlueprint = station && getBlueprint(station?.blueprint);
   const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
   const image = stationBlueprint?.image;
-  console.log({ stationBlueprint });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -68,18 +81,26 @@ export const ModalStation: FC<{
             desc={getBlueprint(station?.blueprint ?? "")?.description}
           />
           <Grid templateColumns="repeat(3, 1fr)" mt="4rem">
-            <ResourceContainer
-              type="resources"
-              isDisabled={progress === 100}
-              resources={
-                stationBlueprint?.inputs.map((input) => input.resource) ?? []
-              }
-            />
+            <VStack gap="2rem">
+              <Button
+                isDisabled={count !== totalTimeInSeconds}
+                onClick={startStationProcess}
+              >
+                Start Build
+              </Button>
+              <ResourceContainer
+                type="resources"
+                isDisabled={progress === 100}
+                resources={
+                  stationBlueprint?.inputs.map((input) => input.resource) ?? []
+                }
+              />
+            </VStack>
             <Flex
-              minH="20rem"
               direction="column"
               justifyContent="center"
               alignItems="center"
+              mt="8rem"
             >
               <Progress
                 hasStripe={progress === 100 ? false : true}
@@ -90,11 +111,16 @@ export const ModalStation: FC<{
               />
               <Text>{count}</Text>
             </Flex>
-            <ResourceContainer
-              type="units"
-              isDisabled={progress !== 100}
-              resources={stationBlueprint?.unitOutput ?? []}
-            />
+            <VStack gap="2rem">
+              <Button onClick={claimStationReward} isDisabled={count !== 0}>
+                Claim
+              </Button>
+              <ResourceContainer
+                type="units"
+                isDisabled={progress !== 100}
+                resources={stationBlueprint?.unitOutput ?? []}
+              />
+            </VStack>
           </Grid>
         </ModalBody>
       </ModalContent>
@@ -141,7 +167,7 @@ const ResourceContainer: FC<{
     <Grid
       borderRadius="1rem"
       bg="brand.quaternary"
-      minH="20rem"
+      minH="22rem"
       placeItems="center"
       p="4rem"
       opacity={isDisabled ? 0.5 : 1}
