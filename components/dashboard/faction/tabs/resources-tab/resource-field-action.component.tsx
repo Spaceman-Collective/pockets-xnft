@@ -23,6 +23,7 @@ export const ResourceFieldAction: FC<{
 
   const remainingTime = (finishedTime - Date.now()) / 1000;
   const isFuture = remainingTime > 0;
+  const isHarvestable = !isFuture || timer === undefined;
 
   const [count, { startCountdown, stopCountdown, resetCountdown }] =
     useCountdown({
@@ -35,7 +36,14 @@ export const ResourceFieldAction: FC<{
     if (!timer || remainingTime < 0) return;
     startCountdown();
   }, []);
-  console.table({ rf: rf.resource, count, isFuture });
+  console.table({
+    rf: rf.resource,
+    id: rf.id,
+    isFuture,
+    timer: !!timer,
+    isHarvestable,
+    remainingTime,
+  });
 
   return (
     <ResourceActionContainer key={rf.id}>
@@ -56,7 +64,7 @@ export const ResourceFieldAction: FC<{
       </HStack>
       <HStack>
         {isFuture && <Value>{timeAgo(count)}</Value>}
-        {!isFuture && <Button bg="brand.quaternary">Harvest</Button>}
+        {isHarvestable && <Button bg="brand.quaternary">Harvest</Button>}
       </HStack>
     </ResourceActionContainer>
   );
