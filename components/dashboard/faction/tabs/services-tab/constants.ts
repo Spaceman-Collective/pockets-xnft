@@ -35,22 +35,22 @@ export const BLUEPRINTS: Blueprint[] = [
     upgradeConstructionMultiplier: 1000 * 60 * 60, //1hr per level
     upgradeResources: [
       [{ resource: "Bandages", amount: 6 }],
-      [{ resource: "Seeds", amount: 6 }],
+      [{ resource: "Flowers", amount: 6 }],
       [
         { resource: "Bandages", amount: 8 },
-        { resource: "Seeds", amount: 8 },
+        { resource: "Flowers", amount: 8 },
         { resource: "Poison", amount: 4 }, // rare
       ],
       [
         { resource: "Bandages", amount: 16 },
-        { resource: "Seeds", amount: 16 },
+        { resource: "Flowers", amount: 16 },
         { resource: "Poison", amount: 8 },
         { resource: "Golden Apples", amount: 2 }, //legendary
       ],
     ],
     inputs: [
       { resource: "Bandages", amount: 6 },
-      { resource: "Seeds", amount: 6 },
+      { resource: "Flowers", amount: 6 },
     ],
     timeRequired: 1000 * 60 * 20, // 20 min
     unitOutput: ["Brawler"],
@@ -71,7 +71,7 @@ export const BLUEPRINTS: Blueprint[] = [
       ],
       [
         { resource: "Bandages", amount: 16 },
-        { resource: "Seeds", amount: 16 },
+        { resource: "Flowers", amount: 16 },
         { resource: "Wood", amount: 8 },
         { resource: "Golden Apples", amount: 2 }, //legendary
       ],
