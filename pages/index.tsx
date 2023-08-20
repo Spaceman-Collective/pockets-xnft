@@ -12,12 +12,10 @@ import {
 import {
   DashboardInfo,
   DashboardMenu,
-  Personal,
   CharacterList,
 } from "@/components/dashboard";
 import { useAssets } from "@/hooks/useCharacters";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
-import { useAllWalletAssets } from "@/hooks/useWalletAssets";
 import { WalletTabs } from "@/components/dashboard/wallet-page";
 
 export default function Home() {
@@ -53,7 +51,6 @@ export default function Home() {
                   setSelectedCharacter={setSelectedCharacter}
                 />
                 <SectionContainer>
-                  {/* <Personal /> */}
                   <WalletTabs />
                 </SectionContainer>
               </PersonalSection>
