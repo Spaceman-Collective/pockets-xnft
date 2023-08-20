@@ -31,6 +31,7 @@ export const FactionTabServices: React.FC<{
       <PanelContainer display="flex" flexDirection="column">
         <HeaderStats
           factionName={currentCharacter.faction?.name}
+          factionImage={currentCharacter?.faction?.image}
           description={currentCharacter?.faction?.description}
         />
         <Grid
@@ -67,11 +68,12 @@ export const FactionTabServices: React.FC<{
 
 const HeaderStats: React.FC<{
   factionName: string | undefined;
+  factionImage: string | undefined;
   description: string | undefined;
-}> = ({ factionName, description }) => {
+}> = ({ factionName, factionImage, description }) => {
   return (
     <Flex mt="2rem" w="100%">
-      <TownHall />
+      <TownHall image={factionImage} />
       <Flex
         direction="column"
         justifyContent="space-between"
@@ -101,7 +103,7 @@ const HeaderStats: React.FC<{
   );
 };
 
-const TownHall = () => {
+const TownHall: FC<{ image: string }> = ({ image }) => {
   const size = 17;
   return (
     <Box
@@ -114,6 +116,7 @@ const TownHall = () => {
       alignSelf="end"
     >
       <Station
+        image={image}
         onClick={() => {
           console.info("townhall coming soon");
         }}
@@ -122,7 +125,10 @@ const TownHall = () => {
   );
 };
 
-const Station: FC<{ onClick: () => void }> = ({ onClick }) => {
+const Station: FC<{ image?: string; onClick: () => void }> = ({
+  image,
+  onClick,
+}) => {
   return (
     <Box
       onClick={onClick}
@@ -132,7 +138,7 @@ const Station: FC<{ onClick: () => void }> = ({ onClick }) => {
       h="100%"
       bg="red"
       borderRadius="1rem"
-      backgroundImage="https://picsum.photos/200"
+      backgroundImage={image ?? "https://picsum.photos/200"}
       backgroundSize="cover"
       backgroundPosition="center"
       transition="all 0.25s ease-in-out"
