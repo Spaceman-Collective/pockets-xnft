@@ -28,7 +28,9 @@ export const ModalRfProspect: FC<{
   isOpen: boolean;
   onClose: () => void;
   rf?: { rfCount: number; id: string };
-}> = ({ isOpen, onClose, rf }) => {
+  charMint?: string;
+  factionId?: string;
+}> = ({ isOpen, onClose, rf, charMint: characterMint, factionId }) => {
   const {
     walletAddress,
     connection,
@@ -37,12 +39,14 @@ export const ModalRfProspect: FC<{
     encodeTransaction,
     buildProspectIx,
     getRFAccount,
+    sendTransaction,
   } = useSolana();
 
   const [rfAccount, setRfAccount] = useState<RFAccount>();
   console.log({ rf });
 
   useEffect(() => {
+    console.log("LOOOP Account", rf);
     const init = async () => {
       if (!rf?.id) return console.error("NO  ACCOUNT ID", rf);
       try {
@@ -55,7 +59,7 @@ export const ModalRfProspect: FC<{
     };
 
     init();
-  }, [rf?.id]);
+  }, [rf, connection]);
 
   console.log({ rfAccount });
 
@@ -64,22 +68,32 @@ export const ModalRfProspect: FC<{
     (BigInt(rfCount) * RESOURCE_FIELD_CREATION_MULTIPLIER) / BigInt(1e5);
 
   const post = async () => {
+    if (
+      !signTransaction ||
+      !characterMint ||
+      !factionId ||
+      !rf?.id ||
+      !walletAddress
+    )
+      return;
     let ix =
-      buildTransferIx &&
-      buildTransferIx({
+      buildProspectIx &&
+      (await buildProspectIx({
         walletAddress,
-        mint: BONK_MINT.toString(),
-        decimals: 5,
-        amount: bonkForNextField * BigInt(1e5),
-      });
+        characterMint,
+        factionId,
+        rfId: rf?.id,
+      }));
 
-    if (!ix) return;
-    const encodedTx = await encodeTransaction({
-      txInstructions: [ix],
-      walletAddress,
+    if (!ix || ix === undefined) return;
+    const sig = await sendTransaction(
       connection,
+      [ix],
+      walletAddress,
       signTransaction,
-    });
+    );
+
+    console.log("#####################3", sig);
   };
 
   return (

@@ -122,7 +122,12 @@ export const FactionTabResources: React.FC<{
         </Grid>
       </Box>
       <ModalRfDiscover rf={discoverData} {...discoverDisclosure} />
-      <ModalRfProspect rf={discoverData} {...prospectDisclosure} />
+      <ModalRfProspect
+        rf={discoverData}
+        charMint={currentCharacter.mint}
+        factionId={currentCharacter?.faction?.id}
+        {...prospectDisclosure}
+      />
     </PanelContainer>
   );
 };
