@@ -39,6 +39,7 @@ export const FactionBox: FC<FactionBoxProps> = ({
       factionId: faction?.id,
     };
 
+    if (!walletAddress) return console.error("no wallet");
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
       connection,

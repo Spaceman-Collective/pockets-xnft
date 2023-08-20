@@ -1,5 +1,3 @@
-import { BONK_MINT, RESOURCE_FIELD_CREATION_MULTIPLIER } from "@/constants";
-import { useRfAllocate } from "@/hooks/useRf";
 import { useSolana } from "@/hooks/useSolana";
 import {
   Text,
@@ -9,7 +7,6 @@ import {
   ModalBody,
   ModalCloseButton,
   Button,
-  HStack,
 } from "@chakra-ui/react";
 import { PublicKey } from "@solana/web3.js";
 import { FC, useEffect, useState } from "react";
@@ -35,23 +32,19 @@ export const ModalRfProspect: FC<{
     walletAddress,
     connection,
     signTransaction,
-    buildTransferIx,
-    encodeTransaction,
     buildProspectIx,
     getRFAccount,
     sendTransaction,
   } = useSolana();
 
   const [rfAccount, setRfAccount] = useState<RFAccount>();
-  console.log({ rf });
+  const [signed, setSigned] = useState<string>("");
 
   useEffect(() => {
-    console.log("LOOOP Account", rf);
     const init = async () => {
       if (!rf?.id) return console.error("NO  ACCOUNT ID", rf);
       try {
         const account = await getRFAccount(connection, rf?.id);
-        console.log({ account });
         setRfAccount(JSON.parse(JSON.stringify(account)) as RFAccount);
       } catch (err) {
         console.error(err);
@@ -60,12 +53,6 @@ export const ModalRfProspect: FC<{
 
     init();
   }, [rf, connection]);
-
-  console.log({ rfAccount });
-
-  const rfCount = typeof rf?.rfCount === "number" ? rf?.rfCount : 0;
-  const bonkForNextField =
-    (BigInt(rfCount) * RESOURCE_FIELD_CREATION_MULTIPLIER) / BigInt(1e5);
 
   const post = async () => {
     if (
@@ -93,7 +80,9 @@ export const ModalRfProspect: FC<{
       signTransaction,
     );
 
-    console.log("#####################3", sig);
+    //TODO: remove this log when building page
+    console.info("SUCCESSFUL SIGN", sig);
+    setSigned(sig ?? "");
   };
 
   return (
@@ -108,8 +97,10 @@ export const ModalRfProspect: FC<{
       >
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
         <ModalBody>
+          <Text>RF Account ID: {rfAccount?.id}</Text>
           <Text>time to prospect</Text>
           <Button onClick={post}>Prospect</Button>
+          <Text>{signed}</Text>
         </ModalBody>
       </ModalContent>
     </Modal>
