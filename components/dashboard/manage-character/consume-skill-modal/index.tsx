@@ -18,6 +18,7 @@ import { combatSkillKeys } from "../constants";
 import { getLocalImage } from "@/lib/utils";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
 import { ConsumeButton } from "./consume-button.component";
+import { Tip } from "@/components/tooltip";
 
 export const ConsumeSkillModal: FC<{
   isOpen: boolean;
@@ -53,6 +54,7 @@ export const ConsumeSkillModal: FC<{
             {relevantResources.map((resource) => (
               <ConsumeItemContainer
                 key={resource.mint}
+                skill={skill}
                 isLoading={walletAssetsIsLoading}
                 resource={resource}
                 resourceInWallet={walletAssets?.resources.find(
@@ -70,12 +72,17 @@ export const ConsumeSkillModal: FC<{
 const ConsumeItemContainer: FC<{
   isLoading?: boolean;
   resourceInWallet?: any;
+  skill: string;
   resource: {
     mint: string;
     name: string;
     tier: string;
+    skills: string[];
   };
-}> = ({ resource, resourceInWallet, isLoading }) => {
+}> = ({ resource, resourceInWallet, isLoading, skill }) => {
+  const extraSkillUp = resource.skills.filter(
+    (e) => e.toLowerCase() !== skill.toLowerCase(),
+  );
   return (
     <Flex
       key={resource.mint}
@@ -108,6 +115,25 @@ const ConsumeItemContainer: FC<{
           }
           xp ({resource.tier})
         </Text>
+        {extraSkillUp.length > 0 && (
+          <Tip
+            label={
+              "Comsuming will simulatneously gain xp in " +
+              extraSkillUp.join(" ")
+            }
+          >
+            <Text
+              textTransform="uppercase"
+              letterSpacing="1px"
+              fontSize="1.25rem"
+              bg="blacks.700"
+              p="0.5rem 1rem"
+              borderRadius="1rem"
+            >
+              +{extraSkillUp}
+            </Text>
+          </Tip>
+        )}
       </VStack>
       <VStack
         alignItems="end"
