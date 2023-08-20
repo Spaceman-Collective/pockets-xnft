@@ -21,7 +21,7 @@ export const ResourceFieldAction: FC<{
     rf: string;
   };
 }> = ({ rf, timer, charMint }) => {
-  console.log({ timer });
+  console.log({ rf });
   // show harvest button on timer undefined
   const finishedDate = timer?.finished && +timer?.finished;
   const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
@@ -101,7 +101,7 @@ export const ResourceFieldAction: FC<{
         <Tip label={rf.resource}>
           <Image
             width="5rem"
-            borderRadius="1rem"
+            borderRadius="0.5rem"
             alt={rf.resource}
             src={getLocalImage({
               type: "resources",
