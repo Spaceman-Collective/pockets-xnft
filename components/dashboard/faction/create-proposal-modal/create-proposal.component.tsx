@@ -31,12 +31,13 @@ import { Character } from "@/types/server";
 import { useCreateProposal } from "@/hooks/useCreateProposal";
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import toast from "react-hot-toast";
 
 enum ProposalType {
   BUILD = "BUILD",
   UPGRADE = "UPGRADE",
-  ATK_CITY = "ATK_CITY",
-  ATK_RF = "ATK_RF",
+  ATK_CITY = "ATTACK CITY",
+  ATK_RF = "ATTACK RESOURCE FIELD",
   WITHDRAW = "WITHDRAW",
   MINT = "MINT",
   ALLOCATE = "ALLOCATE",
@@ -232,8 +233,10 @@ export const CreateProposal: React.FC<{
   const onSuccess = (data: any) => {
     fireConfetti();
     refetch();
+    toast.success('Proposal created!');
     onClose();
   };
+
 
   const handleCreateProposal = async () => {
     if (!validateInputs()) {
@@ -256,8 +259,14 @@ export const CreateProposal: React.FC<{
       txInstructions: [buildMemoIx({ walletAddress, payload })],
     });
 
-    if (!encodedSignedTx) throw Error("No Tx");
-    mutate({ signedTx: encodedSignedTx }, { onSuccess });
+
+    if (typeof encodedSignedTx === 'string') {
+      mutate({ signedTx: encodedSignedTx }, { onSuccess });
+    } else {
+      toast.error('Failed to create proposal tx');
+      console.error(encodedSignedTx);
+    }
+    
   };
 
   return (

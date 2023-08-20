@@ -50,6 +50,7 @@ import { useFaction } from "@/hooks/useFaction";
 import { decode } from "bs58";
 import { TransactionMessage } from "@solana/web3.js";
 import { useCitizen } from "@/hooks/useCitizen";
+import toast from "react-hot-toast";
 
 const spacing = "1rem";
 type FactionTabPoliticsProps = {
@@ -261,7 +262,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         ),
       ],
     });
-    if (!encodedSignedTx) throw Error("No Vote Tx");
+
+    if (encodedSignedTx instanceof Error || !encodedSignedTx) {
+      handleError(encodedSignedTx instanceof Error ? encodedSignedTx : "No Vote Tx");
+      return;
+    }
 
     const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
     console.log("sig", sig);
@@ -290,7 +295,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         ),
       ],
     });
-    if (!encodedSignedTx) throw Error("No Vote Tx");
+
+    if (encodedSignedTx instanceof Error || !encodedSignedTx) {
+      handleError(encodedSignedTx instanceof Error ? encodedSignedTx : "No Vote Tx");
+      return;
+    }
 
     const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
     console.log("sig", sig);
@@ -376,6 +385,7 @@ const ProposalLabels: React.FC<{
   const { data } = useCitizen(character?.mint);
 
 
+
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <MenuTitle>proposals</MenuTitle>
@@ -392,8 +402,8 @@ const ProposalLabels: React.FC<{
           pl="0.25rem"
           pb="0.25rem"
         >
-          {data?.citizen?.grantedVotingPower.toString()} + {" "}
-          {new BN(data?.citizen?.maxPledgedVotingPower).toString()}
+          ({data?.citizen?.grantedVotingPower.toString()}{" + "}
+          {data?.citizen?.maxPledgedVotingPower.toString()})
         </ValueCalculation>
       </HStack>
       <Flex alignItems="end">
@@ -412,6 +422,14 @@ const Header: React.FC<{ factionName: string | undefined }> = ({
     </Flex>
   );
 };
+
+
+function handleError(error: Error | string) {
+  console.error(error);
+  const errorMessage = typeof error === 'string' ? error : error.message;
+  toast.error(errorMessage);
+}
+
 
 const CitizensButton = styled(Button)`
   border-radius: 0.5rem;
