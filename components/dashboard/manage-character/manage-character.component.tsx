@@ -83,19 +83,19 @@ export const ManageCharacter: React.FC<{ currentCharacter?: Character }> = ({
           </SkillContainer>
         </Grid>
       </Fade>
-      <Flex gap="4rem">
-        <Value>ARMY</Value>
-        <HStack>
-          <Label>Equipped</Label>
-          <Value>123/456</Value>
-        </HStack>
-      </Flex>
-      <Grid templateColumns="repeat(auto-fill,minmax(100px,1fr))">
-        <TroopBox num={1} />
-        <TroopBox num={2} />
-        <TroopBox num={3} />
-        <TroopBox />
-      </Grid>
+      {/* <Flex gap="4rem"> */}
+      {/*   <Value>ARMY</Value> */}
+      {/*   <HStack> */}
+      {/*     <Label>Equipped</Label> */}
+      {/*     <Value>123/456</Value> */}
+      {/*   </HStack> */}
+      {/* </Flex> */}
+      {/* <Grid templateColumns="repeat(auto-fill,minmax(100px,1fr))"> */}
+      {/*   <TroopBox num={1} /> */}
+      {/*   <TroopBox num={2} /> */}
+      {/*   <TroopBox num={3} /> */}
+      {/*   <TroopBox /> */}
+      {/* </Grid> */}
     </PanelContainer>
   );
 };

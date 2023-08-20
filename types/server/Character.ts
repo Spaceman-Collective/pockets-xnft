@@ -22,7 +22,7 @@ export const COMBAT_SKILLS = [
   "Strength",
   "Fighting",
   "Shooting",
-  "Athlethics",
+  "Athletics",
   "Psionics",
   "Magic",
 ];
