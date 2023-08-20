@@ -29,6 +29,8 @@ import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { useSolana } from "@/hooks/useSolana";
 import { Character } from "@/types/server";
 import { useCreateProposal } from "@/hooks/useCreateProposal";
+import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 enum ProposalType {
   BUILD = "BUILD",
@@ -48,6 +50,7 @@ export const CreateProposal: React.FC<{
   fire: () => void;
 }> = ({ currentCharacter, fire: fireConfetti }) => {
   const { mutate } = useCreateProposal();
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
   const {
     connection,
     walletAddress,
@@ -58,6 +61,12 @@ export const CreateProposal: React.FC<{
     getBonkBalance,
   } = useSolana();
 
+  const factionId = currentCharacter?.faction?.id;
+  const { data: allProposals, refetch } = useFetchProposalsByFaction(
+    factionId,
+    0,
+    10
+  );
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [proposal, setProposal] = useState({
     type: "",
@@ -79,7 +88,7 @@ export const CreateProposal: React.FC<{
   const [proposalType, setProposalType] = useState<ProposalType | "">("");
 
   const handleProposalTypeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>,
+    event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setProposalType(event.target.value as ProposalType);
     setProposal({
@@ -222,6 +231,8 @@ export const CreateProposal: React.FC<{
 
   const onSuccess = (data: any) => {
     fireConfetti();
+    refetch();
+    onClose();
   };
 
   const handleCreateProposal = async () => {
@@ -233,7 +244,7 @@ export const CreateProposal: React.FC<{
       newTaxRate: Number(proposal?.tax),
     };
     const payload = {
-      mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
+      mint: selectedCharacter?.mint,
       timestamp: Date.now().toString(),
       proposal: prpsl,
     };
@@ -247,7 +258,6 @@ export const CreateProposal: React.FC<{
 
     if (!encodedSignedTx) throw Error("No Tx");
     mutate({ signedTx: encodedSignedTx }, { onSuccess });
-    onClose();
   };
 
   return (

@@ -18,7 +18,8 @@ import { colors } from "@/styles/defaultTheme";
 import { useSolana } from "@/hooks/useSolana";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
-import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
+import { useFetchAllFactions } from "@/hooks/useAllFactions";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 export const CreateFaction: FC<{
   fire: () => void;
@@ -47,6 +48,7 @@ export const CreateFaction: FC<{
     external_link: "",
     description: "",
   });
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   const validateInputs = () => {
     let errors = {
@@ -105,7 +107,7 @@ export const CreateFaction: FC<{
       return;
     }
     const payload = {
-      mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
+      mint: selectedCharacter,
       timestamp: Date.now().toString(),
       faction,
     };
@@ -117,7 +119,7 @@ export const CreateFaction: FC<{
     // const bonkInWallet = getBonkBalance(walletAddress, connection);
     if (bonkInWallet < requiredBONK) {
       throw alert(
-        "You have insufficient BONK in your wallet. Please add more BONK and try again!",
+        "You have insufficient BONK in your wallet. Please add more BONK and try again!"
       );
     }
     const bonkMint = SPL_TOKENS.bonk.mint;

@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
 import { FactionBox } from "./faction-item.component";
 import { Character, Faction } from "@/types/server";
-import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
+import { useFetchAllFactions } from "@/hooks/useAllFactions";
 import { useDebounce } from "@uidotdev/usehooks";
 
 interface FactionModalProps {

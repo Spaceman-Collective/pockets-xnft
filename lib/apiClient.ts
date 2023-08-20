@@ -1,5 +1,6 @@
 import { Proposal } from "@/types/Proposal";
 import type { NFT, Character, Faction, Station } from "@/types/server";
+import { BN } from "@coral-xyz/anchor";
 import { QueryFunctionContext } from "@tanstack/react-query";
 import fetch from "axios";
 const API_BASE_URL = "https://api.pockets.gg";
@@ -224,16 +225,16 @@ export const fetchAllAssets = async ({
     } else {
       console.error(
         "Server Error while fetching compressed assets for wallet:",
-        response,
+        response
       );
       throw new Error(
-        "Server Error while fetching compressed assets for wallet:",
+        "Server Error while fetching compressed assets for wallet:"
       );
     }
   } catch (error) {
     console.error(
       "Network Error while fetching compressed assets for wallet",
-      error,
+      error
     );
     throw error;
   }
@@ -354,6 +355,7 @@ export const postRfAllocate = async ({
   }
 };
 
+
 export const postRfHarvest = async ({
   signedTx,
 }: {
@@ -375,6 +377,123 @@ export const postRfHarvest = async ({
     throw error;
   }
 };
+
+export const fetchCharTimers = async ({
+  mint,
+}: {
+  mint: string;
+}): Promise<{
+  rfTimers: {
+    character: string;
+    finished: string;
+    id: string;
+    rf: string;
+  }[];
+}> => {
+  const URL = API_BASE_URL + "/character/timers";
+  const errorMsg = "Server Error while character timers";
+
+  try {
+    const response = await fetch.get<any>(URL, {
+      params: {
+        mint,
+      },
+    });
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as any;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error(errorMsg, error);
+    throw error;
+  }
+};
+
+export const fetchResources = async ({
+  factionId,
+}: {
+  factionId: string;
+}): Promise<{
+  rfs: {
+    amount: string;
+    faction: string;
+    id: string;
+    resource: string;
+    timer: string;
+  }[];
+}> => {
+  const URL = API_BASE_URL + "/faction/rfs";
+  const errorMsg = "Server Error while fetching resource fields";
+
+  try {
+    const response = await fetch.get<any>(URL, {
+      params: {
+        factionId,
+      },
+    });
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as any;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error(errorMsg, error);
+    throw error;
+  }
+};
+
+export const fetchRfAllocation = async (): Promise<{
+  isDiscoverable: boolean; // toggles discover/prospect
+  id: string;
+  rfCount: number; // total amount of resource fields in DB
+}> => {
+  const URL = API_BASE_URL + "/rf/allocation";
+  const errorMsg = "Server Error while fetching resource field allocation";
+
+  try {
+    const response = await fetch.get<any>(URL);
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as any;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error(errorMsg, error);
+    throw error;
+  }
+};
+
+export const postRfAllocate = async ({
+  signedTx,
+}: {
+  signedTx: string;
+}): Promise<ResourceFieldPDA> => {
+  const URL = API_BASE_URL + "/rf/allocate";
+  const errorMsg = "Server Error while posting resource field allocation";
+  try {
+    const response = await fetch.post<any>(URL, { signedTx });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data.rfPDA as ResourceFieldPDA;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error("Network Error while allocating resources:", error);
+    throw error;
+  }
+};
+
+
 
 export const consumeResources = async ({
   signedTx,
@@ -398,7 +517,7 @@ export const consumeResources = async ({
   } catch (error) {
     console.error(
       "Network Error while consuming resources for character:",
-      error,
+      error
     );
     throw error;
   }
@@ -419,36 +538,39 @@ type HarvestResouceFieldResponse = {
   sigs: string[];
 };
 
-// export const postCreateProposal = async ({ signedTx, mint, timestamp, proposal }: {
+export const harvestResourceField = async ({
+  signedTx,
+}: {
+  signedTx: string;
+}): Promise<HarvestResouceFieldResponse> => {
+  const URL = API_BASE_URL + "/rf/harvest";
+  try {
+    const response = await fetch.post<any>(URL, { signedTx });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as HarvestResouceFieldResponse;
+    } else {
+      console.error("Server Error while harvesting resources:", response);
+      throw new Error("Server Error while harvesting resources");
+    }
+  } catch (error) {
+    console.error("Network Error while harvesting resources:", error);
+    throw error;
+  }
+};
+
 export const postCreateProposal = async ({
   signedTx,
 }: {
   signedTx: string;
-  // mint: string;
-  // timestamp: string;
-  // proposal: {
-  //   type: string;
-  //   station?: string;
-  //   factionId?: string;
-  //   rfId?: string;
-  //   citizen?: string;
-  //   resources?: { resourceId: string; amount: number }[];
-  //   bonk?: string;
-  //   newSharesToMint?: string;
-  //   newThreshold?: string;
-  //   warband?: string[];
-  //   newTaxRate?: number;
-  // };
 }) => {
   const URL = `${API_BASE_URL}/faction/proposal/create`;
   try {
     const { data } = await fetch.post<any>(URL, {
       signedTx,
-      // mint,
-      // timestamp,
-      // proposal
     });
-    return data; // Depending on what your backend returns
+    return data;
   } catch (error) {
     console.error(error);
     return null;
@@ -484,7 +606,7 @@ export type FetchResponse = {
 export const fetchProposalsByFaction = async (
   faction: string,
   skip: number,
-  take: number,
+  take: number
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/faction/proposals`;
   try {
@@ -503,11 +625,11 @@ export const fetchProposalsByFaction = async (
 };
 
 export const fetchFactionVotingInfo = async (
-  proposalId: string,
-): Promise<FetchResponse> => {
+  proposalId: string
+) => {
   const URL = `${API_BASE_URL}/accounts/faction`;
   try {
-    const { data } = await fetch.get<FetchResponse>(URL, {
+    const { data } = await fetch.get(URL, {
       params: {
         id: proposalId,
       },
@@ -519,18 +641,20 @@ export const fetchFactionVotingInfo = async (
   }
 };
 
-export const fetchCitizen = async (mint: string): Promise<FetchResponse> => {
+export const fetchCitizen = async (
+  mint: string
+) => {
   const URL = `${API_BASE_URL}/accounts/citizen`;
   try {
-    const { data } = await fetch.get<FetchResponse>(URL, {
+    const { data } = await fetch.get(URL, {
       params: {
-        mint,
+        mint
       },
     });
     return data;
   } catch (err) {
     console.error(err);
-    throw new Error("Failed to fetch citizen");
+    throw new Error("Failed to fetch faction voting info");
   }
 };
 
@@ -539,7 +663,6 @@ enum ProposalStatus {
   PASSED = "PASSED",
   CLOSED = "CLOSED",
 }
-
 interface ProposalAccount {
   id: string;
   faction: string;
@@ -548,7 +671,7 @@ interface ProposalAccount {
 }
 
 export const fetchProposalAccount = async (
-  proposalId: string,
+  proposalId: string
 ): Promise<ProposalAccount> => {
   const URL = `${API_BASE_URL}/accounts/proposal`;
   try {
@@ -564,17 +687,13 @@ export const fetchProposalAccount = async (
   }
 };
 
-interface VoteResponse {
-  vote: string;
-}
-
-export const voteOnProposal = async (
+export const fetchProposalVotesByCitizen = async (
   mint: string,
-  proposalId: string,
-): Promise<VoteResponse> => {
+  proposalId: string
+): Promise<any> => {
   const URL = `${API_BASE_URL}/accounts/vote`;
   try {
-    const { data } = await fetch.get<VoteResponse>(URL, {
+    const { data } = await fetch.get<any>(URL, {
       params: {
         mint,
         proposalId,
@@ -583,13 +702,13 @@ export const voteOnProposal = async (
     return data;
   } catch (err) {
     console.error(err);
-    throw new Error("Failed to vote on proposal");
+    throw new Error("Failed to fetch proposal votes");
   }
 };
 
 export const delegateVotes = async (
   mint: string,
-  recipientMint: string,
+  recipientMint: string
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/accounts/delegation`;
   try {
@@ -622,7 +741,7 @@ export const fetchRfsFromChain = async (id: string): Promise<FetchResponse> => {
 };
 
 export const processProposal = async (
-  context: QueryFunctionContext<string[], { proposalId: string }>,
+  context: QueryFunctionContext<string[], { proposalId: string }>
 ) => {
   const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order you pass the query key?
   const URL = `${API_BASE_URL}/faction/proposal/process`;

@@ -3,7 +3,7 @@ import { Text, Button, Flex, Spinner } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { MdLeaderboard, MdNotificationsActive } from "react-icons/md";
 import { AiFillGold } from "react-icons/ai";
-import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
+import { useFetchAllFactions } from "@/hooks/useAllFactions";
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { useSolana } from "@/hooks/useSolana";
