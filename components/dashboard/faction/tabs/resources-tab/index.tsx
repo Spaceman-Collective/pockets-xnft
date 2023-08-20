@@ -28,6 +28,7 @@ import {
 } from "./resource-field-action.component";
 import { useRfAllocation } from "@/hooks/useRf";
 import { ModalRfDiscover } from "./discover-modal.component";
+import { ModalRfProspect } from "./prospect-modal.component";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -35,6 +36,7 @@ export const FactionTabResources: React.FC<{
   setFactionStatus: (value: boolean) => void;
 }> = ({ currentCharacter }) => {
   const discoverDisclosure = useDisclosure();
+  const prospectDisclosure = useDisclosure();
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
   const onSearch = (e: any) => setSearch(e.target.value);
@@ -61,6 +63,8 @@ export const FactionTabResources: React.FC<{
           onClick={() => {
             if (discoverData?.isDiscoverable) {
               discoverDisclosure.onOpen();
+            } else {
+              prospectDisclosure.onOpen();
             }
           }}
           isDiscoverable={discoverData?.isDiscoverable}
@@ -118,6 +122,7 @@ export const FactionTabResources: React.FC<{
         </Grid>
       </Box>
       <ModalRfDiscover rf={discoverData} {...discoverDisclosure} />
+      <ModalRfProspect rf={discoverData} {...prospectDisclosure} />
     </PanelContainer>
   );
 };
@@ -158,7 +163,9 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
           </MenuText>
         )}
         {isDiscoverable === false && (
-          <MenuText color="brand.quaternary">prospect</MenuText>
+          <MenuText color="brand.quaternary" onClick={onClick}>
+            prospect
+          </MenuText>
         )}
       </HStack>
     </Flex>
