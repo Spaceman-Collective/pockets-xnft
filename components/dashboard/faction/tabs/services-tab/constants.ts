@@ -22,6 +22,10 @@ export interface Blueprint {
   rareDrop?: string;
 }
 
+export const getBlueprint = (stationName: string) =>
+  BLUEPRINTS.find(
+    (print) => print.name.toLowerCase() === stationName.toLowerCase(),
+  );
 export const BLUEPRINTS: Blueprint[] = [
   {
     name: "Tavern",

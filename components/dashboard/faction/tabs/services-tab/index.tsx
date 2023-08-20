@@ -11,9 +11,10 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { ModalStation } from "./station-modal.component";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { useFaction } from "@/hooks/useFaction";
 import { Tip } from "@/components/tooltip";
+import { BLUEPRINTS, getBlueprint } from "./constants";
 
 const stationSize = "7rem";
 
@@ -22,6 +23,7 @@ export const FactionTabServices: React.FC<{
   setFactionStatus: (value: boolean) => void;
 }> = ({ currentCharacter, setFactionStatus }) => {
   const stationDisclosure = useDisclosure();
+  const [selectedStationId, setSelectedStationId] = useState<string>("");
   const { data: factionData } = useFaction({
     factionId: currentCharacter?.faction?.id ?? "",
   });
@@ -34,8 +36,14 @@ export const FactionTabServices: React.FC<{
   return (
     <>
       <ModalStation
+        station={factionData?.stations?.find(
+          (station) => station.id === selectedStationId,
+        )}
         isOpen={stationDisclosure.isOpen}
-        onClose={stationDisclosure.onClose}
+        onClose={() => {
+          stationDisclosure.onClose();
+          setSelectedStationId("");
+        }}
       />
       <PanelContainer display="flex" flexDirection="column">
         <HeaderStats
@@ -54,7 +62,9 @@ export const FactionTabServices: React.FC<{
           {factionData?.stations?.map((station, i) => (
             <Station
               key={station.id}
+              station={station}
               onClick={() => {
+                setSelectedStationId(station.id);
                 stationDisclosure.onOpen();
               }}
             />
@@ -139,10 +149,17 @@ const TownHall: FC<{ image: string }> = ({ image }) => {
   );
 };
 
-const Station: FC<{ image?: string; onClick: () => void }> = ({
-  image,
-  onClick,
-}) => {
+const Station: FC<{
+  image?: string;
+  station?: { blueprint: string; faction: string; id: string; level: number };
+  onClick: () => void;
+}> = ({ station, image, onClick }) => {
+  const isStation = !!station;
+  const mockImage = "https://picsum.photos/200";
+  const stationImage = station?.blueprint
+    ? station?.blueprint && getBlueprint(station.blueprint)?.image
+    : undefined;
+  const img = image ?? stationImage ?? mockImage;
   return (
     <Box
       onClick={onClick}
@@ -152,7 +169,7 @@ const Station: FC<{ image?: string; onClick: () => void }> = ({
       h="100%"
       bg="red"
       borderRadius="1rem"
-      backgroundImage={image ?? "https://picsum.photos/200"}
+      backgroundImage={img}
       backgroundSize="cover"
       backgroundPosition="center"
       transition="all 0.25s ease-in-out"

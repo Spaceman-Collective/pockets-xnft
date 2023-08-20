@@ -15,11 +15,18 @@ import {
 import { FC, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useCountdown } from "usehooks-ts";
+import { getBlueprint } from "./constants";
 
-export const ModalStation: FC<{ isOpen: boolean; onClose: () => void }> = ({
-  isOpen,
-  onClose,
-}) => {
+export const ModalStation: FC<{
+  station?: {
+    blueprint: string;
+    id: string;
+    faction: string;
+    level: number;
+  };
+  isOpen: boolean;
+  onClose: () => void;
+}> = ({ station, isOpen, onClose }) => {
   const totalTimeInSeconds = 60;
   const [count, { startCountdown, stopCountdown, resetCountdown }] =
     useCountdown({
@@ -37,6 +44,7 @@ export const ModalStation: FC<{ isOpen: boolean; onClose: () => void }> = ({
   }, [isOpen]);
 
   const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
+  const image = station && getBlueprint(station?.blueprint)?.image;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -50,7 +58,11 @@ export const ModalStation: FC<{ isOpen: boolean; onClose: () => void }> = ({
       >
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
         <ModalBody>
-          <ModalHeader />
+          <ModalHeader
+            image={image ?? ""}
+            name={station?.blueprint}
+            desc={getBlueprint(station?.blueprint ?? "")?.description}
+          />
           <Grid templateColumns="repeat(3, 1fr)" mt="4rem">
             <ResourceContainer
               isDisabled={progress === 100}
@@ -85,15 +97,18 @@ export const ModalStation: FC<{ isOpen: boolean; onClose: () => void }> = ({
   );
 };
 
-const ModalHeader = () => {
+const ModalHeader = ({
+  image,
+  name,
+  desc,
+}: {
+  image: string;
+  name?: string;
+  desc?: string;
+}) => {
   return (
     <Flex gap="1rem">
-      <Image
-        src="https://picsum.photos/200"
-        alt="station"
-        w="15rem"
-        borderRadius="1rem"
-      />
+      <Image src={image} alt="station" w="15rem" borderRadius="1rem" />
 
       <VStack alignItems="start">
         <Text
@@ -102,10 +117,10 @@ const ModalHeader = () => {
           textTransform="uppercase"
           letterSpacing="1px"
         >
-          Station Name
+          {name}
         </Text>
         <Text letterSpacing="0.5px" noOfLines={4} textOverflow="ellipsis">
-          {lorem + lorem + lorem}
+          {desc}
         </Text>
       </VStack>
     </Flex>
