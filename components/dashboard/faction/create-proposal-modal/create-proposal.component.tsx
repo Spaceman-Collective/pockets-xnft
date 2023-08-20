@@ -70,7 +70,30 @@ export const CreateProposal: React.FC<{
     0,
     10
   );
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose: closeIt } = useDisclosure();
+
+  const onClose = () => {
+    setProposalType("");
+    setProposal({
+      type: "",
+      blueprintName: "",
+      station: "",
+      factionID: "",
+      rfID: "",
+      characterMint: "",
+      resourceName: "",
+      bonk: "",
+      newSharesToMint: "",
+      citizen: "",
+      amount: "",
+      newThreshold: "",
+      warband: "",
+      tax: "",
+      burn: "",
+    });
+    closeIt();
+  };
+
   const [proposal, setProposal] = useState({
     type: "",
     blueprintName: "",
@@ -86,6 +109,7 @@ export const CreateProposal: React.FC<{
     newThreshold: "",
     warband: "",
     tax: "",
+    burn: "",
   });
 
   const [proposalType, setProposalType] = useState<ProposalType | "">("");
@@ -114,6 +138,7 @@ export const CreateProposal: React.FC<{
     newThreshold: "",
     warband: "",
     tax: "",
+    burn: "",
   });
 
   const validateInputs = () => {
@@ -132,6 +157,7 @@ export const CreateProposal: React.FC<{
       newThreshold: "",
       warband: "",
       tax: "",
+      burn: "",
     };
 
     let isValid = true;
@@ -228,6 +254,12 @@ export const CreateProposal: React.FC<{
       isValid = false;
     }
 
+    // BURN
+    if (proposalType === ProposalType.BURN && !proposal.burn.trim()) {
+      errors.burn = "Amount of resources to burn is required";
+      isValid = false;
+    }
+
     setInputErrors(errors);
     return isValid;
   };
@@ -314,7 +346,7 @@ export const CreateProposal: React.FC<{
                       className="customSelect"
                       placeholder="Select a blueprint name"
                       value={proposal.blueprintName}
-                      onChange={(e: { target: { value: any; }; }) =>
+                      onChange={(e: { target: { value: any } }) =>
                         setProposal({
                           ...proposal,
                           blueprintName: e.target.value,
@@ -366,6 +398,7 @@ export const CreateProposal: React.FC<{
                         })
                       }
                       isInvalid={!!inputErrors.factionID}
+                      disabled={true}
                     />
                     {inputErrors.factionID && (
                       <Text color="red.500">{inputErrors.factionID}</Text>
@@ -385,6 +418,7 @@ export const CreateProposal: React.FC<{
                         })
                       }
                       isInvalid={!!inputErrors.rfID}
+                      disabled={true}
                     />
                     {inputErrors.rfID && (
                       <Text color="red.500">{inputErrors.rfID}</Text>
@@ -595,6 +629,26 @@ export const CreateProposal: React.FC<{
                     )}
                   </Box>
                 )}
+
+                {proposalType === ProposalType.BURN && (
+                  <Box mb="2rem" w="100%">
+                    <StyledInput
+                      value={proposal.burn}
+                      onChange={(e) =>
+                        setProposal({
+                          ...proposal,
+                          burn: e.target.value,
+                        })
+                      }
+                      placeholder="Enter amount of resource to burn"
+                      w="100%"
+                      isInvalid={!!inputErrors.newThreshold}
+                    />
+                    {inputErrors.newThreshold && (
+                      <Text color="red.500">{inputErrors.newThreshold}</Text>
+                    )}
+                  </Box>
+                )}
               </VStack>
             </Box>
           </ModalBody>
@@ -615,7 +669,6 @@ export const CreateProposal: React.FC<{
   );
 };
 
-
 const inputStyles = {
   backgroundColor: colors.blacks[600],
   height: "5rem",
@@ -624,6 +677,7 @@ const inputStyles = {
   padding: "1rem 2rem",
   fontWeight: "500",
   letterSpacing: "1px",
+  color: colors.brand.quaternary,
 };
 
 const CreateButton = styled(Button)`
@@ -639,6 +693,10 @@ const CreateButton = styled(Button)`
 
 const StyledInput = styled(Input)`
   ${inputStyles}
+
+  &:disabled {
+    background-color: ${colors.blacks[500]} !important;
+  }
 `;
 
 const StyledTextarea = styled(Textarea)`
