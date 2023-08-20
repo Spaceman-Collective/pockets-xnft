@@ -40,6 +40,7 @@ import {
   getProposalPDA,
   getVoteAccount,
   getVotePDA,
+  updateVoteOnProposalIx,
   voteOnProposalIx,
 } from "@/lib/solanaClient";
 import { useProposalAccountServer } from "@/hooks/useProposalAccountServer";
@@ -130,11 +131,6 @@ enum ProposalStatus {
   CLOSED = "CLOSED",
 }
 
-interface ProposalVoteAccount {
-  citizen: PublicKey;
-  voteAmt: string;
-}
-
 type ProposalTypeDetailsProps = {
   type: string;
   proposal: any;
@@ -145,12 +141,12 @@ const ProposalTypeDetails: React.FC<ProposalTypeDetailsProps> = ({
   proposal,
 }) => {
   return (
-    <div>
-      <Label color={colors.brand.tertiary} pb="0.4rem">
+    <HStack alignItems="end">
+    <Label color={colors.brand.tertiary} pb="0.4rem">
         {getLabel(type)}:
       </Label>
       <Value>{getValue(type, proposal)}</Value>
-    </div>
+    </HStack>
   );
 };
 
@@ -213,12 +209,10 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   currentCharacter,
 }) => {
   const { id: proposalId, type } = proposal;
-
   const [isVoteInProgress, setIsVoteInProgress] = useState<boolean>(false);
   const [localVote, setLocalVote] = useState<string>("");
   const [inputError, setInputError] = useState<string | null>(null);
   const [voteAmount, setVoteAmount] = useState<string>("");
-  const [currentVoteAmount, setCurrentVoteAmount] = useState<string>("0");
 
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
@@ -238,23 +232,10 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
   useEffect(() => {
     getProposalVotes().then(() => {
-      console.log("Vote Count: ", voteAmount);
-    });
-  }, [isVoteInProgress]);
-
-  useEffect(() => {
-    getProposalVotes().then(() => {
+      console.log("Votes: ", voteAmount);
       console.log("Inital Page Load Vote Count:  ", voteAmount);
     });
   });
-
-  // useEffect(() => {
-  //   if (voteAccount) {
-  //     console.log("vote amount: ", new BN(voteAccount?.voteAmt).toString());
-  //     setCurrentVoteAmount(new BN(voteAccount?.voteAmt).toString());
-  //   } else {
-  //   }
-  // }, [voteAccount]);
 
   const validateInput = (): boolean => {
     const isValid = !!localVote.trim() && !isNaN(parseInt(localVote));
@@ -279,32 +260,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
       ],
     });
     if (!encodedSignedTx) throw Error("No Vote Tx");
-    try {
-      const { blockhash } = await connection!.getLatestBlockhash();
 
-      const txMsg = new TransactionMessage({
-        payerKey: new PublicKey(walletAddress!),
-        recentBlockhash: blockhash,
-        instructions: [
-          await voteOnProposalIx(
-            new PublicKey(walletAddress!),
-            new PublicKey(currentCharacter?.mint!),
-            proposalId,
-            votingAmt,
-            currentCharacter?.faction?.id!
-          ),
-        ],
-      }).compileToLegacyMessage();
-
-      const tx = new VersionedTransaction(txMsg);
-      const signedTx = await signTransaction(tx);
-      console.log(
-        "simulated tx: ",
-        await connection.simulateTransaction(signedTx)
-      );
-    } catch (e) {
-      console.log(e);
-    }
     const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
     console.log("sig", sig);
 
@@ -315,10 +271,31 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     setIsVoteInProgress(false);
   };
 
-  const updateVote = async () => {
+  const updateVote = async (votingAmt: number) => {
     setIsVoteInProgress(true);
+    const encodedSignedTx = await encodeTransaction({
+      walletAddress,
+      connection,
+      signTransaction,
+      txInstructions: [
+        await updateVoteOnProposalIx(
+          new PublicKey(walletAddress!),
+          new PublicKey(currentCharacter?.mint!),
+          proposalId,
+          votingAmt,
+          currentCharacter?.faction?.id!,
+          true
+        ),
+      ],
+    });
+    if (!encodedSignedTx) throw Error("No Vote Tx");
+
+    const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
+    console.log("sig", sig);
 
     setLocalVote("");
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     setIsVoteInProgress(false);
   };
@@ -334,11 +311,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             <ProposalTitle>{type}</ProposalTitle>
           </HStack>
           <ProposalTypeDetails type={type} proposal={proposal} />
-          <HStack alignItems="end" pl="5rem">
+          <HStack alignItems="end" pr="1rem">
             <Label color={colors.brand.tertiary} pb="0.4rem">
               votes:
             </Label>
-            <Value>{voteAmount}</Value>
+            <ProposalTitle>{voteAmount}</ProposalTitle>
           </HStack>
         </Flex>
 
@@ -372,8 +349,8 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                 bg={colors.blacks[700]}
                 onClick={() =>
                   validateInput() &&
-                  (Number(voteAmount) > 0
-                    ? updateVote()
+                  ((Number(voteAmount) > 0)
+                    ? updateVote(parseInt(localVote))
                     : handleVote(parseInt(localVote)))
                 }
                 disabled={isVoteInProgress}

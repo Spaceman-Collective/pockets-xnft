@@ -139,7 +139,7 @@ export async function voteOnProposalIx(
   return ix;
 }
 
-export async function updateVote(
+export async function updateVoteOnProposalIx(
   wallet: PublicKey,
   characterMint: PublicKey,
   proposalId: string,
@@ -149,7 +149,12 @@ export async function updateVote(
 ) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
-    POCKETS_PROGRAM_PROGRAMID
+    POCKETS_PROGRAM_PROGRAMID,
+    {
+      connection: new Connection(
+        "https://rpc.helius.xyz/?api-key=1b21b073-a222-47bb-8628-564145e58f4e"
+      ),
+    }
   );
 
   const proposal = getProposalPDA(proposalId);
