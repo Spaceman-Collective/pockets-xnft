@@ -17,6 +17,7 @@ import { FC } from "react";
 import { combatSkillKeys } from "../constants";
 import { getLocalImage } from "@/lib/utils";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
+import { ConsumeButton } from "./consume-button.component";
 
 export const ConsumeSkillModal: FC<{
   isOpen: boolean;
@@ -110,7 +111,7 @@ const ConsumeItemContainer: FC<{
       </VStack>
       <VStack
         alignItems="end"
-        opacity={resourceInWallet.value !== "0" ? 1 : 0.25}
+        opacity={resourceInWallet?.value !== "0" ? 1 : 0.25}
       >
         <Flex
           fontSize="1.25rem"
@@ -135,26 +136,10 @@ const ConsumeItemContainer: FC<{
             {!isLoading && resourceInWallet?.value + "x"}
           </Text>
         </Flex>
-        <Flex>
-          <Input
-            fontWeight={700}
-            w="5rem"
-            color="brand.secondary"
-            bg="blacks.600"
-            borderRadius="1rem 0 0 1rem"
-            pl="2rem"
-          />
-          <Button
-            borderRadius="0 1rem 1rem 0"
-            bg={resourceInWallet.value !== "0" ? "blacks.700" : "brand.primary"}
-            h="fit-content"
-            opacity="0.5"
-            transition="all 0.25s ease-in-out"
-            _hover={{ opacity: 1 }}
-          >
-            Consume
-          </Button>
-        </Flex>
+        <ConsumeButton
+          isDisabled={resourceInWallet?.value === "0"}
+          maxValue={+resourceInWallet?.value}
+        />
       </VStack>
     </Flex>
   );

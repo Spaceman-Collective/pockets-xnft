@@ -20,7 +20,7 @@ import { FactionModal } from "@/components/dashboard/faction/join-faction-modal"
 import { useEffect, useState } from "react";
 import { Character } from "@/types/server";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
-import { ConsumeSkillModal } from "@/components/dashboard/manage-character/consume-skill-modal.component";
+import { ConsumeSkillModal } from "@/components/dashboard/manage-character/consume-skill-modal";
 
 export default function CharacterPage() {
   const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();

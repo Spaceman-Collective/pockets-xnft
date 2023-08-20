@@ -32,7 +32,7 @@ export const fonts = {
 };
 
 // NOTE: To avoid large initial JS Payload, only import the components used.
-const { Spinner, Switch, Skeleton, Modal, Menu, Progress } =
+const { Spinner, Switch, Skeleton, Modal, Menu, Progress, NumberInput } =
   chakraTheme.components;
 
 export const defaultTheme = extendBaseTheme({
@@ -62,6 +62,7 @@ export const defaultTheme = extendBaseTheme({
     Menu,
     Progress,
     Tooltip: ToolTip,
+    NumberInput,
   },
   colors,
   fonts,
