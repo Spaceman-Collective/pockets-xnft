@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, useRef, Fragment } from "react";
+import { useState, ChangeEvent, useRef, Fragment, useEffect } from "react";
 import {
   Box,
   Select,
@@ -18,6 +18,9 @@ import styled from "@emotion/styled";
 import { Proposal, ProposalType } from "@/types/server";
 import { colors } from "@/styles/defaultTheme";
 import { BLUEPRINTS } from "../tabs/services-tab/constants";
+import { Resource } from "@/types/server/Resources";
+import { useFaction } from "@/hooks/useFaction";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 export const ProposalForm: React.FC = () => {
   const [proposalType, setProposalType] = useState<ProposalType | null>(null);
@@ -26,36 +29,45 @@ export const ProposalForm: React.FC = () => {
     type: "BUILD",
   });
 
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
+  const { data: factionData, isLoading: factionIsLoading } = useFaction({
+    factionId: selectedCharacter?.faction?.id ?? "",
+  });
+
   const handleProposalTypeChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setProposalType(event.target.value as ProposalType);
   };
 
+  useEffect(() => {
+    console.log("sc: ", selectedCharacter?.faction?.id);
+  }, [selectedCharacter?.faction?.id]);
+
   const renderDynamicFields = () => {
     switch (proposalType) {
-        case "BUILD":
-            return (
-              <FormControl>
-                <Select
-                  fontWeight="500"
-                  value={proposalData.blueprintName || ""}
-                  onChange={(e) =>
-                    setProposalData({
-                      ...proposalData,
-                      blueprintName: e.target.value,
-                    })
-                  }
-                >
-                  <option value="" disabled>Select Blueprint</option>
-                  {BLUEPRINTS.map((bp) => (
-                    <option key={bp.name} value={bp.name}>
-                      {bp.name}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
-            );
-        
-          
+      case "BUILD":
+        return (
+          <FormControl>
+            <Select
+              fontWeight="500"
+              value={proposalData.blueprintName || ""}
+              onChange={(e) =>
+                setProposalData({
+                  ...proposalData,
+                  blueprintName: e.target.value,
+                })
+              }
+            >
+              <option value="" disabled>
+                Select Blueprint
+              </option>
+              {BLUEPRINTS.map((bp) => (
+                <option key={bp.name} value={bp.name}>
+                  {bp.name}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+        );
 
       case "UPGRADE":
         return (
@@ -103,24 +115,86 @@ export const ProposalForm: React.FC = () => {
         return (
           <Fragment>
             <FormControl>
-              <StyledInput
+              <Select
+                fontWeight="500"
                 value={proposalData.citizen || ""}
                 onChange={(e) =>
                   setProposalData({ ...proposalData, citizen: e.target.value })
                 }
-                disabled={true}
-                placeholder="Enter citizen mint"
-              />
+                placeholder="Select a citizen"
+              >
+                {citizenMints.map((citizenMint) => (
+                  <option key={citizenMint} value={citizenMint}>
+                    {citizenMint}
+                  </option>
+                ))}
+              </Select>
             </FormControl>
-            {/* TODO: Handle resources as dynamic list if there are multiple resources to withdraw */}
+
+            <FormControl>
+              <Select
+                fontWeight="500"
+                value={
+                  proposalData.resources && proposalData.resources[0]
+                    ? proposalData.resources[0].resourceName
+                    : ""
+                }
+                onChange={(e) => {
+                  setProposalData((prevState) => {
+                    if (prevState.resources && prevState.resources.length > 0) {
+                      const newResources = [...prevState.resources];
+                      newResources[0].resourceName = e.target.value;
+                      return { ...prevState, resources: newResources };
+                    }
+                    return prevState;
+                  });
+                }}
+                placeholder="Select a resource"
+              >
+                {factionData?.resources?.map((resource) => (
+                  <option key={resource.name} value={resource.name}>
+                    {resource.name} ({resource.value})
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+
+            {proposalData.resources &&
+            proposalData.resources[0] &&
+            proposalData.resources[0].resourceName ? (
+              <FormControl>
+                <StyledInput
+                  type="number"
+                  value={
+                    (proposalData.resources &&
+                      proposalData.resources[0]?.amount) ||
+                    ""
+                  }
+                  onChange={(e) =>
+                    setProposalData((prevState) => {
+                      if (
+                        prevState.resources &&
+                        prevState.resources.length > 0
+                      ) {
+                        const newResources = [...prevState.resources];
+                        newResources[0].amount = parseInt(e.target.value);
+                        return { ...prevState, resources: newResources };
+                      }
+                      return prevState;
+                    })
+                  }
+                  placeholder="Enter amount of selected resource"
+                />
+              </FormControl>
+            ) : null}
+
             <FormControl>
               <StyledInput
                 value={proposalData.bonk || ""}
                 onChange={(e) =>
                   setProposalData({ ...proposalData, bonk: e.target.value })
                 }
-                disabled={true}
-                placeholder="Enter bonk"
+                placeholder="Enter amount of BONK"
               />
             </FormControl>
           </Fragment>
@@ -143,7 +217,78 @@ export const ProposalForm: React.FC = () => {
           </FormControl>
         );
 
-      case "ALLOCATE":
+        case "ALLOCATE":
+            return (
+              <Fragment>
+                <FormControl>
+                  <Select
+                    fontWeight="500"
+                    value={proposalData.citizen || ""}
+                    onChange={(e) =>
+                      setProposalData({ ...proposalData, citizen: e.target.value })
+                    }
+                    placeholder="Select a citizen"
+                  >
+                    {citizenMints.map((citizenMint) => (
+                      <option key={citizenMint} value={citizenMint}>
+                        {citizenMint}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
+    
+                <FormControl>
+                  <Select
+                    fontWeight="500"
+                    value={
+                      proposalData.resources && proposalData.resources[0]
+                        ? proposalData.resources[0].resourceName
+                        : ""
+                    }
+                    onChange={(e) => {
+                      setProposalData((prevState) => {
+                        if (prevState.resources && prevState.resources.length > 0) {
+                          const newResources = [...prevState.resources];
+                          newResources[0].resourceName = e.target.value;
+                          return { ...prevState, resources: newResources };
+                        }
+                        return prevState;
+                      });
+                    }}
+                    placeholder="Select a resource"
+                  >
+                    {factionData?.resources?.map((resource) => (
+                      <option key={resource.name} value={resource.name}>
+                        {resource.name} ({resource.value})
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
+    
+                {proposalData.resources &&
+                proposalData.resources[0] &&
+                proposalData.resources[0].resourceName ? (
+                  <FormControl>
+                    <StyledInput
+                      type="number"
+                      value={(proposalData.resources && proposalData.resources[0]?.amount) || ""}
+                      onChange={(e) =>
+                        setProposalData((prevState) => {
+                          if (prevState.resources && prevState.resources.length > 0) {
+                            const newResources = [...prevState.resources];
+                            newResources[0].amount = parseInt(e.target.value);
+                            return { ...prevState, resources: newResources };
+                          }
+                          return prevState;
+                        })
+                      }
+                      placeholder="Enter amount of selected resource"
+                    />
+                  </FormControl>
+                ) : null}
+              </Fragment>
+            );
+    
         return (
           <Fragment>
             <FormControl>
@@ -155,24 +300,63 @@ export const ProposalForm: React.FC = () => {
                 placeholder="Select citizen"
               />
             </FormControl>
+
             <FormControl>
-              <StyledInput
-                value={proposalData.amount || ""}
-                onChange={(e) =>
-                  setProposalData({ ...proposalData, amount: e.target.value })
+              <Select
+                fontWeight="500"
+                value={
+                  proposalData.resources && proposalData.resources[0]
+                    ? proposalData.resources[0].resourceName
+                    : ""
                 }
-                placeholder="Select resource to allocate"
-              />
+                onChange={(e) => {
+                  setProposalData((prevState) => {
+                    if (prevState.resources && prevState.resources.length > 0) {
+                      const newResources = [...prevState.resources];
+                      newResources[0].resourceName = e.target.value;
+                      return { ...prevState, resources: newResources };
+                    }
+                    return prevState;
+                  });
+                }}
+                placeholder="Select a resource"
+              >
+                {factionData?.resources?.map((resource) => (
+                  <option key={resource.name} value={resource.name}>
+                    {resource.name} ({resource.value})
+                  </option>
+                ))}
+              </Select>
             </FormControl>
-            <FormControl>
-              <StyledInput
-                value={proposalData.amount || ""}
-                onChange={(e) =>
-                  setProposalData({ ...proposalData, amount: e.target.value })
-                }
-                placeholder="Enter amount of resource to allocate"
-              />
-            </FormControl>
+
+            {proposalData.resources &&
+            proposalData.resources[0] &&
+            proposalData.resources[0].resourceName ? (
+              <FormControl>
+                <StyledInput
+                  type="number"
+                  value={
+                    (proposalData.resources &&
+                      proposalData.resources[0]?.amount) ||
+                    ""
+                  }
+                  onChange={(e) =>
+                    setProposalData((prevState) => {
+                      if (
+                        prevState.resources &&
+                        prevState.resources.length > 0
+                      ) {
+                        const newResources = [...prevState.resources];
+                        newResources[0].amount = parseInt(e.target.value);
+                        return { ...prevState, resources: newResources };
+                      }
+                      return prevState;
+                    })
+                  }
+                  placeholder="Enter amount of selected resource"
+                />
+              </FormControl>
+            ) : null}
           </Fragment>
         );
 
@@ -247,7 +431,11 @@ export const ProposalForm: React.FC = () => {
   return (
     <>
       <FormControl>
-        <Select onChange={handleProposalTypeChange} value={proposalType || ""} marginBottom="3rem">
+        <Select
+          onChange={handleProposalTypeChange}
+          value={proposalType || ""}
+          marginBottom="3rem"
+        >
           <option value="" disabled>
             SELECT A PROPOSAL TYPE
           </option>
@@ -308,6 +496,19 @@ const PROPOSAL_TYPES: ProposalType[] = [
   "BURN",
 ];
 
+const citizenMints = [
+  "CITZ-1234",
+  "CITZ-1235",
+  "CITZ-1236",
+  "CITZ-1237",
+  "CITZ-1238",
+  "CITZ-1239",
+  "CITZ-1240",
+  "CITZ-1241",
+  "CITZ-1242",
+  "CITZ-1243",
+];
+
 const inputStyles = {
   backgroundColor: colors.blacks[600],
   height: "5rem",
@@ -316,7 +517,7 @@ const inputStyles = {
   padding: "1rem 2rem",
   fontWeight: "500",
   letterSpacing: "1px",
-  color: colors.brand.quaternary,
+  color: colors.brand.secondary,
 };
 
 const StyledInput = styled(Input)`
