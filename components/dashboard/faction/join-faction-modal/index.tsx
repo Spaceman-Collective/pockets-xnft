@@ -13,6 +13,7 @@ import { colors } from "@/styles/defaultTheme";
 import { FactionBox } from "./faction-item.component";
 import { Character, Faction } from "@/types/server";
 import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
+import { useDebounce } from "@uidotdev/usehooks";
 
 interface FactionModalProps {
   isOpen: boolean;
@@ -25,17 +26,23 @@ export const FactionModal: FC<FactionModalProps> = ({
   onClose,
   isOpen,
   character,
-  setFactionStatus
+  setFactionStatus,
 }) => {
-
-  const [factionsList, setFactionsList] = useState<Faction[]>([])
+  const [factionsList, setFactionsList] = useState<Faction[]>([]);
   const { data } = useFetchAllFactions();
+  const [search, setSearch] = useState<string>("");
+  const debouncedSearch = useDebounce(search, 300);
 
   useEffect(() => {
     if (data?.total) {
       setFactionsList(data?.factions);
     }
   }, [data, setFactionsList]);
+
+  useEffect(() => {
+    if (isOpen) return;
+    setSearch("");
+  }, [onClose, isOpen]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -58,6 +65,7 @@ export const FactionModal: FC<FactionModalProps> = ({
             alignItems="center"
           >
             <SearchBar
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="faction"
               _focus={{
                 outline: "none",
@@ -69,9 +77,22 @@ export const FactionModal: FC<FactionModalProps> = ({
             />
           </Flex>
           <Flex direction="column" mt="2rem" gap="2rem">
-            {factionsList?.map((faction, i) => (
-              <FactionBox key={i + "faction"} onClose={onClose} faction={faction} characterMint={character?.mint} setFactionStatus={setFactionStatus}/>
-            ))}
+            {factionsList
+              ?.filter((faction) =>
+                faction.name
+                  .toLowerCase()
+                  .replace(" ", "")
+                  .includes(debouncedSearch.toLowerCase()),
+              )
+              ?.map((faction, i) => (
+                <FactionBox
+                  key={i + "faction"}
+                  onClose={onClose}
+                  faction={faction}
+                  characterMint={character?.mint}
+                  setFactionStatus={setFactionStatus}
+                />
+              ))}
           </Flex>
         </ModalBody>
       </ModalContent>
@@ -93,4 +114,3 @@ const SearchBar = styled(Input)`
     outline: none;
   }
 `;
-
