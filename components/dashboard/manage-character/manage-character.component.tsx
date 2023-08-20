@@ -207,7 +207,7 @@ const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
       color: colors.brand.quaternary,
       fontSize: "3rem",
     };
-    return is("athlethics") ? (
+    return is("athletics") ? (
       <IconSkill.athletics {...style} />
     ) : is("electronics") ? (
       <IconSkill.electronics {...style} />
