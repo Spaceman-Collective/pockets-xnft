@@ -21,7 +21,8 @@ export const ModalRfDiscover: FC<{
   isOpen: boolean;
   onClose: () => void;
   rf?: { rfCount: number };
-}> = ({ isOpen, onClose, rf }) => {
+  refetchDiscoverData?: any;
+}> = ({ isOpen, onClose, rf, refetchDiscoverData }) => {
   const { mutate } = useRfAllocate();
   const {
     walletAddress,
@@ -59,7 +60,14 @@ export const ModalRfDiscover: FC<{
 
       mutate({
         signedTx: encodedTx ?? "",
+        charMint: undefined
       });
+
+      await refetchDiscoverData();
+
+      if (onclose) {
+        onClose();
+      }
 
       toast.success('Successfully allocated Resource Field');
     } catch (error) {

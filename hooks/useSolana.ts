@@ -34,10 +34,12 @@ export const useSolana = () => {
     connection?: any;
     walletAddress?: string;
     signTransaction?: any;
+    signAllTransactions?: any;
   }>({
     connection: undefined,
     walletAddress: undefined,
     signTransaction: undefined,
+    signAllTransactions: undefined,
   });
 
   const { connection } = useConnection();
@@ -51,19 +53,21 @@ export const useSolana = () => {
           connection: window.xnft.solana.connection,
           walletAddress: accountXnft,
           signTransaction: window.xnft.solana.signTransaction,
+          signAllTransactions: window.xnft.solana.signAllTransactions,
         });
       } else {
         setPayload({
           connection,
           walletAddress: publicKey?.toString(),
           signTransaction,
+          signAllTransactions
         });
       }
     };
     new Promise((resolve) => setTimeout(resolve, 500)).then(() => {
       init();
     });
-  }, [connection, publicKey, signTransaction]);
+  }, [connection, publicKey, signTransaction, signAllTransactions]);
 
   return {
     ...payload,
@@ -74,6 +78,7 @@ export const useSolana = () => {
     buildProspectIx,
     getRFAccount,
     sendTransaction,
+    sendAllTransactions
   };
 };
 
@@ -181,6 +186,44 @@ const sendTransaction = async (
   if (!tx) return;
   const signedTx = await signTransaction(tx);
   return await connection.sendRawTransaction(signedTx.serialize());
+};
+
+const sendAllTransactions = async (
+  connection: Connection,
+  ixs: TransactionInstruction[],
+  wallet: string,
+  signAllTransactions: any,
+) => {
+  if (!wallet || !ixs || !signAllTransactions) return;
+
+  let versionedTxs: VersionedTransaction[] = []
+  for (let ix of ixs) {
+    const { blockhash } = await connection!.getLatestBlockhash();
+    const txMsg = new TransactionMessage({
+      payerKey: new PublicKey(wallet),
+      recentBlockhash: blockhash,
+      instructions: [ix],
+    }).compileToLegacyMessage();
+
+    const tx = new VersionedTransaction(txMsg);
+
+    if (!tx) return;
+
+    // console.log('[sendAllTransactions] tx', Buffer.from(tx.serialize()).toString('base64'));
+    versionedTxs.push(tx);
+
+    /* sleep for 500ms to grab new blockhash */
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  const signatures: string[] = [];
+  const signedTxs = await signAllTransactions(versionedTxs);
+  for (let signedTx of signedTxs) {
+    let sig = await connection.sendRawTransaction(signedTx.serialize());
+    signatures.push(sig);
+  }
+
+  return signatures;
 };
 
 async function getTokenAccountBalance(
