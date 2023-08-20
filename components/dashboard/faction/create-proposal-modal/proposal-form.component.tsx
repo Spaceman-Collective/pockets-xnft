@@ -121,6 +121,7 @@ export const ProposalForm: React.FC = () => {
                 onChange={(e) =>
                   setProposalData({ ...proposalData, citizen: e.target.value })
                 }
+                disabled={true}
                 placeholder="Select a citizen"
               >
                 {citizenMints.map((citizenMint) => (
@@ -150,6 +151,7 @@ export const ProposalForm: React.FC = () => {
                   });
                 }}
                 placeholder="Select a resource"
+                disabled={true}
               >
                 {factionData?.resources?.map((resource) => (
                   <option key={resource.name} value={resource.name}>
@@ -195,6 +197,7 @@ export const ProposalForm: React.FC = () => {
                   setProposalData({ ...proposalData, bonk: e.target.value })
                 }
                 placeholder="Enter amount of BONK"
+                disabled={true}
               />
             </FormControl>
           </Fragment>
@@ -217,88 +220,24 @@ export const ProposalForm: React.FC = () => {
           </FormControl>
         );
 
-        case "ALLOCATE":
-            return (
-              <Fragment>
-                <FormControl>
-                  <Select
-                    fontWeight="500"
-                    value={proposalData.citizen || ""}
-                    onChange={(e) =>
-                      setProposalData({ ...proposalData, citizen: e.target.value })
-                    }
-                    placeholder="Select a citizen"
-                  >
-                    {citizenMints.map((citizenMint) => (
-                      <option key={citizenMint} value={citizenMint}>
-                        {citizenMint}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-    
-                <FormControl>
-                  <Select
-                    fontWeight="500"
-                    value={
-                      proposalData.resources && proposalData.resources[0]
-                        ? proposalData.resources[0].resourceName
-                        : ""
-                    }
-                    onChange={(e) => {
-                      setProposalData((prevState) => {
-                        if (prevState.resources && prevState.resources.length > 0) {
-                          const newResources = [...prevState.resources];
-                          newResources[0].resourceName = e.target.value;
-                          return { ...prevState, resources: newResources };
-                        }
-                        return prevState;
-                      });
-                    }}
-                    placeholder="Select a resource"
-                  >
-                    {factionData?.resources?.map((resource) => (
-                      <option key={resource.name} value={resource.name}>
-                        {resource.name} ({resource.value})
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-    
-                {proposalData.resources &&
-                proposalData.resources[0] &&
-                proposalData.resources[0].resourceName ? (
-                  <FormControl>
-                    <StyledInput
-                      type="number"
-                      value={(proposalData.resources && proposalData.resources[0]?.amount) || ""}
-                      onChange={(e) =>
-                        setProposalData((prevState) => {
-                          if (prevState.resources && prevState.resources.length > 0) {
-                            const newResources = [...prevState.resources];
-                            newResources[0].amount = parseInt(e.target.value);
-                            return { ...prevState, resources: newResources };
-                          }
-                          return prevState;
-                        })
-                      }
-                      placeholder="Enter amount of selected resource"
-                    />
-                  </FormControl>
-                ) : null}
-              </Fragment>
-            );
-    
+      case "ALLOCATE":
         return (
           <Fragment>
             <FormControl>
-              <StyledInput
+              <Select
+                fontWeight="500"
                 value={proposalData.citizen || ""}
                 onChange={(e) =>
                   setProposalData({ ...proposalData, citizen: e.target.value })
                 }
-                placeholder="Select citizen"
-              />
+                placeholder="Select a citizen"
+              >
+                {citizenMints.map((citizenMint) => (
+                  <option key={citizenMint} value={citizenMint}>
+                    {citizenMint}
+                  </option>
+                ))}
+              </Select>
             </FormControl>
 
             <FormControl>
@@ -328,35 +267,6 @@ export const ProposalForm: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-
-            {proposalData.resources &&
-            proposalData.resources[0] &&
-            proposalData.resources[0].resourceName ? (
-              <FormControl>
-                <StyledInput
-                  type="number"
-                  value={
-                    (proposalData.resources &&
-                      proposalData.resources[0]?.amount) ||
-                    ""
-                  }
-                  onChange={(e) =>
-                    setProposalData((prevState) => {
-                      if (
-                        prevState.resources &&
-                        prevState.resources.length > 0
-                      ) {
-                        const newResources = [...prevState.resources];
-                        newResources[0].amount = parseInt(e.target.value);
-                        return { ...prevState, resources: newResources };
-                      }
-                      return prevState;
-                    })
-                  }
-                  placeholder="Enter amount of selected resource"
-                />
-              </FormControl>
-            ) : null}
           </Fragment>
         );
 
@@ -441,7 +351,7 @@ export const ProposalForm: React.FC = () => {
           </option>
           {PROPOSAL_TYPES.map((type) => (
             <option key={type} value={type}>
-              {type}
+              {PROPOSAL_DISPLAY_NAMES[type]}
             </option>
           ))}
         </Select>
@@ -495,6 +405,20 @@ const PROPOSAL_TYPES: ProposalType[] = [
   "TAX",
   "BURN",
 ];
+
+const PROPOSAL_DISPLAY_NAMES: Record<ProposalType, string> = {
+  BUILD: "BUILD STATION",
+  UPGRADE: "UPGRADE STATION",
+  ATK_CITY: "ATTACK CITY",
+  ATK_RF: "ATTACK RESOURCE FIELD",
+  WITHDRAW: "WITHDRAW RESOURCES",
+  MINT: "MINT NEW VOTING SHARES",
+  ALLOCATE: "ALLOCATE RESOURCES",
+  THRESHOLD: "CHANGE VOTING THRESHOLD",
+  WARBAND: "CREATE WARBAND",
+  TAX: "SET TAX RATE",
+  BURN: "BURN RESOURCES",
+};
 
 const citizenMints = [
   "CITZ-1234",
