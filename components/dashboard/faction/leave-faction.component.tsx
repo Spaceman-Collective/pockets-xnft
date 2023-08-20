@@ -61,6 +61,7 @@ export const LeaveFactionModal: React.FC<{
       factionId,
     };
 
+    if (!walletAddress) return console.error("no wallet");
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
       connection,

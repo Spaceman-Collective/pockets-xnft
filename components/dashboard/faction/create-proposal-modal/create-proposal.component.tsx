@@ -237,6 +237,7 @@ export const CreateProposal: React.FC<{
       timestamp: Date.now().toString(),
       proposal: prpsl,
     };
+    if (!walletAddress) return console.error("No wallet");
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
       connection,
