@@ -152,10 +152,14 @@ const encodeTransaction = async ({
 
   const tx = new VersionedTransaction(txMsg);
   if (!tx) return;
-  const signedTx = await signTransaction(tx);
-  const encodedSignedTx = encode(signedTx!.serialize());
+  try {
+    const signedTx = await signTransaction(tx);
+    const encodedSignedTx = encode(signedTx!.serialize());
 
-  return encodedSignedTx;
+    return encodedSignedTx;
+  } catch (err) {
+    return new Error("Did not encode");
+  }
 };
 
 const sendTransaction = async (
