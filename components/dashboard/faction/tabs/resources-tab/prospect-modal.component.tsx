@@ -11,21 +11,53 @@ import {
   Button,
   HStack,
 } from "@chakra-ui/react";
-import { FC } from "react";
+import { PublicKey } from "@solana/web3.js";
+import { FC, useEffect, useState } from "react";
+import { BN } from "@coral-xyz/anchor";
+
+type RFAccount = {
+  harvest: any | null;
+  id: string;
+  initialClaimant: PublicKey | null;
+  isHarvestable: boolean;
+  refreshSeconds: BN | null;
+  timesDeveloped: BN;
+};
 
 export const ModalRfProspect: FC<{
   isOpen: boolean;
   onClose: () => void;
-  rf?: { rfCount: number };
+  rf?: { rfCount: number; id: string };
 }> = ({ isOpen, onClose, rf }) => {
-  const { mutate } = useRfAllocate();
   const {
     walletAddress,
     connection,
     signTransaction,
     buildTransferIx,
     encodeTransaction,
+    buildProspectIx,
+    getRFAccount,
   } = useSolana();
+
+  const [rfAccount, setRfAccount] = useState<RFAccount>();
+  console.log({ rf });
+
+  useEffect(() => {
+    const init = async () => {
+      if (!rf?.id) return console.error("NO  ACCOUNT ID", rf);
+      try {
+        const account = await getRFAccount(connection, rf?.id);
+        console.log({ account });
+        setRfAccount(JSON.parse(JSON.stringify(account)) as RFAccount);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    init();
+  }, [rf?.id]);
+
+  console.log({ rfAccount });
 
   const rfCount = typeof rf?.rfCount === "number" ? rf?.rfCount : 0;
   const bonkForNextField =
@@ -47,10 +79,6 @@ export const ModalRfProspect: FC<{
       walletAddress,
       connection,
       signTransaction,
-    });
-
-    mutate({
-      signedTx: encodedTx ?? "",
     });
   };
 
