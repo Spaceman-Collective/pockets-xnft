@@ -53,7 +53,6 @@ export const FactionTabResources: React.FC<{
   });
 
   const { data: discoverData } = useRfAllocation();
-  console.log({ discoverData });
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
