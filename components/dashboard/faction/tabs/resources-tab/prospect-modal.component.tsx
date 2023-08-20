@@ -1,5 +1,4 @@
-import { BONK_MINT, RESOURCE_FIELD_CREATION_MULTIPLIER } from "@/constants";
-import { useRfAllocate } from "@/hooks/useRf";
+import { RESOURCE_FIELD_CREATION_MULTIPLIER } from "@/constants";
 import { useSolana } from "@/hooks/useSolana";
 import {
   Text,
@@ -9,7 +8,6 @@ import {
   ModalBody,
   ModalCloseButton,
   Button,
-  HStack,
 } from "@chakra-ui/react";
 import { PublicKey } from "@solana/web3.js";
 import { FC, useEffect, useState } from "react";

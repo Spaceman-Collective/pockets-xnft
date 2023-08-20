@@ -129,6 +129,7 @@ export const CreateFaction: FC<{
       amount: requiredBONK,
       decimals: dcms,
     });
+    if (!walletAddress || !ix) return;
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
       connection,
