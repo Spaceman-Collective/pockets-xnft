@@ -20,8 +20,7 @@ const stationSize = "7rem";
 
 export const FactionTabServices: React.FC<{
   currentCharacter: Character;
-  setFactionStatus: (value: boolean) => void;
-}> = ({ currentCharacter, setFactionStatus }) => {
+}> = ({ currentCharacter }) => {
   const stationDisclosure = useDisclosure();
   const [selectedStationId, setSelectedStationId] = useState<string>("");
   const { data: factionData } = useFaction({
