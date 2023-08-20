@@ -83,7 +83,6 @@ const ConsumeItemContainer: FC<{
 
   //TODO: DEV PUT CONSUME CODE IN HERE
   //will be called with the number from input box
-
   const postConsume = async (amountToConsume: number) => {
     console.log({ amountToConsume });
   };
