@@ -60,7 +60,7 @@ export const useSolana = () => {
         });
       }
     };
-    new Promise((resolve) => setTimeout(resolve, 500)).then(() => {
+    new Promise((resolve) => setTimeout(resolve, 1500)).then(() => {
       init();
     });
   }, [connection, publicKey, signTransaction]);
