@@ -17,7 +17,6 @@ import { FC, useEffect, useState } from "react";
 import { BN } from "@coral-xyz/anchor";
 import { toast } from "react-hot-toast";
 import { colors } from "@/styles/defaultTheme";
-import { getResourceField } from "@/lib/solanaClient";
 import Link from "next/link";
 
 const tickets = [ 1, 5, 10, 50, 100 ];
@@ -162,9 +161,7 @@ export const ModalRfProspect: FC<{
       sigArr.push(sig ?? "");
       //TODO: remove this log when building page
       console.info("SUCCESSFUL SIGN with sigs", sigArr);
-      for (let sig of sigArr) {
-        toast.success(sig ?? "");
-      }
+      toast.success("Successfully sent prospect TXs");
       /* TODO have some array of sigs to be set */
       setSignedArr(sigArr);
     } catch (err) {
@@ -178,13 +175,17 @@ export const ModalRfProspect: FC<{
   useEffect(() => {
     /* Everytime signed changes we have a successful signature - time to check if it's jackpot */
     (async () => {
-      if (!signedArr) return;
+      if (!rf?.id) return console.error("NO  ACCOUNT ID", rf);
+      try {
+        const account = await getRFAccount(connection, rf?.id);
+        const parsedAcc = JSON.parse(JSON.stringify(account)) as RFAccount;
+        setRfAccount(parsedAcc);
 
-      for (let sig of signedArr) {
-        // TODO - currently broken!
-        let rfAcc = await getResourceField(rf?.id);
-        // let rfAcc = {};
-        console.log("[rfAcc]", rfAcc);
+        // TODO: check if jackpot
+
+        console.log("rfAccount", parsedAcc);
+      } catch (err) {
+        console.error(err);
       }
     })();
   }, [signedArr]);
@@ -245,7 +246,8 @@ export const ModalRfProspect: FC<{
         <ModalHeader>
           <Flex gap={3}>
             <Text pb={"1rem"}>Your Txs:</Text>
-            {signedArr?.map((sig, index) => (
+            { signedArr?.filter((val, index) => index < 5) /* Show only top 5 txs */
+              .map((sig, index) => (
               <Link key={`sig-${index}`} href={`https://solscan.io/tx/${sig}`} target="_blank">
                 <StyledText>{sig.slice(0,4)}...{sig.slice(sig.length - 4, sig.length)}</StyledText>
               </Link>
