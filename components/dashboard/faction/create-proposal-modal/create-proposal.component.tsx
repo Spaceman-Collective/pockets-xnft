@@ -60,8 +60,12 @@ export const CreateProposal: React.FC<{
   } = useSolana();
 
   const factionId = currentCharacter?.faction?.id;
-  const { data: allProposals, refetch } = useFetchProposalsByFaction(factionId, 0, 10);
-    const { isOpen, onOpen, onClose } = useDisclosure();
+  const { data: allProposals, refetch } = useFetchProposalsByFaction(
+    factionId,
+    0,
+    10
+  );
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [proposal, setProposal] = useState({
     type: "",
     blueprintName: "",
@@ -82,7 +86,7 @@ export const CreateProposal: React.FC<{
   const [proposalType, setProposalType] = useState<ProposalType | "">("");
 
   const handleProposalTypeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>,
+    event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setProposalType(event.target.value as ProposalType);
     setProposal({
@@ -238,10 +242,11 @@ export const CreateProposal: React.FC<{
       newTaxRate: Number(proposal?.tax),
     };
     const payload = {
-      mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
+      mint: "3KhL4xPmHXFudJDmBEjFoRhKALqoFN6tiWatFpGRuSQa", // "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
       timestamp: Date.now().toString(),
       proposal: prpsl,
     };
+    console.log("Wallet Address: ", walletAddress);
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
       connection,

@@ -105,7 +105,7 @@ export const CreateFaction: FC<{
       return;
     }
     const payload = {
-      mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
+      mint: "3KhL4xPmHXFudJDmBEjFoRhKALqoFN6tiWatFpGRuSQa", //"CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
       timestamp: Date.now().toString(),
       faction,
     };
@@ -117,7 +117,7 @@ export const CreateFaction: FC<{
     // const bonkInWallet = getBonkBalance(walletAddress, connection);
     if (bonkInWallet < requiredBONK) {
       throw alert(
-        "You have insufficient BONK in your wallet. Please add more BONK and try again!",
+        "You have insufficient BONK in your wallet. Please add more BONK and try again!"
       );
     }
     const bonkMint = SPL_TOKENS.bonk.mint;

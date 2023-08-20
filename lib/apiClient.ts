@@ -3,7 +3,7 @@ import type { NFT, Character, Faction, Station } from "@/types/server";
 import { BN } from "@coral-xyz/anchor";
 import { QueryFunctionContext } from "@tanstack/react-query";
 import fetch from "axios";
-const API_BASE_URL = "https://api.pockets.gg";
+const API_BASE_URL = "http://localhost:5002"; //"https://api.pockets.gg";
 
 export const getLadImageURL = (ladNumber: number) =>
   `https://shdw-drive.genesysgo.net/J4kmNS88XbaW9mBEjyzPqwAP49jCYhYKtmqbTzGCEXUi/${ladNumber}.webp`;
@@ -225,16 +225,16 @@ export const fetchAllAssets = async ({
     } else {
       console.error(
         "Server Error while fetching compressed assets for wallet:",
-        response,
+        response
       );
       throw new Error(
-        "Server Error while fetching compressed assets for wallet:",
+        "Server Error while fetching compressed assets for wallet:"
       );
     }
   } catch (error) {
     console.error(
       "Network Error while fetching compressed assets for wallet",
-      error,
+      error
     );
     throw error;
   }
@@ -255,14 +255,14 @@ export const consumeResources = async ({
     } else {
       console.error(
         "Server Error while consuming resources for character:",
-        response,
+        response
       );
       throw new Error("Server Error while consuming resources for character");
     }
   } catch (error) {
     console.error(
       "Network Error while consuming resources for character:",
-      error,
+      error
     );
     throw error;
   }
@@ -373,7 +373,7 @@ export type FetchResponse = {
 export const fetchProposalsByFaction = async (
   faction: string,
   skip: number,
-  take: number,
+  take: number
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/faction/proposals`;
   try {
@@ -392,7 +392,7 @@ export const fetchProposalsByFaction = async (
 };
 
 export const fetchFactionVotingInfo = async (
-  proposalId: string,
+  proposalId: string
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/accounts/faction`;
   try {
@@ -437,7 +437,7 @@ interface ProposalAccount {
 }
 
 export const fetchProposalAccount = async (
-  proposalId: string,
+  proposalId: string
 ): Promise<ProposalAccount> => {
   const URL = `${API_BASE_URL}/accounts/proposal`;
   try {
@@ -474,7 +474,7 @@ export const fetchProposalVotesByCitizen = async (
 
 export const delegateVotes = async (
   mint: string,
-  recipientMint: string,
+  recipientMint: string
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/accounts/delegation`;
   try {
@@ -507,7 +507,7 @@ export const fetchRfsFromChain = async (id: string): Promise<FetchResponse> => {
 };
 
 export const processProposal = async (
-  context: QueryFunctionContext<string[], { proposalId: string }>,
+  context: QueryFunctionContext<string[], { proposalId: string }>
 ) => {
   const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order you pass the query key?
   const URL = `${API_BASE_URL}/faction/proposal/process`;
