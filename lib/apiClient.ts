@@ -107,6 +107,28 @@ export const postCreateFaction = async ({
   }
 };
 
+export const postFactionStationStart = async ({
+  signedTx,
+}: {
+  signedTx: string;
+}): Promise<Faction> => {
+  const URL = API_BASE_URL + "/faction/station/start";
+  try {
+    const response = await fetch.post<any>(URL, { signedTx });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data;
+    } else {
+      console.error("Server Error while creating faction:", response);
+      throw new Error("Server Error while creating faction");
+    }
+  } catch (error) {
+    console.error("Network Error while creating faction:", error);
+    throw error;
+  }
+};
+
 type FetchFactionsType = {
   factions: any[];
   total: number;
@@ -205,7 +227,11 @@ export const postLeaveFaction = async ({
 };
 
 type CategorizedNFTs = {
-  resources: any[];
+  resources: {
+    mint: string;
+    name: string;
+    value: string;
+  }[];
   favors: any[];
   units: any[];
 };

@@ -22,6 +22,9 @@ import { Tip } from "@/components/tooltip";
 import { toast } from "react-hot-toast";
 import { useCharTimers } from "@/hooks/useCharTimers";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { useSolana } from "@/hooks/useSolana";
+import { useFactionStationStart } from "@/hooks/useFaction";
+import { useAllWalletAssets } from "@/hooks/useWalletAssets";
 
 export const ModalStation: FC<{
   station?: {
@@ -33,7 +36,15 @@ export const ModalStation: FC<{
   isOpen: boolean;
   onClose: () => void;
 }> = ({ station, isOpen, onClose }) => {
+  const {
+    buildMemoIx,
+    encodeTransaction,
+    walletAddress,
+    connection,
+    signTransaction,
+  } = useSolana();
   const [selectedCharacter, _] = useSelectedCharacter();
+  const { data: walletAssets } = useAllWalletAssets();
   const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
   const totalTimeInSeconds = 60;
   const [count, { startCountdown, resetCountdown }] = useCountdown({
@@ -46,22 +57,50 @@ export const ModalStation: FC<{
     resetCountdown();
   }, [isOpen]);
 
-  console.log({ timersData });
-  // TODO: DEV this is where you enter the functions for the build and claim process
-  // I'll help add the timers. The data is visiable in the above console.log
-
+  const { mutate } = useFactionStationStart();
+  // TODO: DEV THIS IS FOR YOU TO FILL IN
+  // startStationProcess
+  // claimStationReward
   const startStationProcess = async () => {
     toast.success("You've started a build in the " + station?.blueprint);
     startCountdown();
+
+    if (!walletAddress) return toast.error("No wallet connected");
+    const ix = buildMemoIx({
+      walletAddress,
+      payload: {
+        mint: selectedCharacter?.mint,
+        timestamp: Date.now().toString(),
+        stationId: station?.id,
+      },
+    });
+
+    try {
+      const encodedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        txInstructions: [ix],
+      });
+
+      if (encodedTx instanceof Error || encodedTx === undefined)
+        return toast.error("Failed to start station");
+      mutate({ signedTx: encodedTx });
+    } catch (err) {
+      toast.error("Oops! That didn't work: " + err);
+    }
   };
   const claimStationReward = async () => {
-    console.log("CLAIM");
     toast.success("You've claimed the reward from the " + station?.blueprint);
   };
 
   const stationBlueprint = station && getBlueprint(station?.blueprint);
   const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
   const image = stationBlueprint?.image;
+  const stationInputs = stationBlueprint?.inputs.map((e) => e.resource);
+  const resourcesInWallet = walletAssets?.resources.filter((e) => {
+    return stationInputs?.includes(e.name);
+  });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -92,7 +131,13 @@ export const ModalStation: FC<{
                 type="resources"
                 isDisabled={progress === 100}
                 resources={
-                  stationBlueprint?.inputs.map((input) => input.resource) ?? []
+                  stationBlueprint?.inputs.map((input) => ({
+                    name: input.resource,
+                    amount: input.amount,
+                    balance:
+                      resourcesInWallet?.find((e) => e.name === input.resource)
+                        ?.value ?? "",
+                  })) ?? []
                 }
               />
             </VStack>
@@ -118,7 +163,13 @@ export const ModalStation: FC<{
               <ResourceContainer
                 type="units"
                 isDisabled={progress !== 100}
-                resources={stationBlueprint?.unitOutput ?? []}
+                resources={[
+                  {
+                    name: stationBlueprint?.unitOutput?.[0] ?? "",
+                    amount: 1,
+                    balance: "0",
+                  },
+                ]}
               />
             </VStack>
           </Grid>
@@ -160,7 +211,7 @@ const ModalHeader = ({
 
 const ResourceContainer: FC<{
   isDisabled?: boolean;
-  resources: string[];
+  resources?: { name: string; balance: string; amount: string | number }[];
   type: "resources" | "units";
 }> = ({ resources, isDisabled, type }) => {
   return (
@@ -173,35 +224,60 @@ const ResourceContainer: FC<{
       opacity={isDisabled ? 0.5 : 1}
     >
       <Grid
-        templateColumns={resources?.length > 1 ? "1fr 1fr" : "1fr"}
+        templateColumns={resources && resources?.length > 1 ? "1fr 1fr" : "1fr"}
         gap="1rem"
       >
         {resources?.map((resource) => (
-          <Tip key={resource} label={resource}>
-            <Box
-              position="relative"
-              transition="all 0.25s ease-in-out"
-              _hover={{ transform: "scale(1.1)" }}
+          <Box
+            key={resource.name}
+            userSelect="none"
+            opacity={
+              type === "units" || +resource.amount < +resource.balance
+                ? 1
+                : 0.25
+            }
+          >
+            <Tip
+              label={"You own " + resource?.balance + " " + resource.name}
+              placement="top"
             >
-              <Resource
-                alt="resource"
-                src={getLocalImage({ type, name: resource })}
-              />
-              <Text
-                position="absolute"
-                bottom="0"
-                right="0"
-                bg="rgba(0,0,0,0.5)"
-                p="0.25rem 0.5rem"
-                borderRadius="1rem"
-                fontWeight={700}
-                minW="3rem"
-                textAlign="center"
-              >
-                5
+              <Text fontWeight={700} color="brand.secondary">
+                {resource?.balance}x
               </Text>
-            </Box>
-          </Tip>
+            </Tip>
+            <Tip
+              label={
+                (type === "resources" ? "Requires " : "Creates ") +
+                resource.amount +
+                " " +
+                resource.name
+              }
+            >
+              <Box
+                position="relative"
+                transition="all 0.25s ease-in-out"
+                _hover={{ transform: "scale(1.1)" }}
+              >
+                <Resource
+                  alt="resource"
+                  src={getLocalImage({ type, name: resource.name })}
+                />
+                <Text
+                  position="absolute"
+                  bottom="0"
+                  right="0"
+                  bg="rgba(0,0,0,0.5)"
+                  p="0.25rem 0.5rem"
+                  borderRadius="1rem"
+                  fontWeight={700}
+                  minW="3rem"
+                  textAlign="center"
+                >
+                  {resource.amount}
+                </Text>
+              </Box>
+            </Tip>
+          </Box>
         ))}
       </Grid>
     </Grid>
@@ -211,11 +287,3 @@ const ResourceContainer: FC<{
 const Resource = styled(Image)`
   border-radius: 1rem;
 `;
-
-const lorem = `Really, you're gonna pull that move? I guided your entire civilisation. Your people have a holiday named ricksgiving. They teach kids about me in school. Morty! The principal and I have discussed it, a-a-and we're both insecure enough to agree to a three-way! You know what shy pooping is, Rick? Merchandise Morty, your only purpose in life is to buy & consume merchandise and you did it, you went into a store an actual honest to god store and you bought something, you didn't ask questions or raise ethical complaints you just looked into the bleeding jaws of capitalism and said 'yes daddy please' and I'm so proud of you, I only wish you could have bought more, I love buying things so much Morty.
-
-Nice one, Ms Pancakes. Haha god-damn! If it were, you could call ME Ernest Hemingway. I'm Scary Terry!! You can run but you can't hide, bitch!
-
-And that's why I always say 'Shumshumschilpiddydah!' Are you invisible and you're gonna, like, fart on me? Awww, it's you guys! I don't think we can perform our new song, The Recipe For Concentrated Dark Matter for a crowd this tiny!
-
-I know you're real because i have a ton of bad memories with you. If you break the rules, try to leave or lose the game, you will die. Just like Saaaaw. 25 shmeckles? I-I-I-I don't even know what that- what is that? Is that a lot? It's like the N word and the C word had a baby, and it was raised by all the bad words for Jews.`;
