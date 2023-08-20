@@ -30,6 +30,7 @@ import { useSolana } from "@/hooks/useSolana";
 import { Character } from "@/types/server";
 import { useCreateProposal } from "@/hooks/useCreateProposal";
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 enum ProposalType {
   BUILD = "BUILD",
@@ -49,6 +50,7 @@ export const CreateProposal: React.FC<{
   fire: () => void;
 }> = ({ currentCharacter, fire: fireConfetti }) => {
   const { mutate } = useCreateProposal();
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
   const {
     connection,
     walletAddress,
@@ -242,7 +244,7 @@ export const CreateProposal: React.FC<{
       newTaxRate: Number(proposal?.tax),
     };
     const payload = {
-      mint: "3KhL4xPmHXFudJDmBEjFoRhKALqoFN6tiWatFpGRuSQa", // "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
+      mint: selectedCharacter?.mint,
       timestamp: Date.now().toString(),
       proposal: prpsl,
     };

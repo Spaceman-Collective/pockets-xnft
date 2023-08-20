@@ -3,7 +3,7 @@ import type { NFT, Character, Faction, Station } from "@/types/server";
 import { BN } from "@coral-xyz/anchor";
 import { QueryFunctionContext } from "@tanstack/react-query";
 import fetch from "axios";
-const API_BASE_URL = "http://localhost:5002"; //"https://api.pockets.gg";
+const API_BASE_URL = "https://api.pockets.gg";
 
 export const getLadImageURL = (ladNumber: number) =>
   `https://shdw-drive.genesysgo.net/J4kmNS88XbaW9mBEjyzPqwAP49jCYhYKtmqbTzGCEXUi/${ladNumber}.webp`;

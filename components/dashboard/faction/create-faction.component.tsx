@@ -19,6 +19,7 @@ import { useSolana } from "@/hooks/useSolana";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
 import { useFetchAllFactions } from "@/hooks/useAllFactions";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 
 export const CreateFaction: FC<{
   fire: () => void;
@@ -47,6 +48,7 @@ export const CreateFaction: FC<{
     external_link: "",
     description: "",
   });
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   const validateInputs = () => {
     let errors = {
@@ -105,7 +107,7 @@ export const CreateFaction: FC<{
       return;
     }
     const payload = {
-      mint: "3KhL4xPmHXFudJDmBEjFoRhKALqoFN6tiWatFpGRuSQa", //"CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
+      mint: selectedCharacter,
       timestamp: Date.now().toString(),
       faction,
     };
