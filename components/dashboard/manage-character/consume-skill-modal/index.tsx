@@ -8,10 +8,7 @@ import {
   Flex,
   Image,
   VStack,
-  Tag,
-  Button,
   Spinner,
-  Input,
 } from "@chakra-ui/react";
 import { FC } from "react";
 import { combatSkillKeys } from "../constants";
@@ -71,8 +68,8 @@ export const ConsumeSkillModal: FC<{
 
 const ConsumeItemContainer: FC<{
   isLoading?: boolean;
-  resourceInWallet?: any;
-  skill: string;
+  resourceInWallet?: any; // items in the wallet
+  skill: string; // selected modal
   resource: {
     mint: string;
     name: string;
@@ -83,6 +80,14 @@ const ConsumeItemContainer: FC<{
   const extraSkillUp = resource.skills.filter(
     (e) => e.toLowerCase() !== skill.toLowerCase(),
   );
+
+  //TODO: DEV PUT CONSUME CODE IN HERE
+  //will be called with the number from input box
+
+  const postConsume = async (amountToConsume: number) => {
+    console.log({ amountToConsume });
+  };
+
   return (
     <Flex
       key={resource.mint}
@@ -136,6 +141,7 @@ const ConsumeItemContainer: FC<{
         )}
       </VStack>
       <VStack
+        flexGrow={1}
         alignItems="end"
         opacity={resourceInWallet?.value !== "0" ? 1 : 0.25}
       >
@@ -163,6 +169,7 @@ const ConsumeItemContainer: FC<{
           </Text>
         </Flex>
         <ConsumeButton
+          onClick={postConsume}
           isDisabled={resourceInWallet?.value === "0"}
           maxValue={+resourceInWallet?.value}
         />
