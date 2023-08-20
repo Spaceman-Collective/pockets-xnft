@@ -26,7 +26,7 @@ import { Character } from "@/types/server";
 import { useEffect, useState } from "react";
 import { CreateProposal } from "../create-proposal-modal/create-proposal.component";
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
-import { Proposal } from "@/types/Proposal";
+import { Proposal } from "@/types/server/Proposal";
 import { FetchResponse } from "@/lib/apiClient";
 import { useProposalAccount } from "@/hooks/useProposalAccount";
 import {

@@ -10,7 +10,6 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
-  Select,
   Input,
   Textarea,
   VStack,
@@ -20,6 +19,7 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
   Stack,
+  Select,
 } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useState } from "react";
@@ -32,18 +32,20 @@ import { useCreateProposal } from "@/hooks/useCreateProposal";
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import toast from "react-hot-toast";
+import { BLUEPRINTS } from "../tabs/services-tab/constants";
 
 enum ProposalType {
-  BUILD = "BUILD",
-  UPGRADE = "UPGRADE",
+  BUILD = "CONSTRUCT A BUILDING",
+  UPGRADE = "UPGRADE A BUILDING",
   ATK_CITY = "ATTACK CITY",
   ATK_RF = "ATTACK RESOURCE FIELD",
-  WITHDRAW = "WITHDRAW",
-  MINT = "MINT",
-  ALLOCATE = "ALLOCATE",
-  THRESHOLD = "THRESHOLD",
-  WARBAND = "WARBAND",
-  TAX = "TAX PERCENTAGE",
+  WITHDRAW = "WITHDRAW RESOURCES",
+  MINT = "MINT VOTING SHARES",
+  ALLOCATE = "ALLOCATE RESOURCES TO CITIZEN",
+  THRESHOLD = "PROPOSE NEW VOTING THRESHOLD",
+  WARBAND = "ASSEMBLE WARBAND",
+  TAX = "PROPOSE NEW TAX RATE",
+  BURN = "BURN RESOURCE(S)",
 }
 
 export const CreateProposal: React.FC<{
@@ -233,10 +235,9 @@ export const CreateProposal: React.FC<{
   const onSuccess = (data: any) => {
     fireConfetti();
     refetch();
-    toast.success('Proposal created!');
+    toast.success("Proposal created!");
     onClose();
   };
-
 
   const handleCreateProposal = async () => {
     if (!validateInputs()) {
@@ -259,14 +260,12 @@ export const CreateProposal: React.FC<{
       txInstructions: [buildMemoIx({ walletAddress, payload })],
     });
 
-
-    if (typeof encodedSignedTx === 'string') {
+    if (typeof encodedSignedTx === "string") {
       mutate({ signedTx: encodedSignedTx }, { onSuccess });
     } else {
-      toast.error('Failed to create proposal tx');
+      toast.error("Failed to create proposal tx");
       console.error(encodedSignedTx);
     }
-    
   };
 
   return (
@@ -298,29 +297,37 @@ export const CreateProposal: React.FC<{
             <Box w="100%" h="100%">
               <VStack spacing={2} width="100%">
                 <Box mb="2rem" w="100%">
-                  <StyledSelect onChange={handleProposalTypeChange}>
+                  <Select onChange={handleProposalTypeChange}>
                     <option value="">SELECT A PROPOSAL TYPE</option>
                     {Object.values(ProposalType).map((type) => (
                       <option key={type} value={type}>
                         {type}
                       </option>
                     ))}
-                  </StyledSelect>
+                  </Select>
                 </Box>
 
                 {proposalType === ProposalType.BUILD && (
                   <Box mb="2rem" w="100%">
-                    <StyledInput
-                      placeholder="Enter blueprint name"
+                    <Select
+                      fontWeight="500"
+                      className="customSelect"
+                      placeholder="Select a blueprint name"
                       value={proposal.blueprintName}
-                      onChange={(e) =>
+                      onChange={(e: { target: { value: any; }; }) =>
                         setProposal({
                           ...proposal,
                           blueprintName: e.target.value,
                         })
                       }
                       isInvalid={!!inputErrors.blueprintName}
-                    />
+                    >
+                      {BLUEPRINTS.map((blueprint) => (
+                        <option key={blueprint.name} value={blueprint.name}>
+                          {blueprint.name}
+                        </option>
+                      ))}
+                    </Select>
 
                     {inputErrors.blueprintName && (
                       <Text color="red.500">{inputErrors.blueprintName}</Text>
@@ -608,25 +615,16 @@ export const CreateProposal: React.FC<{
   );
 };
 
-const selectStyles = css`
-  background-color: ${colors.blacks[600]};
-  height: 5rem;
-  width: 100%;
-  border-radius: 4px;
-  padding: 1rem 2rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-`;
 
-const inputStyles = css`
-  background-color: ${colors.blacks[600]};
-  height: 5rem;
-  width: 100%;
-  border-radius: 4px;
-  padding: 1rem 2rem;
-  font-weight: 500;
-  letter-spacing: 1px;
-`;
+const inputStyles = {
+  backgroundColor: colors.blacks[600],
+  height: "5rem",
+  width: "100%",
+  borderRadius: "4px",
+  padding: "1rem 2rem",
+  fontWeight: "500",
+  letterSpacing: "1px",
+};
 
 const CreateButton = styled(Button)`
   background-color: ${colors.brand.quaternary};
@@ -637,10 +635,6 @@ const CreateButton = styled(Button)`
   font-size: 1.75rem;
   font-weight: 600;
   letter-spacing: 1px;
-`;
-
-const StyledSelect = styled(Select)`
-  ${selectStyles}
 `;
 
 const StyledInput = styled(Input)`

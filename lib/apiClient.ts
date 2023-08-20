@@ -1,4 +1,4 @@
-import { Proposal } from "@/types/Proposal";
+import { Proposal } from "@/types/server/Proposal";
 import type { NFT, Character, Faction, Station } from "@/types/server";
 import { BN } from "@coral-xyz/anchor";
 import { QueryFunctionContext } from "@tanstack/react-query";
