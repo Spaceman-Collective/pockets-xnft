@@ -20,17 +20,25 @@ import { FactionModal } from "@/components/dashboard/faction/join-faction-modal"
 import { useEffect, useState } from "react";
 import { Character } from "@/types/server";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { ConsumeSkillModal } from "@/components/dashboard/manage-character/consume-skill-modal";
 
 export default function CharacterPage() {
   const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
   const { walletAddress } = useSolana();
   const joinFactionDisclosure = useDisclosure();
+  const consumeResourceDisclosure = useDisclosure();
   const [isInFaction, setIsInFaction] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
+  const [selectedSkill, setSelectedSkill] = useState<string>("");
 
   useEffect(() => {
     setIsInFaction(!!selectedCharacter?.faction);
   }, [selectedCharacter]);
+
+  const selectSkill = (skill: string) => {
+    setSelectedSkill(skill);
+    consumeResourceDisclosure.onOpen();
+  };
 
   return (
     <>
@@ -59,7 +67,10 @@ export default function CharacterPage() {
                   setSelectedCharacter={setSelectedCharacter}
                 />
                 <SectionContainer>
-                  <ManageCharacter currentCharacter={selectedCharacter!} />
+                  <ManageCharacter
+                    currentCharacter={selectedCharacter!}
+                    selectSkill={selectSkill}
+                  />
                 </SectionContainer>
               </FactionSection>
             </DashboardContainer>
@@ -73,6 +84,7 @@ export default function CharacterPage() {
           <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
         )}
       </Grid>
+      <ConsumeSkillModal skill={selectedSkill} {...consumeResourceDisclosure} />
     </>
   );
 }
