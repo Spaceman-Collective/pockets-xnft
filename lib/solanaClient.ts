@@ -52,6 +52,28 @@ export function getVotePDA(
   return votePDA;
 }
 
+export async function getVoteAccount(connection: Connection, votePDAAddress: PublicKey) {
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    { connection },
+  );
+  console.log('votepdaadress: ', votePDAAddress.toString())
+  if (!votePDAAddress) {
+    return null;
+  }
+  return await POCKETS_PROGRAM.account.proposalVote.fetchNullable(votePDAAddress, 'confirmed');
+}
+
+// export async function getMultipleVoteAccounts(connection: Connection, votePDAAddresses: PublicKey[]) {
+//   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+//     pocketsIDL,
+//     POCKETS_PROGRAM_PROGRAMID,
+//     { connection },
+//   );
+//   return await POCKETS_PROGRAM.account.proposalVote.fetchMultiple(votePDAAddresses, 'confirmed');
+// }
+
 export function getFactionPDA(factionId: string): PublicKey {
   const [factionPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("faction"), Buffer.from(factionId)],

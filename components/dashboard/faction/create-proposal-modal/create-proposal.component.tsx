@@ -29,6 +29,7 @@ import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { useSolana } from "@/hooks/useSolana";
 import { Character } from "@/types/server";
 import { useCreateProposal } from "@/hooks/useCreateProposal";
+import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
 
 enum ProposalType {
   BUILD = "BUILD",
@@ -58,7 +59,9 @@ export const CreateProposal: React.FC<{
     getBonkBalance,
   } = useSolana();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const factionId = currentCharacter?.faction?.id;
+  const { data: allProposals, refetch } = useFetchProposalsByFaction(factionId, 0, 10);
+    const { isOpen, onOpen, onClose } = useDisclosure();
   const [proposal, setProposal] = useState({
     type: "",
     blueprintName: "",
@@ -222,6 +225,7 @@ export const CreateProposal: React.FC<{
 
   const onSuccess = (data: any) => {
     fireConfetti();
+    refetch();
     onClose();
   };
 

@@ -1,5 +1,6 @@
 import { Proposal } from "@/types/Proposal";
 import type { NFT, Character, Faction, Station } from "@/types/server";
+import { BN } from "@coral-xyz/anchor";
 import { QueryFunctionContext } from "@tanstack/react-query";
 import fetch from "axios";
 const API_BASE_URL = "https://api.pockets.gg";
@@ -452,17 +453,13 @@ export const fetchProposalAccount = async (
   }
 };
 
-interface VoteResponse {
-  vote: string;
-}
-
 export const fetchProposalVotesByCitizen = async (
   mint: string,
   proposalId: string
-): Promise<VoteResponse> => {
+): Promise<any> => {
   const URL = `${API_BASE_URL}/accounts/vote`;
   try {
-    const { data } = await fetch.get<VoteResponse>(URL, {
+    const { data } = await fetch.get<any>(URL, {
       params: {
         mint,
         proposalId,
@@ -471,7 +468,7 @@ export const fetchProposalVotesByCitizen = async (
     return data;
   } catch (err) {
     console.error(err);
-    throw new Error("Failed to vote on proposal");
+    throw new Error("Failed to fetch proposal votes");
   }
 };
 
