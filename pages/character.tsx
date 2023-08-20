@@ -93,7 +93,7 @@ const character: Character = {
     Strength: { current: 0, threshold: 1000 },
     Fighting: { current: 0, threshold: 1000 },
     Shooting: { current: 0, threshold: 1000 },
-    Athlethics: { current: 0, threshold: 1000 },
+    Athletics: { current: 0, threshold: 1000 },
     Psionics: { current: 0, threshold: 1000 },
     Magic: { current: 0, threshold: 1000 },
     Electronics: { current: 0, threshold: 1000 },
@@ -104,7 +104,7 @@ const character: Character = {
     Mining: { current: 0, threshold: 1000 },
   },
   skills: {
-    Athlethics: 1,
+    Athletics: 1,
     Electronics: 0,
     Farming: 0,
     Fighting: 1,

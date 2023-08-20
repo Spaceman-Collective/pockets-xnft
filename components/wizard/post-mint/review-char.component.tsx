@@ -168,11 +168,11 @@ const Badge = ({ children }: { children: ReactNode }) => {
   );
 };
 
-const Header: FC<{ image: string; name: string; faction: Faction | undefined; }> = ({
-  image,
-  name,
-  faction,
-}) => {
+const Header: FC<{
+  image: string;
+  name: string;
+  faction: Faction | undefined;
+}> = ({ image, name, faction }) => {
   return (
     <Flex gap="1rem" alignItems="end">
       <Frame img={image} />
@@ -220,7 +220,7 @@ const SkillBox: FC<{ name: string; level: string; xp: string }> = ({
       color: colors.brand.quaternary,
       fontSize: "4rem",
     };
-    return is("athlethics") ? (
+    return is("athletics") ? (
       <IconSkill.athletics {...style} />
     ) : is("electronics") ? (
       <IconSkill.electronics {...style} />
