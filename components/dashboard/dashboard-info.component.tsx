@@ -5,17 +5,37 @@ import { MdLeaderboard, MdNotificationsActive } from "react-icons/md";
 import { AiFillGold } from "react-icons/ai";
 import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
 import styled from "@emotion/styled";
+import { useEffect, useState } from "react";
+import { useSolana } from "@/hooks/useSolana";
+import { formatBalance } from "@/lib/utils";
 
 export const DashboardInfo = () => {
   const { data: currentFs } = useFetchAllFactions();
   // const numOfFactions = currentFs?.total;
+  const { walletAddress, connection, getBonkBalance } = useSolana();
+  const [bonkBalance, setBonkBalance] = useState<string>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    (async () => {
+      if (walletAddress && connection) {
+        setIsLoading(true);
+        let balance = await getBonkBalance({ walletAddress, connection });
+        const wholeBalance = Math.floor(balance);
+
+        setBonkBalance(formatBalance(wholeBalance));
+        setIsLoading(false);
+      }
+    })();
+  }, [walletAddress, connection]);
 
   return (
     <Flex justifyContent="space-between">
       <TextContainer>
         <Label>BONK:</Label>
         <Value>
-          <Spinner />
+          {isLoading && <Spinner />}
+          {bonkBalance}
         </Value>
         <Link href="https://jup.ag/swap/SOL-Bonk" target="_blank">
           <Button
