@@ -22,7 +22,6 @@ export const ResourceFieldAction: FC<{
     rf: string;
   };
 }> = ({ rf, timer, charMint }) => {
-  console.log({ rf });
   // show harvest button on timer undefined
   const finishedDate = timer?.finished && +timer?.finished;
   const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
@@ -46,7 +45,6 @@ export const ResourceFieldAction: FC<{
       countStart: isFuture ? Math.floor(remainingTime) + 1 : 10,
       intervalMs: 1000,
     });
-  console.table({ name: rf.resource, count, remainingTime, isFuture });
 
   useEffect(() => {
     if (!isHarvestable) return;
@@ -105,7 +103,7 @@ export const ResourceFieldAction: FC<{
         onError: (e) => {
           toast.error(JSON.stringify(e));
         },
-      }
+      },
     );
   };
 

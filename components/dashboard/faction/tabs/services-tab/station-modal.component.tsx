@@ -48,7 +48,6 @@ export const ModalStation: FC<{
   const stationBlueprint = station && getBlueprint(station?.blueprint);
   const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
   const image = stationBlueprint?.image;
-  console.log({ stationBlueprint });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>

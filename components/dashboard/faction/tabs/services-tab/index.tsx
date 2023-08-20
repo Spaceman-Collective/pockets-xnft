@@ -26,7 +26,6 @@ export const FactionTabServices: React.FC<{
   const { data: factionData } = useFaction({
     factionId: currentCharacter?.faction?.id ?? "",
   });
-  console.log({ factionData });
 
   const availableSlots = factionData?.faction?.townhallLevel;
   const remainingSlots =
