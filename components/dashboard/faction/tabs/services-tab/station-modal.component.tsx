@@ -16,6 +16,8 @@ import { FC, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useCountdown } from "usehooks-ts";
 import { getBlueprint } from "./constants";
+import { getLocalImage } from "@/lib/utils";
+import { Tip } from "@/components/tooltip";
 
 export const ModalStation: FC<{
   station?: {
@@ -43,8 +45,10 @@ export const ModalStation: FC<{
     resetCountdown();
   }, [isOpen]);
 
+  const stationBlueprint = station && getBlueprint(station?.blueprint);
   const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
-  const image = station && getBlueprint(station?.blueprint)?.image;
+  const image = stationBlueprint?.image;
+  console.log({ stationBlueprint });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -65,11 +69,11 @@ export const ModalStation: FC<{
           />
           <Grid templateColumns="repeat(3, 1fr)" mt="4rem">
             <ResourceContainer
+              type="resources"
               isDisabled={progress === 100}
-              resources={[
-                { img: "https://picsum.photos/seed/1/200/200" },
-                { img: "https://picsum.photos/seed/2/200/200" },
-              ]}
+              resources={
+                stationBlueprint?.inputs.map((input) => input.resource) ?? []
+              }
             />
             <Flex
               minH="20rem"
@@ -87,8 +91,9 @@ export const ModalStation: FC<{
               <Text>{count}</Text>
             </Flex>
             <ResourceContainer
+              type="units"
               isDisabled={progress !== 100}
-              resources={[{ img: "https://picsum.photos/seed/1/200" }]}
+              resources={stationBlueprint?.unitOutput ?? []}
             />
           </Grid>
         </ModalBody>
@@ -129,8 +134,9 @@ const ModalHeader = ({
 
 const ResourceContainer: FC<{
   isDisabled?: boolean;
-  resources: { img: string }[];
-}> = ({ resources, isDisabled }) => {
+  resources: string[];
+  type: "resources" | "units";
+}> = ({ resources, isDisabled, type }) => {
   return (
     <Grid
       borderRadius="1rem"
@@ -145,27 +151,31 @@ const ResourceContainer: FC<{
         gap="1rem"
       >
         {resources?.map((resource) => (
-          <Box
-            key={resource.img}
-            position="relative"
-            transition="all 0.25s ease-in-out"
-            _hover={{ transform: "scale(1.1)" }}
-          >
-            <Resource alt="resource" src={resource.img} />
-            <Text
-              position="absolute"
-              bottom="0"
-              right="0"
-              bg="rgba(0,0,0,0.5)"
-              p="0.25rem 0.5rem"
-              borderRadius="1rem"
-              fontWeight={700}
-              minW="3rem"
-              textAlign="center"
+          <Tip key={resource} label={resource}>
+            <Box
+              position="relative"
+              transition="all 0.25s ease-in-out"
+              _hover={{ transform: "scale(1.1)" }}
             >
-              5
-            </Text>
-          </Box>
+              <Resource
+                alt="resource"
+                src={getLocalImage({ type, name: resource })}
+              />
+              <Text
+                position="absolute"
+                bottom="0"
+                right="0"
+                bg="rgba(0,0,0,0.5)"
+                p="0.25rem 0.5rem"
+                borderRadius="1rem"
+                fontWeight={700}
+                minW="3rem"
+                textAlign="center"
+              >
+                5
+              </Text>
+            </Box>
+          </Tip>
         ))}
       </Grid>
     </Grid>

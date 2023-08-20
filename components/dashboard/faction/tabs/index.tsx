@@ -35,10 +35,7 @@ export const FactionTabs: React.FC<{
       </TabList>
       <TabPanels>
         <TabPanel>
-          <FactionTabServices
-            currentCharacter={currentCharacter}
-            setFactionStatus={setFactionStatus!}
-          />
+          <FactionTabServices currentCharacter={currentCharacter} />
         </TabPanel>
         <TabPanel>
           <FactionTabPolitics
