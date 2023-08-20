@@ -45,7 +45,7 @@ export const ModalStation: FC<{
   } = useSolana();
   const [selectedCharacter, _] = useSelectedCharacter();
   const { data: walletAssets } = useAllWalletAssets();
-  const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
+  // const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
   const totalTimeInSeconds = 60;
   const [count, { startCountdown, resetCountdown }] = useCountdown({
     countStart: totalTimeInSeconds,
