@@ -129,7 +129,7 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
         <MenuTitle>resource fields</MenuTitle>
       </Tip>
       <HStack gap="4rem" alignItems="end">
-        <MenuText color="brand.quaternary">harvest all</MenuText>
+        {/* <MenuText color="brand.quaternary">harvest all</MenuText> */}
         {isDiscoverable === undefined && <Spinner mb="0.75rem" mr="1rem" />}
         {isDiscoverable === true && (
           <MenuText cursor="pointer" color="brand.tertiary" onClick={onClick}>
