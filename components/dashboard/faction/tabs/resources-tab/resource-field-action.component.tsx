@@ -10,6 +10,7 @@ import { useCountdown } from "usehooks-ts";
 import { useRfHarvest } from "@/hooks/useRf";
 import { useSolana } from "@/hooks/useSolana";
 import { toast } from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const ResourceFieldAction: FC<{
   charMint?: string;
@@ -38,16 +39,25 @@ export const ResourceFieldAction: FC<{
     signTransaction,
   } = useSolana();
   const { mutate } = useRfHarvest();
+  const queryClient = useQueryClient();
+
   const [count, { startCountdown, stopCountdown, resetCountdown }] =
     useCountdown({
-      countStart: remainingTime > 0 ? remainingTime : 0,
+      countStart: isFuture ? Math.floor(remainingTime) + 1 : 10,
       intervalMs: 1000,
     });
+  console.table({ name: rf.resource, count, remainingTime, isFuture });
 
   useEffect(() => {
-    if (!timer || remainingTime < 0) return;
+    if (!isHarvestable) return;
     startCountdown();
   }, []);
+
+  useEffect(() => {
+    if (remainingTime < 0) return;
+    resetCountdown();
+    startCountdown();
+  }, [remainingTime]);
 
   const post = async () => {
     if (!charMint) {
@@ -81,17 +91,21 @@ export const ResourceFieldAction: FC<{
     if (typeof encodedTx !== "string" || encodedTx === undefined) {
       return toast.error("no encoded tx");
     }
+
     mutate(
       { signedTx: encodedTx },
       {
         onSuccess: (e) => {
-          toast.success(JSON.stringify(e));
+          toast.success("Successful harvest. Check your wallet page.");
+          queryClient.refetchQueries({
+            queryKey: ["char-timers"],
+          });
         },
 
         onError: (e) => {
           toast.error(JSON.stringify(e));
         },
-      },
+      }
     );
   };
 
