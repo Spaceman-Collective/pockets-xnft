@@ -54,6 +54,8 @@ export const FactionTabResources: React.FC<{
 
   const { data: discoverData } = useRfAllocation();
 
+  console.log({ timersData });
+
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header factionName={currentCharacter?.faction?.name} />
@@ -74,6 +76,7 @@ export const FactionTabResources: React.FC<{
               key={rf.id}
               rf={rf}
               timer={timersData?.rfTimers.find((timer) => timer.rf === rf.id)}
+              charMint={currentCharacter?.mint}
             />
           ))}
           {rfData?.rfs &&
@@ -162,12 +165,12 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
         <MenuText color="brand.quaternary">harvest all</MenuText>
         {isDiscoverable === undefined && <Spinner mb="0.75rem" mr="1rem" />}
         {isDiscoverable === true && (
-          <MenuText color="brand.tertiary" onClick={onClick}>
+          <MenuText cursor="pointer" color="brand.tertiary" onClick={onClick}>
             discover
           </MenuText>
         )}
         {isDiscoverable === false && (
-          <MenuText color="brand.quaternary" onClick={onClick}>
+          <MenuText cursor="pointer" color="brand.quaternary" onClick={onClick}>
             prospect
           </MenuText>
         )}
@@ -176,7 +179,9 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
   );
 };
 
-const ResourceItem: FC<{ resource: { name: string } }> = ({ resource }) => {
+const ResourceItem: FC<{ resource: { name: string; value: number } }> = ({
+  resource,
+}) => {
   const hoverProps = useDisclosure();
   return (
     <Flex
@@ -207,7 +212,7 @@ const ResourceItem: FC<{ resource: { name: string } }> = ({ resource }) => {
         borderRadius="0.5rem"
         w="7rem"
       />
-      <Value pr="1rem">{29}</Value>
+      <Value pr="1rem">{resource?.value ?? 0}</Value>
       {hoverProps.isOpen && (
         <Flex
           position="absolute"

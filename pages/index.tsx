@@ -17,10 +17,14 @@ import {
 } from "@/components/dashboard";
 import { useAssets } from "@/hooks/useCharacters";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { useAllWalletAssets } from "@/hooks/useWalletAssets";
 
 export default function Home() {
   const { walletAddress } = useSolana();
-  const { data: assets, isLoading: assetsIsLoading } = useAssets();
+  const { data: assets, isLoading: assetsIsLoading } = useAssets(); // chars/nfts
+  const { data: walletAssets } = useAllWalletAssets();
+  console.log({ walletAssets });
+
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   return (

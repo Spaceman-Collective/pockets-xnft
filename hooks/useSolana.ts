@@ -182,7 +182,7 @@ const sendTransaction = async (
 async function getTokenAccountBalance(
   wallet: string,
   solanaConnection: Connection,
-  mint: string
+  mint: string,
 ) {
   const filters: any[] = [
     {
@@ -198,7 +198,7 @@ async function getTokenAccountBalance(
 
   const accounts = await solanaConnection.getParsedProgramAccounts(
     new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), // TOKEN_PROGRAM_ID
-    { filters: filters }
+    { filters: filters },
   );
 
   // console.log(
@@ -224,7 +224,7 @@ async function getTokenAccountBalance(
   });
 
   return retTokenBalance;
-};
+}
 
 const getBonkBalance = async ({
   walletAddress,
@@ -236,7 +236,7 @@ const getBonkBalance = async ({
   const bonkBalance = await getTokenAccountBalance(
     walletAddress,
     connection,
-    SPL_TOKENS.bonk.mint
+    SPL_TOKENS.bonk.mint,
   );
 
   return bonkBalance;
