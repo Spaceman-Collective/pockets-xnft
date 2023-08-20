@@ -49,6 +49,7 @@ import { useProposalVotesByCitizen } from "@/hooks/useProposalVotesByCitizen";
 import { useFaction } from "@/hooks/useFaction";
 import { decode } from "bs58";
 import { TransactionMessage } from "@solana/web3.js";
+import { useCitizen } from "@/hooks/useCitizen";
 
 const spacing = "1rem";
 type FactionTabPoliticsProps = {
@@ -91,7 +92,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     }
     return (
       <VStack gap={spacing}>
-        <ProposalLabels fire={fireConfetti} />
+        <ProposalLabels fire={fireConfetti} character={currentCharacter} />
         {allProposals?.proposals?.map((proposal: Proposal) => (
           <ProposalItem
             key={proposal.id}
@@ -142,7 +143,7 @@ const ProposalTypeDetails: React.FC<ProposalTypeDetailsProps> = ({
 }) => {
   return (
     <HStack alignItems="end">
-    <Label color={colors.brand.tertiary} pb="0.4rem">
+      <Label color={colors.brand.tertiary} pb="0.4rem">
         {getLabel(type)}:
       </Label>
       <Value>{getValue(type, proposal)}</Value>
@@ -349,7 +350,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                 bg={colors.blacks[700]}
                 onClick={() =>
                   validateInput() &&
-                  ((Number(voteAmount) > 0)
+                  (Number(voteAmount) > 0
                     ? updateVote(parseInt(localVote))
                     : handleVote(parseInt(localVote)))
                 }
@@ -365,10 +366,14 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   );
 };
 
+
+
 const ProposalLabels: React.FC<{
   fire: () => void;
-}> = ({ fire: fireConfetti }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  character: Character;
+}> = ({ fire: fireConfetti, character }) => {
+  const { data } = useCitizen(character?.mint);
+
 
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
@@ -377,13 +382,17 @@ const ProposalLabels: React.FC<{
         <Label color={colors.brand.tertiary} pb="0.25rem">
           Voting Power:
         </Label>
-        <Value>40/40</Value>
+        <Value>
+          {data?.citizen?.maxPledgedVotingPower.toString()}/
+          {data?.citizen?.totalVotingPower.toString()}
+        </Value>
         <ValueCalculation
           color={colors.brand.tertiary}
           pl="0.25rem"
           pb="0.25rem"
         >
-          (30 + 10)
+          {data?.citizen?.grantedVotingPower.toString()} + {" "}
+          {new BN(data?.citizen?.maxPledgedVotingPower).toString()}
         </ValueCalculation>
       </HStack>
       <Flex alignItems="end">

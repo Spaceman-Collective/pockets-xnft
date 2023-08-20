@@ -393,10 +393,10 @@ export const fetchProposalsByFaction = async (
 
 export const fetchFactionVotingInfo = async (
   proposalId: string
-): Promise<FetchResponse> => {
+) => {
   const URL = `${API_BASE_URL}/accounts/faction`;
   try {
-    const { data } = await fetch.get<FetchResponse>(URL, {
+    const { data } = await fetch.get(URL, {
       params: {
         id: proposalId,
       },
@@ -408,18 +408,20 @@ export const fetchFactionVotingInfo = async (
   }
 };
 
-export const fetchCitizen = async (mint: string): Promise<FetchResponse> => {
+export const fetchCitizen = async (
+  mint: string
+) => {
   const URL = `${API_BASE_URL}/accounts/citizen`;
   try {
-    const { data } = await fetch.get<FetchResponse>(URL, {
+    const { data } = await fetch.get(URL, {
       params: {
-        mint,
+        mint
       },
     });
     return data;
   } catch (err) {
     console.error(err);
-    throw new Error("Failed to fetch citizen");
+    throw new Error("Failed to fetch faction voting info");
   }
 };
 
@@ -428,7 +430,6 @@ enum ProposalStatus {
   PASSED = "PASSED",
   CLOSED = "CLOSED",
 }
-
 interface ProposalAccount {
   id: string;
   faction: string;
