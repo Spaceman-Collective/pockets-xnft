@@ -29,6 +29,7 @@ import {
 import { useRfAllocation } from "@/hooks/useRf";
 import { ModalRfDiscover } from "./discover-modal.component";
 import { ModalRfProspect } from "./prospect-modal.component";
+import { ResourceGridContainer } from "../../resources-grid.component";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -37,6 +38,7 @@ export const FactionTabResources: React.FC<{
 }> = ({ currentCharacter }) => {
   const discoverDisclosure = useDisclosure();
   const prospectDisclosure = useDisclosure();
+
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
   const onSearch = (e: any) => setSearch(e.target.value);
@@ -84,43 +86,10 @@ export const FactionTabResources: React.FC<{
             ))}
         </Grid>
       </Box>
-      <Box>
-        <Flex justifyContent="space-between" alignItems="end" mb="1rem">
-          <MenuTitle mb="1rem">Treasury</MenuTitle>
-          <Input
-            bg="blacks.500"
-            outline="none"
-            placeholder="Search Items"
-            p="0.5rem 2rem"
-            borderRadius="1rem"
-            opacity="0.5"
-            onChange={onSearch}
-          />
-        </Flex>
-        <Grid templateColumns="repeat(4,1fr)" gap={spacing}>
-          {factionIsLoading &&
-            Array.from({ length: 12 }).map((_, i) => (
-              <Skeleton
-                key={"resouce" + i + "load"}
-                w="100%"
-                h="7rem"
-                borderRadius="1rem"
-              />
-            ))}
-          {factionData?.resources
-            ?.filter((resource) => {
-              if (debouncedSearch === undefined || debouncedSearch === "")
-                return true;
-              const flatName = resource.name.replace(" ", "").toLowerCase();
-              const search = debouncedSearch.toLowerCase();
-              const isWithinSearchParams = flatName.includes(search);
-              return isWithinSearchParams;
-            })
-            ?.map((resource) => (
-              <ResourceItem key={resource.name} resource={resource} />
-            ))}
-        </Grid>
-      </Box>
+      <ResourceGridContainer
+        isLoading={factionIsLoading}
+        resources={factionData?.resources}
+      />
       <ModalRfDiscover rf={discoverData} {...discoverDisclosure} />
       <ModalRfProspect
         rf={discoverData}

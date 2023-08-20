@@ -15,7 +15,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 
 export const ResourceGridContainer: FC<{
   isLoading: boolean;
-  resources: { name: string; value: number }[];
+  resources?: { name: string; value: number }[];
 }> = ({ isLoading, resources }) => {
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
