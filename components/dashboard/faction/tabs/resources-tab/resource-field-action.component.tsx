@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { HStack, Flex, Image } from "@chakra-ui/react";
+import { HStack, Flex, Image, Button } from "@chakra-ui/react";
 import { Tip } from "@/components/tooltip";
 import { getLocalImage } from "@/lib/utils";
 import { Label, Value } from "../tab.styles";
@@ -22,17 +22,20 @@ export const ResourceFieldAction: FC<{
   const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
 
   const remainingTime = (finishedTime - Date.now()) / 1000;
+  const isFuture = remainingTime > 0;
 
   const [count, { startCountdown, stopCountdown, resetCountdown }] =
     useCountdown({
-      countStart: remainingTime,
+      countStart: remainingTime > 0 ? remainingTime : 0,
       intervalMs: 1000,
     });
 
+  console.log({ count });
   useEffect(() => {
-    if (!timer) return;
+    if (!timer || remainingTime < 0) return;
     startCountdown();
   }, []);
+  console.table({ rf: rf.resource, count, isFuture });
 
   return (
     <ResourceActionContainer key={rf.id}>
@@ -52,22 +55,12 @@ export const ResourceFieldAction: FC<{
         <Value>{rf.amount}</Value>
       </HStack>
       <HStack>
-        {timer ? <Value>{timeAgo(count)}</Value> : "Harvest"}
-        {/* <Value>{formatTime(finishedTime)}</Value> */}
+        {isFuture && <Value>{timeAgo(count)}</Value>}
+        {!isFuture && <Button bg="brand.quaternary">Harvest</Button>}
       </HStack>
     </ResourceActionContainer>
   );
 };
-
-// const formatTime = (ms: number) => {
-//   const seconds = Math.floor(ms / 1000);
-//   const minutes = Math.floor(seconds / 60);
-//   const hours = Math.floor(minutes / 60);
-
-//   const rel = formatRelative(ms, Date.now(), {add});
-//   // return `${hours}hrs ${minutes}mins ${seconds}s`;
-//   return rel;
-// };
 
 function timeAgo(timestamp: number): string {
   const timeDifference = Math.floor(timestamp); // Convert to seconds

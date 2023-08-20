@@ -54,6 +54,8 @@ export const FactionTabResources: React.FC<{
 
   const { data: discoverData } = useRfAllocation();
 
+  console.log({ timersData });
+
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header factionName={currentCharacter?.faction?.name} />
@@ -162,12 +164,12 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
         <MenuText color="brand.quaternary">harvest all</MenuText>
         {isDiscoverable === undefined && <Spinner mb="0.75rem" mr="1rem" />}
         {isDiscoverable === true && (
-          <MenuText color="brand.tertiary" onClick={onClick}>
+          <MenuText cursor="pointer" color="brand.tertiary" onClick={onClick}>
             discover
           </MenuText>
         )}
         {isDiscoverable === false && (
-          <MenuText color="brand.quaternary" onClick={onClick}>
+          <MenuText cursor="pointer" color="brand.quaternary" onClick={onClick}>
             prospect
           </MenuText>
         )}
