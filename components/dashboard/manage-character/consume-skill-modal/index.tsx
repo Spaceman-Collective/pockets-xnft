@@ -14,7 +14,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 import { FC } from "react";
-import { combatSkillKeys } from "./constants";
+import { combatSkillKeys } from "../constants";
 import { getLocalImage } from "@/lib/utils";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
 
