@@ -17,11 +17,17 @@ import {
   TransactionMessage,
   VersionedTransaction,
   LAMPORTS_PER_SOL,
+  SystemProgram,
 } from "@solana/web3.js";
 import { decode, encode } from "bs58";
 import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants";
-
+import { PocketsProgram } from "../lib/program/pockets_program";
+const pocketsIDL = require("../lib/program/pockets_program.json");
+import { Program, AnchorProvider, Wallet, BN } from "@coral-xyz/anchor";
 type TxType = VersionedTransaction | Transaction;
+
+export const POCKETS_PROGRAM_PROGRAMID =
+  "GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ";
 
 export const useSolana = () => {
   const [payload, setPayload] = useState<{
@@ -65,6 +71,8 @@ export const useSolana = () => {
     buildMemoIx,
     encodeTransaction,
     getBonkBalance,
+    buildProspectIx,
+    getRFAccount,
   };
 };
 
@@ -104,11 +112,11 @@ const buildTransferIx = ({
   if (!walletAddress) return;
   const senderATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(walletAddress),
+    new PublicKey(walletAddress)
   );
   const serverATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(SERVER_KEY),
+    new PublicKey(SERVER_KEY)
   );
   const ix = createTransferCheckedInstruction(
     senderATA,
@@ -116,7 +124,7 @@ const buildTransferIx = ({
     serverATA,
     new PublicKey(walletAddress),
     amount,
-    decimals,
+    decimals
   );
   return ix;
 };
@@ -164,3 +172,76 @@ const getBonkBalance = async ({
 
   // return currentBonkBalance;
 };
+
+const buildProspectIx = async ({
+  walletAddress,
+  characterMint,
+  rfId,
+  factionId,
+}: {
+  walletAddress?: string;
+  characterMint: string;
+  rfId: string;
+  factionId: string;
+}) => {
+  if (!walletAddress) return;
+
+  const walletAta = getAssociatedTokenAddressSync(
+    new PublicKey(characterMint),
+    new PublicKey(walletAddress)
+  );
+
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    { connection: new Connection("https://api.mainnet-beta.solana.com") }
+  );
+
+  const ix = await POCKETS_PROGRAM.methods
+    .developResourceField()
+    .accounts({
+      wallet: new PublicKey(walletAddress),
+      walletAta,
+      systemProgram: SystemProgram.programId,
+      citizen: getCitizenPDA(new PublicKey(characterMint)),
+      rf: getRFPDA(rfId),
+      faction: getFactionPDA(factionId),
+    })
+    .instruction();
+
+  return ix;
+};
+
+function getCitizenPDA(characterMint: PublicKey): PublicKey {
+  const [citizenPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("citizen"), Buffer.from(characterMint.toBuffer())],
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+  );
+  return citizenPDA;
+}
+
+function getFactionPDA(factionId: string): PublicKey {
+  const [factionPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("faction"), Buffer.from(factionId)],
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+  );
+  return factionPDA;
+}
+
+function getRFPDA(rfId: string): PublicKey {
+  const [rfPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("rf"), Buffer.from(rfId)],
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+  );
+  return rfPDA;
+}
+
+async function getRFAccount(connection: Connection, rfId: string) {
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    { connection }
+  );
+
+  return await POCKETS_PROGRAM.account.resourceField.fetch(getRFPDA(rfId));
+}
