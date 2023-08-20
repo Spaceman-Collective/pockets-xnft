@@ -20,7 +20,6 @@ export const ResourceFieldAction: FC<{
   // show harvest button on timer undefined
   const finishedDate = timer?.finished && +timer?.finished;
   const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
-  console.table({ date: new Date(finishedTime) });
 
   const remainingTime = (finishedTime - Date.now()) / 1000;
 

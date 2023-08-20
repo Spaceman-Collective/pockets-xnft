@@ -9,10 +9,10 @@ import {
   Image,
   Skeleton,
   useDisclosure,
+  Spinner,
 } from "@chakra-ui/react";
 import { Label, PanelContainer, Value } from "../tab.styles";
 import styled from "@emotion/styled";
-import { colors } from "@/styles/defaultTheme";
 import { FC, useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
@@ -22,19 +22,21 @@ import { TIP } from "@/components/tooltip/constants";
 import { Tip } from "@/components/tooltip";
 import { useResourceField } from "@/hooks/useResourceField";
 import { useCharTimers } from "@/hooks/useCharTimers";
-import { getLocationOrigin } from "next/dist/shared/lib/utils";
 import {
   ResourceActionContainer,
   ResourceFieldAction,
 } from "./resource-field-action.component";
+import { useRfAllocation } from "@/hooks/useRf";
+import { ModalRfDiscover } from "./discover-modal.component";
+import { ModalRfProspect } from "./prospect-modal.component";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
   currentCharacter: Character;
   setFactionStatus: (value: boolean) => void;
 }> = ({ currentCharacter }) => {
-  // NOTE: use this to handle local search through teasury items
-  // when the api is available
+  const discoverDisclosure = useDisclosure();
+  const prospectDisclosure = useDisclosure();
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
   const onSearch = (e: any) => setSearch(e.target.value);
@@ -50,11 +52,23 @@ export const FactionTabResources: React.FC<{
     mint: currentCharacter?.mint,
   });
 
+  const { data: discoverData } = useRfAllocation();
+  console.log({ discoverData });
+
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header factionName={currentCharacter?.faction?.name} />
       <Box>
-        <ResourceLabels />
+        <ResourceLabels
+          onClick={() => {
+            if (discoverData?.isDiscoverable) {
+              discoverDisclosure.onOpen();
+            } else {
+              prospectDisclosure.onOpen();
+            }
+          }}
+          isDiscoverable={discoverData?.isDiscoverable}
+        />
         <Grid templateColumns="1fr 1fr" gap={spacing}>
           {rfData?.rfs.map((rf) => (
             <ResourceFieldAction
@@ -107,6 +121,13 @@ export const FactionTabResources: React.FC<{
             ))}
         </Grid>
       </Box>
+      <ModalRfDiscover rf={discoverData} {...discoverDisclosure} />
+      <ModalRfProspect
+        rf={discoverData}
+        charMint={currentCharacter.mint}
+        factionId={currentCharacter?.faction?.id}
+        {...prospectDisclosure}
+      />
     </PanelContainer>
   );
 };
@@ -129,7 +150,10 @@ const Header: React.FC<{ factionName: string | undefined }> = ({
   );
 };
 
-const ResourceLabels = () => {
+const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
+  isDiscoverable,
+  onClick,
+}) => {
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <Tip label={TIP.RESOURCE_FIELDS} placement="top">
@@ -137,7 +161,17 @@ const ResourceLabels = () => {
       </Tip>
       <HStack gap="4rem" alignItems="end">
         <MenuText color="brand.quaternary">harvest all</MenuText>
-        <MenuText color="brand.tertiary">discover</MenuText>
+        {isDiscoverable === undefined && <Spinner mb="0.75rem" mr="1rem" />}
+        {isDiscoverable === true && (
+          <MenuText color="brand.tertiary" onClick={onClick}>
+            discover
+          </MenuText>
+        )}
+        {isDiscoverable === false && (
+          <MenuText color="brand.quaternary" onClick={onClick}>
+            prospect
+          </MenuText>
+        )}
       </HStack>
     </Flex>
   );
