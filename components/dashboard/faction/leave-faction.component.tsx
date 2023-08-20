@@ -19,6 +19,7 @@ import { useCharacter } from "@/hooks/useCharacter";
 import { useSolana } from "@/hooks/useSolana";
 import { Character } from "@/types/server";
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const LeaveFactionModal: React.FC<{
   character: Character;
@@ -35,12 +36,14 @@ export const LeaveFactionModal: React.FC<{
   if (!character?.mint) throw Error("No character mint found");
   const { data, error, isLoading } = useCharacter(character?.mint);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setFactionStatus(!!character?.faction);
   }, [character, setFactionStatus]);
 
   const onSuccess = (data: any) => {
+    queryClient.refetchQueries({ queryKey: ["assets"] });
     setFactionStatus(false);
     onClose();
   };
