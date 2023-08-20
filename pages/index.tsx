@@ -18,6 +18,7 @@ import {
 import { useAssets } from "@/hooks/useCharacters";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
+import { WalletTabs } from "@/components/dashboard/wallet-page";
 
 export default function Home() {
   const { walletAddress } = useSolana();
@@ -55,6 +56,7 @@ export default function Home() {
                 />
                 <SectionContainer>
                   <Personal />
+                  {/* <WalletTabs /> */}
                 </SectionContainer>
               </PersonalSection>
             </DashboardContainer>
