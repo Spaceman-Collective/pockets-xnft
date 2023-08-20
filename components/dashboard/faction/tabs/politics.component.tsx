@@ -142,11 +142,11 @@ const ProposalTypeDetails: React.FC<ProposalTypeDetailsProps> = ({
   proposal,
 }) => {
   return (
-    <HStack alignItems="end">
+    <HStack alignItems="end" ml="5rem">
       <Label color={colors.brand.tertiary} pb="0.4rem">
         {getLabel(type)}:
       </Label>
-      <Value>{getValue(type, proposal)}</Value>
+      <ProposalTitle>{getValue(proposal?.type, proposal?.proposal)}</ProposalTitle>
     </HStack>
   );
 };
@@ -199,7 +199,7 @@ const getValue = (type: string, proposal: any) => {
     case "WARBAND":
       return proposal.warband?.join(", ");
     case "TAX":
-      return proposal.newTaxRate;
+      return `${proposal.newTaxRate}%`;
     default:
       return "";
   }
@@ -310,8 +310,8 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
               type:
             </Label>
             <ProposalTitle>{type}</ProposalTitle>
+            <ProposalTypeDetails type={type} proposal={proposal} />
           </HStack>
-          <ProposalTypeDetails type={type} proposal={proposal} />
           <HStack alignItems="end" pr="1rem">
             <Label color={colors.brand.tertiary} pb="0.4rem">
               votes:
