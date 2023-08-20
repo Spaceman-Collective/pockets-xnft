@@ -11,6 +11,7 @@ import {
 import { PublicKey } from "@solana/web3.js";
 import { FC, useEffect, useState } from "react";
 import { BN } from "@coral-xyz/anchor";
+import { toast } from "react-hot-toast";
 
 type RFAccount = {
   harvest: any | null;
@@ -82,6 +83,7 @@ export const ModalRfProspect: FC<{
 
     //TODO: remove this log when building page
     console.info("SUCCESSFUL SIGN", sig);
+    toast.success(sig ?? "");
     setSigned(sig ?? "");
   };
 
