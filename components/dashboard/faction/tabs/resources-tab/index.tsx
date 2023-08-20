@@ -5,7 +5,6 @@ import {
   HStack,
   Input,
   Text,
-  VStack,
   Image,
   Skeleton,
   useDisclosure,
@@ -59,6 +58,7 @@ export const FactionTabResources: React.FC<{
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header factionName={currentCharacter?.faction?.name} />
+
       <Box>
         <ResourceLabels
           onClick={() => {
@@ -86,10 +86,50 @@ export const FactionTabResources: React.FC<{
             ))}
         </Grid>
       </Box>
+
       <ResourceGridContainer
         isLoading={factionIsLoading}
         resources={factionData?.resources}
       />
+
+      <Box>
+        <Flex justifyContent="space-between" alignItems="end" mb="1rem">
+          <MenuTitle mb="1rem">Treasury</MenuTitle>
+          <Input
+            bg="blacks.500"
+            outline="none"
+            placeholder="Search Items"
+            p="0.5rem 2rem"
+            borderRadius="1rem"
+            opacity="0.5"
+            onChange={onSearch}
+          />
+        </Flex>
+        <Grid templateColumns="repeat(4,1fr)" gap={spacing}>
+          {factionIsLoading &&
+            Array.from({ length: 12 }).map((_, i) => (
+              <Skeleton
+                key={"resouce" + i + "load"}
+                w="100%"
+                h="7rem"
+                borderRadius="1rem"
+              />
+            ))}
+          {factionData?.resources
+            ?.filter((resource) => {
+              if (debouncedSearch === undefined || debouncedSearch === "")
+                return true;
+              const flatName = resource.name.replace(" ", "").toLowerCase();
+              const search = debouncedSearch.toLowerCase();
+              const isWithinSearchParams = flatName.includes(search);
+              return isWithinSearchParams;
+            })
+            ?.map((resource) => (
+              <ResourceItem key={resource.name} resource={resource} />
+            ))}
+        </Grid>
+      </Box>
+
       <ModalRfDiscover rf={discoverData} {...discoverDisclosure} />
       <ModalRfProspect
         rf={discoverData}
@@ -97,6 +137,7 @@ export const FactionTabResources: React.FC<{
         factionId={currentCharacter?.faction?.id}
         {...prospectDisclosure}
       />
+
     </PanelContainer>
   );
 };
@@ -108,7 +149,7 @@ const Header: React.FC<{ factionName: string | undefined }> = ({
     <Flex justifyContent="space-between" alignItems="end">
       <Title verticalAlign="end">{factionName!}</Title>
       <HStack alignItems="end">
-        <Label>RF Prospect Cost:</Label>
+        <Label>RF Harvest Cost:</Label>
         <Value>10k BONK</Value>
       </HStack>
       <HStack alignItems="end">
@@ -123,6 +164,7 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
   isDiscoverable,
   onClick,
 }) => {
+
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <Tip label={TIP.RESOURCE_FIELDS} placement="top">
@@ -221,7 +263,9 @@ const MenuTitle = styled(Text)`
   text-transform: uppercase;
   letter-spacing: 1px;
   text-decoration: underline;
+  padding: 1rem;
 `;
+
 const MenuText = styled(Text)`
   font-size: 1.5rem;
   font-weight: 600;
