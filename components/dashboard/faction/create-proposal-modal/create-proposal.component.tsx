@@ -27,14 +27,15 @@ import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { useSolana } from "@/hooks/useSolana";
-import { Character } from "@/types/server";
+import { Character, Proposal } from "@/types/server";
 import { useCreateProposal } from "@/hooks/useCreateProposal";
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import toast from "react-hot-toast";
-import { BLUEPRINTS } from "../tabs/services-tab/constants";
+import { FaTimes } from "react-icons/fa";
+import { ProposalForm } from "./proposal-form.component";
 
-enum ProposalType {
+enum ProposalNames {
   BUILD = "CONSTRUCT A BUILDING",
   UPGRADE = "UPGRADE A BUILDING",
   ATK_CITY = "ATTACK CITY",
@@ -73,232 +74,38 @@ export const CreateProposal: React.FC<{
   const { isOpen, onOpen, onClose: closeIt } = useDisclosure();
 
   const onClose = () => {
-    setProposalType("");
-    setProposal({
-      type: "",
-      blueprintName: "",
-      station: "",
-      factionID: "",
-      rfID: "",
-      characterMint: "",
-      resourceName: "",
-      bonk: "",
-      newSharesToMint: "",
-      citizen: "",
-      amount: "",
-      newThreshold: "",
-      warband: "",
-      tax: "",
-      burn: "",
-    });
     closeIt();
   };
 
-  const [proposal, setProposal] = useState({
-    type: "",
-    blueprintName: "",
-    station: "",
-    factionID: "",
-    rfID: "",
-    characterMint: "",
-    resourceName: "",
-    bonk: "",
-    newSharesToMint: "",
-    citizen: "",
-    amount: "",
-    newThreshold: "",
-    warband: "",
-    tax: "",
-    burn: "",
-  });
-
-  const [proposalType, setProposalType] = useState<ProposalType | "">("");
-
-  const handleProposalTypeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setProposalType(event.target.value as ProposalType);
-    setProposal({
-      ...proposal,
-      type: event.target.value,
-    });
-  };
-  const [inputErrors, setInputErrors] = useState({
-    type: "",
-    blueprintName: "",
-    station: "",
-    factionID: "",
-    rfID: "",
-    characterMint: "",
-    resourceName: "",
-    bonk: "",
-    newSharesToMint: "",
-    citizen: "",
-    amount: "",
-    newThreshold: "",
-    warband: "",
-    tax: "",
-    burn: "",
-  });
-
-  const validateInputs = () => {
-    let errors = {
-      type: "",
-      blueprintName: "",
-      station: "",
-      factionID: "",
-      rfID: "",
-      characterMint: "",
-      resourceName: "",
-      bonk: "",
-      newSharesToMint: "",
-      citizen: "",
-      amount: "",
-      newThreshold: "",
-      warband: "",
-      tax: "",
-      burn: "",
-    };
-
-    let isValid = true;
-
-    // BUILD
-    if (proposalType === ProposalType.BUILD && !proposal.blueprintName.trim()) {
-      errors.blueprintName = "Blueprint name is required.";
-      isValid = false;
-    }
-
-    // UPGRADE
-    if (proposalType === ProposalType.UPGRADE && !proposal.station.trim()) {
-      errors.station = "Station ID or Townhall is required.";
-      isValid = false;
-    }
-
-    // ATK_CITY
-    if (proposalType === ProposalType.ATK_CITY && !proposal.factionID.trim()) {
-      errors.factionID = "Faction ID is required.";
-      isValid = false;
-    }
-
-    // ATK_RF
-    if (proposalType === ProposalType.ATK_RF && !proposal.rfID.trim()) {
-      errors.rfID = "RF ID is required.";
-      isValid = false;
-    }
-
-    // WITHDRAW
-    if (proposalType === ProposalType.WITHDRAW) {
-      if (!proposal.characterMint.trim()) {
-        errors.characterMint = "Character mint is required";
-        isValid = false;
-      }
-      if (!proposal.amount.trim()) {
-        errors.amount = "Resource amount is required";
-        isValid = false;
-      }
-      if (!proposal.resourceName.trim()) {
-        errors.resourceName = "Resource name is required";
-        isValid = false;
-      }
-      if (!proposal.bonk.trim()) {
-        errors.bonk = "BONK value is required";
-        isValid = false;
-      }
-    }
-
-    // MINT
-    if (
-      proposalType === ProposalType.MINT &&
-      !proposal.newSharesToMint.trim()
-    ) {
-      errors.newSharesToMint = "New shares to mint value is required";
-      isValid = false;
-    }
-
-    // ALLOCATE
-    if (proposalType === ProposalType.ALLOCATE) {
-      if (!proposal.citizen.trim()) {
-        errors.citizen = "Citizen value is required";
-        isValid = false;
-      }
-      if (!proposal.amount.trim()) {
-        errors.amount = "Amount is required";
-        isValid = false;
-      }
-    }
-
-    // THRESHOLD
-    if (
-      proposalType === ProposalType.THRESHOLD &&
-      !proposal.newThreshold.trim()
-    ) {
-      errors.newThreshold = "New threshold value is required";
-      isValid = false;
-    }
-
-    // WARBAND
-    if (proposalType === ProposalType.WARBAND && !proposal.warband.trim()) {
-      errors.warband = "Warband details are required";
-      isValid = false;
-    }
-
-    // TAX
-    if (
-      proposalType === ProposalType.TAX &&
-      (proposal.tax === null ||
-        proposal.tax === undefined ||
-        proposal.tax === "0" ||
-        !proposal.tax.trim())
-    ) {
-      errors.tax = "Tax value is required";
-      isValid = false;
-    }
-
-    // BURN
-    if (proposalType === ProposalType.BURN && !proposal.burn.trim()) {
-      errors.burn = "Amount of resources to burn is required";
-      isValid = false;
-    }
-
-    setInputErrors(errors);
-    return isValid;
-  };
-
-  const onSuccess = (data: any) => {
-    fireConfetti();
-    refetch();
-    toast.success("Proposal created!");
-    onClose();
-  };
-
   const handleCreateProposal = async () => {
-    if (!validateInputs()) {
-      return;
-    }
-    const prpsl = {
-      type: "TAX",
-      newTaxRate: Number(proposal?.tax),
-    };
-    const payload = {
-      mint: selectedCharacter?.mint,
-      timestamp: Date.now().toString(),
-      proposal: prpsl,
-    };
-    if (!walletAddress) return console.error("No wallet");
-    const encodedSignedTx = await encodeTransaction({
-      walletAddress,
-      connection,
-      signTransaction,
-      txInstructions: [buildMemoIx({ walletAddress, payload })],
-    });
+    // if (!validateInputs()) {
+    //   return;
+    // }
+    // const prpsl = {
+    //   type: "TAX",
+    //   newTaxRate: Number(proposal?.tax),
+    // };
+    // const payload = {
+    //   mint: selectedCharacter?.mint,
+    //   timestamp: Date.now().toString(),
+    //   proposal: prpsl,
+    // };
+    // if (!walletAddress) return console.error("No wallet");
+    // const encodedSignedTx = await encodeTransaction({
+    //   walletAddress,
+    //   connection,
+    //   signTransaction,
+    //   txInstructions: [buildMemoIx({ walletAddress, payload })],
+    // });
 
-    if (typeof encodedSignedTx === "string") {
-      mutate({ signedTx: encodedSignedTx }, { onSuccess });
-    } else {
-      toast.error("Failed to create proposal tx");
-      console.error(encodedSignedTx);
-    }
+    // if (typeof encodedSignedTx === "string") {
+    //   mutate({ signedTx: encodedSignedTx }, { onSuccess });
+    // } else {
+    //   toast.error("Failed to create proposal tx");
+    //   console.error(encodedSignedTx);
+    // }
   };
+
 
   return (
     <>
@@ -327,332 +134,10 @@ export const CreateProposal: React.FC<{
           <ModalCloseButton position="absolute" top="30px" right="30px" />
           <ModalBody flex="1">
             <Box w="100%" h="100%">
-              <VStack spacing={2} width="100%">
-                <Box mb="2rem" w="100%">
-                  <Select onChange={handleProposalTypeChange}>
-                    <option value="">SELECT A PROPOSAL TYPE</option>
-                    {Object.values(ProposalType).map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
-                  </Select>
-                </Box>
-
-                {proposalType === ProposalType.BUILD && (
-                  <Box mb="2rem" w="100%">
-                    <Select
-                      fontWeight="500"
-                      className="customSelect"
-                      placeholder="Select a blueprint name"
-                      value={proposal.blueprintName}
-                      onChange={(e: { target: { value: any } }) =>
-                        setProposal({
-                          ...proposal,
-                          blueprintName: e.target.value,
-                        })
-                      }
-                      isInvalid={!!inputErrors.blueprintName}
-                    >
-                      {BLUEPRINTS.map((blueprint) => (
-                        <option key={blueprint.name} value={blueprint.name}>
-                          {blueprint.name}
-                        </option>
-                      ))}
-                    </Select>
-
-                    {inputErrors.blueprintName && (
-                      <Text color="red.500">{inputErrors.blueprintName}</Text>
-                    )}
-                  </Box>
-                )}
-
-                {proposalType === ProposalType.UPGRADE && (
-                  <Box mb="2rem" w="100%">
-                    <StyledInput
-                      placeholder="Enter station ID or Townhall"
-                      value={proposal.station}
-                      onChange={(e) =>
-                        setProposal({
-                          ...proposal,
-                          station: e.target.value,
-                        })
-                      }
-                      isInvalid={!!inputErrors.station}
-                    />
-                    {inputErrors.station && (
-                      <Text color="red.500">{inputErrors.station}</Text>
-                    )}
-                  </Box>
-                )}
-
-                {proposalType === ProposalType.ATK_CITY && (
-                  <Box mb="2rem" w="100%">
-                    <StyledInput
-                      placeholder="Enter faction ID"
-                      value={proposal.factionID}
-                      onChange={(e) =>
-                        setProposal({
-                          ...proposal,
-                          factionID: e.target.value,
-                        })
-                      }
-                      isInvalid={!!inputErrors.factionID}
-                      disabled={true}
-                    />
-                    {inputErrors.factionID && (
-                      <Text color="red.500">{inputErrors.factionID}</Text>
-                    )}
-                  </Box>
-                )}
-
-                {proposalType === ProposalType.ATK_RF && (
-                  <Box mb="2rem" w="100%">
-                    <StyledInput
-                      placeholder="Enter RF ID"
-                      value={proposal.rfID}
-                      onChange={(e) =>
-                        setProposal({
-                          ...proposal,
-                          rfID: e.target.value,
-                        })
-                      }
-                      isInvalid={!!inputErrors.rfID}
-                      disabled={true}
-                    />
-                    {inputErrors.rfID && (
-                      <Text color="red.500">{inputErrors.rfID}</Text>
-                    )}
-                  </Box>
-                )}
-
-                {proposalType === ProposalType.WITHDRAW && (
-                  <Stack spacing={4} w="100%">
-                    <Box mb="2rem" w="100%">
-                      <StyledInput
-                        placeholder="Enter character mint"
-                        value={proposal.characterMint}
-                        onChange={(e) =>
-                          setProposal({
-                            ...proposal,
-                            characterMint: e.target.value,
-                          })
-                        }
-                        isInvalid={!!inputErrors.characterMint}
-                      />
-                      {inputErrors.characterMint && (
-                        <Text color="red.500">{inputErrors.characterMint}</Text>
-                      )}
-                    </Box>
-                    <Box mb="2rem" w="100%">
-                      <StyledInput
-                        placeholder="Enter resource name"
-                        value={proposal.resourceName}
-                        onChange={(e) =>
-                          setProposal({
-                            ...proposal,
-                            resourceName: e.target.value,
-                          })
-                        }
-                        isInvalid={!!inputErrors.resourceName}
-                      />
-                      {inputErrors.resourceName && (
-                        <Text color="red.500">{inputErrors.resourceName}</Text>
-                      )}
-                    </Box>
-                    <Box mb="2rem" w="100%">
-                      <NumberInput
-                        defaultValue={0}
-                        value={proposal.amount}
-                        onChange={(value) =>
-                          setProposal({
-                            ...proposal,
-                            amount: value,
-                          })
-                        }
-                        isInvalid={!!inputErrors.amount}
-                      >
-                        <NumberInputField
-                          w="100%"
-                          bg={colors.blacks[600]}
-                          p="1rem"
-                          h="5rem"
-                          borderRadius="4px"
-                        />
-                        <NumberInputStepper pr="1rem">
-                          <NumberIncrementStepper />
-                          <NumberDecrementStepper />
-                        </NumberInputStepper>
-                      </NumberInput>
-                      {inputErrors.amount && (
-                        <Text color="red.500">{inputErrors.amount}</Text>
-                      )}
-                    </Box>
-
-                    <Box mb="2rem" w="100%">
-                      <StyledInput
-                        placeholder="Enter BONK value"
-                        value={proposal.bonk}
-                        onChange={(e) =>
-                          setProposal({
-                            ...proposal,
-                            bonk: e.target.value,
-                          })
-                        }
-                        isInvalid={!!inputErrors.bonk}
-                      />
-                      {inputErrors.bonk && (
-                        <Text color="red.500">{inputErrors.bonk}</Text>
-                      )}
-                    </Box>
-                  </Stack>
-                )}
-
-                {proposalType === ProposalType.MINT && (
-                  <Box mb="2rem" w="100%">
-                    <StyledInput
-                      value={proposal.newSharesToMint}
-                      onChange={(e) =>
-                        setProposal({
-                          ...proposal,
-                          newSharesToMint: e.target.value,
-                        })
-                      }
-                      placeholder="Enter new shares to mint"
-                      w="100%"
-                      isInvalid={!!inputErrors.newSharesToMint}
-                    />
-                    {inputErrors.newSharesToMint && (
-                      <Text color="red.500">{inputErrors.newSharesToMint}</Text>
-                    )}
-                  </Box>
-                )}
-
-                {proposalType === ProposalType.ALLOCATE && (
-                  <Stack spacing={4} w="100%">
-                    <Box mb="2rem" w="100%">
-                      <StyledInput
-                        value={proposal.citizen}
-                        onChange={(e) =>
-                          setProposal({
-                            ...proposal,
-                            citizen: e.target.value,
-                          })
-                        }
-                        placeholder="Enter citizen value"
-                        w="100%"
-                        isInvalid={!!inputErrors.citizen}
-                      />
-                      {inputErrors.citizen && (
-                        <Text color="red.500">{inputErrors.citizen}</Text>
-                      )}
-                    </Box>
-                    <Box mb="2rem" w="100%">
-                      <StyledInput
-                        value={proposal.amount}
-                        onChange={(e) =>
-                          setProposal({ ...proposal, amount: e.target.value })
-                        }
-                        placeholder="Enter amount"
-                        w="100%"
-                        isInvalid={!!inputErrors.amount}
-                      />
-                      {inputErrors.amount && (
-                        <Text color="red.500">{inputErrors.amount}</Text>
-                      )}
-                    </Box>
-                  </Stack>
-                )}
-
-                {proposalType === ProposalType.THRESHOLD && (
-                  <Box mb="2rem" w="100%">
-                    <StyledInput
-                      value={proposal.newThreshold}
-                      onChange={(e) =>
-                        setProposal({
-                          ...proposal,
-                          newThreshold: e.target.value,
-                        })
-                      }
-                      placeholder="Enter new threshold"
-                      w="100%"
-                      isInvalid={!!inputErrors.newThreshold}
-                    />
-                    {inputErrors.newThreshold && (
-                      <Text color="red.500">{inputErrors.newThreshold}</Text>
-                    )}
-                  </Box>
-                )}
-
-                {proposalType === ProposalType.WARBAND && (
-                  <Box mb="2rem" w="100%">
-                    <StyledTextarea
-                      value={proposal.warband}
-                      onChange={(e) =>
-                        setProposal({ ...proposal, warband: e.target.value })
-                      }
-                      placeholder="Enter warband, separated by commas"
-                      w="100%"
-                      isInvalid={!!inputErrors.warband}
-                    />
-                    {inputErrors.warband && (
-                      <Text color="red.500">{inputErrors.warband}</Text>
-                    )}
-                  </Box>
-                )}
-
-                {proposalType === ProposalType.TAX && (
-                  <Box mb="2rem" w="100%">
-                    <NumberInput
-                      value={proposal.tax}
-                      onChange={(valueString) =>
-                        setProposal({ ...proposal, tax: valueString })
-                      }
-                      defaultValue={0}
-                      max={100}
-                      min={0}
-                      isInvalid={!!inputErrors.tax}
-                    >
-                      <NumberInputField
-                        bg={colors.blacks[600]}
-                        p="1rem"
-                        h="5rem"
-                        borderRadius="4px"
-                      />
-                      <NumberInputStepper pr="1rem">
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                    {inputErrors.tax && (
-                      <Text color="red.500">{inputErrors.tax}</Text>
-                    )}
-                  </Box>
-                )}
-
-                {proposalType === ProposalType.BURN && (
-                  <Box mb="2rem" w="100%">
-                    <StyledInput
-                      value={proposal.burn}
-                      onChange={(e) =>
-                        setProposal({
-                          ...proposal,
-                          burn: e.target.value,
-                        })
-                      }
-                      placeholder="Enter amount of resource to burn"
-                      w="100%"
-                      isInvalid={!!inputErrors.newThreshold}
-                    />
-                    {inputErrors.newThreshold && (
-                      <Text color="red.500">{inputErrors.newThreshold}</Text>
-                    )}
-                  </Box>
-                )}
-              </VStack>
+              <ProposalForm/>
             </Box>
           </ModalBody>
-          <ModalFooter>
+          {/* <ModalFooter>
             <CreateButton
               onClick={handleCreateProposal}
               _hover={{
@@ -662,7 +147,7 @@ export const CreateProposal: React.FC<{
             >
               Create Proposal
             </CreateButton>
-          </ModalFooter>
+          </ModalFooter> */}
         </ModalContent>
       </Modal>
     </>
@@ -680,6 +165,14 @@ const inputStyles = {
   color: colors.brand.quaternary,
 };
 
+const StyledInput = styled(Input)`
+  ${inputStyles}
+
+  &:disabled {
+    background-color: ${colors.blacks[500]} !important;
+  }
+`;
+
 const CreateButton = styled(Button)`
   background-color: ${colors.brand.quaternary};
   border: 2px solid ${colors.brand.quaternary};
@@ -691,13 +184,7 @@ const CreateButton = styled(Button)`
   letter-spacing: 1px;
 `;
 
-const StyledInput = styled(Input)`
-  ${inputStyles}
 
-  &:disabled {
-    background-color: ${colors.blacks[500]} !important;
-  }
-`;
 
 const StyledTextarea = styled(Textarea)`
   ${inputStyles}
