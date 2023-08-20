@@ -140,7 +140,7 @@ export const fetchFaction = async ({
   factionId: string;
 }): Promise<{
   faction: Faction;
-  resources: { name: string }[];
+  resources: { name: string; value: number }[];
   stations: { blueprint: string; faction: string; id: string; level: number }[];
 }> => {
   const URL = API_BASE_URL + "/faction";
