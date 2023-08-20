@@ -1,18 +1,15 @@
 import {
   Flex,
-  Input,
   Button,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-  Box,
   Slider,
   SliderTrack,
   SliderFilledTrack,
   SliderThumb,
-  Fade,
 } from "@chakra-ui/react";
 import { FC, useState } from "react";
 
@@ -23,7 +20,6 @@ export const ConsumeButton: FC<{
 }> = ({ isDisabled, maxValue, onClick }) => {
   const [input, setInput] = useState(0);
   const [focused, setFocused] = useState(false);
-  console.log({ input });
   return (
     <>
       <Flex>
@@ -83,7 +79,7 @@ export const ConsumeButton: FC<{
           max={maxValue}
         >
           <SliderTrack>
-            <SliderFilledTrack />
+            <SliderFilledTrack bg="brand.secondary" />
           </SliderTrack>
           <SliderThumb
             fontWeight={700}
@@ -98,15 +94,3 @@ export const ConsumeButton: FC<{
     </>
   );
 };
-
-// <Input
-//
-//   display={!isDisabled ? "inherit" : "none"}
-//   fontWeight={700}
-//   w="5rem"
-//   color="brand.secondary"
-//   bg="blacks.600"
-//   borderRadius="1rem 0 0 1rem"
-//   pl="2rem"
-//   onChange={(e) => setInput(e.target.value)}
-// />
