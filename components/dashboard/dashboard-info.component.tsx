@@ -1,69 +1,52 @@
 import Link from "next/link";
-import { Box, Text, Button, Flex } from "@chakra-ui/react";
+import { Text, Button, Flex, Spinner } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { MdLeaderboard, MdNotificationsActive } from "react-icons/md";
 import { AiFillGold } from "react-icons/ai";
 import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
-import { useSolana } from "@/hooks/useSolana";
 import styled from "@emotion/styled";
 
 export const DashboardInfo = () => {
-  const factionName = "MAD OGSSS";
-  const userLevel = 0;
-
-  const { getBonkBalance } = useSolana();
   const { data: currentFs } = useFetchAllFactions();
-
-  const numOfFactions = currentFs?.total;
-  const totalRfs = 0;
-  const numOfPlayers = 0;
-  const bonkbalance = getBonkBalance;
+  // const numOfFactions = currentFs?.total;
 
   return (
     <Flex justifyContent="space-between">
-      <Flex gap="2rem">
-        <TextContainer>
-          <Label>FACTION:</Label>
-          <Value>{factionName}</Value>
-        </TextContainer>
-        <TextContainer>
-          <Label>LVL:</Label>
-          <Value>{userLevel}</Value>
-        </TextContainer>
-        <TextContainer>
-          <Label>BONK:</Label>
-          <Value>{userLevel}</Value>
-          <Link href="https://jup.ag/swap/SOL-Bonk" target="_blank">
-            <Button
-              variant="outline"
-              fontSize="1rem"
-              py="0.5rem"
-              ml="0.5rem"
-              mb="0.25rem"
-              opacity="0.15"
-              _hover={{
-                opacity: 0.6,
-              }}
-            >
-              Buy
-            </Button>
-          </Link>
-        </TextContainer>
-      </Flex>
-      <Flex gap="2rem">
-        <TextContainer>
-          <Label>FACTIONS:</Label>
-          <Value>{numOfFactions}</Value>
-        </TextContainer>
-        <TextContainer>
-          <Label>TOTAL RFS:</Label>
-          <Value>{totalRfs}</Value>
-        </TextContainer>
-        <TextContainer>
-          <Label>PLAYERS:</Label>
-          <Value>{numOfPlayers}</Value>
-        </TextContainer>
-      </Flex>
+      <TextContainer>
+        <Label>BONK:</Label>
+        <Value>
+          <Spinner />
+        </Value>
+        <Link href="https://jup.ag/swap/SOL-Bonk" target="_blank">
+          <Button
+            variant="outline"
+            fontSize="1rem"
+            py="0.5rem"
+            ml="0.5rem"
+            mb="0.25rem"
+            opacity="0.15"
+            _hover={{
+              opacity: 0.6,
+            }}
+          >
+            Buy
+          </Button>
+        </Link>
+      </TextContainer>
+      {/* <Flex gap="2rem"> */}
+      {/*   <TextContainer> */}
+      {/*     <Label>FACTIONS:</Label> */}
+      {/*     <Value>{numOfFactions}</Value> */}
+      {/*   </TextContainer> */}
+      {/*   <TextContainer> */}
+      {/*     <Label>TOTAL RFS:</Label> */}
+      {/*     <Value>{totalRfs}</Value> */}
+      {/*   </TextContainer> */}
+      {/*   <TextContainer> */}
+      {/*     <Label>PLAYERS:</Label> */}
+      {/*     <Value>{numOfPlayers}</Value> */}
+      {/*   </TextContainer> */}
+      {/* </Flex> */}
       <Flex gap="2rem">
         <IconButton
           onClick={() => {
