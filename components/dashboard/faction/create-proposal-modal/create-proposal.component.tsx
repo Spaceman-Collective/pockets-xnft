@@ -77,35 +77,6 @@ export const CreateProposal: React.FC<{
     closeIt();
   };
 
-  const handleCreateProposal = async () => {
-    // if (!validateInputs()) {
-    //   return;
-    // }
-    // const prpsl = {
-    //   type: "TAX",
-    //   newTaxRate: Number(proposal?.tax),
-    // };
-    // const payload = {
-    //   mint: selectedCharacter?.mint,
-    //   timestamp: Date.now().toString(),
-    //   proposal: prpsl,
-    // };
-    // if (!walletAddress) return console.error("No wallet");
-    // const encodedSignedTx = await encodeTransaction({
-    //   walletAddress,
-    //   connection,
-    //   signTransaction,
-    //   txInstructions: [buildMemoIx({ walletAddress, payload })],
-    // });
-
-    // if (typeof encodedSignedTx === "string") {
-    //   mutate({ signedTx: encodedSignedTx }, { onSuccess });
-    // } else {
-    //   toast.error("Failed to create proposal tx");
-    //   console.error(encodedSignedTx);
-    // }
-  };
-
 
   return (
     <>
@@ -137,17 +108,8 @@ export const CreateProposal: React.FC<{
               <ProposalForm/>
             </Box>
           </ModalBody>
-          {/* <ModalFooter>
-            <CreateButton
-              onClick={handleCreateProposal}
-              _hover={{
-                backgroundColor: colors.blacks[700],
-                border: `2px solid ${colors.blacks[700]}`,
-              }}
-            >
-              Create Proposal
-            </CreateButton>
-          </ModalFooter> */}
+          <ModalFooter>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </>

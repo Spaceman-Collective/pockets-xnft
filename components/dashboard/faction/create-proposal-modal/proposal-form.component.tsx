@@ -13,14 +13,24 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
   Textarea,
+  HStack,
+  FormErrorMessage,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  Circle,
+  Tooltip,
+  SliderMark,
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
-import { Proposal, ProposalType } from "@/types/server";
+import { Character, Proposal, ProposalType } from "@/types/server";
 import { colors } from "@/styles/defaultTheme";
 import { BLUEPRINTS } from "../tabs/services-tab/constants";
 import { Resource } from "@/types/server/Resources";
 import { useFaction } from "@/hooks/useFaction";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { Label, Value } from "../tabs/tab.styles";
 
 export const ProposalForm: React.FC = () => {
   const [proposalType, setProposalType] = useState<ProposalType | null>(null);
@@ -28,25 +38,67 @@ export const ProposalForm: React.FC = () => {
     id: "",
     type: "BUILD",
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const [warbandCitizen1, setWarbandCitizen1] = useState<string | null>(null);
+  const [warbandCitizen2, setWarbandCitizen2] = useState<string | null>(null);
+  const [warbandCitizen3, setWarbandCitizen3] = useState<string | null>(null);
+  const [unallocatedVotingPower, setUnallocatedVotingPower] =
+    useState<string>("0");
+
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [sliderValue, setSliderValue] = useState(5);
 
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
+  const factionId = selectedCharacter?.faction?.id;
   const { data: factionData, isLoading: factionIsLoading } = useFaction({
-    factionId: selectedCharacter?.faction?.id ?? "",
+    factionId: factionId ?? "",
   });
+
+  //   const getProposalVotes = async () => {
+  //     const propPDA = getProposalPDA(proposalId);
+  //     const citiPDA = getCitizenPDA(new PublicKey(currentCharacter?.mint));
+  //     const votePDA = getVotePDA(citiPDA, propPDA);
+  //     const vA = await getVoteAccount(connection, votePDA);
+
+  //     if (vA) {
+  //       setVoteAmount(vA.voteAmt.toString());
+  //     } else {
+  //       setVoteAmount("0");
+  //     }
+  //   };
+
+  //   useEffect(() => {
+  //     getProposalVotes().then(() => {
+  //       console.log("Votes: ", voteAmount);
+  //       console.log("Inital Page Load Vote Count:  ", voteAmount);
+  //     });
+  //   });
 
   const handleProposalTypeChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setProposalType(event.target.value as ProposalType);
   };
 
   useEffect(() => {
-    console.log("sc: ", selectedCharacter?.faction?.id);
-  }, [selectedCharacter?.faction?.id]);
+    if (factionData) {
+      console.log("fd: ", factionData);
+      console.log("scf: ", selectedCharacter?.faction);
+    }
+  }, [factionData, selectedCharacter?.faction]);
 
   const renderDynamicFields = () => {
+    const renderError = (key: string | number) => {
+      return (
+        errors[key] && (
+          <FormErrorMessage color="red.500">{errors[key]}</FormErrorMessage>
+        )
+      );
+    };
+
     switch (proposalType) {
       case "BUILD":
         return (
-          <FormControl>
+          <FormControl isInvalid={!!errors.blueprintName}>
             <Select
               fontWeight="500"
               value={proposalData.blueprintName || ""}
@@ -66,73 +118,88 @@ export const ProposalForm: React.FC = () => {
                 </option>
               ))}
             </Select>
+            {renderError("blueprintName")}
           </FormControl>
         );
 
       case "UPGRADE":
         return (
-          <FormControl>
+          <FormControl isInvalid={!!errors.stationId}>
             <StyledInput
               value={proposalData.stationId || ""}
               onChange={(e) =>
-                setProposalData({ ...proposalData, stationId: e.target.value })
+                setProposalData({
+                  ...proposalData,
+                  stationId: e.target.value,
+                })
               }
-              disabled={true}
               placeholder="Enter station ID or Townhall"
             />
+            {renderError("stationId")}
           </FormControl>
         );
 
       case "ATK_CITY":
         return (
-          <FormControl>
+          <FormControl isInvalid={!!errors.factionId}>
             <StyledInput
               value={proposalData.factionId || ""}
               onChange={(e) =>
-                setProposalData({ ...proposalData, factionId: e.target.value })
+                setProposalData({
+                  ...proposalData,
+                  factionId: e.target.value,
+                })
               }
               disabled={true}
               placeholder="Enter faction ID"
             />
+            {renderError("factionId")}
           </FormControl>
         );
 
       case "ATK_RF":
         return (
-          <FormControl>
+          <FormControl isInvalid={!!errors.rfId}>
             <StyledInput
               value={proposalData.rfId || ""}
               onChange={(e) =>
-                setProposalData({ ...proposalData, rfId: e.target.value })
+                setProposalData({
+                  ...proposalData,
+                  rfId: e.target.value,
+                })
               }
               disabled={true}
               placeholder="Enter resource field ID"
             />
+            {renderError("rfId")}
           </FormControl>
         );
 
       case "WITHDRAW":
         return (
           <Fragment>
-            <FormControl>
+            <FormControl isInvalid={!!errors.citizen}>
               <Select
                 fontWeight="500"
                 value={proposalData.citizen || ""}
                 onChange={(e) =>
-                  setProposalData({ ...proposalData, citizen: e.target.value })
+                  setProposalData({
+                    ...proposalData,
+                    citizen: e.target.value,
+                  })
                 }
-                disabled={true}
                 placeholder="Select a citizen"
               >
-                {citizenMints.map((citizenMint) => (
-                  <option key={citizenMint} value={citizenMint}>
-                    {citizenMint}
+                {factionData?.citizens?.map((citizen: Character) => (
+                  <option key={citizen.mint} value={citizen.mint}>
+                    {citizen.name}
                   </option>
                 ))}
               </Select>
+              {renderError("citizen")}
             </FormControl>
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.resourceName}>
               <Select
                 fontWeight="500"
                 value={
@@ -142,16 +209,21 @@ export const ProposalForm: React.FC = () => {
                 }
                 onChange={(e) => {
                   setProposalData((prevState) => {
-                    if (prevState.resources && prevState.resources.length > 0) {
-                      const newResources = [...prevState.resources];
+                    const newResources = prevState.resources
+                      ? [...prevState.resources]
+                      : [];
+                    if (newResources.length === 0) {
+                      newResources.push({
+                        resourceName: e.target.value,
+                        amount: 0,
+                      });
+                    } else {
                       newResources[0].resourceName = e.target.value;
-                      return { ...prevState, resources: newResources };
                     }
-                    return prevState;
+                    return { ...prevState, resources: newResources };
                   });
                 }}
                 placeholder="Select a resource"
-                disabled={true}
               >
                 {factionData?.resources?.map((resource) => (
                   <option key={resource.name} value={resource.name}>
@@ -159,12 +231,13 @@ export const ProposalForm: React.FC = () => {
                   </option>
                 ))}
               </Select>
+              {renderError("resourceName")}
             </FormControl>
 
             {proposalData.resources &&
             proposalData.resources[0] &&
             proposalData.resources[0].resourceName ? (
-              <FormControl>
+              <FormControl isInvalid={!!errors.resourceAmount}>
                 <StyledInput
                   type="number"
                   value={
@@ -172,40 +245,48 @@ export const ProposalForm: React.FC = () => {
                       proposalData.resources[0]?.amount) ||
                     ""
                   }
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setProposalData((prevState) => {
-                      if (
-                        prevState.resources &&
-                        prevState.resources.length > 0
-                      ) {
-                        const newResources = [...prevState.resources];
-                        newResources[0].amount = parseInt(e.target.value);
-                        return { ...prevState, resources: newResources };
+                      const newResources = prevState.resources
+                        ? [...prevState.resources]
+                        : [];
+                      const newAmount = parseInt(e.target.value);
+                      if (isNaN(newAmount)) return prevState;
+
+                      if (newResources.length === 0) {
+                        return prevState;
+                      } else {
+                        newResources[0].amount = newAmount;
                       }
-                      return prevState;
-                    })
-                  }
+
+                      return { ...prevState, resources: newResources };
+                    });
+                  }}
                   placeholder="Enter amount of selected resource"
                 />
+                {renderError("resourceAmount")}
               </FormControl>
             ) : null}
 
-            <FormControl>
+            <FormControl isInvalid={!!errors.bonk}>
               <StyledInput
                 value={proposalData.bonk || ""}
                 onChange={(e) =>
-                  setProposalData({ ...proposalData, bonk: e.target.value })
+                  setProposalData({
+                    ...proposalData,
+                    bonk: e.target.value,
+                  })
                 }
                 placeholder="Enter amount of BONK"
-                disabled={true}
               />
+              {renderError("bonk")}
             </FormControl>
           </Fragment>
         );
 
       case "MINT":
         return (
-          <FormControl>
+          <FormControl isInvalid={!!errors.newSharesToMint}>
             <StyledInput
               value={proposalData.newSharesToMint || ""}
               onChange={(e) =>
@@ -214,23 +295,84 @@ export const ProposalForm: React.FC = () => {
                   newSharesToMint: e.target.value,
                 })
               }
-              disabled={true}
               placeholder="Enter amount of new shares to mint"
             />
+            {renderError("newSharesToMint")}
           </FormControl>
         );
 
       case "ALLOCATE":
         return (
           <Fragment>
-            <FormControl>
+            <HStack alignItems="end" pr="1rem">
+              <Label color={colors.brand.tertiary} pb="0.4rem">
+                unallocated voting power:
+              </Label>
+              <Value>{unallocatedVotingPower}</Value>
+            </HStack>
+            <FormControl isInvalid={!!errors.citizen}>
               <Select
                 fontWeight="500"
                 value={proposalData.citizen || ""}
                 onChange={(e) =>
-                  setProposalData({ ...proposalData, citizen: e.target.value })
+                  setProposalData({
+                    ...proposalData,
+                    citizen: e.target.value,
+                  })
                 }
                 placeholder="Select a citizen"
+              >
+                {factionData?.citizens?.map((citizen: Character) => (
+                  <option key={citizen.mint} value={citizen.mint}>
+                    {citizen.name}
+                  </option>
+                ))}
+              </Select>
+              {renderError("citizen")}
+            </FormControl>
+            <FormControl isInvalid={!!errors.amount}>
+              <StyledInput
+                type="number"
+                value={proposalData.amount || ""}
+                onChange={(e) =>
+                  setProposalData({
+                    ...proposalData,
+                    amount: e.target.value,
+                  })
+                }
+                placeholder="Enter amount of unallocated voting power to allocate"
+              />
+              {renderError("amount")}
+            </FormControl>
+          </Fragment>
+        );
+
+      case "THRESHOLD":
+        return (
+          <FormControl isInvalid={!!errors.newThreshold}>
+            <StyledInput
+              value={proposalData.newThreshold || ""}
+              onChange={(e) =>
+                setProposalData({
+                  ...proposalData,
+                  newThreshold: e.target.value,
+                })
+              }
+              placeholder="Enter new proposal threshold"
+            />
+            {renderError("newThreshold")}
+          </FormControl>
+        );
+
+      case "WARBAND":
+        return (
+          <Fragment>
+            <FormControl>
+              <Select
+                fontWeight="500"
+                value={warbandCitizen1 || ""}
+                onChange={(e) => setWarbandCitizen1(e.target.value)}
+                placeholder="Select Citizen 1"
               >
                 {citizenMints.map((citizenMint) => (
                   <option key={citizenMint} value={citizenMint}>
@@ -239,8 +381,67 @@ export const ProposalForm: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-
             <FormControl>
+              <Select
+                fontWeight="500"
+                value={warbandCitizen2 || ""}
+                onChange={(e) => setWarbandCitizen2(e.target.value)}
+                placeholder="Select Citizen 2"
+              >
+                {citizenMints.map((citizenMint) => (
+                  <option key={citizenMint} value={citizenMint}>
+                    {citizenMint}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <Select
+                fontWeight="500"
+                value={warbandCitizen3 || ""}
+                onChange={(e) => setWarbandCitizen3(e.target.value)}
+                placeholder="Select Citizen 3"
+              >
+                {citizenMints.map((citizenMint) => (
+                  <option key={citizenMint} value={citizenMint}>
+                    {citizenMint}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+          </Fragment>
+        );
+
+      case "TAX":
+        return (
+          <FormControl isInvalid={!!errors.newTaxRate}>
+            <NumberInput defaultValue={0} min={0} max={100}>
+              <NumberInputField
+                value={`${proposalData.newTaxRate || 0}%`}
+                onChange={(e) => {
+                  const valueWithoutPercentage = parseFloat(
+                    e.target.value.replace("%", "")
+                  );
+                  setProposalData({
+                    ...proposalData,
+                    newTaxRate: valueWithoutPercentage,
+                  });
+                }}
+                {...inputStyles}
+              />
+              <NumberInputStepper mr={5}>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
+            {renderError("newTaxRate")}
+          </FormControl>
+        );
+      case "BURN":
+        return (
+          <Fragment>
+            {/* Select a resource to burn */}
+            <FormControl isInvalid={!!errors.resourceName}>
               <Select
                 fontWeight="500"
                 value={
@@ -250,15 +451,21 @@ export const ProposalForm: React.FC = () => {
                 }
                 onChange={(e) => {
                   setProposalData((prevState) => {
-                    if (prevState.resources && prevState.resources.length > 0) {
-                      const newResources = [...prevState.resources];
+                    const newResources = prevState.resources
+                      ? [...prevState.resources]
+                      : [];
+                    if (newResources.length === 0) {
+                      newResources.push({
+                        resourceName: e.target.value,
+                        amount: 0,
+                      });
+                    } else {
                       newResources[0].resourceName = e.target.value;
-                      return { ...prevState, resources: newResources };
                     }
-                    return prevState;
+                    return { ...prevState, resources: newResources };
                   });
                 }}
-                placeholder="Select a resource"
+                placeholder="Select a resource to burn"
               >
                 {factionData?.resources?.map((resource) => (
                   <option key={resource.name} value={resource.name}>
@@ -266,76 +473,205 @@ export const ProposalForm: React.FC = () => {
                   </option>
                 ))}
               </Select>
+              {renderError("resourceName")}
             </FormControl>
+
+            {/* Specify the amount of the selected resource to burn */}
+            {proposalData.resources &&
+            proposalData.resources[0] &&
+            proposalData.resources[0].resourceName ? (
+              <FormControl isInvalid={!!errors.resourceAmount}>
+                <StyledInput
+                  type="number"
+                  value={
+                    (proposalData.resources &&
+                      proposalData.resources[0]?.amount) ||
+                    ""
+                  }
+                  onChange={(e) => {
+                    setProposalData((prevState) => {
+                      const newResources = prevState.resources
+                        ? [...prevState.resources]
+                        : [];
+                      const newAmount = parseInt(e.target.value);
+                      if (isNaN(newAmount)) return prevState;
+
+                      if (newResources.length === 0) {
+                        return prevState;
+                      } else {
+                        newResources[0].amount = newAmount;
+                      }
+
+                      return { ...prevState, resources: newResources };
+                    });
+                  }}
+                  placeholder="Enter amount of resource to burn"
+                />
+                {renderError("resourceAmount")}
+              </FormControl>
+            ) : null}
           </Fragment>
         );
-
-      case "THRESHOLD":
-        return (
-          <FormControl>
-            <StyledInput
-              value={proposalData.newThreshold || ""}
-              onChange={(e) =>
-                setProposalData({
-                  ...proposalData,
-                  newThreshold: e.target.value,
-                })
-              }
-              placeholder="Enter threshold"
-            />
-          </FormControl>
-        );
-
-      case "WARBAND":
-        return (
-          <FormControl>
-            <Textarea
-              value={(proposalData.warband || []).join(", ")}
-              onChange={(e) =>
-                setProposalData({
-                  ...proposalData,
-                  warband: e.target.value.split(", "),
-                })
-              }
-              placeholder="Enter warband, separated by commas"
-            />
-          </FormControl>
-        );
-
-      case "TAX":
-        return (
-          <FormControl>
-            <FormLabel>New Tax Rate</FormLabel>
-            <NumberInput defaultValue={0} min={0}>
-              <NumberInputField
-                value={proposalData.newTaxRate || 0}
-                onChange={(e) =>
-                  setProposalData({
-                    ...proposalData,
-                    newTaxRate: parseFloat(e.target.value),
-                  })
-                }
-              />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-          </FormControl>
-        );
-
-      case "BURN":
-        // TODO: Handle resources as dynamic list if there are multiple resources to burn
-        return null;
 
       default:
         return null;
     }
   };
 
+  const validateInputs = () => {
+    const errors: { [key: string]: string } = {};
+
+    if (!proposalType) {
+      errors.proposalType = "Proposal type is required!";
+    }
+
+    switch (proposalType) {
+      case "BUILD":
+        if (!proposalData.blueprintName) {
+          errors.blueprintName = "Blueprint is required!";
+        }
+        break;
+
+      case "UPGRADE":
+        if (!proposalData.stationId) {
+          errors.stationId = "Station ID is required!";
+        }
+        break;
+
+      case "ATK_CITY":
+        if (!proposalData.factionId) {
+          errors.factionId = "Faction ID is required!";
+        }
+        break;
+
+      case "ATK_RF":
+        if (!proposalData.rfId) {
+          errors.rfId = "Resource Field ID is required!";
+        }
+        break;
+
+      case "WITHDRAW":
+        if (!proposalData.citizen) {
+          errors.citizen = "Citizen selection is required!";
+        }
+        if (!proposalData.resources || !proposalData.resources[0]) {
+          errors.resources = "Resource selection is required!";
+        }
+        if (proposalData.resources && !proposalData.resources[0].amount) {
+          errors.resourceAmount = "Resource amount is required!";
+        }
+        if (!proposalData.bonk) {
+          errors.bonk = "BONK amount is required!";
+        }
+        break;
+
+      case "MINT":
+        if (!proposalData.newSharesToMint) {
+          errors.newSharesToMint = "Amount of new shares to mint is required!";
+        }
+        break;
+
+      case "ALLOCATE":
+        if (!proposalData.citizen) {
+          errors.citizen = "Citizen selection is required!";
+        }
+        if (!proposalData.resources || !proposalData.resources[0]) {
+          errors.resources = "Resource selection is required!";
+        }
+        break;
+
+      case "THRESHOLD":
+        if (!proposalData.newThreshold) {
+          errors.newThreshold = "Threshold is required!";
+        }
+        break;
+
+      case "WARBAND":
+        const selectedWarbandCitizens = [
+          warbandCitizen1,
+          warbandCitizen2,
+          warbandCitizen3,
+        ].filter(Boolean) as string[];
+        if (selectedWarbandCitizens.length !== 3) {
+          errors.warband =
+            "Please select exactly three citizens for the warband!";
+        } else {
+          setProposalData({
+            ...proposalData,
+            warband: selectedWarbandCitizens,
+          });
+        }
+        break;
+
+      case "TAX":
+        if (
+          proposalData.newTaxRate === undefined ||
+          proposalData.newTaxRate < 0 ||
+          proposalData.newTaxRate > 100
+        ) {
+          errors.newTaxRate = "Valid tax rate is required!";
+        }
+        break;
+
+      case "BURN":
+        if (
+          !proposalData.resources ||
+          !proposalData.resources[0] ||
+          !proposalData.resources[0].resourceName
+        ) {
+          errors.resourceName = "A resource must be selected!";
+        }
+        if (
+          !proposalData.resources ||
+          !proposalData.resources[0] ||
+          typeof proposalData.resources[0].amount !== "number" ||
+          proposalData.resources[0].amount <= 0
+        ) {
+          errors.resourceAmount =
+            "A valid resource amount must be provided!";
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    setErrors(errors);
+    return Object.keys(errors).length === 0; // Returns true if no errors
+  };
+
   const handleSubmit = () => {
+    if (!validateInputs()) {
+      return;
+    }
+
     console.log(proposalData);
-    // Handle form submission here
+    // rest of your submission logic
+  };
+
+  const handleCreateProposal = async () => {
+    // const prpsl = {
+    //   type: "TAX",
+    //   newTaxRate: Number(proposal?.tax),
+    // };
+    // const payload = {
+    //   mint: selectedCharacter?.mint,
+    //   timestamp: Date.now().toString(),
+    //   proposal: prpsl,
+    // };
+    // if (!walletAddress) return console.error("No wallet");
+    // const encodedSignedTx = await encodeTransaction({
+    //   walletAddress,
+    //   connection,
+    //   signTransaction,
+    //   txInstructions: [buildMemoIx({ walletAddress, payload })],
+    // });
+    // if (typeof encodedSignedTx === "string") {
+    //   mutate({ signedTx: encodedSignedTx }, { onSuccess });
+    // } else {
+    //   toast.error("Failed to create proposal tx");
+    //   console.error(encodedSignedTx);
+    // }
   };
 
   return (
@@ -374,13 +710,6 @@ export const ProposalForm: React.FC = () => {
   );
 };
 
-// Emotion styled component (just as an example)
-const StyledBox = styled(Box)`
-  border: 2px solid #e2e8f0;
-  border-radius: 4px;
-  padding: 16px;
-`;
-
 const CreateButton = styled(Button)`
   background-color: ${colors.brand.quaternary};
   border: 2px solid ${colors.brand.quaternary};
@@ -413,7 +742,7 @@ const PROPOSAL_DISPLAY_NAMES: Record<ProposalType, string> = {
   ATK_RF: "ATTACK RESOURCE FIELD",
   WITHDRAW: "WITHDRAW RESOURCES",
   MINT: "MINT NEW VOTING SHARES",
-  ALLOCATE: "ALLOCATE RESOURCES",
+  ALLOCATE: "ALLOCATE VOTING POWER",
   THRESHOLD: "CHANGE VOTING THRESHOLD",
   WARBAND: "CREATE WARBAND",
   TAX: "SET TAX RATE",

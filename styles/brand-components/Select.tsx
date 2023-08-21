@@ -1,6 +1,6 @@
 import { defineStyleConfig } from "@chakra-ui/react";
 
-export const selectConfig = defineStyleConfig({
+export const SelectConfig = defineStyleConfig({
   baseStyle: {
     field: {
       fontWeight: "800",
