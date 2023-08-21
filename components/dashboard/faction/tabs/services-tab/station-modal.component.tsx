@@ -23,7 +23,10 @@ import { toast } from "react-hot-toast";
 import { useCharTimers } from "@/hooks/useCharTimers";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import { useSolana } from "@/hooks/useSolana";
-import { useFactionStationStart } from "@/hooks/useFaction";
+import {
+  useFactionStationClaim,
+  useFactionStationStart,
+} from "@/hooks/useFaction";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
 import { BONK_MINT, RESOURCES, STATION_USE_COST_PER_LEVEL } from "@/constants";
 
@@ -62,6 +65,7 @@ export const ModalStation: FC<{
   }, [isOpen]);
 
   const { mutate } = useFactionStationStart();
+  const { mutate: claim } = useFactionStationClaim();
 
   const stationBlueprint = station && getBlueprint(station?.blueprint);
   const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
@@ -70,6 +74,7 @@ export const ModalStation: FC<{
   const resourcesInWallet = walletAssets?.resources.filter((e) => {
     return stationInputs?.includes(e.name);
   });
+
   // TODO: DEV THIS IS FOR YOU TO FILL IN
   // startStationProcess
   // claimStationReward
@@ -130,7 +135,18 @@ export const ModalStation: FC<{
     }
   };
   const claimStationReward = async () => {
-    toast.success("You've claimed the reward from the " + station?.blueprint);
+    if (!selectedCharacter?.mint || !station?.id)
+      return toast.error("No Mint or StationId");
+    claim(
+      { mint: selectedCharacter?.mint, stationId: station.id },
+      {
+        onSuccess: () => {
+          toast.success(
+            "You've claimed the reward from the " + station?.blueprint,
+          );
+        },
+      },
+    );
   };
 
   return (

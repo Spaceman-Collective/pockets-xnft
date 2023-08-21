@@ -1,5 +1,9 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { fetchFaction, postFactionStationStart } from "@/lib/apiClient";
+import {
+  fetchFaction,
+  postFactionStationClaim,
+  postFactionStationStart,
+} from "@/lib/apiClient";
 
 export const useFaction = ({ factionId }: { factionId: string }) => {
   return useQuery(["fetch-faction", factionId], () =>
@@ -9,4 +13,8 @@ export const useFaction = ({ factionId }: { factionId: string }) => {
 
 export const useFactionStationStart = () => {
   return useMutation(["station-start"], postFactionStationStart);
+};
+
+export const useFactionStationClaim = () => {
+  return useMutation(["station-claim"], postFactionStationClaim);
 };
