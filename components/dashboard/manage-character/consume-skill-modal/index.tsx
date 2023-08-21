@@ -16,6 +16,10 @@ import { getLocalImage } from "@/lib/utils";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
 import { ConsumeButton } from "./consume-button.component";
 import { Tip } from "@/components/tooltip";
+import { useSolana } from "@/hooks/useSolana";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { useResourceConsume } from "@/hooks/useResource";
+import { toast } from "react-hot-toast";
 
 export const ConsumeSkillModal: FC<{
   isOpen: boolean;
@@ -55,7 +59,7 @@ export const ConsumeSkillModal: FC<{
                 isLoading={walletAssetsIsLoading}
                 resource={resource}
                 resourceInWallet={walletAssets?.resources.find(
-                  (asset) => asset.name === resource.name,
+                  (asset) => asset.name === resource.name
                 )}
               />
             ))}
@@ -78,13 +82,63 @@ const ConsumeItemContainer: FC<{
   };
 }> = ({ resource, resourceInWallet, isLoading, skill }) => {
   const extraSkillUp = resource.skills.filter(
-    (e) => e.toLowerCase() !== skill.toLowerCase(),
+    (e) => e.toLowerCase() !== skill.toLowerCase()
   );
+
+  const {
+    buildMemoIx,
+    buildBurnIx,
+    walletAddress,
+    connection,
+    encodeTransaction,
+    signTransaction,
+  } = useSolana();
+  const [selectedCharacter] = useSelectedCharacter();
 
   //TODO: DEV PUT CONSUME CODE IN HERE
   //will be called with the number from input box
+
+  const { mutate } = useResourceConsume();
   const postConsume = async (amountToConsume: number) => {
-    console.log({ amountToConsume });
+    console.log({ amountToConsume, resource: resource.name });
+    const memoIx = buildMemoIx({
+      walletAddress: walletAddress as string,
+      payload: {
+        mint: selectedCharacter?.mint,
+        timestamp: Date.now().toString(),
+        resource: resource.name,
+        amount: amountToConsume,
+      },
+    });
+
+    const burnIx = buildBurnIx({
+      walletAddress: walletAddress as string,
+      mint: RESOURCES.find((r) => r.name == resource.name)?.mint as string,
+      amount: BigInt(amountToConsume),
+      decimals: 0,
+    });
+
+    try {
+      const encodedTx = await encodeTransaction({
+        walletAddress: walletAddress as string,
+        connection,
+        signTransaction,
+        txInstructions: [memoIx, burnIx],
+      });
+
+      if (!encodedTx || encodedTx instanceof Error)
+        return toast.error("Oops! Failed to consume resource");
+      mutate(
+        { signedTx: encodedTx },
+        {
+          onSuccess: (e) => toast.success("Successfully consumed"),
+          onError: (e) =>
+            toast.error("Oops! Failed to consume: " + JSON.stringify(e)),
+        }
+      );
+    } catch (err) {
+      toast.error("Oops! Failed to consume resource: " + err);
+    }
   };
 
   return (
