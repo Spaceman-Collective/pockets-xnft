@@ -386,13 +386,16 @@ export const fetchRfAllocation = async (): Promise<{
 
 export const postRfAllocate = async ({
   signedTx,
+  charMint,
 }: {
-  signedTx: string;
+  signedTx?: string;
+  charMint?: string;
 }): Promise<ResourceFieldPDA> => {
   const URL = API_BASE_URL + "/rf/allocate";
   const errorMsg = "Server Error while posting resource field allocation";
   try {
-    const response = await fetch.post<any>(URL, { signedTx });
+    let body = !!signedTx ? { signedTx } : { mint: charMint };
+    const response = await fetch.post<any>(URL, body);
 
     if (response.status === 200) {
       const data = await response.data;

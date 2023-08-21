@@ -45,7 +45,7 @@ export const FactionTabResources: React.FC<{
     factionId: currentCharacter?.faction?.id ?? "",
   });
 
-  const { data: rfData } = useResourceField({
+  const { data: rfData, refetch: refetchRF } = useResourceField({
     factionId: currentCharacter?.faction?.id,
   });
 
@@ -53,7 +53,7 @@ export const FactionTabResources: React.FC<{
     mint: currentCharacter?.mint,
   });
 
-  const { data: discoverData } = useRfAllocation();
+  const { data: discoverData, refetch: refetchRFAllocation } = useRfAllocation();
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
@@ -130,11 +130,12 @@ export const FactionTabResources: React.FC<{
         </Grid>
       </Box>
 
-      <ModalRfDiscover rf={discoverData} {...discoverDisclosure} />
+      <ModalRfDiscover refetchDiscoverData={refetchRFAllocation} rf={discoverData} {...discoverDisclosure} />
       <ModalRfProspect
         rf={discoverData}
         charMint={currentCharacter.mint}
         factionId={currentCharacter?.faction?.id}
+        currentCharacter={currentCharacter}
         {...prospectDisclosure}
       />
 
