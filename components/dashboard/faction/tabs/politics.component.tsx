@@ -258,6 +258,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     return isValid;
   };
 
+  
   const handleVote = async (votingAmt: number) => {
     setIsVoteInProgress(true);
     const encodedSignedTx = await encodeTransaction({
@@ -275,21 +276,18 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
       ],
     });
 
-    if (encodedSignedTx instanceof Error || !encodedSignedTx) {
-      handleError(
-        encodedSignedTx instanceof Error
-          ? encodedSignedTx
-          : new Error("No Vote Tx")
-      );
-      return <div></div>; // Make sure you return from this block so you don't continue executing the rest of the code
-    }
-
     if (typeof encodedSignedTx === "string") {
-      // Ensure it's a string before decoding
-      const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
-      console.log("sig", sig);
+      const sig = await connection.sendRawTransaction(
+        decode(encodedSignedTx)
+      );
+      console.log("vote sig: sig");
+      toast.success("Vote successful!");
+    } else if (encodedSignedTx instanceof Error) {
+      console.error("Failed to create transaction:", encodedSignedTx.message);
+      toast.error("Failed to vote!");
     } else {
-      handleError(new Error("Unexpected type for encodedSignedTx"));
+      console.error("Unexpected type for encodedSignedTx");
+      toast.error("Failed to vote!");
     }
 
     setLocalVote("");
@@ -317,150 +315,94 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
       ],
     });
 
-    const handleVote = async (votingAmt: number) => {
-      setIsVoteInProgress(true);
-      const encodedSignedTx = await encodeTransaction({
-        walletAddress,
-        connection,
-        signTransaction,
-        txInstructions: [
-          await voteOnProposalIx(
-            new PublicKey(walletAddress!),
-            new PublicKey(currentCharacter?.mint!),
-            proposalId!,
-            votingAmt,
-            currentCharacter?.faction?.id!
-          ),
-        ],
-      });
+    if (typeof encodedSignedTx === "string") {
+      const sig = await connection.sendRawTransaction(
+        decode(encodedSignedTx)
+      );
+      console.log("update vot sig: sig");
+      toast.success("Update vote successful!");
+    } else if (encodedSignedTx instanceof Error) {
+      console.error("Failed to create transaction:", encodedSignedTx.message);
+      toast.error("Failed to vote!");
+    } else {
+      console.error("Unexpected type for encodedSignedTx");
+      toast.error("Failed to vote!");
+    }
 
-      if (typeof encodedSignedTx === "string") {
-        const sig = await connection.sendRawTransaction(
-          decode(encodedSignedTx)
-        );
-        console.log("vote sig: sig");
-        toast.success("Vote successful!");
-      } else if (encodedSignedTx instanceof Error) {
-        console.error("Failed to create transaction:", encodedSignedTx.message);
-        toast.error("Failed to vote!");
-      } else {
-        console.error("Unexpected type for encodedSignedTx");
-        toast.error("Failed to vote!");
-      }
+    setLocalVote("");
 
-      setLocalVote("");
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      setIsVoteInProgress(false);
-    };
-
-    const updateVote = async (votingAmt: number) => {
-      setIsVoteInProgress(true);
-      const encodedSignedTx = await encodeTransaction({
-        walletAddress,
-        connection,
-        signTransaction,
-        txInstructions: [
-          await updateVoteOnProposalIx(
-            new PublicKey(walletAddress!),
-            new PublicKey(currentCharacter?.mint!),
-            proposalId!,
-            votingAmt,
-            currentCharacter?.faction?.id!,
-            true
-          ),
-        ],
-      });
-
-      if (typeof encodedSignedTx === "string") {
-        const sig = await connection.sendRawTransaction(
-          decode(encodedSignedTx)
-        );
-        console.log("update vot sig: sig");
-        toast.success("Update vote successful!");
-      } else if (encodedSignedTx instanceof Error) {
-        console.error("Failed to create transaction:", encodedSignedTx.message);
-        toast.error("Failed to vote!");
-      } else {
-        console.error("Unexpected type for encodedSignedTx");
-        toast.error("Failed to vote!");
-      }
-
-      setLocalVote("");
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      setIsVoteInProgress(false);
-    };
-
-    return (
-      <ProposalAction>
-        <Flex width="100%" flexDirection="column">
-          <Flex justifyContent="space-between" mb="2rem">
-            <HStack alignItems="end" pr="5rem">
-              <Label color={colors.brand.tertiary} pb="0.4rem">
-                type:
-              </Label>
-              <ProposalTitle>{type}</ProposalTitle>
-              <ProposalTypeDetails type={type} proposal={proposal} />
-            </HStack>
-            <HStack alignItems="end" pr="1rem">
-              <Label color={colors.brand.tertiary} pb="0.4rem">
-                votes:
-              </Label>
-              <ProposalTitle>
-                {voteAmount}/{100}
-              </ProposalTitle>
-            </HStack>
-          </Flex>
-
-          <HStack alignItems="end" mb="14">
-            <Label color={colors.brand.tertiary} pb="0.25rem">
-              proposal id:
-            </Label>
-            <Value>{proposalId}</Value>
-          </HStack>
-
-          <Flex width="100%">
-            {isVoteInProgress ? (
-              <Text>LOADING...</Text>
-            ) : (
-              <>
-                <StyledInput
-                  placeholder={
-                    Number(voteAmount) > 0
-                      ? "Update amount of voting power"
-                      : "Enter amount of voting power"
-                  }
-                  value={localVote}
-                  onChange={(e) => setLocalVote(e.target.value)}
-                  isInvalid={!!inputError}
-                  disabled={isVoteInProgress}
-                />
-                {inputError && <Text color="red.500">{inputError}</Text>}
-                <Button
-                  ml="2rem"
-                  letterSpacing="1px"
-                  bg={colors.blacks[700]}
-                  onClick={() =>
-                    validateInput() &&
-                    (Number(voteAmount) > 0
-                      ? updateVote(parseInt(localVote))
-                      : handleVote(parseInt(localVote)))
-                  }
-                  disabled={isVoteInProgress}
-                >
-                  {Number(voteAmount) > 0 ? "update" : "vote"}
-                </Button>
-              </>
-            )}
-          </Flex>
-        </Flex>
-      </ProposalAction>
-    );
+    setIsVoteInProgress(false);
   };
-};
+
+  return (
+    <ProposalAction>
+      <Flex width="100%" flexDirection="column">
+        <Flex justifyContent="space-between" mb="2rem">
+          <HStack alignItems="end" pr="5rem">
+            <Label color={colors.brand.tertiary} pb="0.4rem">
+              type:
+            </Label>
+            <ProposalTitle>{type}</ProposalTitle>
+            <ProposalTypeDetails type={type} proposal={proposal} />
+          </HStack>
+          <HStack alignItems="end" pr="1rem">
+            <Label color={colors.brand.tertiary} pb="0.4rem">
+              votes:
+            </Label>
+            <ProposalTitle>
+              {voteAmount}/{100}
+            </ProposalTitle>
+          </HStack>
+        </Flex>
+
+        <HStack alignItems="end" mb="14">
+          <Label color={colors.brand.tertiary} pb="0.25rem">
+            proposal id:
+          </Label>
+          <Value>{proposalId}</Value>
+        </HStack>
+
+        <Flex width="100%">
+          {isVoteInProgress ? (
+            <Text>LOADING...</Text>
+          ) : (
+            <>
+              <StyledInput
+                placeholder={
+                  Number(voteAmount) > 0
+                    ? "Update amount of voting power"
+                    : "Enter amount of voting power"
+                }
+                value={localVote}
+                onChange={(e) => setLocalVote(e.target.value)}
+                isInvalid={!!inputError}
+                disabled={isVoteInProgress}
+              />
+              {inputError && <Text color="red.500">{inputError}</Text>}
+              <Button
+                ml="2rem"
+                letterSpacing="1px"
+                bg={colors.blacks[700]}
+                onClick={() =>
+                  validateInput() &&
+                  (Number(voteAmount) > 0
+                    ? updateVote(parseInt(localVote))
+                    : handleVote(parseInt(localVote)))
+                }
+                disabled={isVoteInProgress}
+              >
+                {Number(voteAmount) > 0 ? "update" : "vote"}
+              </Button>
+            </>
+          )}
+        </Flex>
+      </Flex>
+    </ProposalAction>
+  );
+              };
+
 
 const ProposalLabels: React.FC<{
   fire: () => void;
