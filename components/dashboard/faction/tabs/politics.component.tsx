@@ -366,6 +366,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     setIsVoteInProgress(false);
   };
 
+  const processVote = async () => {
+    // Your logic here
+    console.log("Processing the vote");
+  };
+
   return (
     <ProposalAction>
       <Flex width="100%" flexDirection="column">
@@ -395,39 +400,49 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         </HStack>
 
         <Flex width="100%">
-          {isVoteInProgress ? (
-            <Text>LOADING...</Text>
-          ) : (
-            <>
-              <StyledInput
-                placeholder={
-                  Number(voteAmount) > 0
-                    ? "Update amount of voting power"
-                    : "Enter amount of voting power"
-                }
-                value={localVote}
-                onChange={(e) => setLocalVote(e.target.value)}
-                isInvalid={!!inputError}
-                disabled={isVoteInProgress}
-              />
-              {inputError && <Text color="red.500">{inputError}</Text>}
-              <Button
-                ml="2rem"
-                letterSpacing="1px"
-                bg={colors.blacks[700]}
-                onClick={() =>
-                  validateInput() &&
-                  (Number(voteAmount) > 0
-                    ? updateVote(parseInt(localVote))
-                    : handleVote(parseInt(localVote)))
-                }
-                disabled={isVoteInProgress}
-              >
-                {Number(voteAmount) > 0 ? "update" : "vote"}
-              </Button>
-            </>
-          )}
-        </Flex>
+      {isVoteInProgress ? (
+        <Text>LOADING...</Text>
+      ) : (
+        <>
+          <StyledInput
+            placeholder={
+              Number(voteAmount) > 0
+                ? "Update amount of voting power"
+                : "Enter amount of voting power"
+            }
+            value={localVote}
+            onChange={(e) => setLocalVote(e.target.value)}
+            isInvalid={!!inputError}
+            disabled={isVoteInProgress || Number(voteAmount) >= Number(voteThreshold)} // Disable if voteAmount exceeds threshold
+          />
+          {inputError && <Text color="red.500">{inputError}</Text>}
+          <Button
+            ml="2rem"
+            letterSpacing="1px"
+            bg={colors.blacks[700]}
+            onClick={() => {
+              if (Number(voteAmount) >= Number(voteThreshold)) {
+                processVote(); // Run the processVote function
+              } else if (
+                validateInput() &&
+                Number(voteAmount) > 0
+              ) {
+                updateVote(parseInt(localVote));
+              } else {
+                handleVote(parseInt(localVote));
+              }
+            }}
+            disabled={isVoteInProgress}
+          >
+            {Number(voteAmount) >= Number(voteThreshold)
+              ? "process"
+              : Number(voteAmount) > 0
+              ? "update"
+              : "vote"}
+          </Button>
+        </>
+      )}
+    </Flex>
       </Flex>
     </ProposalAction>
   );
