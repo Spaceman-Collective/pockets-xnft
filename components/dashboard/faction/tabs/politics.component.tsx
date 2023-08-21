@@ -251,10 +251,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   };
 
   useEffect(() => {
-    getProposalVotes().then(() => {
-      // console.log("Votes: ", voteAmount);
-      // console.log("Inital Page Load Vote Count:  ", voteAmount);
-    });
+    if (voteAmount == "") {
+      getProposalVotes().then(() => {
+        console.log("Vote Amount: ", voteAmount);
+      });
+    }
   });
 
   const getVoteThreshold = async () => {
@@ -274,9 +275,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   };
 
   useEffect(() => {
-    getVoteThreshold().then(() => {
-      console.log("Vote threshold: ", voteThreshold);
-    });
+    if (voteThreshold == "") {
+      getVoteThreshold().then(() => {
+        console.log("Vote threshold: ", voteThreshold);
+      });
+    }
   });
 
   const validateInput = (): boolean => {
