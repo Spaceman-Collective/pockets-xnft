@@ -116,34 +116,49 @@ export const CreateFaction: FC<{
     const totalFactions = currentFactions?.total;
     const requiredBONK =
       FACTION_CREATION_MULTIPLIER * BigInt(currentFactions?.total ?? 0);
-    const bonkInWallet = 20000000000000;
-    // const bonkInWallet = getBonkBalance(walletAddress, connection);
-    if (bonkInWallet < requiredBONK) {
-      throw alert(
-        "You have insufficient BONK in your wallet. Please add more BONK and try again!"
-      );
-    }
-    const bonkMint = SPL_TOKENS.bonk.mint;
-    const dcms = SPL_TOKENS.bonk.decimals;
+    if (walletAddress) {
+      const bonkInWallet = await getBonkBalance({ walletAddress, connection });
+      if (bonkInWallet < requiredBONK / BigInt(1e5)) {
+        throw alert(
+          `You have insufficient BONK in your wallet. Please add more BONK and try again! Requuired amount: ${requiredBONK / BigInt(1e5)} Current balance: ${bonkInWallet}`, 
+        );
+      }
 
-    const ix = await buildTransferIx({
-      walletAddress,
-      mint: bonkMint,
-      amount: requiredBONK,
-      decimals: dcms,
-    });
-    if (!walletAddress || !ix) return;
-    const encodedSignedTx = await encodeTransaction({
-      walletAddress,
-      connection,
-      signTransaction,
-      txInstructions: [buildMemoIx({ walletAddress, payload }), ix],
-    });
-    if (!encodedSignedTx) {
-      console.error("No Tx");
-      return;
+      const bonkMint = SPL_TOKENS.bonk.mint;
+      const dcms = SPL_TOKENS.bonk.decimals;
+
+      const transferix = buildTransferIx({
+        walletAddress,
+        mint: bonkMint,
+        amount: requiredBONK,
+        decimals: dcms,
+      });
+      console.log("rb: ", requiredBONK);
+
+      const memoIx = buildMemoIx({ walletAddress, payload })
+
+      console.log("tix: ", transferix);
+      console.log("mix: ", memoIx);
+      console.log("sign tx: ", signTransaction);
+      if (!walletAddress || !transferix) return;
+      const encodedSignedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        txInstructions: [memoIx, transferix],
+      });
+      console.log("encoded tx: ", encodedSignedTx);
+
+      if (typeof encodedSignedTx == "string") {
+        mutate({ signedTx: encodedSignedTx as string }, { onSuccess });
+      } else {
+        console.error("No Tx");
+        return;
+      }
+    } else {
+      console.log('No wallet address found');
+      toast.error('Failed to create faction');
     }
-    mutate({ signedTx: encodedSignedTx as string }, { onSuccess });
   };
 
   return (
