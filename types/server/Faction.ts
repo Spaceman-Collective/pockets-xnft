@@ -9,10 +9,12 @@ export interface Faction {
   external_link: string;
   description: string;
   townhallLevel: number;
-  stations: Station[];
-  lastLooted: String;
+  lastLooted: string;
   construction: {
-    finishedAt: String;
-    station: Station;
+    finishedAt: string | undefined;
+    stationId?: string;
+    blueprint: string | undefined;
+    stationNewLevel: number | undefined;
   };
+  taxRate: number;
 }

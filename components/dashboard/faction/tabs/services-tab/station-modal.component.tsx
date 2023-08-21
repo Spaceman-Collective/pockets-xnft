@@ -30,6 +30,7 @@ import {
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
 import { BONK_MINT, RESOURCES, STATION_USE_COST_PER_LEVEL } from "@/constants";
 import { useQueryClient } from "@tanstack/react-query";
+import { FaClock } from "react-icons/fa";
 
 export const ModalStation: FC<{
   station?: {
@@ -56,9 +57,8 @@ export const ModalStation: FC<{
   const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
 
   const timer = timersData?.stationTimers.find(
-    (e) => e.station === station?.id,
+    (e) => e.station === station?.id
   );
-  console.log({ timer });
   const finishedDate = timer?.finished && +timer?.finished;
   const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
 
@@ -72,7 +72,7 @@ export const ModalStation: FC<{
     intervalMs: 1000,
   });
 
-  console.table({ timersData, remainingTime, count, isFuture });
+  // console.table({ timersData, remainingTime, count, isFuture });
 
   useEffect(() => {
     if (!isClaimable) return;
@@ -132,8 +132,6 @@ export const ModalStation: FC<{
       });
     });
 
-    burnIxs?.forEach((ix) => console.log("@@@@@: ", ix.keys.toString()));
-
     if (!burnIxs || burnIxs.length === 0 || burnIxs instanceof Error)
       return toast.error("Ooops! No burnIx");
     try {
@@ -154,13 +152,13 @@ export const ModalStation: FC<{
             queryClient.refetchQueries({ queryKey: ["assets"] });
             startCountdown();
             toast.success(
-              "You've started a build in the " + station?.blueprint,
+              "You've started a build in the " + station?.blueprint
             );
           },
           onError: (e: any) => {
             toast.error("Ooops! Did not start station: \n\n" + e);
           },
-        },
+        }
       );
     } catch (err) {
       toast.error("Oops! That didn't work: \n\n" + JSON.stringify(err));
@@ -176,10 +174,10 @@ export const ModalStation: FC<{
           queryClient.refetchQueries({ queryKey: ["char-timers"] });
           queryClient.refetchQueries({ queryKey: ["assets"] });
           toast.success(
-            "You've claimed the reward from the " + station?.blueprint,
+            "You've claimed the reward from the " + station?.blueprint
           );
         },
-      },
+      }
     );
   };
 
@@ -223,8 +221,11 @@ export const ModalStation: FC<{
               direction="column"
               justifyContent="center"
               alignItems="center"
-              mt="8rem"
+              mt="4rem"
             >
+              <Button onClick={() => {}} mb="2rem" isDisabled={progress > 1}>
+                <FaClock style={{ marginRight: "0.5rem" }} /> SPEED UP
+              </Button>
               <Progress
                 hasStripe={progress === 100 ? false : true}
                 value={progress}

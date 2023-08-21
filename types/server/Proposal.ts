@@ -10,7 +10,7 @@ export interface Proposal
     Warband,
     Tax,
     Burn {
-  id: string;
+  id?: string;
   type: ProposalType;
 }
 
