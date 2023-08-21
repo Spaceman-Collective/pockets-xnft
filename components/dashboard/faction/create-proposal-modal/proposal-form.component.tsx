@@ -45,6 +45,8 @@ export const ProposalForm: React.FC = () => {
   const [warbandCitizen3, setWarbandCitizen3] = useState<string | null>(null);
   const [unallocatedVotingPower, setUnallocatedVotingPower] =
     useState<string>("0");
+    const [currentThreshold, setCurrentThreshold] =
+    useState<string>("0");
 
   const [showTooltip, setShowTooltip] = useState(false);
   const [sliderValue, setSliderValue] = useState(5);
@@ -124,19 +126,30 @@ export const ProposalForm: React.FC = () => {
 
       case "UPGRADE":
         return (
-          <FormControl isInvalid={!!errors.stationId}>
-            <StyledInput
-              value={proposalData.stationId || ""}
-              onChange={(e) =>
-                setProposalData({
-                  ...proposalData,
-                  stationId: e.target.value,
-                })
-              }
-              placeholder="Enter station ID or Townhall"
-            />
-            {renderError("stationId")}
-          </FormControl>
+          <Fragment>
+            <FormControl isInvalid={!!errors.stationId}>
+              <Select
+                fontWeight="500"
+                value={proposalData.stationId || ""}
+                onChange={(e) =>
+                  setProposalData({
+                    ...proposalData,
+                    stationId: e.target.value,
+                  })
+                }
+                placeholder="Select a station to upgrade"
+              >
+                {factionData?.stations?.map((station) => (
+                  <option key={station.id} value={station.id}>
+                    {station.blueprint} / current lvl: {station.level} / id:
+                    {station.id}
+                    {station.id}
+                  </option>
+                ))}
+              </Select>
+              {renderError("statiod")}
+            </FormControl>
+          </Fragment>
         );
 
       case "ATK_CITY":
@@ -350,6 +363,12 @@ export const ProposalForm: React.FC = () => {
       case "THRESHOLD":
         return (
           <FormControl isInvalid={!!errors.newThreshold}>
+            <HStack alignItems="end" pr="1rem">
+              <Label color={colors.brand.tertiary} pb="0.4rem">
+                current threshold:
+              </Label>
+              <Value>{currentThreshold}</Value>
+            </HStack>
             <StyledInput
               value={proposalData.newThreshold || ""}
               onChange={(e) =>
@@ -534,7 +553,7 @@ export const ProposalForm: React.FC = () => {
 
       case "UPGRADE":
         if (!proposalData.stationId) {
-          errors.stationId = "Station ID is required!";
+          errors.stationId = "Please select a station to upgrade!";
         }
         break;
 
@@ -627,8 +646,7 @@ export const ProposalForm: React.FC = () => {
           typeof proposalData.resources[0].amount !== "number" ||
           proposalData.resources[0].amount <= 0
         ) {
-          errors.resourceAmount =
-            "A valid resource amount must be provided!";
+          errors.resourceAmount = "A valid resource amount must be provided!";
         }
         break;
 
