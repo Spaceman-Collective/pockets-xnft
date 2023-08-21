@@ -100,6 +100,45 @@ export function getDelegationRecordPDA(
   return delegationRecordPDA;
 }
 
+export async function getCitizensIx(
+  wallet: PublicKey,
+  characterMint: PublicKey,
+  proposalId: string,
+  amount: number,
+  factionId: string
+) {
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    {
+      connection: new Connection(
+        "https://rpc.helius.xyz/?api-key=1b21b073-a222-47bb-8628-564145e58f4e"
+      ),
+    }
+  );
+
+  const proposal = getProposalPDA(proposalId);
+  const walletAta = getAssociatedTokenAddressSync(characterMint, wallet);
+  const citizen = getCitizenPDA(characterMint);
+  const vote = getVotePDA(citizen, proposal);
+  const faction = getFactionPDA(factionId);
+
+  const ix = POCKETS_PROGRAM.methods
+    .voteOnProposal(new BN(amount))
+    .accounts({
+      wallet,
+      walletAta,
+      systemProgram: SystemProgram.programId,
+      citizen,
+      vote,
+      proposal,
+      faction,
+    })
+    .instruction();
+
+  return ix;
+}
+
 export async function voteOnProposalIx(
   wallet: PublicKey,
   characterMint: PublicKey,

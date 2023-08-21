@@ -26,7 +26,7 @@ import { Character } from "@/types/server";
 import { useEffect, useState } from "react";
 import { CreateProposal } from "../create-proposal-modal/create-proposal.component";
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
-import { Proposal } from "@/types/Proposal";
+import { Proposal } from "@/types/server/Proposal";
 import { FetchResponse } from "@/lib/apiClient";
 import { useProposalAccount } from "@/hooks/useProposalAccount";
 import {
@@ -50,6 +50,7 @@ import { useFaction } from "@/hooks/useFaction";
 import { decode } from "bs58";
 import { TransactionMessage } from "@solana/web3.js";
 import { useCitizen } from "@/hooks/useCitizen";
+import toast from "react-hot-toast";
 
 const spacing = "1rem";
 type FactionTabPoliticsProps = {
@@ -74,6 +75,12 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     isLoading: allProposalsIsLoading,
     isError,
   } = useFetchProposalsByFaction(factionId, 0, 50);
+
+  useEffect(() => {
+    if (factionData) {
+      console.info("faction data politics: ", factionData);
+    }
+  }, [factionData]);
 
   useEffect(() => {
     setFactionStatus(!!currentCharacter?.faction);
@@ -174,6 +181,8 @@ const getLabel = (type: string) => {
       return "Warband";
     case "TAX":
       return "New Tax Rate";
+    case "TAX":
+      return "Burn Resources";
     default:
       return "";
   }
@@ -201,6 +210,8 @@ const getValue = (type: string, proposal: any) => {
       return proposal.warband?.join(", ");
     case "TAX":
       return `${proposal.newTaxRate}%`;
+      case "BURN":
+        return `${proposal.resources}`;
     default:
       return "";
   }
@@ -234,8 +245,8 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
   useEffect(() => {
     getProposalVotes().then(() => {
-      console.log("Votes: ", voteAmount);
-      console.log("Inital Page Load Vote Count:  ", voteAmount);
+      // console.log("Votes: ", voteAmount);
+      // console.log("Inital Page Load Vote Count:  ", voteAmount);
     });
   });
 
@@ -261,7 +272,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         ),
       ],
     });
-    if (!encodedSignedTx) throw Error("No Vote Tx");
+
+    if (encodedSignedTx instanceof Error || !encodedSignedTx) {
+      handleError(encodedSignedTx instanceof Error ? encodedSignedTx : "No Vote Tx");
+      return;
+    }
 
     const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
     console.log("sig", sig);
@@ -290,7 +305,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         ),
       ],
     });
-    if (!encodedSignedTx) throw Error("No Vote Tx");
+
+    if (encodedSignedTx instanceof Error || !encodedSignedTx) {
+      handleError(encodedSignedTx instanceof Error ? encodedSignedTx : "No Vote Tx");
+      return;
+    }
 
     const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
     console.log("sig", sig);
@@ -317,7 +336,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             <Label color={colors.brand.tertiary} pb="0.4rem">
               votes:
             </Label>
-            <ProposalTitle>{voteAmount}</ProposalTitle>
+            <ProposalTitle>{voteAmount}/{100}</ProposalTitle>
           </HStack>
         </Flex>
 
@@ -376,6 +395,7 @@ const ProposalLabels: React.FC<{
   const { data } = useCitizen(character?.mint);
 
 
+
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <MenuTitle>proposals</MenuTitle>
@@ -392,8 +412,8 @@ const ProposalLabels: React.FC<{
           pl="0.25rem"
           pb="0.25rem"
         >
-          {data?.citizen?.grantedVotingPower.toString()} + {" "}
-          {new BN(data?.citizen?.maxPledgedVotingPower).toString()}
+          ({data?.citizen?.grantedVotingPower.toString()}{" + "}
+          {data?.citizen?.maxPledgedVotingPower.toString()})
         </ValueCalculation>
       </HStack>
       <Flex alignItems="end">
@@ -412,6 +432,14 @@ const Header: React.FC<{ factionName: string | undefined }> = ({
     </Flex>
   );
 };
+
+
+function handleError(error: Error | string) {
+  console.error(error);
+  const errorMessage = typeof error === 'string' ? error : error.message;
+  toast.error(errorMessage);
+}
+
 
 const CitizensButton = styled(Button)`
   border-radius: 0.5rem;
