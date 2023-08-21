@@ -382,6 +382,8 @@ export const ProposalForm: React.FC<{ onClose: () => void }> = ({
                 value={warbandCitizen1 || ""}
                 onChange={(e) => setWarbandCitizen1(e.target.value)}
                 placeholder="Select Citizen 1"
+                disabled={true}
+                cursor="arrow"
               >
                 {citizenMints.map((citizenMint) => (
                   <option key={citizenMint} value={citizenMint}>
@@ -396,6 +398,8 @@ export const ProposalForm: React.FC<{ onClose: () => void }> = ({
                 value={warbandCitizen2 || ""}
                 onChange={(e) => setWarbandCitizen2(e.target.value)}
                 placeholder="Select Citizen 2"
+                disabled={true}
+                cursor="arrow"
               >
                 {citizenMints.map((citizenMint) => (
                   <option key={citizenMint} value={citizenMint}>
@@ -410,6 +414,8 @@ export const ProposalForm: React.FC<{ onClose: () => void }> = ({
                 value={warbandCitizen3 || ""}
                 onChange={(e) => setWarbandCitizen3(e.target.value)}
                 placeholder="Select Citizen 3"
+                disabled={true}
+                cursor="arrow"
               >
                 {citizenMints.map((citizenMint) => (
                   <option key={citizenMint} value={citizenMint}>
@@ -653,9 +659,7 @@ export const ProposalForm: React.FC<{ onClose: () => void }> = ({
       return;
     }
     handleCreateProposal();
-
     console.log(proposalData);
-    // rest of your submission logic
   };
 
   const onSuccess = () => {
