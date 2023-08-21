@@ -31,8 +31,21 @@ import { Resource } from "@/types/server/Resources";
 import { useFaction } from "@/hooks/useFaction";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import { Label, Value } from "../tabs/tab.styles";
+import { useSolana } from "@/hooks/useSolana";
+import toast from "react-hot-toast";
+import { useCreateProposal } from "@/hooks/useCreateProposal";
 
-export const ProposalForm: React.FC = () => {
+export const ProposalForm: React.FC<{ onClose: () => void }> = ({
+  onClose,
+}) => {
+  const {
+    connection,
+    walletAddress,
+    signTransaction,
+    encodeTransaction,
+    buildMemoIx,
+  } = useSolana();
+
   const [proposalType, setProposalType] = useState<ProposalType | null>(null);
   const [proposalData, setProposalData] = useState<Proposal>({
     id: "",
@@ -45,37 +58,14 @@ export const ProposalForm: React.FC = () => {
   const [warbandCitizen3, setWarbandCitizen3] = useState<string | null>(null);
   const [unallocatedVotingPower, setUnallocatedVotingPower] =
     useState<string>("0");
-    const [currentThreshold, setCurrentThreshold] =
-    useState<string>("0");
-
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [sliderValue, setSliderValue] = useState(5);
+  const [currentThreshold, setCurrentThreshold] = useState<string>("0");
 
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
   const factionId = selectedCharacter?.faction?.id;
   const { data: factionData, isLoading: factionIsLoading } = useFaction({
     factionId: factionId ?? "",
   });
-
-  //   const getProposalVotes = async () => {
-  //     const propPDA = getProposalPDA(proposalId);
-  //     const citiPDA = getCitizenPDA(new PublicKey(currentCharacter?.mint));
-  //     const votePDA = getVotePDA(citiPDA, propPDA);
-  //     const vA = await getVoteAccount(connection, votePDA);
-
-  //     if (vA) {
-  //       setVoteAmount(vA.voteAmt.toString());
-  //     } else {
-  //       setVoteAmount("0");
-  //     }
-  //   };
-
-  //   useEffect(() => {
-  //     getProposalVotes().then(() => {
-  //       console.log("Votes: ", voteAmount);
-  //       console.log("Inital Page Load Vote Count:  ", voteAmount);
-  //     });
-  //   });
+  const { mutate } = useCreateProposal();
 
   const handleProposalTypeChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setProposalType(event.target.value as ProposalType);
@@ -662,34 +652,96 @@ export const ProposalForm: React.FC = () => {
     if (!validateInputs()) {
       return;
     }
+    handleCreateProposal();
 
     console.log(proposalData);
     // rest of your submission logic
   };
 
+  const onSuccess = () => {
+    toast.success("Created proposal!");
+    setProposalType(null);
+    setProposalData({
+      id: "",
+      type: "BUILD",
+    });
+    setErrors({});
+    setWarbandCitizen1(null);
+    setWarbandCitizen2(null);
+    setWarbandCitizen3(null);
+    setUnallocatedVotingPower("0");
+    setCurrentThreshold("0");
+    onClose();
+  };
+
   const handleCreateProposal = async () => {
-    // const prpsl = {
-    //   type: "TAX",
-    //   newTaxRate: Number(proposal?.tax),
-    // };
-    // const payload = {
-    //   mint: selectedCharacter?.mint,
-    //   timestamp: Date.now().toString(),
-    //   proposal: prpsl,
-    // };
-    // if (!walletAddress) return console.error("No wallet");
-    // const encodedSignedTx = await encodeTransaction({
-    //   walletAddress,
-    //   connection,
-    //   signTransaction,
-    //   txInstructions: [buildMemoIx({ walletAddress, payload })],
-    // });
-    // if (typeof encodedSignedTx === "string") {
-    //   mutate({ signedTx: encodedSignedTx }, { onSuccess });
-    // } else {
-    //   toast.error("Failed to create proposal tx");
-    //   console.error(encodedSignedTx);
-    // }
+    let prpsl: Partial<Proposal> = {
+      type: proposalData.type,
+    };
+
+    switch (proposalData.type) {
+      case "TAX":
+        prpsl.newTaxRate = proposalData.newTaxRate;
+        break;
+      case "BUILD":
+        prpsl.blueprintName = proposalData.blueprintName;
+        break;
+      case "UPGRADE":
+        prpsl.stationId = proposalData.stationId;
+        break;
+      case "ATK_CITY":
+        prpsl.factionId = proposalData.factionId;
+        break;
+      case "ATK_RF":
+        prpsl.rfId = proposalData.rfId;
+        break;
+      case "WITHDRAW":
+        prpsl.citizen = proposalData.citizen;
+        prpsl.resources = proposalData.resources;
+        prpsl.bonk = proposalData.bonk;
+        break;
+      case "MINT":
+        prpsl.newSharesToMint = proposalData.newSharesToMint;
+        break;
+      case "ALLOCATE":
+        prpsl.citizen = proposalData.citizen;
+        prpsl.amount = proposalData.amount;
+        break;
+      case "THRESHOLD":
+        prpsl.newThreshold = proposalData.newThreshold;
+        break;
+      case "WARBAND":
+        prpsl.warband = proposalData.warband;
+        break;
+      case "BURN":
+        prpsl.resources = proposalData.resources;
+        break;
+      default:
+        // You can throw an error or log here if an unexpected type is encountered
+        console.error("Invalid proposal type:", proposalData.type);
+        return;
+    }
+
+    const payload = {
+      mint: selectedCharacter?.mint,
+      timestamp: Date.now().toString(),
+      proposal: prpsl,
+    };
+    if (!walletAddress) return console.error("No wallet");
+
+    const encodedSignedTx = await encodeTransaction({
+      walletAddress,
+      connection,
+      signTransaction,
+      txInstructions: [buildMemoIx({ walletAddress, payload })],
+    });
+
+    if (typeof encodedSignedTx === "string") {
+      mutate({ signedTx: encodedSignedTx }, { onSuccess });
+    } else {
+      toast.error("Failed to create proposal tx");
+      console.error(encodedSignedTx);
+    }
   };
 
   return (

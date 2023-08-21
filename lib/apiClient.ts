@@ -139,6 +139,7 @@ export const fetchFaction = async ({
 }: {
   factionId: string;
 }): Promise<{
+  citizens: [];
   faction: Faction;
   resources: { name: string; value: number }[];
   stations: { blueprint: string; faction: string; id: string; level: number }[];

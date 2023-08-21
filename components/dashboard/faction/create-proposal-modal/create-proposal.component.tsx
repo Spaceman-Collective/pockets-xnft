@@ -105,7 +105,7 @@ export const CreateProposal: React.FC<{
           <ModalCloseButton position="absolute" top="30px" right="30px" />
           <ModalBody flex="1">
             <Box w="100%" h="100%">
-              <ProposalForm/>
+              <ProposalForm onClose={onClose}/>
             </Box>
           </ModalBody>
           <ModalFooter>
