@@ -57,6 +57,7 @@ export const ConsumeButton: FC<{
           </NumberInputStepper>
         </NumberInput>
         <Button
+          isDisabled={isDisabled}
           borderRadius="0 1rem 1rem 0"
           bg={!isDisabled ? "blacks.700" : "brand.primary"}
           h="fit-content"

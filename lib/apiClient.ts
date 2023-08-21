@@ -381,7 +381,7 @@ export const postRfAllocate = async ({
   }
 };
 
-export const consumeResources = async ({
+export const postConsumeResource = async ({
   signedTx,
 }: {
   signedTx: string;
