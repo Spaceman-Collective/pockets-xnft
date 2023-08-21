@@ -231,7 +231,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     useSolana();
 
   const getProposalVotes = async () => {
-    const propPDA = getProposalPDA(proposalId);
+    const propPDA = getProposalPDA(proposalId!);
     const citiPDA = getCitizenPDA(new PublicKey(currentCharacter?.mint));
     const votePDA = getVotePDA(citiPDA, propPDA);
     const vA = await getVoteAccount(connection, votePDA);
@@ -266,7 +266,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         await voteOnProposalIx(
           new PublicKey(walletAddress!),
           new PublicKey(currentCharacter?.mint!),
-          proposalId,
+          proposalId!,
           votingAmt,
           currentCharacter?.faction?.id!
         ),
@@ -298,7 +298,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         await updateVoteOnProposalIx(
           new PublicKey(walletAddress!),
           new PublicKey(currentCharacter?.mint!),
-          proposalId,
+          proposalId!,
           votingAmt,
           currentCharacter?.faction?.id!,
           true
