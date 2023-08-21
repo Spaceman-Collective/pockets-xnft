@@ -8,6 +8,7 @@ import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { useSolana } from "@/hooks/useSolana";
 import { formatBalance } from "@/lib/utils";
+import { useRouter } from "next/router";
 
 export const DashboardInfo = () => {
   const { data: currentFs } = useFetchAllFactions();
@@ -15,6 +16,8 @@ export const DashboardInfo = () => {
   const { walletAddress, connection, getBonkBalance } = useSolana();
   const [bonkBalance, setBonkBalance] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
+
 
   useEffect(() => {
     (async () => {
@@ -80,7 +83,7 @@ export const DashboardInfo = () => {
             // Handle the click event for the second icon
           }}
         >
-          <MdLeaderboard size={24} color={colors.brand.secondary} />
+          <MdLeaderboard size={24} color={router.pathname === "/leaderboard" ? colors.brand.quaternary : colors.brand.secondary} onClick={() => router.push("/leaderboard")} />
         </IconButton>
         <IconButton
           onClick={() => {
