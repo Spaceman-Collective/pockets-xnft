@@ -50,6 +50,7 @@ import { useFaction } from "@/hooks/useFaction";
 import { decode } from "bs58";
 import { TransactionMessage } from "@solana/web3.js";
 import { useCitizen } from "@/hooks/useCitizen";
+import { LeaveFactionModal } from "../leave-faction.component";
 import toast from "react-hot-toast";
 
 const spacing = "1rem";
@@ -306,13 +307,72 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
       ],
     });
 
-    if (encodedSignedTx instanceof Error || !encodedSignedTx) {
-      handleError(encodedSignedTx instanceof Error ? encodedSignedTx : "No Vote Tx");
-      return;
+  const handleVote = async (votingAmt: number) => {
+    setIsVoteInProgress(true);
+    const encodedSignedTx = await encodeTransaction({
+      walletAddress,
+      connection,
+      signTransaction,
+      txInstructions: [
+        await voteOnProposalIx(
+          new PublicKey(walletAddress!),
+          new PublicKey(currentCharacter?.mint!),
+          proposalId,
+          votingAmt,
+          currentCharacter?.faction?.id!
+        ),
+      ],
+    });
+    
+    if (typeof encodedSignedTx === "string") {
+      const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
+      console.log('vote sig: sig');
+      toast.success('Vote successful!');
+    } else if (encodedSignedTx instanceof Error) {
+        console.error("Failed to create transaction:", encodedSignedTx.message);
+        toast.error('Failed to vote!')
+    } else {
+        console.error("Unexpected type for encodedSignedTx");
+        toast.error('Failed to vote!')
     }
 
-    const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
-    console.log("sig", sig);
+    setLocalVote("");
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    setIsVoteInProgress(false);
+  };
+
+  const updateVote = async (votingAmt: number) => {
+    setIsVoteInProgress(true);
+    const encodedSignedTx = await encodeTransaction({
+      walletAddress,
+      connection,
+      signTransaction,
+      txInstructions: [
+        await updateVoteOnProposalIx(
+          new PublicKey(walletAddress!),
+          new PublicKey(currentCharacter?.mint!),
+          proposalId,
+          votingAmt,
+          currentCharacter?.faction?.id!,
+          true
+        ),
+      ],
+    });
+
+
+    if (typeof encodedSignedTx === "string") {
+      const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
+      console.log('update vot sig: sig');
+      toast.success('Update vote successful!');
+    } else if (encodedSignedTx instanceof Error) {
+        console.error("Failed to create transaction:", encodedSignedTx.message);
+        toast.error('Failed to vote!')
+    } else {
+        console.error("Unexpected type for encodedSignedTx");
+        toast.error('Failed to vote!')
+    }
 
     setLocalVote("");
 
@@ -392,8 +452,30 @@ const ProposalLabels: React.FC<{
   fire: () => void;
   character: Character;
 }> = ({ fire: fireConfetti, character }) => {
-  const { data } = useCitizen(character?.mint);
+  const [votingPower, setVotingPower] = useState<string>("");
 
+
+  const { data } = useCitizen(character?.mint);
+  const { connection, walletAddress, signTransaction, encodeTransaction } =
+    useSolana();
+
+  const getVotingPower = async () => {
+
+
+    // if (vpA) {
+    //   setVotingPower(vpA.votingPower.toString());
+    // } else {
+    //   setVotingPower("0");
+    // }
+  };
+
+  useEffect(() => {
+    getVotingPower().then(() => {
+      console.log("Votes: ", votingPower);
+      console.log("Inital Page Load Vote Count:  ", votingPower);
+    });
+  });
+  
 
 
   return (
