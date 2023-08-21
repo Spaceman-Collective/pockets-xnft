@@ -12,7 +12,7 @@ import styled from "@emotion/styled";
 import { colors } from "@/styles/defaultTheme";
 import { FactionBox } from "./faction-item.component";
 import { Character, Faction } from "@/types/server";
-import { useFetchAllFactions } from "@/hooks/useAllFactions";
+import { useAllFactions } from "@/hooks/useAllFactions";
 import { useDebounce } from "@uidotdev/usehooks";
 
 interface FactionModalProps {
@@ -29,7 +29,7 @@ export const FactionModal: FC<FactionModalProps> = ({
   setFactionStatus,
 }) => {
   const [factionsList, setFactionsList] = useState<Faction[]>([]);
-  const { data } = useFetchAllFactions();
+  const { data } = useAllFactions();
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 300);
 

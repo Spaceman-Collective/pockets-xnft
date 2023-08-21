@@ -164,7 +164,7 @@ export const fetchFactions = async (): Promise<FetchFactionsType> => {
   const URL = API_BASE_URL + "/factions";
   try {
     const response = await fetch.get<any>(URL, {
-      params: { skip: 0, take: 10 },
+      params: { skip: 0, take: 100 },
     });
 
     if (response.status === 200) {

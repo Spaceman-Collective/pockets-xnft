@@ -18,8 +18,9 @@ import { colors } from "@/styles/defaultTheme";
 import { useSolana } from "@/hooks/useSolana";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
-import { useFetchAllFactions } from "@/hooks/useAllFactions";
+import { useAllFactions } from "@/hooks/useAllFactions";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import toast from "react-hot-toast";
 
 export const CreateFaction: FC<{
   fire: () => void;
@@ -34,7 +35,7 @@ export const CreateFaction: FC<{
     encodeTransaction,
     getBonkBalance,
   } = useSolana();
-  const { data: currentFactions } = useFetchAllFactions();
+  const { data: currentFactions } = useAllFactions();
   const { mutate } = useCreateFaction();
   const [faction, setFaction] = useState({
     name: "",
@@ -138,8 +139,11 @@ export const CreateFaction: FC<{
       signTransaction,
       txInstructions: [buildMemoIx({ walletAddress, payload }), ix],
     });
-    if (!encodedSignedTx) throw Error("No Tx");
-    mutate({ signedTx: encodedSignedTx }, { onSuccess });
+    if (!encodedSignedTx) {
+      console.error("No Tx");
+      return;
+    }
+    mutate({ signedTx: encodedSignedTx as string }, { onSuccess });
   };
 
   return (
