@@ -127,6 +127,7 @@ const CharacterFlex = styled(Flex)<{ selected?: boolean }>`
   border-radius: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-bottom: 1rem;
   background-color: ${colors.blacks[500]};
   border: 2px solid
     ${(props) => {

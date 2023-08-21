@@ -36,6 +36,8 @@ import {
 } from "@solana/web3.js";
 import {
   getCitizenPDA,
+  getFactionAccount,
+  getFactionPDA,
   getProposalPDA,
   getVoteAccount,
   getVotePDA,
@@ -228,6 +230,8 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   const [localVote, setLocalVote] = useState<string>("");
   const [inputError, setInputError] = useState<string | null>(null);
   const [voteAmount, setVoteAmount] = useState<string>("");
+  const [voteThreshold, setVoteThreshold] = useState<string>("");
+
 
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
@@ -239,6 +243,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     const vA = await getVoteAccount(connection, votePDA);
 
     if (vA) {
+      console.log('VA: ', vA)
       setVoteAmount(vA.voteAmt.toString());
     } else {
       setVoteAmount("0");
@@ -249,6 +254,28 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     getProposalVotes().then(() => {
       // console.log("Votes: ", voteAmount);
       // console.log("Inital Page Load Vote Count:  ", voteAmount);
+    });
+  });
+
+  const getVoteThreshold = async () => {
+    if (!currentCharacter?.faction?.id) {
+      console.error('Character undefined on vote threshold retrieval')
+      return;
+    }
+    const factPDA = getFactionPDA(currentCharacter?.faction?.id);
+    const fA = await getFactionAccount(connection, factPDA);
+
+    if (fA) {
+      console.log('FA: ', fA)
+      setVoteThreshold(fA?.thresholdToPass.toString()!);
+    } else {
+      setVoteThreshold("NA");
+    }
+  };
+
+  useEffect(() => {
+    getVoteThreshold().then(() => {
+      console.log("Vote threshold: ", voteThreshold);
     });
   });
 
@@ -352,7 +379,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
               votes:
             </Label>
             <ProposalTitle>
-              {voteAmount}/{100}
+              {voteAmount}/{voteThreshold}
             </ProposalTitle>
           </HStack>
         </Flex>

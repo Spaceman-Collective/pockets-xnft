@@ -85,6 +85,22 @@ export function getFactionPDA(factionId: string): PublicKey {
   return factionPDA;
 }
 
+export async function getFactionAccount(
+  connection: Connection,
+  factionPDA: PublicKey
+) {
+  if (!connection || !factionPDA) return;
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    { connection }
+  );
+  return await POCKETS_PROGRAM.account.faction.fetchNullable(
+    factionPDA,
+    "confirmed"
+  );
+}
+
 export function getDelegationRecordPDA(
   citizen: PublicKey,
   voteRecipientCitizen: PublicKey
