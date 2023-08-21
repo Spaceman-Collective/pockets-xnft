@@ -3,18 +3,21 @@ import { Text, Button, Flex, Spinner } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { MdLeaderboard, MdNotificationsActive } from "react-icons/md";
 import { AiFillGold } from "react-icons/ai";
-import { useFetchAllFactions } from "@/hooks/useAllFactions";
+import { useAllFactions } from "@/hooks/useAllFactions";
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
 import { useSolana } from "@/hooks/useSolana";
 import { formatBalance } from "@/lib/utils";
+import { useRouter } from "next/router";
 
 export const DashboardInfo = () => {
-  const { data: currentFs } = useFetchAllFactions();
+  const { data: currentFs } = useAllFactions();
   // const numOfFactions = currentFs?.total;
   const { walletAddress, connection, getBonkBalance } = useSolana();
   const [bonkBalance, setBonkBalance] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
+
 
   useEffect(() => {
     (async () => {
@@ -80,7 +83,7 @@ export const DashboardInfo = () => {
             // Handle the click event for the second icon
           }}
         >
-          <MdLeaderboard size={24} color={colors.brand.secondary} />
+          <MdLeaderboard size={24} color={router.pathname === "/leaderboard" ? colors.brand.quaternary : colors.brand.secondary} onClick={() => router.push("/leaderboard")} />
         </IconButton>
         <IconButton
           onClick={() => {

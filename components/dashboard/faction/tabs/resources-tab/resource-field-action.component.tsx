@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { HStack, Flex, Image, Button } from "@chakra-ui/react";
+import { HStack, Flex, Image, Button, Tooltip, IconButton } from "@chakra-ui/react";
 import { Tip } from "@/components/tooltip";
 import { getLocalImage } from "@/lib/utils";
 import { Label, Value } from "../tab.styles";
@@ -11,6 +11,7 @@ import { useRfHarvest } from "@/hooks/useRf";
 import { useSolana } from "@/hooks/useSolana";
 import { toast } from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { FaClock } from "react-icons/fa";
 
 export const ResourceFieldAction: FC<{
   charMint?: string;
@@ -103,7 +104,7 @@ export const ResourceFieldAction: FC<{
         onError: (e) => {
           toast.error(JSON.stringify(e));
         },
-      },
+      }
     );
   };
 
@@ -131,6 +132,16 @@ export const ResourceFieldAction: FC<{
             Harvest
           </Button>
         )}
+        <Tooltip label="Speed up" aria-label="Speed up tooltip">
+  <IconButton
+    icon={<FaClock />}
+    aria-label="Speed up"
+    bg={colors.blacks[400]}
+    w="3rem" // Adjust the width as needed
+    h="3rem" // Adjust the height as needed
+    isDisabled={false}
+  />
+</Tooltip>
       </HStack>
     </ResourceActionContainer>
   );

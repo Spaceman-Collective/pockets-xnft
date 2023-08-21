@@ -58,23 +58,25 @@ export const ModalRfDiscover: FC<{
         signTransaction,
       });
 
-      mutate({
-        signedTx: encodedTx ?? "",
-        charMint: undefined
-      });
-
-      await refetchDiscoverData();
-
-      if (onclose) {
-        onClose();
+      if (typeof encodedTx == "string") {
+        mutate({
+          signedTx: encodedTx,
+          charMint: undefined
+        });
+        toast.success('Successfully allocated Resource Field');
+      } else {
+        throw Error('failed tx')
       }
 
-      toast.success('Successfully allocated Resource Field');
+
     } catch (error) {
       console.error(error);
       toast.error("Error allocating Resource Field");
     } finally {
+      await refetchDiscoverData();
+
       setDiscoverLoading(false);
+      onClose();
     }
   };
 
@@ -88,9 +90,11 @@ export const ModalRfDiscover: FC<{
         minW="40vw"
         minH="40vh"
       >
+        <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">Discover a new Resource Field</ModalHeader>
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
-        <ModalBody>
-          <Text>There are {rf?.rfCount} fields.</Text>
+        <ModalBody display={'flex'} flexDirection={'column'} justifyContent={'space-between'}>
+          <Text>Resource Fields, when controlled by a faction, allow that faction’s citizens to harvest it every so often for it’s yield.</Text>
+          <Text pt='44'>There are currently {rf?.rfCount} fields.</Text>
           <HStack>
             <Text>BONK for next Resource Field:</Text>
             <Text>{formatBalance(Number(bonkForNextField))}</Text>

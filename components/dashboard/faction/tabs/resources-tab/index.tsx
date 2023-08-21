@@ -57,7 +57,7 @@ export const FactionTabResources: React.FC<{
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
-      <Header factionName={currentCharacter?.faction?.name} />
+      <Header factionName={currentCharacter?.faction?.name} taxRate={factionData?.faction?.taxRate} />
 
       <Box>
         <ResourceLabels
@@ -143,19 +143,16 @@ export const FactionTabResources: React.FC<{
   );
 };
 
-const Header: React.FC<{ factionName: string | undefined }> = ({
+const Header: React.FC<{ factionName: string | undefined, taxRate: number | undefined }> = ({
   factionName,
+  taxRate
 }) => {
   return (
     <Flex justifyContent="space-between" alignItems="end">
       <Title verticalAlign="end">{factionName!}</Title>
       <HStack alignItems="end">
-        <Label>RF Harvest Cost:</Label>
-        <Value>10k BONK</Value>
-      </HStack>
-      <HStack alignItems="end">
-        <Label>Tax Rate</Label>
-        <Value>10%</Value>
+        <Label>Faction Tax Rate</Label>
+        <Value>{taxRate}%</Value>
       </HStack>
     </Flex>
   );
@@ -189,7 +186,7 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
   );
 };
 
-const ResourceItem: FC<{ resource: { name: string; value: number } }> = ({
+const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
   resource,
 }) => {
   const hoverProps = useDisclosure();

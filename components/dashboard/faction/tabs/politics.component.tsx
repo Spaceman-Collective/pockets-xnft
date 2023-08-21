@@ -21,7 +21,6 @@ import { Label, PanelContainer, Value, ValueCalculation } from "./tab.styles";
 import { colors } from "@/styles/defaultTheme";
 import styled from "@emotion/styled";
 import { useSolana } from "@/hooks/useSolana";
-import { LeaveFactionModal } from "../leave-faction.component";
 import { Character } from "@/types/server";
 import { useEffect, useState } from "react";
 import { CreateProposal } from "../create-proposal-modal/create-proposal.component";
@@ -37,6 +36,8 @@ import {
 } from "@solana/web3.js";
 import {
   getCitizenPDA,
+  getFactionAccount,
+  getFactionPDA,
   getProposalPDA,
   getVoteAccount,
   getVotePDA,
@@ -50,6 +51,7 @@ import { useFaction } from "@/hooks/useFaction";
 import { decode } from "bs58";
 import { TransactionMessage } from "@solana/web3.js";
 import { useCitizen } from "@/hooks/useCitizen";
+import { LeaveFactionModal } from "../leave-faction.component";
 import toast from "react-hot-toast";
 
 const spacing = "1rem";
@@ -156,7 +158,9 @@ const ProposalTypeDetails: React.FC<ProposalTypeDetailsProps> = ({
       <Label color={colors.brand.tertiary} pb="0.4rem">
         {getLabel(type)}:
       </Label>
-      <ProposalTitle>{getValue(proposal?.type, proposal?.proposal)}</ProposalTitle>
+      <ProposalTitle>
+        {getValue(proposal?.type, proposal?.proposal)}
+      </ProposalTitle>
     </HStack>
   );
 };
@@ -212,8 +216,8 @@ const getValue = (type: string, proposal: any) => {
       return proposal.warband?.join(", ");
     case "TAX":
       return `${proposal.newTaxRate}%`;
-      case "BURN":
-        return `${proposal.resources}`;
+    case "BURN":
+      return `${proposal.resources}`;
     default:
       return "";
   }
@@ -228,6 +232,8 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   const [localVote, setLocalVote] = useState<string>("");
   const [inputError, setInputError] = useState<string | null>(null);
   const [voteAmount, setVoteAmount] = useState<string>("");
+  const [voteThreshold, setVoteThreshold] = useState<string>("");
+
 
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
@@ -239,6 +245,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     const vA = await getVoteAccount(connection, votePDA);
 
     if (vA) {
+      console.log('VA: ', vA)
       setVoteAmount(vA.voteAmt.toString());
     } else {
       setVoteAmount("0");
@@ -246,10 +253,35 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   };
 
   useEffect(() => {
-    getProposalVotes().then(() => {
-      // console.log("Votes: ", voteAmount);
-      // console.log("Inital Page Load Vote Count:  ", voteAmount);
-    });
+    if (voteAmount == "") {
+      getProposalVotes().then(() => {
+        console.log("Vote Amount: ", voteAmount);
+      });
+    }
+  });
+
+  const getVoteThreshold = async () => {
+    if (!currentCharacter?.faction?.id) {
+      console.error('Character undefined on vote threshold retrieval')
+      return;
+    }
+    const factPDA = getFactionPDA(currentCharacter?.faction?.id);
+    const fA = await getFactionAccount(connection, factPDA);
+
+    if (fA) {
+      console.log('FA: ', fA)
+      setVoteThreshold(fA?.thresholdToPass.toString()!);
+    } else {
+      setVoteThreshold("NA");
+    }
+  };
+
+  useEffect(() => {
+    if (voteThreshold == "") {
+      getVoteThreshold().then(() => {
+        console.log("Vote threshold: ", voteThreshold);
+      });
+    }
   });
 
   const validateInput = (): boolean => {
@@ -258,6 +290,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     return isValid;
   };
 
+  
   const handleVote = async (votingAmt: number) => {
     setIsVoteInProgress(true);
     const encodedSignedTx = await encodeTransaction({
@@ -275,13 +308,19 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
       ],
     });
 
-    if (encodedSignedTx instanceof Error || !encodedSignedTx) {
-      handleError(encodedSignedTx instanceof Error ? encodedSignedTx : "No Vote Tx");
-      return;
+    if (typeof encodedSignedTx === "string") {
+      const sig = await connection.sendRawTransaction(
+        decode(encodedSignedTx)
+      );
+      console.log("vote sig: sig");
+      toast.success("Vote successful!");
+    } else if (encodedSignedTx instanceof Error) {
+      console.error("Failed to create transaction:", encodedSignedTx.message);
+      toast.error("Failed to vote!");
+    } else {
+      console.error("Unexpected type for encodedSignedTx");
+      toast.error("Failed to vote!");
     }
-
-    const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
-    console.log("sig", sig);
 
     setLocalVote("");
 
@@ -308,19 +347,30 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
       ],
     });
 
-    if (encodedSignedTx instanceof Error || !encodedSignedTx) {
-      handleError(encodedSignedTx instanceof Error ? encodedSignedTx : "No Vote Tx");
-      return;
+    if (typeof encodedSignedTx === "string") {
+      const sig = await connection.sendRawTransaction(
+        decode(encodedSignedTx)
+      );
+      console.log("update vot sig: sig");
+      toast.success("Update vote successful!");
+    } else if (encodedSignedTx instanceof Error) {
+      console.error("Failed to create transaction:", encodedSignedTx.message);
+      toast.error("Failed to vote!");
+    } else {
+      console.error("Unexpected type for encodedSignedTx");
+      toast.error("Failed to vote!");
     }
-
-    const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
-    console.log("sig", sig);
 
     setLocalVote("");
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     setIsVoteInProgress(false);
+  };
+
+  const processVote = async () => {
+    // Your logic here
+    console.log("Processing the vote");
   };
 
   return (
@@ -338,7 +388,9 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             <Label color={colors.brand.tertiary} pb="0.4rem">
               votes:
             </Label>
-            <ProposalTitle>{voteAmount}/{100}</ProposalTitle>
+            <ProposalTitle>
+              {voteAmount}/{voteThreshold}
+            </ProposalTitle>
           </HStack>
         </Flex>
 
@@ -350,53 +402,79 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         </HStack>
 
         <Flex width="100%">
-          {isVoteInProgress ? (
-            <Text>LOADING...</Text>
-          ) : (
-            <>
-              <StyledInput
-                placeholder={
-                  Number(voteAmount) > 0
-                    ? "Update amount of voting power"
-                    : "Enter amount of voting power"
-                }
-                value={localVote}
-                onChange={(e) => setLocalVote(e.target.value)}
-                isInvalid={!!inputError}
-                disabled={isVoteInProgress}
-              />
-              {inputError && <Text color="red.500">{inputError}</Text>}
-              <Button
-                ml="2rem"
-                letterSpacing="1px"
-                bg={colors.blacks[700]}
-                onClick={() =>
-                  validateInput() &&
-                  (Number(voteAmount) > 0
-                    ? updateVote(parseInt(localVote))
-                    : handleVote(parseInt(localVote)))
-                }
-                disabled={isVoteInProgress}
-              >
-                {Number(voteAmount) > 0 ? "update" : "vote"}
-              </Button>
-            </>
-          )}
-        </Flex>
+      {isVoteInProgress ? (
+        <Text>LOADING...</Text>
+      ) : (
+        <>
+          <StyledInput
+            placeholder={
+              Number(voteAmount) > 0
+                ? "Update amount of voting power"
+                : "Enter amount of voting power"
+            }
+            value={localVote}
+            onChange={(e) => setLocalVote(e.target.value)}
+            isInvalid={!!inputError}
+            disabled={isVoteInProgress || Number(voteAmount) >= Number(voteThreshold)} // Disable if voteAmount exceeds threshold
+          />
+          {inputError && <Text color="red.500">{inputError}</Text>}
+          <Button
+            ml="2rem"
+            letterSpacing="1px"
+            bg={colors.blacks[700]}
+            onClick={() => {
+              if (Number(voteAmount) >= Number(voteThreshold)) {
+                processVote(); // Run the processVote function
+              } else if (
+                validateInput() &&
+                Number(voteAmount) > 0
+              ) {
+                updateVote(parseInt(localVote));
+              } else {
+                handleVote(parseInt(localVote));
+              }
+            }}
+            disabled={isVoteInProgress}
+          >
+            {Number(voteAmount) >= Number(voteThreshold)
+              ? "process"
+              : Number(voteAmount) > 0
+              ? "update"
+              : "vote"}
+          </Button>
+        </>
+      )}
+    </Flex>
       </Flex>
     </ProposalAction>
   );
-};
-
+              };
 
 
 const ProposalLabels: React.FC<{
   fire: () => void;
   character: Character;
 }> = ({ fire: fireConfetti, character }) => {
+  const [votingPower, setVotingPower] = useState<string>("");
+
   const { data } = useCitizen(character?.mint);
+  const { connection, walletAddress, signTransaction, encodeTransaction } =
+    useSolana();
 
+  const getVotingPower = async () => {
+    // if (vpA) {
+    //   setVotingPower(vpA.votingPower.toString());
+    // } else {
+    //   setVotingPower("0");
+    // }
+  };
 
+  useEffect(() => {
+    getVotingPower().then(() => {
+      console.log("Votes: ", votingPower);
+      console.log("Inital Page Load Vote Count:  ", votingPower);
+    });
+  });
 
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
@@ -414,7 +492,8 @@ const ProposalLabels: React.FC<{
           pl="0.25rem"
           pb="0.25rem"
         >
-          ({data?.citizen?.grantedVotingPower.toString()}{" + "}
+          ({data?.citizen?.grantedVotingPower.toString()}
+          {" + "}
           {data?.citizen?.maxPledgedVotingPower.toString()})
         </ValueCalculation>
       </HStack>
@@ -435,13 +514,11 @@ const Header: React.FC<{ factionName: string | undefined }> = ({
   );
 };
 
-
 function handleError(error: Error | string) {
   console.error(error);
-  const errorMessage = typeof error === 'string' ? error : error.message;
+  const errorMessage = typeof error === "string" ? error : error.message;
   toast.error(errorMessage);
 }
-
 
 const CitizensButton = styled(Button)`
   border-radius: 0.5rem;

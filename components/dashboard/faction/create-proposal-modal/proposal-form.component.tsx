@@ -679,7 +679,8 @@ export const ProposalForm: React.FC<{ onClose: () => void }> = ({
   };
 
   const handleCreateProposal = async () => {
-    let prpsl: Partial<Proposal> = {
+    console.log('propoal data: ', proposalData);
+    let prpsl: Proposal = {
       type: proposalData.type,
     };
 
@@ -726,11 +727,14 @@ export const ProposalForm: React.FC<{ onClose: () => void }> = ({
         return;
     }
 
+    console.log('propo: ', prpsl);
+
     const payload = {
       mint: selectedCharacter?.mint,
       timestamp: Date.now().toString(),
       proposal: prpsl,
     };
+    console.log('py: ', payload);
     if (!walletAddress) return console.error("No wallet");
 
     const encodedSignedTx = await encodeTransaction({

@@ -164,7 +164,7 @@ export const fetchFactions = async (): Promise<FetchFactionsType> => {
   const URL = API_BASE_URL + "/factions";
   try {
     const response = await fetch.get<any>(URL, {
-      params: { skip: 0, take: 10 },
+      params: { skip: 0, take: 100 },
     });
 
     if (response.status === 200) {
@@ -187,7 +187,7 @@ export const fetchFaction = async ({
 }): Promise<{
   citizens: [];
   faction: Faction;
-  resources: { name: string; value: number }[];
+  resources: { name: string; value: string }[];
   stations: { blueprint: string; faction: string; id: string; level: number }[];
 }> => {
   const URL = API_BASE_URL + "/faction";

@@ -173,7 +173,12 @@ const encodeTransaction = async ({
   signTransaction?: any;
   txInstructions?: TransactionInstruction[];
 }) => {
+  console.log('et error wa: ', walletAddress);
+  console.log('et error tx: ', txInstructions);
+  console.log('et error st: ', signTransaction);
   if (!walletAddress || !txInstructions || !signTransaction) return;
+  
+
   const { blockhash } = await connection!.getLatestBlockhash();
 
   const txMsg = new TransactionMessage({
@@ -186,6 +191,7 @@ const encodeTransaction = async ({
   if (!tx) return;
   try {
     const signedTx = await signTransaction(tx);
+    console.log('signtx: ', signedTx)
     const encodedSignedTx = encode(signedTx!.serialize());
 
     return encodedSignedTx;

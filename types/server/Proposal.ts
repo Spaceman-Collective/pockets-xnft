@@ -8,7 +8,7 @@ export interface Proposal
     Tax,
     Burn {
   id?: string;
-  type: string;
+  type: ProposalType;
 }
 
 export const ProposalTypes = [
