@@ -20,9 +20,10 @@ import {
   NumberDecrementStepper,
   Stack,
   Select,
+  HStack,
 } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
@@ -35,6 +36,8 @@ import toast from "react-hot-toast";
 import { BLUEPRINTS } from "../tabs/services-tab/constants";
 import { FaTimes } from "react-icons/fa";
 import { z } from "zod";
+import { useFaction } from "@/hooks/useFaction";
+import { Label, Value } from "../tabs/tab.styles";
 
 export const CreateProposal: React.FC<{
   currentCharacter?: Character;
@@ -53,17 +56,32 @@ export const CreateProposal: React.FC<{
   } = useSolana();
 
   const factionId = currentCharacter?.faction?.id;
+  const { data: factionData, isLoading: factionIsLoading } = useFaction({
+    factionId: factionId ?? "",
+  });
+
+  useEffect(() => {
+    if (factionData) {
+      console.log("fd: ", factionData);
+      console.log("scf: ", selectedCharacter?.faction);
+    }
+  }, [factionData, selectedCharacter?.faction]);
   const { data: allProposals, refetch } = useFetchProposalsByFaction(
     factionId,
     0,
     10
   );
+
   const { isOpen, onOpen, onClose: closeIt } = useDisclosure();
 
   const onClose = () => {
     closeIt();
   };
+
   const [proposalType, setProposalType] = useState<string>("");
+  const [proposal, setProposal] = useState<any>({});
+  const [unallocatedVotingPower, setUnallocatedVotingPower] =
+    useState<string>("0");
 
   const handleProposalTypeChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -79,8 +97,6 @@ export const CreateProposal: React.FC<{
     onClose();
   };
 
-  const [proposal, setProposal] = useState<any>({});
-
   const handleCreateProposal = async () => {
     const CreateProposalData = z.object({
       mint: z.string(),
@@ -93,7 +109,6 @@ export const CreateProposal: React.FC<{
           z.literal("MINT"),
           z.literal("ALLOCATE"),
           z.literal("THRESHOLD"),
-          z.literal("THRESHOLD"),
           z.literal("TAX"),
           z.literal("BURN"),
         ]),
@@ -102,7 +117,7 @@ export const CreateProposal: React.FC<{
         citizen: z.string().optional(),
         amount: z.string().optional(),
         resources: z
-          .array(z.object({ resourceId: z.string(), amount: z.number() }))
+          .array(z.object({ resourceName: z.string(), amount: z.number() }))
           .optional(),
         bonk: z.string().optional(),
         newSharesToMint: z.string().optional(),
@@ -199,53 +214,190 @@ export const CreateProposal: React.FC<{
 
                 {proposalType === "UPGRADE" && (
                   <Box mb="2rem" w="100%">
-                    <StyledInput
-                      placeholder="Enter station ID or Townhall"
-                      disabled={true}
-                    />
-                    {
-                      // TODO: Add select for stations using factionData
-                    }
+                    <Select
+                      fontWeight="500"
+                      placeholder="Select a station to upgrade"
+                      onChange={(e) => {
+                        console.log(e.target.value);
+                        setProposal({
+                          type: "UPGRADE",
+                          stationId: e.target.value,
+                        });
+                      }}
+                    >
+                      {factionData?.stations?.map((station) => (
+                        <option
+                          key={station?.blueprint}
+                          value={station?.blueprint}
+                        >
+                          {station?.blueprint} / current lvl: {station?.level} /
+                          id: {station?.id}
+                        </option>
+                      ))}
+                    </Select>
                   </Box>
                 )}
 
                 {proposalType === "WITHDRAW" && (
                   <Stack spacing={4} w="100%">
-                    <Box mb="2rem" w="100%">
-                      <Select placeholder="Select a citizen"></Select>
+                    {/* Citizen Selector */}
+                    <Box mb="2rem">
+                      <Select
+                        fontWeight="500"
+                        className="customSelect"
+                        placeholder="Select a citizen"
+                        onChange={(e) => {
+                          console.log(e.target.value);
+                          setProposal({
+                            type: "WITHDRAW",
+                            citizen: e.target.value,
+                          });
+                        }}
+                      >
+                        {factionData?.citizens?.map((citizen: Character) => (
+                          <option key={citizen.mint} value={citizen.mint}>
+                            {citizen.name}
+                          </option>
+                        ))}
+                      </Select>
                     </Box>
-                    {
-                      // TODO: Add fields for Resources and Bonk
-                    }
+
+                    {/* Resource Selector */}
+                    <Box mb="2rem" w="100%">
+                      <Select
+                        fontWeight="500"
+                        className="customSelect"
+                        placeholder="Select a resource"
+                        onChange={(e) => {
+                          console.log(e.target.value);
+                          setProposal((prevState: { resources: any }) => {
+                            const newResources = prevState.resources
+                              ? [...prevState.resources]
+                              : [];
+                            if (newResources.length === 0) {
+                              newResources.push({
+                                resourceName: e.target.value,
+                                amount: 0,
+                              });
+                            } else {
+                              newResources[0].resourceName = e.target.value;
+                            }
+                            return { ...prevState, resources: newResources };
+                          });
+                        }}
+                      >
+                        {factionData?.resources?.map((resource) => (
+                          <option key={resource.name} value={resource.name}>
+                            {resource.name} ({resource.value})
+                          </option>
+                        ))}
+                      </Select>
+                    </Box>
+
+                    <Box mb="2rem" w="100%">
+                      <StyledInput
+                        type="number"
+                        className="customInput"
+                        placeholder="Enter amount of selected resource"
+                        onChange={(e) => {
+                          setProposal((prevState: { resources: any }) => {
+                            const newResources = prevState.resources
+                              ? [...prevState.resources]
+                              : [];
+                            const newAmount = parseInt(e.target.value);
+                            if (isNaN(newAmount)) return prevState;
+                            if (newResources.length === 0) return prevState;
+                            else newResources[0].amount = newAmount;
+                            return { ...prevState, resources: newResources };
+                          });
+                        }}
+                      />
+                    </Box>
+
+                    <Box mb="2rem" w="100%">
+                      <StyledInput
+                        className="customInput"
+                        placeholder="Enter amount of BONK"
+                        onChange={(e) => {
+                          console.log(e.target.value);
+                          setProposal({
+                            ...proposal,
+                            bonk: e.target.value,
+                          });
+                        }}
+                      />
+                    </Box>
                   </Stack>
                 )}
 
                 {proposalType === "MINT" && (
                   <Box mb="2rem" w="100%">
                     <StyledInput
+                      fontWeight="500"
+                      className="customInput"
                       placeholder="Enter new shares to mint"
-                      w="100%"
+                      onChange={(e) => {
+                        console.log(e.target.value);
+                        setProposal({
+                          type: "MINT",
+                          newSharesToMint: e.target.value,
+                        });
+                      }}
                     />
-                    {
-                      // TODO add input for # of new shares to mint
-                    }
                   </Box>
                 )}
 
                 {proposalType === "ALLOCATE" && (
                   <Stack spacing={4} w="100%">
-                    <Box mb="2rem" w="100%">
-                      <StyledInput placeholder="Enter citizen value" w="100%" />
-                    </Box>
-                    <Box mb="2rem" w="100%">
-                      <StyledInput placeholder="Enter amount" w="100%" />
+                    <HStack alignItems="end" pr="1rem">
+                      <Label color={colors.brand.tertiary} pb="0.4rem">
+                        unallocated voting power:
+                      </Label>
+                      <Value>{unallocatedVotingPower}</Value>
+                    </HStack>
+                    <Select
+                      fontWeight="500"
+                      onChange={(e) =>
+                        setProposal({
+                          type: "ALLOCATE",
+                          citizen: e.target.value,
+                        })
+                      }
+                      placeholder="Select a citizen"
+                    >
+                      {factionData?.citizens?.map((citizen: Character) => (
+                        <option key={citizen.mint} value={citizen.mint}>
+                          {citizen.name}
+                        </option>
+                      ))}
+                    </Select>
+                    <Box mb="2rem">
+                      <StyledInput
+                        type="number"
+                        onChange={(e) =>
+                          setProposal({
+                            type: "ALLOCATE",
+                            amount: e.target.value,
+                          })
+                        }
+                        placeholder="Enter amount of unallocated voting power to allocate"
+                      />{" "}
                     </Box>
                   </Stack>
                 )}
 
                 {proposalType === "THRESHOLD" && (
                   <Box mb="2rem" w="100%">
-                    <StyledInput placeholder="Enter new threshold" w="100%" />
+                    <StyledInput
+                      type="number"
+                      onChange={(e) =>
+                        setProposal({
+                          type: "THRESHOLD",
+                          amount: e.target.value,
+                        })
+                      }
+                      placeholder="Enter new threshold"
+                    />{" "}
                   </Box>
                 )}
 
@@ -264,13 +416,29 @@ export const CreateProposal: React.FC<{
                     >
                       <NumberInputField
                         bg={colors.blacks[600]}
-                        p="1rem"
                         h="5rem"
+                        fontSize="14px"
                         borderRadius="4px"
+                        borderColor={colors.blacks[600]}
+                        defaultValue={0}
+                        min={0}
+                        max={100}
                       />
-                      <NumberInputStepper pr="1rem">
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
+                      <NumberInputStepper
+                        pr="3rem"
+                        borderColor={colors.blacks[600]}
+                      >
+                        <NumberIncrementStepper
+                          fontSize="12px"
+                          borderColor={colors.blacks[600]}
+                          color={colors.brand.secondary}
+                        />
+                        <NumberDecrementStepper
+                          _disabled={false}
+                          fontSize="12px"
+                          borderColor={colors.blacks[600]}
+                          color={colors.brand.secondary}
+                        />
                       </NumberInputStepper>
                     </NumberInput>
                   </Box>
@@ -278,10 +446,56 @@ export const CreateProposal: React.FC<{
 
                 {proposalType === "BURN" && (
                   <Box mb="2rem" w="100%">
-                    <StyledInput
-                      placeholder="Enter amount of resource to burn"
-                      w="100%"
-                    />
+                    <Box mb="2rem" w="100%">
+                      <Select
+                        fontWeight="500"
+                        className="customSelect"
+                        placeholder="Select a resource"
+                        onChange={(e) => {
+                          console.log(e.target.value);
+                          setProposal((prevState: { resources: any }) => {
+                            const newResources = prevState.resources
+                              ? [...prevState.resources]
+                              : [];
+                            if (newResources.length === 0) {
+                              newResources.push({
+                                resourceName: e.target.value,
+                                amount: 0,
+                              });
+                            } else {
+                              newResources[0].resourceName = e.target.value;
+                            }
+                            return { ...prevState, resources: newResources };
+                          });
+                        }}
+                      >
+                        {factionData?.resources?.map((resource) => (
+                          <option key={resource.name} value={resource.name}>
+                            {resource.name} ({resource.value})
+                          </option>
+                        ))}
+                      </Select>
+                    </Box>
+
+                    <Box mb="2rem" w="100%">
+                      <StyledInput
+                        type="number"
+                        className="customInput"
+                        placeholder="Enter amount of selected resource"
+                        onChange={(e) => {
+                          setProposal((prevState: { resources: any }) => {
+                            const newResources = prevState.resources
+                              ? [...prevState.resources]
+                              : [];
+                            const newAmount = parseInt(e.target.value);
+                            if (isNaN(newAmount)) return prevState;
+                            if (newResources.length === 0) return prevState;
+                            else newResources[0].amount = newAmount;
+                            return { ...prevState, resources: newResources };
+                          });
+                        }}
+                      />
+                    </Box>
                   </Box>
                 )}
               </VStack>
@@ -312,7 +526,7 @@ const inputStyles = {
   padding: "1rem 2rem",
   fontWeight: "500",
   letterSpacing: "1px",
-  color: colors.brand.quaternary,
+  color: colors.brand.secondary,
 };
 
 const CreateButton = styled(Button)`

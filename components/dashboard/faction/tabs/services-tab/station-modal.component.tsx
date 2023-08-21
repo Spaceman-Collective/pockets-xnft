@@ -58,7 +58,7 @@ export const ModalStation: FC<{
   const timer = timersData?.stationTimers.find(
     (e) => e.station === station?.id,
   );
-  console.log({ timer });
+  // console.log({ timer });
   const finishedDate = timer?.finished && +timer?.finished;
   const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
 
@@ -72,7 +72,7 @@ export const ModalStation: FC<{
     intervalMs: 1000,
   });
 
-  console.table({ timersData, remainingTime, count, isFuture });
+  // console.table({ timersData, remainingTime, count, isFuture });
 
   useEffect(() => {
     if (!isClaimable) return;
@@ -132,7 +132,7 @@ export const ModalStation: FC<{
       });
     });
 
-    burnIxs?.forEach((ix) => console.log("@@@@@: ", ix.keys.toString()));
+    // burnIxs?.forEach((ix) => console.log("@@@@@: ", ix.keys.toString()));
 
     if (!burnIxs || burnIxs.length === 0 || burnIxs instanceof Error)
       return toast.error("Ooops! No burnIx");
