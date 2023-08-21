@@ -321,6 +321,12 @@ export const fetchCharTimers = async ({
 }: {
   mint: string;
 }): Promise<{
+  stationTimers: {
+    character: string;
+    finished: string;
+    id: string;
+    station: string;
+  }[];
   rfTimers: {
     character: string;
     finished: string;

@@ -248,6 +248,7 @@ const SkillBox: FC<{
         opacity: 1,
       }}
       transition="all 0.25s ease-in-out"
+      cursor="pointer"
       onClick={click}
     >
       <Grid

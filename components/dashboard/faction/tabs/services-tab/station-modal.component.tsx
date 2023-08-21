@@ -29,6 +29,7 @@ import {
 } from "@/hooks/useFaction";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
 import { BONK_MINT, RESOURCES, STATION_USE_COST_PER_LEVEL } from "@/constants";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const ModalStation: FC<{
   station?: {
@@ -52,18 +53,44 @@ export const ModalStation: FC<{
 
   const [selectedCharacter, _] = useSelectedCharacter();
   const { data: walletAssets } = useAllWalletAssets();
-  // const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
+  const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
+
+  const timer = timersData?.stationTimers.find(
+    (e) => e.station === station?.id,
+  );
+  console.log({ timer });
+  const finishedDate = timer?.finished && +timer?.finished;
+  const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
+
+  const remainingTime = (finishedTime - Date.now()) / 1000;
+  const isFuture = remainingTime > 0;
+  const isClaimable = !isFuture || timer === undefined;
+
   const totalTimeInSeconds = 60;
   const [count, { startCountdown, resetCountdown }] = useCountdown({
-    countStart: totalTimeInSeconds,
-    intervalMs: 100,
+    countStart: isFuture ? Math.floor(remainingTime) : 15,
+    intervalMs: 1000,
   });
 
-  useEffect(() => {
-    if (isOpen) return;
-    resetCountdown();
-  }, [isOpen]);
+  console.table({ timersData, remainingTime, count, isFuture });
 
+  useEffect(() => {
+    if (!isClaimable) return;
+    startCountdown();
+  }, [isClaimable, startCountdown]);
+
+  useEffect(() => {
+    if (remainingTime < 0) return;
+    resetCountdown();
+    startCountdown();
+  }, [remainingTime, resetCountdown, startCountdown]);
+
+  useEffect(() => {
+    if (!!timer || !isOpen) return;
+    resetCountdown();
+  }, [isOpen, !!timer]);
+
+  const queryClient = useQueryClient();
   const { mutate } = useFactionStationStart();
   const { mutate: claim } = useFactionStationClaim();
 
@@ -79,8 +106,6 @@ export const ModalStation: FC<{
   // startStationProcess
   // claimStationReward
   const startStationProcess = async () => {
-    startCountdown();
-
     if (!walletAddress) return toast.error("No wallet connected");
     const ix = buildMemoIx({
       walletAddress,
@@ -124,14 +149,21 @@ export const ModalStation: FC<{
       mutate(
         { signedTx: encodedTx },
         {
-          onSuccess: () =>
+          onSuccess: () => {
+            queryClient.refetchQueries({ queryKey: ["char-timers"] });
+            queryClient.refetchQueries({ queryKey: ["assets"] });
+            startCountdown();
             toast.success(
               "You've started a build in the " + station?.blueprint,
-            ),
+            );
+          },
+          onError: (e: any) => {
+            toast.error("Ooops! Did not start station: \n\n" + e);
+          },
         },
       );
     } catch (err) {
-      toast.error("Oops! That didn't work: \n\n" + err);
+      toast.error("Oops! That didn't work: \n\n" + JSON.stringify(err));
     }
   };
   const claimStationReward = async () => {
@@ -141,6 +173,8 @@ export const ModalStation: FC<{
       { mint: selectedCharacter?.mint, stationId: station.id },
       {
         onSuccess: () => {
+          queryClient.refetchQueries({ queryKey: ["char-timers"] });
+          queryClient.refetchQueries({ queryKey: ["assets"] });
           toast.success(
             "You've claimed the reward from the " + station?.blueprint,
           );
@@ -168,10 +202,7 @@ export const ModalStation: FC<{
           />
           <Grid templateColumns="repeat(3, 1fr)" mt="4rem">
             <VStack gap="2rem">
-              <Button
-                isDisabled={count !== totalTimeInSeconds}
-                onClick={startStationProcess}
-              >
+              <Button isDisabled={!!timer} onClick={startStationProcess}>
                 Start Build
               </Button>
               <ResourceContainer
@@ -201,7 +232,7 @@ export const ModalStation: FC<{
                 h="2rem"
                 colorScheme={progress === 100 ? "green" : "blue"}
               />
-              <Text>{count}</Text>
+              <Text>{timeAgo(count)}</Text>
             </Flex>
             <VStack gap="2rem">
               <Button onClick={claimStationReward} isDisabled={count !== 0}>
@@ -334,3 +365,12 @@ const ResourceContainer: FC<{
 const Resource = styled(Image)`
   border-radius: 1rem;
 `;
+
+function timeAgo(timestamp: number): string {
+  const timeDifference = Math.floor(timestamp); // Convert to seconds
+  const hours = Math.floor(timeDifference / 3600);
+  const minutes = Math.floor((timeDifference % 3600) / 60);
+  const seconds = timeDifference % 60;
+
+  return `${hours}h ${minutes}m ${seconds}s`;
+}
