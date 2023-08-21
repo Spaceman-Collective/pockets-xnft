@@ -187,7 +187,7 @@ const getLabel = (type: string) => {
       return "Warband";
     case "TAX":
       return "New Tax Rate";
-    case "TAX":
+    case "BURN":
       return "Burn Resources";
     default:
       return "";
@@ -211,7 +211,7 @@ const getValue = (type: string, proposal: any) => {
     case "ALLOCATE":
       return `${proposal.citizen} - Amount: ${proposal.amount}`;
     case "THRESHOLD":
-      return proposal.newThreshold;
+      return proposal.amount;
     case "WARBAND":
       return proposal.warband?.join(", ");
     case "TAX":

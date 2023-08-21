@@ -8,8 +8,31 @@ export interface Proposal
     Tax,
     Burn {
   id?: string;
-  type: string;
+  type: ProposalType;
 }
+
+// export interface Proposal
+//   extends Build,
+//     Upgrade,
+//     Withdraw,
+//     Mint,
+//     Allocate,
+//     Threshold,
+//     Tax,
+//     Burn {
+//   id?: string;
+//   type: string;
+// }
+
+export type ProposalType =
+  | "BUILD"
+  | "UPGRADE"
+  | "WITHDRAW"
+  | "MINT"
+  | "ALLOCATE"
+  | "THRESHOLD"
+  | "TAX"
+  | "BURN";
 
 export const ProposalTypes = [
   "BUILD",
