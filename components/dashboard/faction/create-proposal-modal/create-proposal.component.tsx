@@ -434,7 +434,6 @@ export const CreateProposal: React.FC<{
                           color={colors.brand.secondary}
                         />
                         <NumberDecrementStepper
-                          _disabled={false}
                           fontSize="12px"
                           borderColor={colors.blacks[600]}
                           color={colors.brand.secondary}
