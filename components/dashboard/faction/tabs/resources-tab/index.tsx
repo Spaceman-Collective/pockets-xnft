@@ -186,7 +186,7 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
   );
 };
 
-const ResourceItem: FC<{ resource: { name: string; value: number } }> = ({
+const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
   resource,
 }) => {
   const hoverProps = useDisclosure();

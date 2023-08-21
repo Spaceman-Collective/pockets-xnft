@@ -15,7 +15,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 
 export const ResourceGridContainer: FC<{
   isLoading: boolean;
-  resources?: { name: string; value: number }[];
+  resources?: { name: string; value: string }[];
 }> = ({ isLoading, resources }) => {
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
@@ -61,7 +61,7 @@ export const ResourceGridContainer: FC<{
   );
 };
 
-const ResourceItem: FC<{ resource: { name: string; value: number } }> = ({
+const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
   resource,
 }) => {
   const hoverProps = useDisclosure();

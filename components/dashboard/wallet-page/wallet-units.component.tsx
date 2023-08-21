@@ -28,6 +28,7 @@ export const WalletUnitPanel = () => {
 
   const counts = countDuplicates(MOCK_UNITS);
 
+
   const uniqueUnits = MOCK_UNITS.filter(
     (unit, index, self) => index === self.findIndex((t) => t.name === unit.name)
   );
@@ -129,7 +130,8 @@ const Badge = ({ children }: { children: ReactNode }) => {
 function countDuplicates(units: Unit[]) {
   const countMap: { [name: string]: number } = {};
   units.forEach((unit) => {
-    countMap[unit.name] = (countMap[unit.name] || 0) + 1;
+    countMap[unit.name] = Math.floor(Math.random() * 4) + 1;
+        // countMap[unit.name] = (countMap[unit.name] || 0) + 1;
   });
   return countMap;
 }
@@ -137,7 +139,7 @@ function countDuplicates(units: Unit[]) {
 const generateMockUnits = (count: number): Promise<Unit[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const shuffledTemplates = shuffleArray([...UNIT_TEMPLATES]);
+      const shuffledTemplates = shuffleArray([...UNIT_TEMPLATES, ...UNIT_TEMPLATES.slice(0,2)]);
       const allocations = generateRandomAllocation(
         shuffledTemplates.length,
         count
@@ -186,7 +188,7 @@ const generateRandomAllocation = (numUnits: number, totalCount: number) => {
 };
 
 const generateRandomBonus = (): { [enemyName: string]: number } => {
-  const enemies = ["Orc", "Dragon", "Elf", "Dwarf", "Zombie", "Vampire"];
+  const enemies = ["Brawler", "Blademaster", "Gunner", "Ranger", "Mindbreaker", "Wizard"];
   const bonusCount = Math.floor(Math.random() * (enemies.length + 1));
   const bonus: { [enemyName: string]: number } = {};
 

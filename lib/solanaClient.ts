@@ -9,21 +9,21 @@ const pocketsIDL = require("./program/pockets_program.json");
 const POCKETS_PROGRAM_PROGRAMID =
   "GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ";
 
-// export async function getProposalAccount(
-//   proposalId: string,
-// ) {
-//   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
-//     pocketsIDL,
-//     POCKETS_PROGRAM_PROGRAMID,
-//   );
+export async function getProposalAccount(
+  proposalId: string,
+) {
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+  );
 
-//   const proposalPDA = getProposalPDA(proposalId);
+  const proposalPDA = getProposalPDA(proposalId);
 
-//   const proposalAccount =
-//     await POCKETS_PROGRAM.account.proposal.fetch(proposalPDA);
+  const proposalAccount =
+    await POCKETS_PROGRAM.account.proposal.fetch(proposalPDA);
 
-//   return proposalAccount;
-// }
+  return proposalAccount;
+}
 
 export function getProposalPDA(proposalId: string): PublicKey {
   const [proposalPDA] = PublicKey.findProgramAddressSync(

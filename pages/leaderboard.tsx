@@ -32,14 +32,13 @@ import { useAssets } from "@/hooks/useCharacters";
 import { colors } from "@/styles/defaultTheme";
 import { Faction } from "@/types/server/Faction";
 import { useMockFactions } from "@/hooks/useMockFactions";
-import { useLeaderboardFactions } from "@/hooks/useLeaderboardFactions";
 import { useMockFactionStats } from "@/hooks/useMockFactionStats";
 import { H3 } from "@/components/wizard";
 import { Label, Value } from "@/components/dashboard/personal/personal.styled";
 import { useState } from "react";
 import { FaFilter } from "react-icons/fa";
 
-export default function Home() {
+export default function Leaderboard() {
   const { walletAddress } = useSolana();
   const { data: assets, isLoading: assetsIsLoading } = useAssets(); // chars/nfts
 

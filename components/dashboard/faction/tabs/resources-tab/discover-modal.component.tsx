@@ -58,12 +58,17 @@ export const ModalRfDiscover: FC<{
         signTransaction,
       });
 
-      mutate({
-        signedTx: encodedTx ?? "",
-        charMint: undefined
-      });
+      if (typeof encodedTx == "string") {
+        mutate({
+          signedTx: encodedTx,
+          charMint: undefined
+        });
+        toast.success('Successfully allocated Resource Field');
+      } else {
+        throw Error('failed tx')
+      }
 
-      toast.success('Successfully allocated Resource Field');
+
     } catch (error) {
       console.error(error);
       toast.error("Error allocating Resource Field");

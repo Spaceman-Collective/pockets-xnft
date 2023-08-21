@@ -72,8 +72,11 @@ export const Generate: FC<{
                 txInstructions: [buildMemoIx({ walletAddress, payload })],
               });
 
-              if (!encodedSignedTx) throw Error("No Tx");
-              mutate({ signedTx: encodedSignedTx }, { onSuccess });
+              if (!encodedSignedTx) {
+                console.error("No Tx");
+                return;
+              }
+              mutate({ signedTx: encodedSignedTx as string }, { onSuccess });
             }}
           >
             Mint Character
