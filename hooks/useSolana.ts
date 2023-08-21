@@ -61,7 +61,7 @@ export const useSolana = () => {
           connection,
           walletAddress: publicKey?.toString(),
           signTransaction,
-          signAllTransactions
+          signAllTransactions,
         });
       }
     };
@@ -80,7 +80,7 @@ export const useSolana = () => {
     buildProspectIx,
     getRFAccount,
     sendTransaction,
-    sendAllTransactions
+    sendAllTransactions,
   };
 };
 
@@ -153,8 +153,8 @@ const buildBurnIx = ({
   );
 
   const ix = createBurnCheckedInstruction(
-    new PublicKey(mint),
     senderATA,
+    new PublicKey(mint),
     new PublicKey(walletAddress as string),
     amount,
     decimals
@@ -219,11 +219,11 @@ const sendAllTransactions = async (
   connection: Connection,
   ixs: TransactionInstruction[],
   wallet: string,
-  signAllTransactions: any,
+  signAllTransactions: any
 ) => {
   if (!wallet || !ixs || !signAllTransactions) return;
 
-  let versionedTxs: VersionedTransaction[] = []
+  let versionedTxs: VersionedTransaction[] = [];
   for (let ix of ixs) {
     const { blockhash } = await connection!.getLatestBlockhash();
     const txMsg = new TransactionMessage({
