@@ -236,8 +236,9 @@ export const FactionItem: React.FC<FactionItemProps> = (
       display="flex"
       justifyContent="space-between"
       bg={colors.blacks[600]}
-      px="2rem"
-      py="0.5rem"
+      pr="2rem"
+      pl="2rem"
+      py="2rem"
     >
       <HStack spacing={2} alignItems="center">
         <Image
@@ -245,12 +246,13 @@ export const FactionItem: React.FC<FactionItemProps> = (
           objectFit="cover"
           src={faction.image}
           alt={faction.name}
-          borderRadius="full"
+          borderRadius="0.5rem"
+          mr="2rem"
         />
         <LeaderTitle>{rank}. {faction.name}</LeaderTitle>
       </HStack>
       <Flex justifyContent="flex-end" mr="10rem">
-        <Flex w="16rem" h="100%" justifyContent="flex-end" alignItems="center">
+        <Flex w="5rem" h="100%" justifyContent="flex-end" alignItems="center">
           <Value>{stats.favor}</Value>
         </Flex>
         <Flex w="16rem" h="100%" justifyContent="flex-end" alignItems="center">
@@ -292,6 +294,7 @@ const LeaderTitle = styled(Text)`
   font-size: 2rem;
   font-weight: 800;
   font-spacing: 3px;
+  width: 100%;
 `;
 
 const Title = styled(Text)`
@@ -308,7 +311,7 @@ export const tenMockFactions: Faction[] = [
     pubkey: "pubkey1",
     creator: "creator1",
     name: "Dragon Clan",
-    image: "/images/dragon-clan.png",
+    image: "/assets/factions/dragonclan.png",
     external_link: "https://dragonclan.org",
     description:
       "A clan known for their fierce warriors and fire-breathing dragons.",
@@ -327,7 +330,7 @@ export const tenMockFactions: Faction[] = [
     pubkey: "pubkey2",
     creator: "creator2",
     name: "Elf Kingdom",
-    image: "/images/elf-kingdom.png",
+    image: "/assets/factions/elfkingdom.png",
     external_link: "https://elfkingdom.org",
     description: "Masters of the forest and skilled in the magical arts.",
     townhallLevel: 4,
@@ -345,7 +348,7 @@ export const tenMockFactions: Faction[] = [
     pubkey: "pubkey3",
     creator: "creator3",
     name: "Mystic Wizards",
-    image: "/images/mystic-wizards.png",
+    image: "/assets/factions/mysticwizards.png",
     external_link: "https://mysticwizards.org",
     description: "Ancient wizards wielding arcane magics.",
     townhallLevel: 5,
@@ -363,7 +366,7 @@ export const tenMockFactions: Faction[] = [
     pubkey: "pubkey4",
     creator: "creator4",
     name: "Orc Tribes",
-    image: "/images/orc-tribes.png",
+    image: "/assets/factions/orctribes.png",
     external_link: "https://orctribes.org",
     description: "Brutal orc warriors from the harsh terrains.",
     townhallLevel: 2,
@@ -381,7 +384,7 @@ export const tenMockFactions: Faction[] = [
     pubkey: "pubkey5",
     creator: "creator5",
     name: "Dwarf Engineers",
-    image: "/images/dwarf-engineers.png",
+    image: "/assets/factions/dwarfengineers.png",
     external_link: "https://dwarfengineers.org",
     description: "Craftsmen and miners, building intricate machines.",
     townhallLevel: 3,
@@ -399,7 +402,7 @@ export const tenMockFactions: Faction[] = [
     pubkey: "pubkey6",
     creator: "creator6",
     name: "Undead Horde",
-    image: "/images/undead-horde.png",
+    image: "/assets/factions/undeadhorde.png",
     external_link: "https://undeadhorde.org",
     description: "The risen dead, seeking to claim the living.",
     townhallLevel: 2,
@@ -417,7 +420,7 @@ export const tenMockFactions: Faction[] = [
     pubkey: "pubkey7",
     creator: "creator7",
     name: "Beast Tamers",
-    image: "/images/beast-tamers.png",
+    image: "/assets/factions/beasttamers.png",
     external_link: "https://beasttamers.org",
     description:
       "Masters of animals, from the wild forests to the vast plains.",
@@ -436,7 +439,7 @@ export const tenMockFactions: Faction[] = [
     pubkey: "pubkey8",
     creator: "creator8",
     name: "Sea Raiders",
-    image: "/images/sea-raiders.png",
+    image: "/assets/factions/searaiders.png",
     external_link: "https://searaiders.org",
     description: "Pirates of the sea, seeking treasure and adventure.",
     townhallLevel: 1,
@@ -454,7 +457,7 @@ export const tenMockFactions: Faction[] = [
     pubkey: "pubkey9",
     creator: "creator9",
     name: "Celestial Beings",
-    image: "/images/celestial-beings.png",
+    image: "/assets/factions/celestialbeings.png",
     external_link: "https://celestialbeings.org",
     description: "God-like beings watching over the realms.",
     townhallLevel: 5,
@@ -472,7 +475,7 @@ export const tenMockFactions: Faction[] = [
     pubkey: "pubkey10",
     creator: "creator10",
     name: "Knight Order",
-    image: "/images/knight-order.png",
+    image: "/assets/factions/knightorder.png",
     external_link: "https://knightorder.org",
     description: "Honorable knights who value chivalry and order.",
     townhallLevel: 5,
