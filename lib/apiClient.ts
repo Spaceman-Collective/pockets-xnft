@@ -129,6 +129,30 @@ export const postFactionStationStart = async ({
   }
 };
 
+export const postFactionStationClaim = async ({
+  mint,
+  stationId,
+}: {
+  mint: string;
+  stationId: string;
+}): Promise<Faction> => {
+  const URL = API_BASE_URL + "/faction/station/claim";
+  try {
+    const response = await fetch.post<any>(URL, { mint, stationId });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data;
+    } else {
+      console.error("Server Error while creating faction:", response);
+      throw new Error("Server Error while creating faction");
+    }
+  } catch (error) {
+    console.error("Network Error while creating faction:", error);
+    throw error;
+  }
+};
+
 type FetchFactionsType = {
   factions: any[];
   total: number;
@@ -297,6 +321,12 @@ export const fetchCharTimers = async ({
 }: {
   mint: string;
 }): Promise<{
+  stationTimers: {
+    character: string;
+    finished: string;
+    id: string;
+    station: string;
+  }[];
   rfTimers: {
     character: string;
     finished: string;

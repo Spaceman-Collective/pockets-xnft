@@ -44,17 +44,19 @@ export const ManageCharacter: React.FC<{
                 ?.filter((key) => !combatSkillKeys.includes(key.toLowerCase()))
                 ?.sort((a, b) => a.localeCompare(b))
                 .map((key) => (
-                  <SkillBox
-                    key={"noncombat" + key}
-                    onClick={selectSkill}
-                    name={key}
-                    level={currentCharacter.skills[key].toString()}
-                    xp={
-                      currentCharacter.experience[key].current.toString() +
-                      "/" +
-                      currentCharacter.experience[key].threshold.toString()
-                    }
-                  />
+                  <>
+                    <SkillBox
+                      key={"noncombat" + key}
+                      onClick={selectSkill}
+                      name={key}
+                      level={currentCharacter.skills[key].toString()}
+                      xp={
+                        currentCharacter.experience[key].current.toString() +
+                        "/" +
+                        currentCharacter.experience[key].threshold.toString()
+                      }
+                    />
+                  </>
                 ))}
           </SkillContainer>
           <SkillContainer isCombat>
@@ -246,6 +248,7 @@ const SkillBox: FC<{
         opacity: 1,
       }}
       transition="all 0.25s ease-in-out"
+      cursor="pointer"
       onClick={click}
     >
       <Grid

@@ -68,7 +68,9 @@ export default function CharacterPage() {
                 />
                 <SectionContainer>
                   <ManageCharacter
-                    currentCharacter={selectedCharacter!}
+                    currentCharacter={allAssetData?.characters?.find(
+                      (e) => e.mint === selectedCharacter?.mint,
+                    )}
                     selectSkill={selectSkill}
                   />
                 </SectionContainer>

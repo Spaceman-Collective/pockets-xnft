@@ -20,6 +20,7 @@ import { useSolana } from "@/hooks/useSolana";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import { useResourceConsume } from "@/hooks/useResource";
 import { toast } from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const ConsumeSkillModal: FC<{
   isOpen: boolean;
@@ -28,8 +29,11 @@ export const ConsumeSkillModal: FC<{
 }> = ({ isOpen, onClose, skill }) => {
   const relevantResources = getRelevantResources(skill);
 
-  const { data: walletAssets, isLoading: walletAssetsIsLoading } =
-    useAllWalletAssets();
+  const {
+    data: walletAssets,
+    isLoading: walletAssetsIsLoading,
+    isFetching,
+  } = useAllWalletAssets();
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -56,10 +60,10 @@ export const ConsumeSkillModal: FC<{
               <ConsumeItemContainer
                 key={resource.mint}
                 skill={skill}
-                isLoading={walletAssetsIsLoading}
+                isLoading={walletAssetsIsLoading || isFetching}
                 resource={resource}
                 resourceInWallet={walletAssets?.resources.find(
-                  (asset) => asset.name === resource.name
+                  (asset) => asset.name === resource.name,
                 )}
               />
             ))}
@@ -82,8 +86,10 @@ const ConsumeItemContainer: FC<{
   };
 }> = ({ resource, resourceInWallet, isLoading, skill }) => {
   const extraSkillUp = resource.skills.filter(
-    (e) => e.toLowerCase() !== skill.toLowerCase()
+    (e) => e.toLowerCase() !== skill.toLowerCase(),
   );
+
+  const queryClient = useQueryClient();
 
   const {
     buildMemoIx,
@@ -118,6 +124,11 @@ const ConsumeItemContainer: FC<{
       decimals: 0,
     });
 
+    console.log(
+      "burnIx",
+      burnIx.keys.map((e) => e.pubkey.toString()),
+    );
+
     try {
       const encodedTx = await encodeTransaction({
         walletAddress: walletAddress as string,
@@ -131,10 +142,18 @@ const ConsumeItemContainer: FC<{
       mutate(
         { signedTx: encodedTx },
         {
-          onSuccess: (e) => toast.success("Successfully consumed"),
+          onSuccess: (e) => {
+            queryClient.refetchQueries({
+              queryKey: ["wallet-assets"],
+            });
+            queryClient.refetchQueries({
+              queryKey: ["assets"],
+            });
+            toast.success("Successfully consumed");
+          },
           onError: (e) =>
             toast.error("Oops! Failed to consume: " + JSON.stringify(e)),
-        }
+        },
       );
     } catch (err) {
       toast.error("Oops! Failed to consume resource: " + err);

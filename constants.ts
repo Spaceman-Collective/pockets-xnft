@@ -18,6 +18,8 @@ export const SPL_TOKENS: {
   },
 };
 
+export const STATION_USE_COST_PER_LEVEL = BigInt(25000_00000); //3c for Lvl 4 Building use
+
 // xp multiplier based on rarity
 export const RESOURCE_XP_GAIN = {
   common: 10,
