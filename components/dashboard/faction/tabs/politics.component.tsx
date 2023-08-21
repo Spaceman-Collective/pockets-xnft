@@ -77,6 +77,12 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   } = useFetchProposalsByFaction(factionId, 0, 50);
 
   useEffect(() => {
+    if (factionData) {
+      console.info("faction data politics: ", factionData);
+    }
+  }, [factionData]);
+
+  useEffect(() => {
     setFactionStatus(!!currentCharacter?.faction);
     console.info("ap: ", allProposals);
   }, [currentCharacter, allProposals, setFactionStatus]);
@@ -175,6 +181,8 @@ const getLabel = (type: string) => {
       return "Warband";
     case "TAX":
       return "New Tax Rate";
+    case "TAX":
+      return "Burn Resources";
     default:
       return "";
   }
@@ -202,6 +210,8 @@ const getValue = (type: string, proposal: any) => {
       return proposal.warband?.join(", ");
     case "TAX":
       return `${proposal.newTaxRate}%`;
+      case "BURN":
+        return `${proposal.resources}`;
     default:
       return "";
   }
@@ -235,8 +245,8 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
   useEffect(() => {
     getProposalVotes().then(() => {
-      console.log("Votes: ", voteAmount);
-      console.log("Inital Page Load Vote Count:  ", voteAmount);
+      // console.log("Votes: ", voteAmount);
+      // console.log("Inital Page Load Vote Count:  ", voteAmount);
     });
   });
 
@@ -326,7 +336,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             <Label color={colors.brand.tertiary} pb="0.4rem">
               votes:
             </Label>
-            <ProposalTitle>{voteAmount}</ProposalTitle>
+            <ProposalTitle>{voteAmount}/{100}</ProposalTitle>
           </HStack>
         </Flex>
 
