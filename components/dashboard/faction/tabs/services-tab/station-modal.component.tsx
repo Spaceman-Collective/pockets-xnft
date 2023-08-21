@@ -25,6 +25,7 @@ import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import { useSolana } from "@/hooks/useSolana";
 import { useFactionStationStart } from "@/hooks/useFaction";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
+import { BONK_MINT, RESOURCES, STATION_USE_COST_PER_LEVEL } from "@/constants";
 
 export const ModalStation: FC<{
   station?: {
@@ -37,12 +38,15 @@ export const ModalStation: FC<{
   onClose: () => void;
 }> = ({ station, isOpen, onClose }) => {
   const {
+    buildTransferIx,
     buildMemoIx,
     encodeTransaction,
     walletAddress,
     connection,
     signTransaction,
+    buildBurnIx,
   } = useSolana();
+
   const [selectedCharacter, _] = useSelectedCharacter();
   const { data: walletAssets } = useAllWalletAssets();
   // const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
@@ -58,11 +62,18 @@ export const ModalStation: FC<{
   }, [isOpen]);
 
   const { mutate } = useFactionStationStart();
+
+  const stationBlueprint = station && getBlueprint(station?.blueprint);
+  const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
+  const image = stationBlueprint?.image;
+  const stationInputs = stationBlueprint?.inputs.map((e) => e.resource);
+  const resourcesInWallet = walletAssets?.resources.filter((e) => {
+    return stationInputs?.includes(e.name);
+  });
   // TODO: DEV THIS IS FOR YOU TO FILL IN
   // startStationProcess
   // claimStationReward
   const startStationProcess = async () => {
-    toast.success("You've started a build in the " + station?.blueprint);
     startCountdown();
 
     if (!walletAddress) return toast.error("No wallet connected");
@@ -75,32 +86,52 @@ export const ModalStation: FC<{
       },
     });
 
+    const bonkIx = buildTransferIx({
+      walletAddress,
+      mint: BONK_MINT.toString(),
+      amount: STATION_USE_COST_PER_LEVEL * BigInt(station?.level!),
+      decimals: 5,
+    });
+
+    const burnIxs = stationBlueprint?.inputs?.map((e) => {
+      return buildBurnIx({
+        walletAddress,
+        mint: RESOURCES.find((r) => r.name == e.resource)?.mint as string,
+        amount: BigInt(e.amount),
+        decimals: 0,
+      });
+    });
+
+    burnIxs?.forEach((ix) => console.log("@@@@@: ", ix.keys.toString()));
+
+    if (!burnIxs || burnIxs.length === 0 || burnIxs instanceof Error)
+      return toast.error("Ooops! No burnIx");
     try {
       const encodedTx = await encodeTransaction({
         walletAddress,
         connection,
         signTransaction,
-        txInstructions: [ix],
+        txInstructions: [ix, bonkIx, ...burnIxs],
       });
 
       if (encodedTx instanceof Error || encodedTx === undefined)
         return toast.error("Failed to start station");
-      mutate({ signedTx: encodedTx });
+      mutate(
+        { signedTx: encodedTx },
+        {
+          onSuccess: () =>
+            toast.success(
+              "You've started a build in the " + station?.blueprint,
+            ),
+        },
+      );
     } catch (err) {
-      toast.error("Oops! That didn't work: " + err);
+      toast.error("Oops! That didn't work: \n\n" + err);
     }
   };
   const claimStationReward = async () => {
     toast.success("You've claimed the reward from the " + station?.blueprint);
   };
-
-  const stationBlueprint = station && getBlueprint(station?.blueprint);
-  const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
-  const image = stationBlueprint?.image;
-  const stationInputs = stationBlueprint?.inputs.map((e) => e.resource);
-  const resourcesInWallet = walletAssets?.resources.filter((e) => {
-    return stationInputs?.includes(e.name);
-  });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
