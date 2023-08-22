@@ -173,31 +173,25 @@ const encodeTransaction = async ({
   signTransaction?: any;
   txInstructions?: TransactionInstruction[];
 }) => {
-  console.log('et error wa: ', walletAddress);
-  console.log('et error tx: ', txInstructions);
-  console.log('et error st: ', signTransaction);
-  if (!walletAddress || !txInstructions || !signTransaction) return;
-  
-
   const { blockhash } = await connection!.getLatestBlockhash();
 
   const txMsg = new TransactionMessage({
-    payerKey: new PublicKey(walletAddress),
+    payerKey: new PublicKey(walletAddress as string),
     recentBlockhash: blockhash,
-    instructions: txInstructions,
+    instructions: txInstructions as TransactionInstruction[],
   }).compileToLegacyMessage();
-
   const tx = new VersionedTransaction(txMsg);
-  if (!tx) return;
   try {
-    const signedTx = await signTransaction(tx);
-    console.log('signtx: ', signedTx)
-    const encodedSignedTx = encode(signedTx!.serialize());
-
-    return encodedSignedTx;
-  } catch (err) {
-    return new Error("Did not encode");
+    if (tx.serialize().length > 1200) {
+      throw new Error("Tx Too Big!");
+    }
+  } catch (e) {
+    return Error("Tx Couldn't Serialize!");
   }
+
+  const signedTx = await signTransaction(tx);
+  const encodedSignedTx = encode(signedTx.serialize());
+  return encodedSignedTx;
 };
 
 const sendTransaction = async (
