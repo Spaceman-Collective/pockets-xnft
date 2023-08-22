@@ -21,72 +21,100 @@ import { Label, PanelContainer, Value, ValueCalculation } from "./tab.styles";
 import { colors } from "@/styles/defaultTheme";
 import styled from "@emotion/styled";
 import { useSolana } from "@/hooks/useSolana";
-import { LeaveFactionModal } from "../leave-faction.component";
 import { Character } from "@/types/server";
 import { useEffect, useState } from "react";
 import { CreateProposal } from "../create-proposal-modal/create-proposal.component";
 import { useFetchProposalsByFaction } from "@/hooks/useFetchProposalsByFaction";
-import { Proposal } from "@/types/Proposal";
+import { Proposal } from "@/types/server/Proposal";
 import { FetchResponse } from "@/lib/apiClient";
 import { useProposalAccount } from "@/hooks/useProposalAccount";
-import { Connection, PublicKey } from "@solana/web3.js";
-import { getProposalAccount } from "@/lib/solanaClient";
+import {
+  Connection,
+  PublicKey,
+  sendAndConfirmTransaction,
+  VersionedTransaction,
+} from "@solana/web3.js";
+import {
+  getCitizenPDA,
+  getFactionAccount,
+  getFactionPDA,
+  getProposalAccount,
+  getProposalPDA,
+  getVoteAccount,
+  getVotePDA,
+  updateVoteOnProposalIx,
+  voteOnProposalIx,
+} from "@/lib/solanaClient";
 import { useProposalAccountServer } from "@/hooks/useProposalAccountServer";
 import { BN } from "@coral-xyz/anchor";
-import { useVoteOnProposal } from "@/hooks/useVoteOnProposal";
+import { useProposalVotesByCitizen } from "@/hooks/useProposalVotesByCitizen";
 import { useFaction } from "@/hooks/useFaction";
 import { decode } from "bs58";
 import { TransactionMessage } from "@solana/web3.js";
 import { useCitizen } from "@/hooks/useCitizen";
 import { LeaveFactionModal } from "../leave-faction.component";
 import toast from "react-hot-toast";
+import { useProposalVotes } from "@/hooks/useProposalVotes";
+import useProcessProposal from "@/hooks/useProcessProposal";
 
 const spacing = "1rem";
-export const FactionTabPolitics: React.FC<{
+type FactionTabPoliticsProps = {
   currentCharacter: Character;
   setFactionStatus: (value: boolean) => void;
   fire: () => void;
-}> = ({ currentCharacter, setFactionStatus, fire: fireConfetti }) => {
-  const [votes, setVotes] = useState<Record<string, string>>({});
-  const [inputErrors, setInputErrors] = useState<Record<string, string>>({});
+};
 
-  const {
-    connection,
-    walletAddress,
-    signTransaction,
-    buildMemoIx,
-    encodeTransaction,
-  } = useSolana();
+export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
+  currentCharacter,
+  setFactionStatus,
+  fire: fireConfetti,
+}) => {
+  const factionId = currentCharacter?.faction?.id ?? "";
 
   const { data: factionData } = useFaction({
     factionId: currentCharacter?.faction?.id ?? "",
   });
-  console.log({ factionData });
 
   const {
     data: allProposals,
     isLoading: allProposalsIsLoading,
     isError,
-    refetch,
-  } = useFetchProposalsByFaction(currentCharacter?.faction!.id, 0, 10);
+  } = useFetchProposalsByFaction(factionId, 0, 50);
 
-  const { mutate, isLoading, data, error } = useVoteOnProposal();
+  useEffect(() => {
+    if (factionData) {
+      console.info("faction data politics: ", factionData);
+    }
+  }, [factionData]);
 
   useEffect(() => {
     setFactionStatus(!!currentCharacter?.faction);
-  }, [currentCharacter, setFactionStatus]);
-
-  useEffect(() => {
-    // TODO: update this
     console.info("ap: ", allProposals);
-  }, [allProposals]);
+  }, [currentCharacter, allProposals, setFactionStatus]);
 
-  const handleVote = (votingPower: number, proposalId: string) => {
-    mutate({
-      mint: currentCharacter?.mint,
-      proposalId,
-    });
-    refetch();
+  const renderContent = () => {
+    if (allProposalsIsLoading || isError) {
+      return (
+        <VStack gap={spacing} align="center">
+          <LoadingContainer>
+            <Spinner size="lg" color="white" />
+            <LoadingText>LOADING</LoadingText>
+          </LoadingContainer>
+        </VStack>
+      );
+    }
+    return (
+      <VStack gap={spacing}>
+        <ProposalLabels fire={fireConfetti} character={currentCharacter} />
+        {allProposals?.proposals?.map((proposal: Proposal) => (
+          <ProposalItem
+            key={proposal.id}
+            proposal={proposal}
+            currentCharacter={currentCharacter}
+          />
+        ))}
+      </VStack>
+    );
   };
 
   return (
@@ -101,34 +129,14 @@ export const FactionTabPolitics: React.FC<{
           setFactionStatus={setFactionStatus}
         />
       </Flex>
-      {allProposals && !allProposalsIsLoading && !isError ? (
-        <VStack gap={spacing}>
-          <ProposalLabels fire={fireConfetti} />
-          {allProposals?.proposals?.map((proposal: Proposal) => (
-            <ProposalItem
-              key={proposal.id}
-              proposal={proposal}
-              handleVote={handleVote}
-            />
-          ))}
-        </VStack>
-      ) : (
-        <VStack gap={spacing} align="center">
-          <div style={{ color: "white" }}>
-            <LoadingContainer>
-              <Spinner size="lg" color="white" />
-              <LoadingText>LOADING</LoadingText>
-            </LoadingContainer>
-          </div>
-        </VStack>
-      )}
+      {renderContent()}
     </PanelContainer>
   );
 };
 
 type ProposalItemProps = {
   proposal: Proposal;
-  handleVote: (votingPower: number, proposalId: string) => void;
+  currentCharacter: Character;
 };
 
 enum ProposalStatus {
@@ -137,43 +145,156 @@ enum ProposalStatus {
   CLOSED = "CLOSED",
 }
 
-interface ProposalAccount {
-  id: string;
-  faction: string;
-  voteAmt: number;
-  status: ProposalStatus;
-}
+type ProposalTypeDetailsProps = {
+  type: string;
+  proposal: any;
+};
 
-export const ProposalItem: React.FC<ProposalItemProps> = ({
+const ProposalTypeDetails: React.FC<ProposalTypeDetailsProps> = ({
+  type,
   proposal,
-  handleVote,
 }) => {
-  const proposalId = proposal!.id;
-  const [voteAmount, setVoteAmount] = useState(0);
-  const [status, setStatus] = useState("");
+  return (
+    <HStack alignItems="end" ml="5rem">
+      <Label color={colors.brand.tertiary} pb="0.4rem">
+        {getLabel(type)}:
+      </Label>
+      <ProposalTitle>
+        {getValue(proposal?.type, proposal?.proposal)}
+      </ProposalTitle>
+    </HStack>
+  );
+};
+
+const getLabel = (type: string) => {
+  switch (type) {
+    case "BUILD":
+      return "Blueprint Name";
+    case "UPGRADE":
+      return "Station ID";
+    case "ATK_CITY":
+      return "Faction ID";
+    case "ATK_RF":
+      return "RF ID";
+    case "WITHDRAW":
+      return "Citizen";
+    case "MINT":
+      return "New Shares To Mint";
+    case "ALLOCATE":
+      return "Citizen";
+    case "THRESHOLD":
+      return "New Threshold";
+    case "WARBAND":
+      return "Warband";
+    case "TAX":
+      return "New Tax Rate";
+    case "TAX":
+      return "Burn Resources";
+    default:
+      return "";
+  }
+};
+
+const getValue = (type: string, proposal: any) => {
+  switch (type) {
+    case "BUILD":
+      return proposal.blueprintName;
+    case "UPGRADE":
+      return proposal.stationId;
+    case "ATK_CITY":
+      return proposal.factionId;
+    case "ATK_RF":
+      return proposal.rfId;
+    case "WITHDRAW":
+      return proposal.citizen;
+    case "MINT":
+      return proposal.newSharesToMint;
+    case "ALLOCATE":
+      return `${proposal.citizen} - Amount: ${proposal.amount}`;
+    case "THRESHOLD":
+      return proposal.newThreshold;
+    case "WARBAND":
+      return proposal.warband?.join(", ");
+    case "TAX":
+      return `${proposal.newTaxRate}%`;
+    case "BURN":
+      return `${proposal.resources}`;
+    default:
+      return "";
+  }
+};
+
+const ProposalItem: React.FC<ProposalItemProps> = ({
+  proposal,
+  currentCharacter,
+}) => {
+  const { id: proposalId, type } = proposal;
+  const [isVoteInProgress, setIsVoteInProgress] = useState<boolean>(false);
   const [localVote, setLocalVote] = useState<string>("");
   const [inputError, setInputError] = useState<string | null>(null);
+  const [voteAmount, setVoteAmount] = useState<string>("");
+  const [voteThreshold, setVoteThreshold] = useState<string>("");
 
-  const {
-    data: proposalAccount,
-    error,
-    isLoading,
-  } = useProposalAccountServer(proposalId);
-  const [localProposalAccount, setLocalProposalAccount] =
-    useState<ProposalAccount | null>(null);
+  const { connection, walletAddress, signTransaction, encodeTransaction } =
+    useSolana();
+
+  const { data: proposalVotes } = useProposalVotes(proposalId!);
 
   useEffect(() => {
-    if (proposalAccount && localProposalAccount == null) {
-      const voteAmtAsBN = new BN(proposalAccount.voteAmt);
-      setLocalProposalAccount({
-        ...proposalAccount,
-        voteAmt: voteAmtAsBN.toNumber(),
-      });
-    }
-  }, [localProposalAccount, proposalAccount]);
+    console.log(`votes for ${proposalId}: `, proposalVotes);
 
-  if (isLoading) return <span>Loading...</span>;
-  if (error) return <span>Error: {(error as Error).message}</span>;
+    setVoteAmount(proposalVotes);
+    // if (proposalVotes && voteAmount == "") {
+    // }
+  }, [proposalId, proposalVotes, voteAmount]);
+
+  const getVoteThreshold = async () => {
+    if (!currentCharacter?.faction?.id) {
+      console.error("Character undefined on vote threshold retrieval");
+      return;
+    }
+    const factPDA = getFactionPDA(currentCharacter?.faction?.id);
+    const fA = await getFactionAccount(connection, factPDA);
+
+    if (fA) {
+      console.log("FA: ", fA);
+      setVoteThreshold(fA?.thresholdToPass.toString()!);
+    } else {
+      console.error("FA does not exist");
+      setVoteThreshold("NA");
+    }
+  };
+
+  useEffect(() => {
+    getVoteThreshold().then(() => {
+      console.log("Vote threshold: ", voteThreshold);
+    });
+  });
+
+  // const getProposalOnChainInfo = async () => {
+  //   const pA = await getProposalAccount(connection, proposalId!);
+
+  //   if (pA) {
+  //     console.log('proposalAccount: ', pA)
+  //     // setVoteAmount(vA.voteAmt.toString());
+  //   } else {
+  //     setVoteAmount("0");
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   // if (proposalAccount == "") {
+  //     getProposalOnChainInfo().then(() => {
+  //       // console.log("proposal status: ", proposalAccount.status);
+  //     });
+  //   //}
+  // });
+
+  const validateInput = (): boolean => {
+    const isValid = !!localVote.trim() && !isNaN(parseInt(localVote));
+    setInputError(isValid ? null : "Invalid vote input");
+    return isValid;
+  };
 
   const handleVote = async (votingAmt: number) => {
     setIsVoteInProgress(true);
@@ -183,24 +304,26 @@ export const ProposalItem: React.FC<ProposalItemProps> = ({
       signTransaction,
       txInstructions: [
         await voteOnProposalIx(
+          connection,
           new PublicKey(walletAddress!),
           new PublicKey(currentCharacter?.mint!),
-          proposalId,
+          proposalId!,
           votingAmt,
           currentCharacter?.faction?.id!
         ),
       ],
     });
+
     if (typeof encodedSignedTx === "string") {
       const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
-      console.log('vote sig: sig');
-      toast.success('Vote successful!');
+      console.log("vote sig: sig");
+      toast.success("Vote successful!");
     } else if (encodedSignedTx instanceof Error) {
-        console.error("Failed to create transaction:", encodedSignedTx.message);
-        toast.error('Failed to vote!')
+      console.error("Failed to create transaction:", encodedSignedTx.message);
+      toast.error("Failed to vote!");
     } else {
-        console.error("Unexpected type for encodedSignedTx");
-        toast.error('Failed to vote!')
+      console.error("Unexpected type for encodedSignedTx");
+      toast.error("Failed to vote!");
     }
 
     setLocalVote("");
@@ -218,9 +341,10 @@ export const ProposalItem: React.FC<ProposalItemProps> = ({
       signTransaction,
       txInstructions: [
         await updateVoteOnProposalIx(
+          connection,
           new PublicKey(walletAddress!),
           new PublicKey(currentCharacter?.mint!),
-          proposalId,
+          proposalId!,
           votingAmt,
           currentCharacter?.faction?.id!,
           true
@@ -228,17 +352,16 @@ export const ProposalItem: React.FC<ProposalItemProps> = ({
       ],
     });
 
-
     if (typeof encodedSignedTx === "string") {
       const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
-      console.log('update vot sig: sig');
-      toast.success('Update vote successful!');
+      console.log("update vot sig: ", sig);
+      toast.success("Update vote successful!");
     } else if (encodedSignedTx instanceof Error) {
-        console.error("Failed to create transaction:", encodedSignedTx.message);
-        toast.error('Failed to vote!')
+      console.error("Failed to create transaction:", encodedSignedTx.message);
+      toast.error("Failed to vote!");
     } else {
-        console.error("Unexpected type for encodedSignedTx");
-        toast.error('Failed to vote!')
+      console.error("Unexpected type for encodedSignedTx");
+      toast.error("Failed to vote!");
     }
 
     setLocalVote("");
@@ -248,124 +371,26 @@ export const ProposalItem: React.FC<ProposalItemProps> = ({
     setIsVoteInProgress(false);
   };
 
+  const processProposalMutation = useProcessProposal(proposal?.id);
+
   return (
     <ProposalAction>
       <Flex width="100%" flexDirection="column">
         <Flex justifyContent="space-between" mb="2rem">
-          <Flex>
-            <HStack alignItems="end" pr="5rem">
-              <Label color={colors.brand.tertiary} pb="0.4rem">
-                type:
-              </Label>
-              <ProposalTitle>{proposal.type}</ProposalTitle>
-            </HStack>
-            {(() => {
-              switch (proposal.type) {
-                case "BUILD":
-                  return (
-                    <HStack alignItems="end">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        Blueprint Name:
-                      </Label>
-                      <Value>{proposal.blueprintName}</Value>
-                    </HStack>
-                  );
-                case "UPGRADE":
-                  return (
-                    <HStack alignItems="end">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        Station ID:
-                      </Label>
-                      <Value>{proposal.stationId}</Value>
-                    </HStack>
-                  );
-                case "ATK_CITY":
-                  return (
-                    <HStack alignItems="end">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        Faction ID:
-                      </Label>
-                      <Value>{proposal.factionId}</Value>
-                    </HStack>
-                  );
-                case "ATK_RF":
-                  return (
-                    <HStack alignItems="end">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        RF ID:
-                      </Label>
-                      <Value>{proposal.rfId}</Value>
-                    </HStack>
-                  );
-                case "WITHDRAW":
-                  return (
-                    <HStack alignItems="end">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        Citizen:
-                      </Label>
-                      <Value>{proposal.citizen}</Value>
-                    </HStack>
-                  );
-                case "MINT":
-                  return (
-                    <HStack alignItems="end">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        New Shares To Mint:
-                      </Label>
-                      <Value>{proposal.newSharesToMint}</Value>
-                    </HStack>
-                  );
-                case "ALLOCATE":
-                  return (
-                    <HStack alignItems="end">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        Citizen:
-                      </Label>
-                      <Value>{proposal.citizen}</Value>
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        Amount:
-                      </Label>
-                      <Value>{proposal.amount}</Value>
-                    </HStack>
-                  );
-                case "THRESHOLD":
-                  return (
-                    <HStack alignItems="end">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        New Threshold:
-                      </Label>
-                      <Value>{proposal.newThreshold}</Value>
-                    </HStack>
-                  );
-                case "WARBAND":
-                  return (
-                    <HStack alignItems="end">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        Warband:
-                      </Label>
-                      <Value>{proposal.warband?.join(", ")}</Value>
-                    </HStack>
-                  );
-                case "TAX":
-                  return (
-                    <HStack alignItems="end">
-                      <Label color={colors.brand.tertiary} pb="0.4rem">
-                        New Tax Rate:
-                      </Label>
-                      <Value>{proposal.newTaxRate}</Value>
-                    </HStack>
-                  );
-                default:
-                  return null;
-              }
-            })()}
-          </Flex>
-
-          <HStack alignItems="end" pl="5rem">
+          <HStack alignItems="end" pr="5rem">
+            <Label color={colors.brand.tertiary} pb="0.4rem">
+              type:
+            </Label>
+            <ProposalTitle>{type}</ProposalTitle>
+            <ProposalTypeDetails type={type} proposal={proposal} />
+          </HStack>
+          <HStack alignItems="end" pr="1rem">
             <Label color={colors.brand.tertiary} pb="0.4rem">
               votes:
             </Label>
-            <Value>{localProposalAccount?.voteAmt}</Value>
+            <ProposalTitle>
+              {voteAmount}/{voteThreshold}
+            </ProposalTitle>
           </HStack>
         </Flex>
 
@@ -373,32 +398,53 @@ export const ProposalItem: React.FC<ProposalItemProps> = ({
           <Label color={colors.brand.tertiary} pb="0.25rem">
             proposal id:
           </Label>
-          <Value>{proposal.id}</Value>
+          <Value>{proposalId}</Value>
         </HStack>
-      </Flex>
 
-      <Flex width="100%">
         <Flex width="100%">
-          <StyledInput
-            placeholder="Enter amount of voting power"
-            value={localVote}
-            onChange={(e) => setLocalVote(e.target.value)}
-            isInvalid={!!inputError}
-          />
-
-          {inputError && <Text color="red.500">{inputError}</Text>}
+          {isVoteInProgress ? (
+            <Text>LOADING...</Text>
+          ) : (
+            <>
+              <StyledInput
+                placeholder={
+                  Number(voteAmount) > 0
+                    ? "Update amount of voting power"
+                    : "Enter amount of voting power"
+                }
+                value={localVote}
+                onChange={(e) => setLocalVote(e.target.value)}
+                isInvalid={!!inputError}
+                disabled={
+                  isVoteInProgress ||
+                  Number(voteAmount) >= Number(voteThreshold)
+                } // Disable if voteAmount exceeds threshold
+              />
+              {inputError && <Text color="red.500">{inputError}</Text>}
+              <Button
+                ml="2rem"
+                letterSpacing="1px"
+                bg={colors.blacks[700]}
+                onClick={() => {
+                  if (Number(voteAmount) >= Number(voteThreshold)) {
+                    processProposalMutation.mutate();
+                  } else if (validateInput() && Number(voteAmount) > 0) {
+                    updateVote(parseInt(localVote));
+                  } else {
+                    handleVote(parseInt(localVote));
+                  }
+                }}
+                disabled={isVoteInProgress}
+              >
+                {Number(voteAmount) >= Number(voteThreshold)
+                  ? "process"
+                  : Number(voteAmount) > 0
+                  ? "update"
+                  : "vote"}
+              </Button>
+            </>
+          )}
         </Flex>
-        <Button
-          ml="2rem"
-          letterSpacing="1px"
-          onClick={() => {
-            if (validateInput()) {
-              handleVote(parseInt(localVote), proposalId);
-            }
-          }}
-        >
-          vote
-        </Button>
       </Flex>
     </ProposalAction>
   );
@@ -410,14 +456,11 @@ const ProposalLabels: React.FC<{
 }> = ({ fire: fireConfetti, character }) => {
   const [votingPower, setVotingPower] = useState<string>("");
 
-
   const { data } = useCitizen(character?.mint);
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
 
   const getVotingPower = async () => {
-
-
     // if (vpA) {
     //   setVotingPower(vpA.votingPower.toString());
     // } else {
@@ -431,8 +474,6 @@ const ProposalLabels: React.FC<{
       console.log("Inital Page Load Vote Count:  ", votingPower);
     });
   });
-  
-
 
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
@@ -441,13 +482,18 @@ const ProposalLabels: React.FC<{
         <Label color={colors.brand.tertiary} pb="0.25rem">
           Voting Power:
         </Label>
-        <Value>40/40</Value>
+        <Value>
+          {data?.citizen?.maxPledgedVotingPower.toString()}/
+          {data?.citizen?.totalVotingPower.toString()}
+        </Value>
         <ValueCalculation
           color={colors.brand.tertiary}
           pl="0.25rem"
           pb="0.25rem"
         >
-          (30 + 10)
+          ({data?.citizen?.grantedVotingPower.toString()}
+          {" + "}
+          {data?.citizen?.maxPledgedVotingPower.toString()})
         </ValueCalculation>
       </HStack>
       <Flex alignItems="end">
@@ -466,6 +512,12 @@ const Header: React.FC<{ factionName: string | undefined }> = ({
     </Flex>
   );
 };
+
+function handleError(error: Error | string) {
+  console.error(error);
+  const errorMessage = typeof error === "string" ? error : error.message;
+  toast.error(errorMessage);
+}
 
 const CitizensButton = styled(Button)`
   border-radius: 0.5rem;

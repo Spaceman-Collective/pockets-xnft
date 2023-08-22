@@ -10,15 +10,13 @@ const POCKETS_PROGRAM_PROGRAMID =
   "GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ";
 
 export async function getProposalAccount(
-  connection: Connection,
+  connection: Connection, 
   proposalId: string,
 ) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
-    new AnchorProvider(connection, new Wallet(Keypair.generate()), {
-      commitment: "confirmed",
-    }),
+    { connection }
   );
 
   const proposalPDA = getProposalPDA(proposalId);
@@ -57,12 +55,44 @@ export function getVotePDA(
   return votePDA;
 }
 
+export async function getVoteAccount(
+  connection: Connection,
+  votePDAAddress: PublicKey
+) {
+  if (!connection || !votePDAAddress) return;
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    { connection }
+  );
+  return await POCKETS_PROGRAM.account.proposalVote.fetchNullable(
+    votePDAAddress,
+    "confirmed"
+  );
+}
+
 export function getFactionPDA(factionId: string): PublicKey {
   const [factionPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("faction"), Buffer.from(factionId)],
     new PublicKey(POCKETS_PROGRAM_PROGRAMID),
   );
   return factionPDA;
+}
+
+export async function getFactionAccount(
+  connection: Connection,
+  factionPDA: PublicKey
+) {
+  if (!connection || !factionPDA) return;
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    { connection }
+  );
+  return await POCKETS_PROGRAM.account.faction.fetchNullable(
+    factionPDA,
+    "confirmed"
+  );
 }
 
 export function getDelegationRecordPDA(
@@ -133,6 +163,45 @@ export async function updateVote(
     new AnchorProvider(connection, new Wallet(Keypair.generate()), {
       commitment: "confirmed",
     }),
+  );
+
+  const proposal = getProposalPDA(proposalId);
+  const walletAta = getAssociatedTokenAddressSync(characterMint, wallet);
+  const citizen = getCitizenPDA(characterMint);
+  const vote = getVotePDA(citizen, proposal);
+  const faction = getFactionPDA(factionId);
+
+  const ix = POCKETS_PROGRAM.methods
+    .updateVote(new BN(amount), isIncrement)
+    .accounts({
+      wallet,
+      walletAta,
+      systemProgram: SystemProgram.programId,
+      citizen,
+      vote,
+      proposal,
+      faction,
+    })
+    .instruction();
+
+  return ix;
+}
+
+export async function updateVoteOnProposalIx(
+  connection: Connection,
+  wallet: PublicKey,
+  characterMint: PublicKey,
+  proposalId: string,
+  amount: number,
+  factionId: string,
+  isIncrement: boolean
+) {
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    {
+      connection
+    }
   );
 
   const proposal = getProposalPDA(proposalId);
