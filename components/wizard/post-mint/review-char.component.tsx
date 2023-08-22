@@ -82,7 +82,7 @@ export const ReviewMint = ({
               ))}
           </SkillContainer>
         </Grid>
-        <Flex gap="4rem">
+        {/* <Flex gap="4rem">
           <Value>ARMY</Value>
           <HStack>
             <Label>Equipped</Label>
@@ -94,7 +94,7 @@ export const ReviewMint = ({
           <TroopBox num={2} />
           <TroopBox num={3} />
           <TroopBox />
-        </Grid>
+        </Grid> */}
       </Flex>
       <Flex gap="2rem" mt="4rem">
         <Button

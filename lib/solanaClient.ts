@@ -10,11 +10,13 @@ const POCKETS_PROGRAM_PROGRAMID =
   "GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ";
 
 export async function getProposalAccount(
+  connection: Connection, 
   proposalId: string,
 ) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
+    { connection }
   );
 
   const proposalPDA = getProposalPDA(proposalId);
@@ -156,6 +158,7 @@ export async function getCitizensIx(
 }
 
 export async function voteOnProposalIx(
+  connection: Connection,
   wallet: PublicKey,
   characterMint: PublicKey,
   proposalId: string,
@@ -166,9 +169,7 @@ export async function voteOnProposalIx(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
     {
-      connection: new Connection(
-        "https://rpc.helius.xyz/?api-key=1b21b073-a222-47bb-8628-564145e58f4e"
-      ),
+      connection
     }
   );
 
@@ -195,6 +196,7 @@ export async function voteOnProposalIx(
 }
 
 export async function updateVoteOnProposalIx(
+  connection: Connection,
   wallet: PublicKey,
   characterMint: PublicKey,
   proposalId: string,
@@ -206,9 +208,7 @@ export async function updateVoteOnProposalIx(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
     {
-      connection: new Connection(
-        "https://rpc.helius.xyz/?api-key=1b21b073-a222-47bb-8628-564145e58f4e"
-      ),
+      connection
     }
   );
 

@@ -141,9 +141,10 @@ export const ModalStation: FC<{
         signTransaction,
         txInstructions: [ix, bonkIx, ...burnIxs],
       });
-
-      if (encodedTx instanceof Error || encodedTx === undefined)
-        return toast.error("Failed to start station");
+      
+      if ((encodedTx as any) instanceof Error || encodedTx === undefined)
+      return toast.error("Failed to start station");
+    
       mutate(
         { signedTx: encodedTx },
         {

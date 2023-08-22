@@ -181,13 +181,13 @@ const encodeTransaction = async ({
     instructions: txInstructions as TransactionInstruction[],
   }).compileToLegacyMessage();
   const tx = new VersionedTransaction(txMsg);
-  try {
-    if (tx.serialize().length > 1200) {
-      throw new Error("Tx Too Big!");
-    }
-  } catch (e) {
-    return Error("Tx Couldn't Serialize!");
-  }
+  // try {
+  //   if (tx.serialize().length > 1200) {
+  //     throw new Error("Tx Too Big!");
+  //   }
+  // } catch (e) {
+  //   return Error("Tx Couldn't Serialize!");
+  // }
 
   const signedTx = await signTransaction(tx);
   const encodedSignedTx = encode(signedTx.serialize());

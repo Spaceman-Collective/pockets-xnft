@@ -217,6 +217,7 @@ export const fetchFaction = async ({
   }
 };
 
+
 export const postJoinFaction = async ({
   signedTx,
 }: {
@@ -425,6 +426,9 @@ export const fetchRfAllocation = async (): Promise<{
   }
 };
 
+type ResourceFieldPDA = String;
+
+
 export const postRfAllocate = async ({
   signedTx,
   charMint,
@@ -479,7 +483,7 @@ export const postConsumeResource = async ({
   }
 };
 
-type ResourceFieldPDA = String;
+
 
 type HarvestTimer = {
   mint: string;
@@ -548,9 +552,10 @@ export const fetchProposal = async (proposalId: string) => {
   }
 };
 
+
 interface VoteResponse {
   vote: string;
-}
+};
 
 export type FetchResponse = {
   proposals: Proposal[];
@@ -641,7 +646,7 @@ export const fetchProposalAccount = async (
 
 export const fetchProposalVotesByCitizen = async (
   mint: string,
-  proposalId: string
+  proposalId: string,
 ): Promise<any> => {
   const URL = `${API_BASE_URL}/accounts/vote`;
   try {
@@ -654,6 +659,7 @@ export const fetchProposalVotesByCitizen = async (
     return data;
   } catch (err) {
     console.error(err);
+    throw new Error("Failed to fetch proposal votes");
     throw new Error("Failed to fetch proposal votes");
   }
 };
@@ -692,17 +698,10 @@ export const fetchRfsFromChain = async (id: string): Promise<FetchResponse> => {
   }
 };
 
-export const processProposal = async (
-  context: QueryFunctionContext<string[], { proposalId: string }>
-) => {
-  const proposalId = context.queryKey[1]; // maybe context.queryKey[0] depending on the order you pass the query key?
+export const processProposal = async (proposalId: string) => {
   const URL = `${API_BASE_URL}/faction/proposal/process`;
   try {
-    const { data } = await fetch.get<any>(URL, {
-      params: {
-        id: proposalId,
-      },
-    });
+    const { data } = await fetch.post<any>(URL, { id: proposalId });
     return data;
   } catch (err) {
     console.error(err);
