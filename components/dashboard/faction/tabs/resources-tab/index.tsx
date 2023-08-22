@@ -62,26 +62,29 @@ export const FactionTabResources: React.FC<{
     setConfetti(false);
   };
 
-  const { data: discoverData, refetch: refetchRFAllocation } = useRfAllocation();
+  const { data: discoverData, refetch: refetchRFAllocation } =
+    useRfAllocation();
 
   useEffect(() => {
     if (discoverData) {
-      console.log('dd: ', discoverData);
+      console.log("dd: ", discoverData);
     }
   }, [discoverData]);
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
-      <Header factionName={currentCharacter?.faction?.name} taxRate={factionData?.faction?.taxRate} />
-
+      <Header
+        factionName={currentCharacter?.faction?.name}
+        taxRate={factionData?.faction?.taxRate}
+      />
       <Box>
         <ResourceLabels
           onClick={() => {
             if (discoverData?.isDiscoverable) {
               discoverDisclosure.onOpen();
-              console.log('isDiscoverable 2: ', discoverData?.isDiscoverable);
+              console.log("isDiscoverable 2: ", discoverData?.isDiscoverable);
             } else {
-              console.log('isDiscoverable 3: ', discoverData?.isDiscoverable);
+              console.log("isDiscoverable 3: ", discoverData?.isDiscoverable);
               prospectDisclosure.onOpen();
             }
           }}
@@ -103,51 +106,16 @@ export const FactionTabResources: React.FC<{
             ))}
         </Grid>
       </Box>
-
+      hdjksa
       <ResourceGridContainer
         isLoading={factionIsLoading}
         resources={factionData?.resources}
       />
-
-      <Box>
-        <Flex justifyContent="space-between" alignItems="end" mb="1rem">
-          <MenuTitle mb="1rem">Treasury</MenuTitle>
-          <Input
-            bg="blacks.500"
-            outline="none"
-            placeholder="Search Items"
-            p="0.5rem 2rem"
-            borderRadius="1rem"
-            opacity="0.5"
-            onChange={onSearch}
-          />
-        </Flex>
-        <Grid templateColumns="repeat(4,1fr)" gap={spacing}>
-          {factionIsLoading &&
-            Array.from({ length: 12 }).map((_, i) => (
-              <Skeleton
-                key={"resouce" + i + "load"}
-                w="100%"
-                h="7rem"
-                borderRadius="1rem"
-              />
-            ))}
-          {factionData?.resources
-            ?.filter((resource) => {
-              if (debouncedSearch === undefined || debouncedSearch === "")
-                return true;
-              const flatName = resource.name.replace(" ", "").toLowerCase();
-              const search = debouncedSearch.toLowerCase();
-              const isWithinSearchParams = flatName.includes(search);
-              return isWithinSearchParams;
-            })
-            ?.map((resource) => (
-              <ResourceItem key={resource.name} resource={resource} />
-            ))}
-        </Grid>
-      </Box>
-
-      <ModalRfDiscover refetchDiscoverData={refetchRFAllocation} rf={discoverData} {...discoverDisclosure} />
+      <ModalRfDiscover
+        refetchDiscoverData={refetchRFAllocation}
+        rf={discoverData}
+        {...discoverDisclosure}
+      />
       <ModalRfProspect
         rf={discoverData}
         charMint={currentCharacter.mint}
@@ -156,16 +124,15 @@ export const FactionTabResources: React.FC<{
         {...prospectDisclosure}
         fire={fireConfetti}
       />
-
-    {confetti && <Confetti canFire={confetti} />}
+      {confetti && <Confetti canFire={confetti} />}
     </PanelContainer>
   );
 };
 
-const Header: React.FC<{ factionName: string | undefined, taxRate: number | undefined }> = ({
-  factionName,
-  taxRate
-}) => {
+const Header: React.FC<{
+  factionName: string | undefined;
+  taxRate: number | undefined;
+}> = ({ factionName, taxRate }) => {
   return (
     <Flex justifyContent="space-between" alignItems="end">
       <Title verticalAlign="end">{factionName!}</Title>
@@ -181,15 +148,14 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
   isDiscoverable,
   onClick,
 }) => {
-
-  const { data: discoverData, refetch: refetchRFAllocation } = useRfAllocation();
+  const { data: discoverData, refetch: refetchRFAllocation } =
+    useRfAllocation();
 
   useEffect(() => {
     if (discoverData) {
-      console.log('isDiscoverable: ', isDiscoverable);
+      console.log("isDiscoverable: ", isDiscoverable);
     }
   }, [discoverData, isDiscoverable]);
-
 
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
