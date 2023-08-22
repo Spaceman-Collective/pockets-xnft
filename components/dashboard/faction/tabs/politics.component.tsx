@@ -320,7 +320,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
           new PublicKey(currentCharacter?.mint!),
           proposalId!,
           votingAmt,
-          currentCharacter?.faction?.id!
+          currentCharacter?.faction?.id!,
         ),
       ],
     });
@@ -353,7 +353,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
           proposalId!,
           votingAmt,
           currentCharacter?.faction?.id!,
-          true
+          true,
         ),
       ],
     });
@@ -450,47 +450,6 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             </>
           )}
         </Flex>
-        {isVoteInProgress ? (
-          <Text>LOADING...</Text>
-        ) : (
-          <>
-            <StyledInput
-              placeholder={
-                Number(voteAmount) > 0
-                  ? "Update amount of voting power"
-                  : "Enter amount of voting power"
-              }
-              value={localVote}
-              onChange={(e) => setLocalVote(e.target.value)}
-              isInvalid={!!inputError}
-              disabled={
-                isVoteInProgress || Number(voteAmount) > Number(voteThreshold)
-              } // Disable if voteAmount exceeds threshold
-            />
-            {inputError && <Text color="red.500">{inputError}</Text>}
-            <Button
-              ml="2rem"
-              letterSpacing="1px"
-              bg={colors.blacks[700]}
-              onClick={() => {
-                if (Number(voteAmount) >= Number(voteThreshold)) {
-                  processProposalMutation.mutate();
-                } else if (validateInput() && Number(voteAmount) > 0) {
-                  updateVote(parseInt(localVote));
-                } else {
-                  handleVote(parseInt(localVote));
-                }
-              }}
-              disabled={isVoteInProgress}
-            >
-              {Number(voteAmount) >= Number(voteThreshold)
-                ? "process"
-                : Number(voteAmount) > 0
-                ? "update"
-                : "vote"}
-            </Button>
-          </>
-        )}
       </Flex>
     </ProposalAction>
   );

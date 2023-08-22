@@ -1,5 +1,13 @@
 import styled from "@emotion/styled";
-import { HStack, Flex, Image, Button, Tooltip, IconButton } from "@chakra-ui/react";
+import {
+  HStack,
+  Flex,
+  Image,
+  Button,
+  Tooltip,
+  IconButton,
+  VStack,
+} from "@chakra-ui/react";
 import { Tip } from "@/components/tooltip";
 import { getLocalImage } from "@/lib/utils";
 import { Label, Value } from "../tab.styles";
@@ -104,7 +112,7 @@ export const ResourceFieldAction: FC<{
         onError: (e) => {
           toast.error(JSON.stringify(e));
         },
-      }
+      },
     );
   };
 
@@ -122,26 +130,33 @@ export const ResourceFieldAction: FC<{
             })}
           />
         </Tip>
-        <Label>amount:</Label>
-        <Value>{rf.amount}</Value>
+        <VStack alignItems="start">
+          <Label>amount:</Label>
+          <Value>{rf.amount}</Value>
+        </VStack>
       </HStack>
       <HStack>
         {isFuture && <Value>{timeAgo(count)}</Value>}
         {isHarvestable && (
-          <Button bg="brand.quaternary" onClick={post}>
+          <Button
+            bg="brand.quaternary"
+            color="brand.secondary"
+            fontSize="1.25rem"
+            onClick={post}
+          >
             Harvest
           </Button>
         )}
         <Tooltip label="Speed up" aria-label="Speed up tooltip">
-  <IconButton
-    icon={<FaClock />}
-    aria-label="Speed up"
-    bg={colors.blacks[400]}
-    w="3rem" // Adjust the width as needed
-    h="3rem" // Adjust the height as needed
-    isDisabled={false}
-  />
-</Tooltip>
+          <IconButton
+            icon={<FaClock />}
+            aria-label="Speed up"
+            bg={colors.blacks[400]}
+            w="3rem" // Adjust the width as needed
+            h="3rem" // Adjust the height as needed
+            isDisabled={false}
+          />
+        </Tooltip>
       </HStack>
     </ResourceActionContainer>
   );

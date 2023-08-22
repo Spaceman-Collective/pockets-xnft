@@ -436,6 +436,7 @@ export const postRfAllocate = async ({
   signedTx?: string;
   charMint?: string;
 }): Promise<ResourceFieldPDA> => {
+  console.log('charmint: ', charMint);
   const URL = API_BASE_URL + "/rf/allocate";
   const errorMsg = "Server Error while posting resource field allocation";
   try {

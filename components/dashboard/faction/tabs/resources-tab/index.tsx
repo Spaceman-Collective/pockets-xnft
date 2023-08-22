@@ -12,11 +12,11 @@ import {
 } from "@chakra-ui/react";
 import { Label, PanelContainer, Value } from "../tab.styles";
 import styled from "@emotion/styled";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
 import { useFaction } from "@/hooks/useFaction";
-import { getLocalImage } from "@/lib/utils";
+import { getLocalImage, timeout } from "@/lib/utils";
 import { TIP } from "@/components/tooltip/constants";
 import { Tip } from "@/components/tooltip";
 import { useResourceField } from "@/hooks/useResourceField";
@@ -29,6 +29,7 @@ import { useRfAllocation } from "@/hooks/useRf";
 import { ModalRfDiscover } from "./discover-modal.component";
 import { ModalRfProspect } from "./prospect-modal.component";
 import { ResourceGridContainer } from "../../resources-grid.component";
+import Confetti from "@/components/Confetti";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -53,18 +54,37 @@ export const FactionTabResources: React.FC<{
     mint: currentCharacter?.mint,
   });
 
-  const { data: discoverData, refetch: refetchRFAllocation } = useRfAllocation();
+  const [confetti, setConfetti] = useState(false);
+  const fireConfetti = async () => {
+    if (confetti) return;
+    setConfetti(true);
+    await timeout(3600);
+    setConfetti(false);
+  };
+
+  const { data: discoverData, refetch: refetchRFAllocation } =
+    useRfAllocation();
+
+  useEffect(() => {
+    if (discoverData) {
+      console.log("dd: ", discoverData);
+    }
+  }, [discoverData]);
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
-      <Header factionName={currentCharacter?.faction?.name} taxRate={factionData?.faction?.taxRate} />
-
+      <Header
+        factionName={currentCharacter?.faction?.name}
+        taxRate={factionData?.faction?.taxRate}
+      />
       <Box>
         <ResourceLabels
           onClick={() => {
             if (discoverData?.isDiscoverable) {
               discoverDisclosure.onOpen();
+              console.log("isDiscoverable 2: ", discoverData?.isDiscoverable);
             } else {
+              console.log("isDiscoverable 3: ", discoverData?.isDiscoverable);
               prospectDisclosure.onOpen();
             }
           }}
@@ -86,67 +106,33 @@ export const FactionTabResources: React.FC<{
             ))}
         </Grid>
       </Box>
-
+      hdjksa
       <ResourceGridContainer
         isLoading={factionIsLoading}
         resources={factionData?.resources}
       />
-
-      <Box>
-        <Flex justifyContent="space-between" alignItems="end" mb="1rem">
-          <MenuTitle mb="1rem">Treasury</MenuTitle>
-          <Input
-            bg="blacks.500"
-            outline="none"
-            placeholder="Search Items"
-            p="0.5rem 2rem"
-            borderRadius="1rem"
-            opacity="0.5"
-            onChange={onSearch}
-          />
-        </Flex>
-        <Grid templateColumns="repeat(4,1fr)" gap={spacing}>
-          {factionIsLoading &&
-            Array.from({ length: 12 }).map((_, i) => (
-              <Skeleton
-                key={"resouce" + i + "load"}
-                w="100%"
-                h="7rem"
-                borderRadius="1rem"
-              />
-            ))}
-          {factionData?.resources
-            ?.filter((resource) => {
-              if (debouncedSearch === undefined || debouncedSearch === "")
-                return true;
-              const flatName = resource.name.replace(" ", "").toLowerCase();
-              const search = debouncedSearch.toLowerCase();
-              const isWithinSearchParams = flatName.includes(search);
-              return isWithinSearchParams;
-            })
-            ?.map((resource) => (
-              <ResourceItem key={resource.name} resource={resource} />
-            ))}
-        </Grid>
-      </Box>
-
-      <ModalRfDiscover refetchDiscoverData={refetchRFAllocation} rf={discoverData} {...discoverDisclosure} />
+      <ModalRfDiscover
+        refetchDiscoverData={refetchRFAllocation}
+        rf={discoverData}
+        {...discoverDisclosure}
+      />
       <ModalRfProspect
         rf={discoverData}
         charMint={currentCharacter.mint}
         factionId={currentCharacter?.faction?.id}
         currentCharacter={currentCharacter}
         {...prospectDisclosure}
+        fire={fireConfetti}
       />
-
+      {confetti && <Confetti canFire={confetti} />}
     </PanelContainer>
   );
 };
 
-const Header: React.FC<{ factionName: string | undefined, taxRate: number | undefined }> = ({
-  factionName,
-  taxRate
-}) => {
+const Header: React.FC<{
+  factionName: string | undefined;
+  taxRate: number | undefined;
+}> = ({ factionName, taxRate }) => {
   return (
     <Flex justifyContent="space-between" alignItems="end">
       <Title verticalAlign="end">{factionName!}</Title>
@@ -162,6 +148,14 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
   isDiscoverable,
   onClick,
 }) => {
+  const { data: discoverData, refetch: refetchRFAllocation } =
+    useRfAllocation();
+
+  useEffect(() => {
+    if (discoverData) {
+      console.log("isDiscoverable: ", isDiscoverable);
+    }
+  }, [discoverData, isDiscoverable]);
 
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
@@ -171,12 +165,12 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
       <HStack gap="4rem" alignItems="end">
         {/* <MenuText color="brand.quaternary">harvest all</MenuText> */}
         {isDiscoverable === undefined && <Spinner mb="0.75rem" mr="1rem" />}
-        {isDiscoverable === true && (
+        {discoverData?.isDiscoverable === true && (
           <MenuText cursor="pointer" color="brand.tertiary" onClick={onClick}>
             discover
           </MenuText>
         )}
-        {isDiscoverable === false && (
+        {discoverData?.isDiscoverable === false && (
           <MenuText cursor="pointer" color="brand.quaternary" onClick={onClick}>
             prospect
           </MenuText>

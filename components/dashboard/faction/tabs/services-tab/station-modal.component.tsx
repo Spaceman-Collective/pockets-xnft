@@ -57,7 +57,7 @@ export const ModalStation: FC<{
   const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
 
   const timer = timersData?.stationTimers.find(
-    (e) => e.station === station?.id
+    (e) => e.station === station?.id,
   );
   const finishedDate = timer?.finished && +timer?.finished;
   const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
@@ -141,10 +141,10 @@ export const ModalStation: FC<{
         signTransaction,
         txInstructions: [ix, bonkIx, ...burnIxs],
       });
-      
-      if ((encodedTx as any) instanceof Error || encodedTx === undefined)
-      return toast.error("Failed to start station");
-    
+
+      if (encodedTx instanceof Error || encodedTx === undefined)
+        return toast.error("Failed to start station");
+
       mutate(
         { signedTx: encodedTx },
         {
@@ -153,13 +153,13 @@ export const ModalStation: FC<{
             queryClient.refetchQueries({ queryKey: ["assets"] });
             startCountdown();
             toast.success(
-              "You've started a build in the " + station?.blueprint
+              "You've started a build in the " + station?.blueprint,
             );
           },
           onError: (e: any) => {
             toast.error("Ooops! Did not start station: \n\n" + e);
           },
-        }
+        },
       );
     } catch (err) {
       toast.error("Oops! That didn't work: \n\n" + JSON.stringify(err));
@@ -175,10 +175,10 @@ export const ModalStation: FC<{
           queryClient.refetchQueries({ queryKey: ["char-timers"] });
           queryClient.refetchQueries({ queryKey: ["assets"] });
           toast.success(
-            "You've claimed the reward from the " + station?.blueprint
+            "You've claimed the reward from the " + station?.blueprint,
           );
         },
-      }
+      },
     );
   };
 
