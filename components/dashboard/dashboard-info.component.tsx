@@ -18,14 +18,11 @@ export const DashboardInfo = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
-
   useEffect(() => {
     (async () => {
       if (walletAddress && connection) {
         setIsLoading(true);
-console.log('rpce: ', connection.rpcEndpoint);
-console.log('wa', walletAddress)     
-let balance = await getBonkBalance({ walletAddress, connection });
+        let balance = await getBonkBalance({ walletAddress, connection });
         const wholeBalance = Math.floor(balance);
 
         setBonkBalance(formatBalance(wholeBalance));
@@ -85,7 +82,15 @@ let balance = await getBonkBalance({ walletAddress, connection });
             // Handle the click event for the second icon
           }}
         >
-          <MdLeaderboard size={24} color={router.pathname === "/leaderboard" ? colors.brand.quaternary : colors.brand.secondary} onClick={() => router.push("/leaderboard")} />
+          <MdLeaderboard
+            size={24}
+            color={
+              router.pathname === "/leaderboard"
+                ? colors.brand.quaternary
+                : colors.brand.secondary
+            }
+            onClick={() => router.push("/leaderboard")}
+          />
         </IconButton>
         <IconButton
           onClick={() => {
