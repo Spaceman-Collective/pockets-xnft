@@ -417,7 +417,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                 letterSpacing="1px"
                 bg={colors.blacks[700]}
                 onClick={() => {
-                  if (Number(voteAmount) > Number(voteThreshold)) {
+                  if (Number(voteAmount) >= Number(voteThreshold)) {
                     processProposalMutation.mutate();
                   } else if (validateInput() && Number(voteAmount) > 0) {
                     updateVote(parseInt(localVote));
@@ -427,7 +427,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                 }}
                 disabled={isVoteInProgress}
               >
-                {Number(voteAmount) > Number(voteThreshold)
+                {Number(voteAmount) >= Number(voteThreshold)
                   ? "process"
                   : Number(voteAmount) > 0
                   ? "update"

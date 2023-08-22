@@ -137,7 +137,7 @@ const ConsumeItemContainer: FC<{
         txInstructions: [memoIx, burnIx],
       });
 
-      if (!encodedTx || encodedTx instanceof Error)
+      if (!encodedTx || (encodedTx as any)  instanceof Error)
         return toast.error("Oops! Failed to consume resource");
       mutate(
         { signedTx: encodedTx },
