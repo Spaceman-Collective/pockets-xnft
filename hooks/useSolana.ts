@@ -386,5 +386,8 @@ async function getRFAccount(connection: Connection, rfId: string) {
     { connection }
   );
 
-  return await POCKETS_PROGRAM.account.resourceField.fetch(getRFPDA(rfId));
+  return await POCKETS_PROGRAM.account.resourceField.fetch(
+    getRFPDA(rfId),
+    "confirmed"
+  );
 }

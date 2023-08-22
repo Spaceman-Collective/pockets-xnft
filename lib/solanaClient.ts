@@ -10,8 +10,8 @@ const POCKETS_PROGRAM_PROGRAMID =
   "GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ";
 
 export async function getProposalAccount(
-  connection: Connection, 
-  proposalId: string,
+  connection: Connection,
+  proposalId: string
 ) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
@@ -21,8 +21,10 @@ export async function getProposalAccount(
 
   const proposalPDA = getProposalPDA(proposalId);
 
-  const proposalAccount =
-    await POCKETS_PROGRAM.account.proposal.fetch(proposalPDA);
+  const proposalAccount = await POCKETS_PROGRAM.account.proposal.fetch(
+    proposalPDA,
+    "confirmed"
+  );
 
   return proposalAccount;
 }
@@ -169,7 +171,7 @@ export async function voteOnProposalIx(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
     {
-      connection
+      connection,
     }
   );
 
@@ -208,7 +210,7 @@ export async function updateVoteOnProposalIx(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
     {
-      connection
+      connection,
     }
   );
 
