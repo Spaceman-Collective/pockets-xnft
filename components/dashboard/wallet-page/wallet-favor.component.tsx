@@ -1,10 +1,12 @@
 import { Box, Text, HStack } from "@chakra-ui/react";
 import { FavorAction, Label, MenuText, Value } from "./wallet-page.styles";
+import { H3 } from "@/components/wizard";
 
 export const WalletFavorPanel = () => {
   return (
     <Box>
-      {Array.from({ length: 3 }).map((_, i) => (
+      <H3 align="center"> COMING SOON</H3>
+      {/* {Array.from({ length: 3 }).map((_, i) => (
         <FavorAction key={"res" + i}>
           <Text>#{i + 1}</Text>
           <HStack>
@@ -26,7 +28,7 @@ export const WalletFavorPanel = () => {
             complete
           </MenuText>
         </FavorAction>
-      ))}
+      ))} */}
     </Box>
   );
 };

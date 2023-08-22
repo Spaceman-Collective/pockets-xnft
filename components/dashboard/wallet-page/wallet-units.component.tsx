@@ -6,12 +6,15 @@ import {
   Flex,
   Grid,
   HStack,
+  Spinner,
   Text,
   Tooltip,
+  VStack,
 } from "@chakra-ui/react";
 import { FC, ReactNode, useEffect, useState } from "react";
 import { Label, Value } from "./wallet-page.styles";
 import { useSolana } from "@/hooks/useSolana";
+import styled from "@emotion/styled";
 
 export const WalletUnitPanel = () => {
   const { connection, walletAddress } = useSolana();
@@ -20,32 +23,40 @@ export const WalletUnitPanel = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    generateMockUnits(50).then((units: any) => {
-      setMockUnits(units);
-      setIsLoading(false);
-    });
-  }, []);
+    if (MOCK_UNITS.length == 0) {
+      generateMockUnits(50).then((units: any) => {
+        setMockUnits(units);
+        setIsLoading(false);
+      });
+    }
+  }, []); 
 
   const counts = countDuplicates(MOCK_UNITS);
-
 
   const uniqueUnits = MOCK_UNITS.filter(
     (unit, index, self) => index === self.findIndex((t) => t.name === unit.name)
   );
 
   if (isLoading) {
-    return <Text>Loading units...</Text>;
+    return (
+      <VStack gap={"1rem"} align="center">
+        <LoadingContainer>
+          <Spinner size="lg" color="white" />
+          <LoadingText>LOADING</LoadingText>
+        </LoadingContainer>
+      </VStack>
+    );
   }
 
   return (
     <Flex minH="60vh" direction="column" justifyContent="space-between">
-      <Flex direction="column" gap="2rem">
+      <Flex direction="column">
         <Flex gap="4rem">
           <Value style={{ textDecoration: "underline" }}>ARMY</Value>
-          <HStack>
+          {/* <HStack>
             <Label>unequipped</Label>
             <Value>123/456</Value>
-          </HStack>
+          </HStack> */}
         </Flex>
         <Grid templateColumns="repeat(auto-fill,minmax(100px,1fr))">
           {uniqueUnits.map((unit, index) => (
@@ -131,7 +142,7 @@ function countDuplicates(units: Unit[]) {
   const countMap: { [name: string]: number } = {};
   units.forEach((unit) => {
     countMap[unit.name] = Math.floor(Math.random() * 4) + 1;
-        // countMap[unit.name] = (countMap[unit.name] || 0) + 1;
+    // countMap[unit.name] = (countMap[unit.name] || 0) + 1;
   });
   return countMap;
 }
@@ -139,7 +150,10 @@ function countDuplicates(units: Unit[]) {
 const generateMockUnits = (count: number): Promise<Unit[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const shuffledTemplates = shuffleArray([...UNIT_TEMPLATES, ...UNIT_TEMPLATES.slice(0,2)]);
+      const shuffledTemplates = shuffleArray([
+        ...UNIT_TEMPLATES,
+        ...UNIT_TEMPLATES.slice(0, 2),
+      ]);
       const allocations = generateRandomAllocation(
         shuffledTemplates.length,
         count
@@ -188,7 +202,14 @@ const generateRandomAllocation = (numUnits: number, totalCount: number) => {
 };
 
 const generateRandomBonus = (): { [enemyName: string]: number } => {
-  const enemies = ["Brawler", "Blademaster", "Gunner", "Ranger", "Mindbreaker", "Wizard"];
+  const enemies = [
+    "Brawler",
+    "Blademaster",
+    "Gunner",
+    "Ranger",
+    "Mindbreaker",
+    "Wizard",
+  ];
   const bonusCount = Math.floor(Math.random() * (enemies.length + 1));
   const bonus: { [enemyName: string]: number } = {};
 
@@ -199,3 +220,17 @@ const generateRandomBonus = (): { [enemyName: string]: number } => {
 
   return bonus;
 };
+
+
+const LoadingContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const LoadingText = styled.div`
+  color: white;
+  font-weight: 800;
+  font-size: 12px;
+  margin-top: 8px;
+`;
