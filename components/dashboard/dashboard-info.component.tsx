@@ -23,7 +23,9 @@ export const DashboardInfo = () => {
     (async () => {
       if (walletAddress && connection) {
         setIsLoading(true);
-        let balance = await getBonkBalance({ walletAddress, connection });
+console.log('rpce: ', connection.rpcEndpoint);
+console.log('wa', walletAddress)     
+let balance = await getBonkBalance({ walletAddress, connection });
         const wholeBalance = Math.floor(balance);
 
         setBonkBalance(formatBalance(wholeBalance));
