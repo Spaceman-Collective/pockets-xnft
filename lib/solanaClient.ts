@@ -1,9 +1,9 @@
 import { Program, AnchorProvider, Wallet, BN } from "@coral-xyz/anchor";
 import { PocketsProgram } from "./program/pockets_program";
-import { Connection, Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
+import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
 import { Buffer } from "buffer";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
-import { useAnchorWallet } from '@solana/wallet-adapter-react';
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
 const pocketsIDL = require("./program/pockets_program.json");
 
 const POCKETS_PROGRAM_PROGRAMID =
@@ -27,11 +27,10 @@ export async function getProposalAccount(
   return proposalAccount;
 }
 
-
 export function getProposalPDA(proposalId: string): PublicKey {
   const [proposalPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("proposal"), Buffer.from(proposalId)],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
   );
   return proposalPDA;
 }
@@ -39,18 +38,18 @@ export function getProposalPDA(proposalId: string): PublicKey {
 export function getCitizenPDA(characterMint: PublicKey): PublicKey {
   const [citizenPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("citizen"), Buffer.from(characterMint.toBuffer())],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
   );
   return citizenPDA;
 }
 
 export function getVotePDA(
   citizen: PublicKey,
-  proposalPDA: PublicKey,
+  proposalPDA: PublicKey
 ): PublicKey {
   const [votePDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("vote"), citizen.toBuffer(), proposalPDA.toBuffer()],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
   );
   return votePDA;
 }
@@ -71,10 +70,19 @@ export async function getVoteAccount(
   );
 }
 
+// export async function getMultipleVoteAccounts(connection: Connection, votePDAAddresses: PublicKey[]) {
+//   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+//     pocketsIDL,
+//     POCKETS_PROGRAM_PROGRAMID,
+//     { connection },
+//   );
+//   return await POCKETS_PROGRAM.account.proposalVote.fetchMultiple(votePDAAddresses, 'confirmed');
+// }
+
 export function getFactionPDA(factionId: string): PublicKey {
   const [factionPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("faction"), Buffer.from(factionId)],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
   );
   return factionPDA;
 }
@@ -97,7 +105,7 @@ export async function getFactionAccount(
 
 export function getDelegationRecordPDA(
   citizen: PublicKey,
-  voteRecipientCitizen: PublicKey,
+  voteRecipientCitizen: PublicKey
 ): PublicKey {
   const [delegationRecordPDA] = PublicKey.findProgramAddressSync(
     [
@@ -105,25 +113,26 @@ export function getDelegationRecordPDA(
       citizen.toBuffer(),
       voteRecipientCitizen.toBuffer(),
     ],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
   );
   return delegationRecordPDA;
 }
 
-export async function voteOnProposalIx(
-  connection: Connection,
+export async function getCitizensIx(
   wallet: PublicKey,
   characterMint: PublicKey,
   proposalId: string,
   amount: number,
-  factionId: string,
+  factionId: string
 ) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
-    new AnchorProvider(connection, new Wallet(Keypair.generate()), {
-      commitment: "confirmed",
-    }),
+    {
+      connection: new Connection(
+        "https://rpc.helius.xyz/?api-key=1b21b073-a222-47bb-8628-564145e58f4e"
+      ),
+    }
   );
 
   const proposal = getProposalPDA(proposalId);
@@ -148,21 +157,21 @@ export async function voteOnProposalIx(
   return ix;
 }
 
-export async function updateVote(
-  connection: Connection,
+export async function voteOnProposalIx(
   wallet: PublicKey,
   characterMint: PublicKey,
   proposalId: string,
   amount: number,
-  factionId: string,
-  isIncrement: boolean,
+  factionId: string
 ) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
-    new AnchorProvider(connection, new Wallet(Keypair.generate()), {
-      commitment: "confirmed",
-    }),
+    {
+      connection: new Connection(
+        "https://rpc.helius.xyz/?api-key=1b21b073-a222-47bb-8628-564145e58f4e"
+      ),
+    }
   );
 
   const proposal = getProposalPDA(proposalId);
@@ -172,7 +181,7 @@ export async function updateVote(
   const faction = getFactionPDA(factionId);
 
   const ix = POCKETS_PROGRAM.methods
-    .updateVote(new BN(amount), isIncrement)
+    .voteOnProposal(new BN(amount))
     .accounts({
       wallet,
       walletAta,
@@ -227,18 +236,14 @@ export async function updateVoteOnProposalIx(
 }
 
 export async function closeVoteAccount(
-  connection: Connection,
   wallet: PublicKey,
   characterMint: PublicKey,
   proposalId: string,
-  factionId: string,
+  factionId: string
 ) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
-    POCKETS_PROGRAM_PROGRAMID,
-    new AnchorProvider(connection, new Wallet(Keypair.generate()), {
-      commitment: "confirmed",
-    }),
+    POCKETS_PROGRAM_PROGRAMID
   );
 
   const proposal = getProposalPDA(proposalId);
@@ -264,18 +269,14 @@ export async function closeVoteAccount(
 }
 
 export async function transferVotes(
-  connection: Connection,
   wallet: PublicKey,
   characterMint: PublicKey,
   voteAmt: number,
-  voteCharacterRecepientMint: PublicKey,
+  voteCharacterRecepientMint: PublicKey
 ) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
-    POCKETS_PROGRAM_PROGRAMID,
-    new AnchorProvider(connection, new Wallet(Keypair.generate()), {
-      commitment: "confirmed",
-    }),
+    POCKETS_PROGRAM_PROGRAMID
   );
 
   const citizen = getCitizenPDA(characterMint);
@@ -297,18 +298,14 @@ export async function transferVotes(
 }
 
 export async function delegateVotes(
-  connection: Connection,
   wallet: PublicKey,
   characterMint: PublicKey,
   voteAmt: number,
-  voteCharacterRecepientMint: PublicKey,
+  voteCharacterRecepientMint: PublicKey
 ) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
-    POCKETS_PROGRAM_PROGRAMID,
-    new AnchorProvider(connection, new Wallet(Keypair.generate()), {
-      commitment: "confirmed",
-    }),
+    POCKETS_PROGRAM_PROGRAMID
   );
   const walletAta = getAssociatedTokenAddressSync(characterMint, wallet);
 
@@ -316,7 +313,7 @@ export async function delegateVotes(
   const voteRecepientCitizen = getCitizenPDA(voteCharacterRecepientMint);
   const delegationRecord = getDelegationRecordPDA(
     citizen,
-    voteRecepientCitizen,
+    voteRecepientCitizen
   );
 
   const ix = POCKETS_PROGRAM.methods
@@ -335,19 +332,15 @@ export async function delegateVotes(
 }
 
 export async function adjustVoteDelegation(
-  connection: Connection,
   wallet: PublicKey,
   characterMint: PublicKey,
   voteCharacterRecepientMint: PublicKey,
   amount: number,
-  isIncrement: boolean,
+  isIncrement: boolean
 ) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
-    POCKETS_PROGRAM_PROGRAMID,
-    new AnchorProvider(connection, new Wallet(Keypair.generate()), {
-      commitment: "confirmed",
-    }),
+    POCKETS_PROGRAM_PROGRAMID
   );
 
   const walletAta = getAssociatedTokenAddressSync(characterMint, wallet);
@@ -355,7 +348,7 @@ export async function adjustVoteDelegation(
   const voteRecepientCitizen = getCitizenPDA(voteCharacterRecepientMint);
   const delegationRecord = getDelegationRecordPDA(
     citizen,
-    voteRecepientCitizen,
+    voteRecepientCitizen
   );
 
   const ix = POCKETS_PROGRAM.methods
@@ -374,18 +367,14 @@ export async function adjustVoteDelegation(
 }
 
 export async function returnVoteDelegation(
-  connection: Connection,
   wallet: PublicKey,
   characterMint: PublicKey,
   voteCharacterRecepientMint: PublicKey,
-  amount: number,
+  amount: number
 ) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
-    POCKETS_PROGRAM_PROGRAMID,
-    new AnchorProvider(connection, new Wallet(Keypair.generate()), {
-      commitment: "confirmed",
-    }),
+    POCKETS_PROGRAM_PROGRAMID
   );
 
   const walletAta = getAssociatedTokenAddressSync(characterMint, wallet);
@@ -393,7 +382,7 @@ export async function returnVoteDelegation(
   const voteRecepientCitizen = getCitizenPDA(voteCharacterRecepientMint);
   const delegationRecord = getDelegationRecordPDA(
     citizen,
-    voteRecepientCitizen,
+    voteRecepientCitizen
   );
 
   const ix = POCKETS_PROGRAM.methods

@@ -1,4 +1,3 @@
-import { fonts } from "@/styles/defaultTheme";
 import { Box, Text } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 

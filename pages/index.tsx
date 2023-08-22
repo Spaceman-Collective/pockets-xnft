@@ -12,15 +12,16 @@ import {
 import {
   DashboardInfo,
   DashboardMenu,
-  Personal,
   CharacterList,
 } from "@/components/dashboard";
 import { useAssets } from "@/hooks/useCharacters";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { WalletTabs } from "@/components/dashboard/wallet-page";
 
 export default function Home() {
   const { walletAddress } = useSolana();
-  const { data: assets, isLoading: assetsIsLoading } = useAssets();
+  const { data: assets, isLoading: assetsIsLoading } = useAssets(); // chars/nfts
+
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   return (
@@ -50,7 +51,7 @@ export default function Home() {
                   setSelectedCharacter={setSelectedCharacter}
                 />
                 <SectionContainer>
-                  <Personal />
+                  <WalletTabs />
                 </SectionContainer>
               </PersonalSection>
             </DashboardContainer>

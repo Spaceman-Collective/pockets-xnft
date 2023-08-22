@@ -8,8 +8,9 @@ export interface Proposal
     Allocate,
     Threshold,
     Warband,
-    Tax {
-  id: string;
+    Tax,
+    Burn {
+  id?: string;
   type: ProposalType;
 }
 
@@ -23,7 +24,8 @@ export type ProposalType =
   | "ALLOCATE"
   | "THRESHOLD"
   | "WARBAND"
-  | "TAX";
+  | "TAX"
+  | "BURN";
 
 interface Build {
   blueprintName?: string;
@@ -66,4 +68,8 @@ interface Warband {
 
 interface Tax {
   newTaxRate?: number;
+}
+
+interface Burn {
+  resources?: { resourceName: string; amount: number }[];
 }

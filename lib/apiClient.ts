@@ -1,5 +1,7 @@
 import { Proposal } from "@/types/server/Proposal";
+import { Proposal } from "@/types/server/Proposal";
 import type { NFT, Character, Faction, Station } from "@/types/server";
+import { BN } from "@coral-xyz/anchor";
 import { BN } from "@coral-xyz/anchor";
 import { QueryFunctionContext } from "@tanstack/react-query";
 import fetch from "axios";
@@ -87,12 +89,68 @@ export const postCharCreate = async ({
 
 export const postCreateFaction = async ({
   signedTx,
+  factionData,
 }: {
   signedTx: string;
+  factionData: {
+    name: string;
+    image: string;
+    external_link: string;
+    description: string;
+  };
 }): Promise<Faction> => {
   const URL = API_BASE_URL + "/faction/create";
   try {
+    const response = await fetch.post<any>(URL, {
+      signedTx,
+      factionData,
+    });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data;
+    } else {
+      console.error("Server Error while creating faction:", response);
+      throw new Error("Server Error while creating faction");
+    }
+  } catch (error) {
+    console.error("Network Error while creating faction:", error);
+    throw error;
+  }
+};
+
+export const postFactionStationStart = async ({
+  signedTx,
+}: {
+  signedTx: string;
+}): Promise<Faction> => {
+  const URL = API_BASE_URL + "/faction/station/start";
+  try {
     const response = await fetch.post<any>(URL, { signedTx });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data;
+    } else {
+      console.error("Server Error while creating faction:", response);
+      throw new Error("Server Error while creating faction");
+    }
+  } catch (error) {
+    console.error("Network Error while creating faction:", error);
+    throw error;
+  }
+};
+
+export const postFactionStationClaim = async ({
+  mint,
+  stationId,
+}: {
+  mint: string;
+  stationId: string;
+}): Promise<Faction> => {
+  const URL = API_BASE_URL + "/faction/station/claim";
+  try {
+    const response = await fetch.post<any>(URL, { mint, stationId });
 
     if (response.status === 200) {
       const data = await response.data;
@@ -190,6 +248,12 @@ export const fetchFaction = async ({
   resources: { name: string; value: string }[];
   stations: { blueprint: string; faction: string; id: string; level: number }[];
 }> => {
+}): Promise<{
+  citizens: [];
+  faction: Faction;
+  resources: { name: string; value: string }[];
+  stations: { blueprint: string; faction: string; id: string; level: number }[];
+}> => {
   const URL = API_BASE_URL + "/faction";
   try {
     const response = await fetch.get<any>(URL, { params: { id: factionId } });
@@ -280,21 +344,168 @@ export const fetchAllAssets = async ({
     } else {
       console.error(
         "Server Error while fetching compressed assets for wallet:",
-        response,
+        response
       );
       throw new Error(
-        "Server Error while fetching compressed assets for wallet:",
+        "Server Error while fetching compressed assets for wallet:"
       );
     }
   } catch (error) {
     console.error(
       "Network Error while fetching compressed assets for wallet",
-      error,
+      error
     );
     throw error;
   }
 };
 
+export const postRfHarvest = async ({
+  signedTx,
+}: {
+  signedTx: string;
+}): Promise<HarvestResouceFieldResponse> => {
+  const URL = API_BASE_URL + "/rf/harvest";
+  try {
+    const response = await fetch.post<any>(URL, { signedTx });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as HarvestResouceFieldResponse;
+    } else {
+      console.error("Server Error while harvesting resources:", response);
+      throw new Error("Server Error while harvesting resources");
+    }
+  } catch (error) {
+    console.error("Network Error while harvesting resources:", error);
+    throw error;
+  }
+};
+
+export const fetchCharTimers = async ({
+  mint,
+}: {
+  mint: string;
+}): Promise<{
+  stationTimers: {
+    character: string;
+    finished: string;
+    id: string;
+    station: string;
+  }[];
+  rfTimers: {
+    character: string;
+    finished: string;
+    id: string;
+    rf: string;
+  }[];
+}> => {
+  const URL = API_BASE_URL + "/character/timers";
+  const errorMsg = "Server Error while character timers";
+
+  try {
+    const response = await fetch.get<any>(URL, {
+      params: {
+        mint,
+      },
+    });
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as any;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error(errorMsg, error);
+    throw error;
+  }
+};
+
+export const fetchResources = async ({
+  factionId,
+}: {
+  factionId: string;
+}): Promise<{
+  rfs: {
+    amount: string;
+    faction: string;
+    id: string;
+    resource: string;
+    timer: string;
+  }[];
+}> => {
+  const URL = API_BASE_URL + "/faction/rfs";
+  const errorMsg = "Server Error while fetching resource fields";
+
+  try {
+    const response = await fetch.get<any>(URL, {
+      params: {
+        factionId,
+      },
+    });
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as any;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error(errorMsg, error);
+    throw error;
+  }
+};
+
+export const fetchRfAllocation = async (): Promise<{
+  isDiscoverable: boolean; // toggles discover/prospect
+  id: string;
+  rfCount: number; // total amount of resource fields in DB
+}> => {
+  const URL = API_BASE_URL + "/rf/allocation";
+  const errorMsg = "Server Error while fetching resource field allocation";
+
+  try {
+    const response = await fetch.get<any>(URL);
+    if (response.status === 200) {
+      const data = await response.data;
+      return data as any;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error(errorMsg, error);
+    throw error;
+  }
+};
+
+export const postRfAllocate = async ({
+  signedTx,
+  charMint,
+}: {
+  signedTx?: string;
+  charMint?: string;
+}): Promise<ResourceFieldPDA> => {
+  const URL = API_BASE_URL + "/rf/allocate";
+  const errorMsg = "Server Error while posting resource field allocation";
+  try {
+    let body = !!signedTx ? { signedTx } : { mint: charMint };
+    const response = await fetch.post<any>(URL, body);
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data.rfPDA as ResourceFieldPDA;
+    } else {
+      console.error(errorMsg, response);
+      throw new Error(errorMsg);
+    }
+  } catch (error) {
+    console.error("Network Error while allocating resources:", error);
+    throw error;
+  }
+};
+
+export const postConsumeResource = async ({
 export const postRfHarvest = async ({
   signedTx,
 }: {
@@ -456,14 +667,14 @@ export const postConsumeResource = async ({
     } else {
       console.error(
         "Server Error while consuming resources for character:",
-        response,
+        response
       );
       throw new Error("Server Error while consuming resources for character");
     }
   } catch (error) {
     console.error(
       "Network Error while consuming resources for character:",
-      error,
+      error
     );
     throw error;
   }
@@ -552,7 +763,7 @@ export type FetchResponse = {
 export const fetchProposalsByFaction = async (
   faction: string,
   skip: number,
-  take: number,
+  take: number
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/faction/proposals`;
   try {
@@ -613,7 +824,7 @@ interface ProposalAccount {
 }
 
 export const fetchProposalAccount = async (
-  proposalId: string,
+  proposalId: string
 ): Promise<ProposalAccount> => {
   const URL = `${API_BASE_URL}/accounts/proposal`;
   try {
@@ -630,11 +841,13 @@ export const fetchProposalAccount = async (
 };
 
 export const fetchProposalVotesByCitizen = async (
+export const fetchProposalVotesByCitizen = async (
   mint: string,
   proposalId: string,
 ): Promise<any> => {
   const URL = `${API_BASE_URL}/accounts/vote`;
   try {
+    const { data } = await fetch.get<any>(URL, {
     const { data } = await fetch.get<any>(URL, {
       params: {
         mint,
@@ -645,12 +858,13 @@ export const fetchProposalVotesByCitizen = async (
   } catch (err) {
     console.error(err);
     throw new Error("Failed to fetch proposal votes");
+    throw new Error("Failed to fetch proposal votes");
   }
 };
 
 export const delegateVotes = async (
   mint: string,
-  recipientMint: string,
+  recipientMint: string
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/accounts/delegation`;
   try {

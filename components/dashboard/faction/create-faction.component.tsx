@@ -18,7 +18,9 @@ import { colors } from "@/styles/defaultTheme";
 import { useSolana } from "@/hooks/useSolana";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
-import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
+import { useAllFactions } from "@/hooks/useAllFactions";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import toast from "react-hot-toast";
 
 export const CreateFaction: FC<{
   fire: () => void;
@@ -33,7 +35,7 @@ export const CreateFaction: FC<{
     encodeTransaction,
     getBonkBalance,
   } = useSolana();
-  const { data: currentFactions } = useFetchAllFactions();
+  const { data: currentFactions } = useAllFactions();
   const { mutate } = useCreateFaction();
   const [faction, setFaction] = useState({
     name: "",
@@ -47,6 +49,7 @@ export const CreateFaction: FC<{
     external_link: "",
     description: "",
   });
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
 
   const validateInputs = () => {
     let errors = {
@@ -105,40 +108,51 @@ export const CreateFaction: FC<{
       return;
     }
     const payload = {
-      mint: "CppHyx5oQ5vGGTEDk3ii5LtdzmAbdAffrqqip7AWWkdZ",
+      mint: selectedCharacter,
       timestamp: Date.now().toString(),
-      faction,
     };
+
+    if (!walletAddress || !signTransaction || !connection) {
+      throw alert("The *basics* are undefined");
+    }
 
     const totalFactions = currentFactions?.total;
     const requiredBONK =
-      FACTION_CREATION_MULTIPLIER * BigInt(currentFactions?.total ?? 0);
-    const bonkInWallet = 20000000000000;
-    // const bonkInWallet = getBonkBalance(walletAddress, connection);
-    if (bonkInWallet < requiredBONK) {
+      FACTION_CREATION_MULTIPLIER * BigInt(totalFactions ?? 0);
+    const bonkInWallet = await getBonkBalance({ walletAddress, connection });
+    if (bonkInWallet < requiredBONK / BigInt(1e5)) {
       throw alert(
-        "You have insufficient BONK in your wallet. Please add more BONK and try again!",
+        `You have insufficient BONK in your wallet. Please add more BONK and try again! Required amount: ${
+          requiredBONK / BigInt(1e5)
+        } Current balance: ${bonkInWallet}`
       );
     }
-    const bonkMint = SPL_TOKENS.bonk.mint;
-    const dcms = SPL_TOKENS.bonk.decimals;
 
-    const ix = await buildTransferIx({
+    const memoIx = buildMemoIx({ walletAddress, payload });
+    const transferIx = buildTransferIx({
       walletAddress,
-      mint: bonkMint,
+      mint: SPL_TOKENS["bonk"].mint,
       amount: requiredBONK,
-      decimals: dcms,
+      decimals: SPL_TOKENS["bonk"].decimals,
     });
+
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
       connection,
       signTransaction,
-      txInstructions: [buildMemoIx({ walletAddress, payload }), ix],
+      txInstructions: [memoIx, transferIx],
     });
-    if (!encodedSignedTx) throw Error("No Tx");
-    mutate({ signedTx: encodedSignedTx }, { onSuccess });
-  };
 
+    if (typeof encodedSignedTx == "string") {
+      mutate(
+        { signedTx: encodedSignedTx as string, factionData: faction },
+        { onSuccess }
+      );
+    } else {
+      console.error("No Tx");
+      return;
+    }
+  };
   return (
     <Box
       display="flex"

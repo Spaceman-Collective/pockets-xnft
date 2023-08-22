@@ -63,3 +63,18 @@ export function getLocalImage({
   const path = `assets/${type}/${transformedName}.png`;
   return path;
 }
+
+export const formatBalance = (balance: number) => {
+    let format = ''
+    if (balance > 1000000000) {
+        format = (balance / 1000000000).toFixed(2) + 'B'
+    } else if (balance > 1000000) {
+        format = (balance / 1000000).toFixed(2) + 'M'
+    } else if (balance > 1000) {
+        format = (balance / 1000).toFixed(2) + 'K'
+    } else {
+        format = balance.toFixed(2)
+    }
+
+    return format;
+}

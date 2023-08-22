@@ -11,26 +11,43 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { ModalStation } from "./station-modal.component";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { useFaction } from "@/hooks/useFaction";
+import { Tip } from "@/components/tooltip";
+import { BLUEPRINTS, getBlueprint } from "./constants";
 
 const stationSize = "7rem";
 
 export const FactionTabServices: React.FC<{
   currentCharacter: Character;
-  setFactionStatus: (value: boolean) => void;
-}> = ({ currentCharacter, setFactionStatus }) => {
+}> = ({ currentCharacter }) => {
   const stationDisclosure = useDisclosure();
+  const [selectedStationId, setSelectedStationId] = useState<string>("");
+  const { data: factionData } = useFaction({
+    factionId: currentCharacter?.faction?.id ?? "",
+  });
+  console.log({ factionData });
+
+  const availableSlots = factionData?.faction?.townhallLevel;
+  const remainingSlots =
+    availableSlots && availableSlots - factionData?.stations.length;
 
   return (
     <>
       <ModalStation
+        station={factionData?.stations?.find(
+          (station) => station.id === selectedStationId,
+        )}
         isOpen={stationDisclosure.isOpen}
-        onClose={stationDisclosure.onClose}
+        onClose={() => {
+          stationDisclosure.onClose();
+          setSelectedStationId("");
+        }}
       />
       <PanelContainer display="flex" flexDirection="column">
         <HeaderStats
           factionName={currentCharacter.faction?.name}
+          factionImage={currentCharacter?.faction?.image}
           description={currentCharacter?.faction?.description}
         />
         <Grid
@@ -41,24 +58,26 @@ export const FactionTabServices: React.FC<{
           templateColumns={`repeat(auto-fill, minmax(${stationSize}, 1fr))`}
           templateRows={stationSize}
         >
-          {Array.from({ length: 32 }).map((_, i) =>
-            i < 18 ? (
-              <Station
-                key={i + "station"}
-                onClick={() => {
-                  stationDisclosure.onOpen();
-                }}
-              />
-            ) : (
-              <Box
-                key={"dsadadsad" + i}
-                bg="brand.primary"
-                h={stationSize}
-                w={stationSize}
-                onClick={stationDisclosure.onOpen}
-              />
-            ),
-          )}
+          {factionData?.stations?.map((station, i) => (
+            <Station
+              key={station.id}
+              station={station}
+              onClick={() => {
+                setSelectedStationId(station.id);
+                stationDisclosure.onOpen();
+              }}
+            />
+          ))}
+          {remainingSlots &&
+            remainingSlots > 0 &&
+            Array.from({ length: remainingSlots }).map((_, i) => (
+              <Tip
+                key={"emptystation" + i}
+                label={`Townhall Level ${availableSlots}: Your faction has ${remainingSlots}/${availableSlots} remaining station slots`}
+              >
+                <Box bg="brand.primary" h={stationSize} w={stationSize} />
+              </Tip>
+            ))}
         </Grid>
       </PanelContainer>
     </>
@@ -67,11 +86,12 @@ export const FactionTabServices: React.FC<{
 
 const HeaderStats: React.FC<{
   factionName: string | undefined;
+  factionImage: string | undefined;
   description: string | undefined;
-}> = ({ factionName, description }) => {
+}> = ({ factionName, factionImage, description }) => {
   return (
     <Flex mt="2rem" w="100%">
-      <TownHall />
+      <TownHall image={factionImage ?? ""} />
       <Flex
         direction="column"
         justifyContent="space-between"
@@ -101,7 +121,7 @@ const HeaderStats: React.FC<{
   );
 };
 
-const TownHall = () => {
+const TownHall: FC<{ image: string }> = ({ image }) => {
   const size = 17;
   return (
     <Box
@@ -114,6 +134,7 @@ const TownHall = () => {
       alignSelf="end"
     >
       <Station
+        image={image}
         onClick={() => {
           console.info("townhall coming soon");
         }}
@@ -122,7 +143,17 @@ const TownHall = () => {
   );
 };
 
-const Station: FC<{ onClick: () => void }> = ({ onClick }) => {
+const Station: FC<{
+  image?: string;
+  station?: { blueprint: string; faction: string; id: string; level: number };
+  onClick: () => void;
+}> = ({ station, image, onClick }) => {
+  const isStation = !!station;
+  const mockImage = "https://picsum.photos/200";
+  const stationImage = station?.blueprint
+    ? station?.blueprint && getBlueprint(station.blueprint)?.image
+    : undefined;
+  const img = image ?? stationImage ?? mockImage;
   return (
     <Box
       onClick={onClick}
@@ -132,7 +163,7 @@ const Station: FC<{ onClick: () => void }> = ({ onClick }) => {
       h="100%"
       bg="red"
       borderRadius="1rem"
-      backgroundImage="https://picsum.photos/200"
+      backgroundImage={img}
       backgroundSize="cover"
       backgroundPosition="center"
       transition="all 0.25s ease-in-out"

@@ -28,7 +28,13 @@ export const Generate: FC<{
     fireConfetti();
   };
 
-  const { connection, walletAddress, signTransaction, buildMemoIx, encodeTransaction } = useSolana();
+  const {
+    connection,
+    walletAddress,
+    signTransaction,
+    buildMemoIx,
+    encodeTransaction,
+  } = useSolana();
 
   return (
     <>
@@ -58,10 +64,19 @@ export const Generate: FC<{
                 name,
               };
 
-              const encodedSignedTx = await encodeTransaction({ walletAddress, connection, signTransaction, txInstructions: [buildMemoIx({ walletAddress, payload })]});
-              
-              if (!encodedSignedTx) throw Error("No Tx");
-              mutate({ signedTx: encodedSignedTx }, { onSuccess });
+              if (!walletAddress) return console.error("no wallet");
+              const encodedSignedTx = await encodeTransaction({
+                walletAddress,
+                connection,
+                signTransaction,
+                txInstructions: [buildMemoIx({ walletAddress, payload })],
+              });
+
+              if (!encodedSignedTx) {
+                console.error("No Tx");
+                return;
+              }
+              mutate({ signedTx: encodedSignedTx as string }, { onSuccess });
             }}
           >
             Mint Character

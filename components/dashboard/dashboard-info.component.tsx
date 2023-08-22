@@ -1,69 +1,75 @@
 import Link from "next/link";
-import { Box, Text, Button, Flex } from "@chakra-ui/react";
+import { Text, Button, Flex, Spinner } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { MdLeaderboard, MdNotificationsActive } from "react-icons/md";
 import { AiFillGold } from "react-icons/ai";
-import { useFetchAllFactions } from "@/hooks/useFetchAllFactions";
-import { useSolana } from "@/hooks/useSolana";
+import { useAllFactions } from "@/hooks/useAllFactions";
 import styled from "@emotion/styled";
+import { useEffect, useState } from "react";
+import { useSolana } from "@/hooks/useSolana";
+import { formatBalance } from "@/lib/utils";
+import { useRouter } from "next/router";
 
 export const DashboardInfo = () => {
-  const factionName = "MAD OGSSS";
-  const userLevel = 0;
+  const { data: currentFs } = useAllFactions();
+  // const numOfFactions = currentFs?.total;
+  const { walletAddress, connection, getBonkBalance } = useSolana();
+  const [bonkBalance, setBonkBalance] = useState<string>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
 
-  const { getBonkBalance } = useSolana();
-  const { data: currentFs } = useFetchAllFactions();
 
-  const numOfFactions = currentFs?.total;
-  const totalRfs = 0;
-  const numOfPlayers = 0;
-  const bonkbalance = getBonkBalance;
+  useEffect(() => {
+    (async () => {
+      if (walletAddress && connection) {
+        setIsLoading(true);
+        let balance = await getBonkBalance({ walletAddress, connection });
+        const wholeBalance = Math.floor(balance);
+
+        setBonkBalance(formatBalance(wholeBalance));
+        setIsLoading(false);
+      }
+    })();
+  }, [walletAddress, connection]);
 
   return (
     <Flex justifyContent="space-between">
-      <Flex gap="2rem">
-        <TextContainer>
-          <Label>FACTION:</Label>
-          <Value>{factionName}</Value>
-        </TextContainer>
-        <TextContainer>
-          <Label>LVL:</Label>
-          <Value>{userLevel}</Value>
-        </TextContainer>
-        <TextContainer>
-          <Label>BONK:</Label>
-          <Value>{userLevel}</Value>
-          <Link href="https://jup.ag/swap/SOL-Bonk" target="_blank">
-            <Button
-              variant="outline"
-              fontSize="1rem"
-              py="0.5rem"
-              ml="0.5rem"
-              mb="0.25rem"
-              opacity="0.15"
-              _hover={{
-                opacity: 0.6,
-              }}
-            >
-              Buy
-            </Button>
-          </Link>
-        </TextContainer>
-      </Flex>
-      <Flex gap="2rem">
-        <TextContainer>
-          <Label>FACTIONS:</Label>
-          <Value>{numOfFactions}</Value>
-        </TextContainer>
-        <TextContainer>
-          <Label>TOTAL RFS:</Label>
-          <Value>{totalRfs}</Value>
-        </TextContainer>
-        <TextContainer>
-          <Label>PLAYERS:</Label>
-          <Value>{numOfPlayers}</Value>
-        </TextContainer>
-      </Flex>
+      <TextContainer>
+        <Label>BONK:</Label>
+        <Value>
+          {isLoading && <Spinner />}
+          {bonkBalance}
+        </Value>
+        <Link href="https://jup.ag/swap/SOL-Bonk" target="_blank">
+          <Button
+            variant="outline"
+            fontSize="1rem"
+            py="0.5rem"
+            ml="0.5rem"
+            mb="0.25rem"
+            opacity="0.15"
+            _hover={{
+              opacity: 0.6,
+            }}
+          >
+            Buy
+          </Button>
+        </Link>
+      </TextContainer>
+      {/* <Flex gap="2rem"> */}
+      {/*   <TextContainer> */}
+      {/*     <Label>FACTIONS:</Label> */}
+      {/*     <Value>{numOfFactions}</Value> */}
+      {/*   </TextContainer> */}
+      {/*   <TextContainer> */}
+      {/*     <Label>TOTAL RFS:</Label> */}
+      {/*     <Value>{totalRfs}</Value> */}
+      {/*   </TextContainer> */}
+      {/*   <TextContainer> */}
+      {/*     <Label>PLAYERS:</Label> */}
+      {/*     <Value>{numOfPlayers}</Value> */}
+      {/*   </TextContainer> */}
+      {/* </Flex> */}
       <Flex gap="2rem">
         <IconButton
           onClick={() => {
@@ -77,7 +83,7 @@ export const DashboardInfo = () => {
             // Handle the click event for the second icon
           }}
         >
-          <MdLeaderboard size={24} color={colors.brand.secondary} />
+          <MdLeaderboard size={24} color={router.pathname === "/leaderboard" ? colors.brand.quaternary : colors.brand.secondary} onClick={() => router.push("/leaderboard")} />
         </IconButton>
         <IconButton
           onClick={() => {

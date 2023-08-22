@@ -5,14 +5,13 @@ import {
   HStack,
   Input,
   Text,
-  VStack,
   Image,
   Skeleton,
   useDisclosure,
+  Spinner,
 } from "@chakra-ui/react";
-import { Label, PanelContainer, Value } from "./tab.styles";
+import { Label, PanelContainer, Value } from "../tab.styles";
 import styled from "@emotion/styled";
-import { colors } from "@/styles/defaultTheme";
 import { FC, useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
@@ -20,14 +19,25 @@ import { useFaction } from "@/hooks/useFaction";
 import { getLocalImage } from "@/lib/utils";
 import { TIP } from "@/components/tooltip/constants";
 import { Tip } from "@/components/tooltip";
+import { useResourceField } from "@/hooks/useResourceField";
+import { useCharTimers } from "@/hooks/useCharTimers";
+import {
+  ResourceActionContainer,
+  ResourceFieldAction,
+} from "./resource-field-action.component";
+import { useRfAllocation } from "@/hooks/useRf";
+import { ModalRfDiscover } from "./discover-modal.component";
+import { ModalRfProspect } from "./prospect-modal.component";
+import { ResourceGridContainer } from "../../resources-grid.component";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
   currentCharacter: Character;
   setFactionStatus: (value: boolean) => void;
 }> = ({ currentCharacter }) => {
-  // NOTE: use this to handle local search through teasury items
-  // when the api is available
+  const discoverDisclosure = useDisclosure();
+  const prospectDisclosure = useDisclosure();
+
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
   const onSearch = (e: any) => setSearch(e.target.value);
@@ -35,35 +45,53 @@ export const FactionTabResources: React.FC<{
     factionId: currentCharacter?.faction?.id ?? "",
   });
 
+  const { data: rfData, refetch: refetchRF } = useResourceField({
+    factionId: currentCharacter?.faction?.id,
+  });
+
+  const { data: timersData } = useCharTimers({
+    mint: currentCharacter?.mint,
+  });
+
+  const { data: discoverData, refetch: refetchRFAllocation } = useRfAllocation();
+
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
-      <Header factionName={currentCharacter?.faction?.name} />
-      <VStack gap={spacing}>
-        <ResourceLabels />
+      <Header factionName={currentCharacter?.faction?.name} taxRate={factionData?.faction?.taxRate} />
 
-        {Array.from({ length: 3 }).map((_, i) => (
-          <ResourceAction key={"res" + i}>
-            <Text>#{i + 1}</Text>
-            <HStack>
-              <Label>next harvest in:</Label>
-              <Value>
-                10<span style={{ fontSize: "1rem" }}>s</span>
-              </Value>
-            </HStack>
-            <HStack>
-              <Label>amount:</Label>
-              <Value>1{i}</Value>
-            </HStack>
-            <MenuText
-              color={i > 0 ? "brand.quaternary" : "purple.700"}
-              opacity={i > 1 ? "0.5" : 1}
-              cursor={i > 1 ? "not-allowed" : "pointer"}
-            >
-              {i !== 0 ? "Harvest" : "Prospect"}
-            </MenuText>
-          </ResourceAction>
-        ))}
-      </VStack>
+      <Box>
+        <ResourceLabels
+          onClick={() => {
+            if (discoverData?.isDiscoverable) {
+              discoverDisclosure.onOpen();
+            } else {
+              prospectDisclosure.onOpen();
+            }
+          }}
+          isDiscoverable={discoverData?.isDiscoverable}
+        />
+        <Grid templateColumns="1fr 1fr" gap={spacing}>
+          {rfData?.rfs.map((rf) => (
+            <ResourceFieldAction
+              key={rf.id}
+              rf={rf}
+              timer={timersData?.rfTimers.find((timer) => timer.rf === rf.id)}
+              charMint={currentCharacter?.mint}
+            />
+          ))}
+          {rfData?.rfs &&
+            rfData?.rfs?.length < 2 &&
+            Array.from({ length: 2 - rfData?.rfs.length }).map((_, i) => (
+              <ResourceActionContainer key={"empty" + i} />
+            ))}
+        </Grid>
+      </Box>
+
+      <ResourceGridContainer
+        isLoading={factionIsLoading}
+        resources={factionData?.resources}
+      />
+
       <Box>
         <Flex justifyContent="space-between" alignItems="end" mb="1rem">
           <MenuTitle mb="1rem">Treasury</MenuTitle>
@@ -101,43 +129,66 @@ export const FactionTabResources: React.FC<{
             ))}
         </Grid>
       </Box>
+
+      <ModalRfDiscover refetchDiscoverData={refetchRFAllocation} rf={discoverData} {...discoverDisclosure} />
+      <ModalRfProspect
+        rf={discoverData}
+        charMint={currentCharacter.mint}
+        factionId={currentCharacter?.faction?.id}
+        currentCharacter={currentCharacter}
+        {...prospectDisclosure}
+      />
+
     </PanelContainer>
   );
 };
 
-const Header: React.FC<{ factionName: string | undefined }> = ({
+const Header: React.FC<{ factionName: string | undefined, taxRate: number | undefined }> = ({
   factionName,
+  taxRate
 }) => {
   return (
     <Flex justifyContent="space-between" alignItems="end">
       <Title verticalAlign="end">{factionName!}</Title>
       <HStack alignItems="end">
-        <Label>RF Prospect Cost:</Label>
-        <Value>10k BONK</Value>
-      </HStack>
-      <HStack alignItems="end">
-        <Label>Tax Rate</Label>
-        <Value>10%</Value>
+        <Label>Faction Tax Rate</Label>
+        <Value>{taxRate}%</Value>
       </HStack>
     </Flex>
   );
 };
 
-const ResourceLabels = () => {
+const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
+  isDiscoverable,
+  onClick,
+}) => {
+
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <Tip label={TIP.RESOURCE_FIELDS} placement="top">
         <MenuTitle>resource fields</MenuTitle>
       </Tip>
       <HStack gap="4rem" alignItems="end">
-        <MenuText color="brand.quaternary">harvest all</MenuText>
-        <MenuText color="brand.tertiary">discover</MenuText>
+        {/* <MenuText color="brand.quaternary">harvest all</MenuText> */}
+        {isDiscoverable === undefined && <Spinner mb="0.75rem" mr="1rem" />}
+        {isDiscoverable === true && (
+          <MenuText cursor="pointer" color="brand.tertiary" onClick={onClick}>
+            discover
+          </MenuText>
+        )}
+        {isDiscoverable === false && (
+          <MenuText cursor="pointer" color="brand.quaternary" onClick={onClick}>
+            prospect
+          </MenuText>
+        )}
       </HStack>
     </Flex>
   );
 };
 
-const ResourceItem: FC<{ resource: { name: string } }> = ({ resource }) => {
+const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
+  resource,
+}) => {
   const hoverProps = useDisclosure();
   return (
     <Flex
@@ -168,7 +219,7 @@ const ResourceItem: FC<{ resource: { name: string } }> = ({ resource }) => {
         borderRadius="0.5rem"
         w="7rem"
       />
-      <Value pr="1rem">{29}</Value>
+      <Value pr="1rem">{resource?.value ?? 0}</Value>
       {hoverProps.isOpen && (
         <Flex
           position="absolute"
@@ -210,18 +261,12 @@ const MenuTitle = styled(Text)`
   text-transform: uppercase;
   letter-spacing: 1px;
   text-decoration: underline;
+  padding: 1rem;
 `;
+
 const MenuText = styled(Text)`
   font-size: 1.5rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-`;
-const ResourceAction = styled(Flex)`
-  background-color: ${colors.blacks[500]};
-  width: 100%;
-  padding: 1.5rem;
-  border-radius: ${spacing};
-  align-items: center;
-  justify-content: space-between;
 `;

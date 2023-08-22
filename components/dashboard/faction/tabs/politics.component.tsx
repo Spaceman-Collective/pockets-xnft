@@ -59,11 +59,18 @@ import useProcessProposal from "@/hooks/useProcessProposal";
 
 const spacing = "1rem";
 type FactionTabPoliticsProps = {
+type FactionTabPoliticsProps = {
   currentCharacter: Character;
   setFactionStatus: (value: boolean) => void;
   fire: () => void;
 };
 
+export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
+  currentCharacter,
+  setFactionStatus,
+  fire: fireConfetti,
+}) => {
+  const factionId = currentCharacter?.faction?.id ?? "";
 export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   currentCharacter,
   setFactionStatus,
@@ -80,7 +87,13 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     isLoading: allProposalsIsLoading,
     isError,
   } = useFetchProposalsByFaction(factionId, 0, 50);
+  } = useFetchProposalsByFaction(factionId, 0, 50);
 
+  useEffect(() => {
+    if (factionData) {
+      console.info("faction data politics: ", factionData);
+    }
+  }, [factionData]);
   useEffect(() => {
     if (factionData) {
       console.info("faction data politics: ", factionData);
@@ -91,7 +104,31 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     setFactionStatus(!!currentCharacter?.faction);
     console.info("ap: ", allProposals);
   }, [currentCharacter, allProposals, setFactionStatus]);
+  }, [currentCharacter, allProposals, setFactionStatus]);
 
+  const renderContent = () => {
+    if (allProposalsIsLoading || isError) {
+      return (
+        <VStack gap={spacing} align="center">
+          <LoadingContainer>
+            <Spinner size="lg" color="white" />
+            <LoadingText>LOADING</LoadingText>
+          </LoadingContainer>
+        </VStack>
+      );
+    }
+    return (
+      <VStack gap={spacing}>
+        <ProposalLabels fire={fireConfetti} character={currentCharacter} />
+        {allProposals?.proposals?.map((proposal: Proposal) => (
+          <ProposalItem
+            key={proposal.id}
+            proposal={proposal}
+            currentCharacter={currentCharacter}
+          />
+        ))}
+      </VStack>
+    );
   const renderContent = () => {
     if (allProposalsIsLoading || isError) {
       return (
@@ -130,12 +167,14 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
         />
       </Flex>
       {renderContent()}
+      {renderContent()}
     </PanelContainer>
   );
 };
 
 type ProposalItemProps = {
   proposal: Proposal;
+  currentCharacter: Character;
   currentCharacter: Character;
 };
 
@@ -145,6 +184,84 @@ enum ProposalStatus {
   CLOSED = "CLOSED",
 }
 
+type ProposalTypeDetailsProps = {
+  type: string;
+  proposal: any;
+};
+
+const ProposalTypeDetails: React.FC<ProposalTypeDetailsProps> = ({
+  type,
+  proposal,
+}) => {
+  return (
+    <HStack alignItems="end" ml="5rem">
+      <Label color={colors.brand.tertiary} pb="0.4rem">
+        {getLabel(type)}:
+      </Label>
+      <ProposalTitle>
+        {getValue(proposal?.type, proposal?.proposal)}
+      </ProposalTitle>
+    </HStack>
+  );
+};
+
+const getLabel = (type: string) => {
+  switch (type) {
+    case "BUILD":
+      return "Blueprint Name";
+    case "UPGRADE":
+      return "Station ID";
+    case "ATK_CITY":
+      return "Faction ID";
+    case "ATK_RF":
+      return "RF ID";
+    case "WITHDRAW":
+      return "Citizen";
+    case "MINT":
+      return "New Shares To Mint";
+    case "ALLOCATE":
+      return "Citizen";
+    case "THRESHOLD":
+      return "New Threshold";
+    case "WARBAND":
+      return "Warband";
+    case "TAX":
+      return "New Tax Rate";
+    case "TAX":
+      return "Burn Resources";
+    default:
+      return "";
+  }
+};
+
+const getValue = (type: string, proposal: any) => {
+  switch (type) {
+    case "BUILD":
+      return proposal.blueprintName;
+    case "UPGRADE":
+      return proposal.stationId;
+    case "ATK_CITY":
+      return proposal.factionId;
+    case "ATK_RF":
+      return proposal.rfId;
+    case "WITHDRAW":
+      return proposal.citizen;
+    case "MINT":
+      return proposal.newSharesToMint;
+    case "ALLOCATE":
+      return `${proposal.citizen} - Amount: ${proposal.amount}`;
+    case "THRESHOLD":
+      return proposal.newThreshold;
+    case "WARBAND":
+      return proposal.warband?.join(", ");
+    case "TAX":
+      return `${proposal.newTaxRate}%`;
+    case "BURN":
+      return `${proposal.resources}`;
+    default:
+      return "";
+  }
+};
 type ProposalTypeDetailsProps = {
   type: string;
   proposal: any;
@@ -308,11 +425,13 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
           new PublicKey(walletAddress!),
           new PublicKey(currentCharacter?.mint!),
           proposalId!,
+          proposalId!,
           votingAmt,
           currentCharacter?.faction?.id!
         ),
       ],
     });
+
 
     if (typeof encodedSignedTx === "string") {
       const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
@@ -321,7 +440,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     } else if (encodedSignedTx instanceof Error) {
       console.error("Failed to create transaction:", encodedSignedTx.message);
       toast.error("Failed to vote!");
+      console.error("Failed to create transaction:", encodedSignedTx.message);
+      toast.error("Failed to vote!");
     } else {
+      console.error("Unexpected type for encodedSignedTx");
+      toast.error("Failed to vote!");
       console.error("Unexpected type for encodedSignedTx");
       toast.error("Failed to vote!");
     }
@@ -359,7 +482,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     } else if (encodedSignedTx instanceof Error) {
       console.error("Failed to create transaction:", encodedSignedTx.message);
       toast.error("Failed to vote!");
+      console.error("Failed to create transaction:", encodedSignedTx.message);
+      toast.error("Failed to vote!");
     } else {
+      console.error("Unexpected type for encodedSignedTx");
+      toast.error("Failed to vote!");
       console.error("Unexpected type for encodedSignedTx");
       toast.error("Failed to vote!");
     }
@@ -385,9 +512,20 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             <ProposalTypeDetails type={type} proposal={proposal} />
           </HStack>
           <HStack alignItems="end" pr="1rem">
+          <HStack alignItems="end" pr="5rem">
+            <Label color={colors.brand.tertiary} pb="0.4rem">
+              type:
+            </Label>
+            <ProposalTitle>{type}</ProposalTitle>
+            <ProposalTypeDetails type={type} proposal={proposal} />
+          </HStack>
+          <HStack alignItems="end" pr="1rem">
             <Label color={colors.brand.tertiary} pb="0.4rem">
               votes:
             </Label>
+            <ProposalTitle>
+              {voteAmount}/{voteThreshold}
+            </ProposalTitle>
             <ProposalTitle>
               {voteAmount}/{voteThreshold}
             </ProposalTitle>
@@ -398,6 +536,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
           <Label color={colors.brand.tertiary} pb="0.25rem">
             proposal id:
           </Label>
+          <Value>{proposalId}</Value>
           <Value>{proposalId}</Value>
         </HStack>
 
@@ -448,7 +587,8 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
       </Flex>
     </ProposalAction>
   );
-};
+              };
+
 
 const ProposalLabels: React.FC<{
   fire: () => void;

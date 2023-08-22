@@ -2,7 +2,9 @@ import { useJoinFaction } from "@/hooks/useJoinFaction";
 import { useSolana } from "@/hooks/useSolana";
 import { Character, Faction } from "@/types/server";
 import { Flex, Box, Text, Button } from "@chakra-ui/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { FC } from "react";
+import { toast } from "react-hot-toast";
 
 interface FactionBoxProps {
   onClose: () => void;
@@ -27,7 +29,10 @@ export const FactionBox: FC<FactionBoxProps> = ({
 
   const { mutate } = useJoinFaction();
 
+  const queryClient = useQueryClient();
   const onSuccess = (data: any) => {
+    queryClient.refetchQueries({ queryKey: ["assets"] });
+    toast.success("Successfully joined faction:" + faction.name);
     setFactionStatus(true);
     onClose();
   };
@@ -39,6 +44,7 @@ export const FactionBox: FC<FactionBoxProps> = ({
       factionId: faction?.id,
     };
 
+    if (!walletAddress) return console.error("no wallet");
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
       connection,
@@ -46,8 +52,15 @@ export const FactionBox: FC<FactionBoxProps> = ({
       txInstructions: [buildMemoIx({ walletAddress, payload })],
     });
 
-    if (!encodedSignedTx) throw Error("No Tx");
-    mutate({ signedTx: encodedSignedTx }, { onSuccess });
+    if (!encodedSignedTx || encodedSignedTx instanceof Error)
+      return toast.error("Did not join Faction");
+    mutate(
+      { signedTx: encodedSignedTx },
+      {
+        onSuccess,
+        onError: (e) => toast.error("Did not join faction:" + e?.toString()),
+      },
+    );
   };
 
   return (

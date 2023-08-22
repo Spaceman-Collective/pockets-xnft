@@ -6,6 +6,7 @@ declare global {
 import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
+  createBurnCheckedInstruction,
   createTransferCheckedInstruction,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
@@ -17,29 +18,29 @@ import {
   TransactionMessage,
   VersionedTransaction,
   LAMPORTS_PER_SOL,
+  SystemProgram,
 } from "@solana/web3.js";
 import { decode, encode } from "bs58";
 import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants";
-
+import { PocketsProgram } from "../lib/program/pockets_program";
+const pocketsIDL = require("../lib/program/pockets_program.json");
+import { Program, AnchorProvider, Wallet, BN } from "@coral-xyz/anchor";
 type TxType = VersionedTransaction | Transaction;
+
+export const POCKETS_PROGRAM_PROGRAMID =
+  "GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ";
 
 export const useSolana = () => {
   const [payload, setPayload] = useState<{
     connection?: any;
     walletAddress?: string;
     signTransaction?: any;
-    buildMemoIx?: any;
-    buildTransferIx?: any;
-    encodeTransaction: any;
-    getBonkBalance: any;
+    signAllTransactions?: any;
   }>({
     connection: undefined,
     walletAddress: undefined,
     signTransaction: undefined,
-    buildMemoIx: undefined,
-    buildTransferIx: undefined,
-    encodeTransaction: undefined,
-    getBonkBalance: undefined,
+    signAllTransactions: undefined,
   });
 
   const { connection } = useConnection();
@@ -53,29 +54,34 @@ export const useSolana = () => {
           connection: window.xnft.solana.connection,
           walletAddress: accountXnft,
           signTransaction: window.xnft.solana.signTransaction,
-          buildMemoIx: buildMemoIx,
-          buildTransferIx: buildTransferIx,
-          encodeTransaction: encodeTransaction,
-          getBonkBalance: getBonkBalance,
+          signAllTransactions: window.xnft.solana.signAllTransactions,
         });
       } else {
         setPayload({
           connection,
           walletAddress: publicKey?.toString(),
           signTransaction,
-          buildMemoIx: buildMemoIx,
-          buildTransferIx: buildTransferIx,
-          encodeTransaction: encodeTransaction,
-          getBonkBalance: getBonkBalance,
+          signAllTransactions,
         });
       }
     };
     new Promise((resolve) => setTimeout(resolve, 500)).then(() => {
       init();
     });
-  }, [connection, publicKey, signTransaction]);
+  }, [connection, publicKey, signTransaction, signAllTransactions]);
 
-  return payload;
+  return {
+    ...payload,
+    buildTransferIx,
+    buildMemoIx,
+    buildBurnIx,
+    encodeTransaction,
+    getBonkBalance,
+    buildProspectIx,
+    getRFAccount,
+    sendTransaction,
+    sendAllTransactions,
+  };
 };
 
 const buildMemoIx = ({
@@ -106,26 +112,52 @@ const buildTransferIx = ({
   amount,
   decimals,
 }: {
-  walletAddress: string;
+  walletAddress?: string;
   mint: string;
   amount: bigint;
   decimals: number;
 }) => {
   const senderATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(walletAddress),
+    new PublicKey(walletAddress as string)
   );
   const serverATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(SERVER_KEY),
+    new PublicKey(SERVER_KEY)
   );
   const ix = createTransferCheckedInstruction(
     senderATA,
     new PublicKey(mint),
     serverATA,
-    new PublicKey(walletAddress),
+    new PublicKey(walletAddress as string),
     amount,
-    decimals,
+    decimals
+  );
+  return ix;
+};
+
+const buildBurnIx = ({
+  walletAddress,
+  mint,
+  amount,
+  decimals,
+}: {
+  walletAddress?: string;
+  mint: string;
+  amount: bigint;
+  decimals: number;
+}) => {
+  const senderATA = getAssociatedTokenAddressSync(
+    new PublicKey(mint),
+    new PublicKey(walletAddress as string)
+  );
+
+  const ix = createBurnCheckedInstruction(
+    senderATA,
+    new PublicKey(mint),
+    new PublicKey(walletAddress as string),
+    amount,
+    decimals
   );
   return ix;
 };
@@ -136,25 +168,137 @@ const encodeTransaction = async ({
   signTransaction,
   txInstructions,
 }: {
-  walletAddress: string;
+  walletAddress?: string;
   connection: Connection;
-  signTransaction: any;
-  txInstructions: TransactionInstruction[];
+  signTransaction?: any;
+  txInstructions?: TransactionInstruction[];
 }) => {
   const { blockhash } = await connection!.getLatestBlockhash();
 
   const txMsg = new TransactionMessage({
-    payerKey: new PublicKey(walletAddress),
+    payerKey: new PublicKey(walletAddress as string),
     recentBlockhash: blockhash,
-    instructions: txInstructions,
+    instructions: txInstructions as TransactionInstruction[],
+  }).compileToLegacyMessage();
+  const tx = new VersionedTransaction(txMsg);
+  try {
+    if (tx.serialize().length > 1200) {
+      throw new Error("Tx Too Big!");
+    }
+  } catch (e) {
+    return Error("Tx Couldn't Serialize!");
+  }
+
+  const signedTx = await signTransaction(tx);
+  const encodedSignedTx = encode(signedTx.serialize());
+  return encodedSignedTx;
+};
+
+const sendTransaction = async (
+  connection: Connection,
+  ixs: TransactionInstruction[],
+  wallet: string,
+  signTransaction: any
+) => {
+  if (!wallet || !ixs || !signTransaction) return;
+  const { blockhash } = await connection!.getLatestBlockhash();
+
+  const txMsg = new TransactionMessage({
+    payerKey: new PublicKey(wallet),
+    recentBlockhash: blockhash,
+    instructions: ixs,
   }).compileToLegacyMessage();
 
   const tx = new VersionedTransaction(txMsg);
+  if (!tx) return;
   const signedTx = await signTransaction(tx);
-  const encodedSignedTx = encode(signedTx!.serialize());
-
-  return encodedSignedTx;
+  return await connection.sendRawTransaction(signedTx.serialize());
 };
+
+const sendAllTransactions = async (
+  connection: Connection,
+  ixs: TransactionInstruction[],
+  wallet: string,
+  signAllTransactions: any
+) => {
+  if (!wallet || !ixs || !signAllTransactions) return;
+
+  let versionedTxs: VersionedTransaction[] = [];
+  for (let ix of ixs) {
+    const { blockhash } = await connection!.getLatestBlockhash();
+    const txMsg = new TransactionMessage({
+      payerKey: new PublicKey(wallet),
+      recentBlockhash: blockhash,
+      instructions: [ix],
+    }).compileToLegacyMessage();
+
+    const tx = new VersionedTransaction(txMsg);
+
+    if (!tx) return;
+
+    // console.log('[sendAllTransactions] tx', Buffer.from(tx.serialize()).toString('base64'));
+    versionedTxs.push(tx);
+
+    /* sleep for 500ms to grab new blockhash */
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  const signatures: string[] = [];
+  const signedTxs = await signAllTransactions(versionedTxs);
+  for (let signedTx of signedTxs) {
+    let sig = await connection.sendRawTransaction(signedTx.serialize());
+    signatures.push(sig);
+  }
+
+  return signatures;
+};
+
+async function getTokenAccountBalance(
+  wallet: string,
+  solanaConnection: Connection,
+  mint: string
+) {
+  const filters: any[] = [
+    {
+      dataSize: 165, //size of account (bytes)
+    },
+    {
+      memcmp: {
+        offset: 32, //location of our query in the account (bytes)
+        bytes: wallet, //our search criteria, a base58 encoded string
+      },
+    },
+  ];
+
+  const accounts = await solanaConnection.getParsedProgramAccounts(
+    new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), // TOKEN_PROGRAM_ID
+    { filters: filters }
+  );
+
+  // console.log(
+  //   `Found ${accounts.length} token account(s) for wallet ${wallet}.`
+  // );
+
+  let retTokenBalance: number = 0;
+  accounts.forEach((account, i) => {
+    //Parse the account data
+    const parsedAccountInfo: any = account.account.data;
+    const mintAddress: string = parsedAccountInfo["parsed"]["info"]["mint"];
+    const tokenBalance: number =
+      parsedAccountInfo["parsed"]["info"]["tokenAmount"]["uiAmount"];
+
+    //Log results
+    // console.log(`Token Account No. ${i + 1}: ${account.pubkey.toString()}`);
+    // console.log(`--Token Mint: ${mintAddress}`);
+    // console.log(`--Token Balance: ${tokenBalance}`);
+
+    if (mintAddress === mint) {
+      retTokenBalance = tokenBalance;
+    }
+  });
+
+  return retTokenBalance;
+}
 
 const getBonkBalance = async ({
   walletAddress,
@@ -162,12 +306,85 @@ const getBonkBalance = async ({
 }: {
   walletAddress: string;
   connection: Connection;
-  signTransaction: any;
-  txInstructions: TransactionInstruction[];
 }) => {
-  let balance = await connection.getBalance(new PublicKey(walletAddress));
-  console.info(`Wallet Balance: ${balance / LAMPORTS_PER_SOL}`);
-  console.info(`Bonk Balance: ${balance / LAMPORTS_PER_SOL}`);
+  const bonkBalance = await getTokenAccountBalance(
+    walletAddress,
+    connection,
+    SPL_TOKENS.bonk.mint
+  );
 
-  // return currentBonkBalance;
+  return bonkBalance;
 };
+
+const buildProspectIx = async ({
+  walletAddress,
+  characterMint,
+  rfId,
+  factionId,
+}: {
+  walletAddress?: string;
+  characterMint: string;
+  rfId: string;
+  factionId: string;
+}) => {
+  if (!walletAddress) return;
+
+  const walletAta = getAssociatedTokenAddressSync(
+    new PublicKey(characterMint),
+    new PublicKey(walletAddress)
+  );
+
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    { connection: new Connection("https://api.mainnet-beta.solana.com") }
+  );
+
+  const ix = await POCKETS_PROGRAM.methods
+    .developResourceField()
+    .accounts({
+      wallet: new PublicKey(walletAddress),
+      walletAta,
+      systemProgram: SystemProgram.programId,
+      citizen: getCitizenPDA(new PublicKey(characterMint)),
+      rf: getRFPDA(rfId),
+      faction: getFactionPDA(factionId),
+    })
+    .instruction();
+
+  return ix;
+};
+
+function getCitizenPDA(characterMint: PublicKey): PublicKey {
+  const [citizenPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("citizen"), Buffer.from(characterMint.toBuffer())],
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+  );
+  return citizenPDA;
+}
+
+function getFactionPDA(factionId: string): PublicKey {
+  const [factionPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("faction"), Buffer.from(factionId)],
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+  );
+  return factionPDA;
+}
+
+function getRFPDA(rfId: string): PublicKey {
+  const [rfPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("rf"), Buffer.from(rfId)],
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+  );
+  return rfPDA;
+}
+
+async function getRFAccount(connection: Connection, rfId: string) {
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    { connection }
+  );
+
+  return await POCKETS_PROGRAM.account.resourceField.fetch(getRFPDA(rfId));
+}

@@ -67,7 +67,31 @@ export const CharacterList: FC<Props> = ({
                 selected={char.mint === selectedCharacter?.mint}
               >
                 <Flex gap="1rem" alignItems="center">
-                  <Frame img={char.image} size="8rem" />
+                  <Box position="relative">
+                    <Frame img={char.image} size="8rem" />
+                    <Tip
+                      label={`Sum of ${
+                        char.name.split(" ")[0]
+                      }'s skills. View breakdown on Character page.`}
+                      placement="right"
+                    >
+                      <Text
+                        fontSize="1.5rem"
+                        fontWeight={700}
+                        position="absolute"
+                        top="-0.5rem"
+                        left="-0.5rem"
+                        bg="brand.quaternary"
+                        color="brand.primary"
+                        w="fit-content"
+                        p="0 1rem"
+                        borderRadius="1rem"
+                        filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
+                      >
+                        {Object.values(char.skills).reduce((a, b) => a + b)}
+                      </Text>
+                    </Tip>
+                  </Box>
                   <Flex direction="column">
                     <Text fontSize="2.25rem" letterSpacing="1px">
                       {char.name.split(" ")[0]}
@@ -103,6 +127,7 @@ const CharacterFlex = styled(Flex)<{ selected?: boolean }>`
   border-radius: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-bottom: 1rem;
   background-color: ${colors.blacks[500]};
   border: 2px solid
     ${(props) => {

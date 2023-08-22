@@ -5,7 +5,7 @@ export const TOWNHALL = {
   };
   
   export interface Station {
-    id: string;
+    id?: string;
     faction: string;
     blueprint: string;
     level: string;
