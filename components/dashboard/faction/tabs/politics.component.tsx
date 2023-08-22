@@ -38,7 +38,6 @@ import {
   getCitizenPDA,
   getFactionAccount,
   getFactionPDA,
-  getProposalAccount,
   getProposalPDA,
   getVoteAccount,
   getVotePDA,
@@ -81,7 +80,6 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     isError,
   } = useFetchProposalsByFaction(factionId, 0, 50);
 
-
   useEffect(() => {
     if (factionData) {
       console.info("faction data politics: ", factionData);
@@ -92,7 +90,6 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     setFactionStatus(!!currentCharacter?.faction);
     console.info("ap: ", allProposals);
   }, [currentCharacter, allProposals, setFactionStatus]);
-
 
   const renderContent = () => {
     if (allProposalsIsLoading || isError) {
@@ -438,9 +435,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                 bg={colors.blacks[700]}
                 onClick={() => {
                   if (Number(voteAmount) >= Number(voteThreshold)) {
-                    setIsVoteInProgress(true);
-                    processVote();
-                    setIsVoteInProgress(false);
+                    processProposalMutation.mutate();
                   } else if (validateInput() && Number(voteAmount) > 0) {
                     updateVote(parseInt(localVote));
                   } else {
