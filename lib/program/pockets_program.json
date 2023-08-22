@@ -335,7 +335,7 @@
         },
         {
           "name": "proposal",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -381,7 +381,7 @@
         },
         {
           "name": "proposal",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -859,7 +859,7 @@
             "type": "bool"
           },
           {
-            "name": "initalClaimant",
+            "name": "initialClaimant",
             "type": {
               "option": "publicKey"
             }

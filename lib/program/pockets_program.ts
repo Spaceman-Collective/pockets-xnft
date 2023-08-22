@@ -335,7 +335,7 @@ export type PocketsProgram = {
         },
         {
           "name": "proposal",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -381,7 +381,7 @@ export type PocketsProgram = {
         },
         {
           "name": "proposal",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -859,7 +859,7 @@ export type PocketsProgram = {
             "type": "bool"
           },
           {
-            "name": "initalClaimant",
+            "name": "initialClaimant",
             "type": {
               "option": "publicKey"
             }
@@ -1278,7 +1278,7 @@ export const IDL: PocketsProgram = {
         },
         {
           "name": "proposal",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -1324,7 +1324,7 @@ export const IDL: PocketsProgram = {
         },
         {
           "name": "proposal",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -1802,7 +1802,7 @@ export const IDL: PocketsProgram = {
             "type": "bool"
           },
           {
-            "name": "initalClaimant",
+            "name": "initialClaimant",
             "type": {
               "option": "publicKey"
             }

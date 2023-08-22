@@ -43,7 +43,7 @@ export const FactionBox: FC<FactionBoxProps> = ({
       timestamp: Date.now().toString(),
       factionId: faction?.id,
     };
-
+  
     if (!walletAddress) return console.error("no wallet");
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
@@ -51,17 +51,19 @@ export const FactionBox: FC<FactionBoxProps> = ({
       signTransaction,
       txInstructions: [buildMemoIx({ walletAddress, payload })],
     });
-
-    if (!encodedSignedTx || encodedSignedTx instanceof Error)
-      return toast.error("Did not join Faction");
+  
+    if (!encodedSignedTx || typeof encodedSignedTx === 'object' && 'message' in encodedSignedTx)
+    return toast.error("Did not join Faction");
+  
     mutate(
       { signedTx: encodedSignedTx },
       {
         onSuccess,
-        onError: (e) => toast.error("Did not join faction:" + e?.toString()),
+        onError: (e) => toast.error("Did not join faction: " + e?.toString()),
       },
     );
   };
+  
 
   return (
     <>
