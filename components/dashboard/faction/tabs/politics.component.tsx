@@ -232,7 +232,6 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   const [voteAmount, setVoteAmount] = useState<string>("");
   const [voteThreshold, setVoteThreshold] = useState<string>("");
 
-
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
 
@@ -243,7 +242,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     const vA = await getVoteAccount(connection, votePDA);
 
     if (vA) {
-      console.log('VA: ', vA)
+      console.log("VA: ", vA);
       setVoteAmount(vA.voteAmt.toString());
     } else {
       setVoteAmount("0");
@@ -260,14 +259,14 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
   const getVoteThreshold = async () => {
     if (!currentCharacter?.faction?.id) {
-      console.error('Character undefined on vote threshold retrieval')
+      console.error("Character undefined on vote threshold retrieval");
       return;
     }
     const factPDA = getFactionPDA(currentCharacter?.faction?.id);
     const fA = await getFactionAccount(connection, factPDA);
 
     if (fA) {
-      console.log('FA: ', fA)
+      console.log("FA: ", fA);
       setVoteThreshold(fA?.thresholdToPass.toString()!);
     } else {
       setVoteThreshold("NA");
@@ -288,7 +287,6 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     return isValid;
   };
 
-  
   const handleVote = async (votingAmt: number) => {
     setIsVoteInProgress(true);
     const encodedSignedTx = await encodeTransaction({
@@ -307,9 +305,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     });
 
     if (typeof encodedSignedTx === "string") {
-      const sig = await connection.sendRawTransaction(
-        decode(encodedSignedTx)
-      );
+      const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
       console.log("vote sig: sig");
       toast.success("Vote successful!");
     } else if (encodedSignedTx instanceof Error) {
@@ -346,9 +342,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     });
 
     if (typeof encodedSignedTx === "string") {
-      const sig = await connection.sendRawTransaction(
-        decode(encodedSignedTx)
-      );
+      const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
       console.log("update vot sig: sig");
       toast.success("Update vote successful!");
     } else if (encodedSignedTx instanceof Error) {
@@ -400,54 +394,53 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         </HStack>
 
         <Flex width="100%">
-      {isVoteInProgress ? (
-        <Text>LOADING...</Text>
-      ) : (
-        <>
-          <StyledInput
-            placeholder={
-              Number(voteAmount) > 0
-                ? "Update amount of voting power"
-                : "Enter amount of voting power"
-            }
-            value={localVote}
-            onChange={(e) => setLocalVote(e.target.value)}
-            isInvalid={!!inputError}
-            disabled={isVoteInProgress || Number(voteAmount) >= Number(voteThreshold)} // Disable if voteAmount exceeds threshold
-          />
-          {inputError && <Text color="red.500">{inputError}</Text>}
-          <Button
-            ml="2rem"
-            letterSpacing="1px"
-            bg={colors.blacks[700]}
-            onClick={() => {
-              if (Number(voteAmount) >= Number(voteThreshold)) {
-                processVote(); // Run the processVote function
-              } else if (
-                validateInput() &&
-                Number(voteAmount) > 0
-              ) {
-                updateVote(parseInt(localVote));
-              } else {
-                handleVote(parseInt(localVote));
-              }
-            }}
-            disabled={isVoteInProgress}
-          >
-            {Number(voteAmount) >= Number(voteThreshold)
-              ? "process"
-              : Number(voteAmount) > 0
-              ? "update"
-              : "vote"}
-          </Button>
-        </>
-      )}
-    </Flex>
+          {isVoteInProgress ? (
+            <Text>LOADING...</Text>
+          ) : (
+            <>
+              <StyledInput
+                placeholder={
+                  Number(voteAmount) > 0
+                    ? "Update amount of voting power"
+                    : "Enter amount of voting power"
+                }
+                value={localVote}
+                onChange={(e) => setLocalVote(e.target.value)}
+                isInvalid={!!inputError}
+                disabled={
+                  isVoteInProgress ||
+                  Number(voteAmount) >= Number(voteThreshold)
+                } // Disable if voteAmount exceeds threshold
+              />
+              {inputError && <Text color="red.500">{inputError}</Text>}
+              <Button
+                ml="2rem"
+                letterSpacing="1px"
+                bg={colors.blacks[700]}
+                onClick={() => {
+                  if (Number(voteAmount) >= Number(voteThreshold)) {
+                    processVote(); // Run the processVote function
+                  } else if (validateInput() && Number(voteAmount) > 0) {
+                    updateVote(parseInt(localVote));
+                  } else {
+                    handleVote(parseInt(localVote));
+                  }
+                }}
+                disabled={isVoteInProgress}
+              >
+                {Number(voteAmount) >= Number(voteThreshold)
+                  ? "process"
+                  : Number(voteAmount) > 0
+                  ? "update"
+                  : "vote"}
+              </Button>
+            </>
+          )}
+        </Flex>
       </Flex>
     </ProposalAction>
   );
-              };
-
+};
 
 const ProposalLabels: React.FC<{
   fire: () => void;
@@ -482,8 +475,8 @@ const ProposalLabels: React.FC<{
           Voting Power:
         </Label>
         <Value>
-          {data?.citizen?.maxPledgedVotingPower.toString()}/
-          {data?.citizen?.totalVotingPower.toString()}
+          {new BN(data?.citizen?.maxPledgedVotingPower).toString()}/
+          {new BN(data?.citizen?.totalVotingPower).toString()}
         </Value>
         <ValueCalculation
           color={colors.brand.tertiary}
