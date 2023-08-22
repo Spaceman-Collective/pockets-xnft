@@ -12,11 +12,11 @@ import {
 } from "@chakra-ui/react";
 import { Label, PanelContainer, Value } from "../tab.styles";
 import styled from "@emotion/styled";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
 import { useFaction } from "@/hooks/useFaction";
-import { getLocalImage } from "@/lib/utils";
+import { getLocalImage, timeout } from "@/lib/utils";
 import { TIP } from "@/components/tooltip/constants";
 import { Tip } from "@/components/tooltip";
 import { useResourceField } from "@/hooks/useResourceField";
@@ -29,6 +29,7 @@ import { useRfAllocation } from "@/hooks/useRf";
 import { ModalRfDiscover } from "./discover-modal.component";
 import { ModalRfProspect } from "./prospect-modal.component";
 import { ResourceGridContainer } from "../../resources-grid.component";
+import Confetti from "@/components/Confetti";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -53,7 +54,21 @@ export const FactionTabResources: React.FC<{
     mint: currentCharacter?.mint,
   });
 
+  const [confetti, setConfetti] = useState(false);
+  const fireConfetti = async () => {
+    if (confetti) return;
+    setConfetti(true);
+    await timeout(3600);
+    setConfetti(false);
+  };
+
   const { data: discoverData, refetch: refetchRFAllocation } = useRfAllocation();
+
+  useEffect(() => {
+    if (discoverData) {
+      console.log('dd: ', discoverData);
+    }
+  }, [discoverData]);
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
@@ -64,7 +79,9 @@ export const FactionTabResources: React.FC<{
           onClick={() => {
             if (discoverData?.isDiscoverable) {
               discoverDisclosure.onOpen();
+              console.log('isDiscoverable 2: ', discoverData?.isDiscoverable);
             } else {
+              console.log('isDiscoverable 3: ', discoverData?.isDiscoverable);
               prospectDisclosure.onOpen();
             }
           }}
@@ -137,8 +154,10 @@ export const FactionTabResources: React.FC<{
         factionId={currentCharacter?.faction?.id}
         currentCharacter={currentCharacter}
         {...prospectDisclosure}
+        fire={fireConfetti}
       />
 
+    {confetti && <Confetti canFire={confetti} />}
     </PanelContainer>
   );
 };
@@ -163,6 +182,15 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
   onClick,
 }) => {
 
+  const { data: discoverData, refetch: refetchRFAllocation } = useRfAllocation();
+
+  useEffect(() => {
+    if (discoverData) {
+      console.log('isDiscoverable: ', isDiscoverable);
+    }
+  }, [discoverData, isDiscoverable]);
+
+
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <Tip label={TIP.RESOURCE_FIELDS} placement="top">
@@ -171,12 +199,12 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
       <HStack gap="4rem" alignItems="end">
         {/* <MenuText color="brand.quaternary">harvest all</MenuText> */}
         {isDiscoverable === undefined && <Spinner mb="0.75rem" mr="1rem" />}
-        {isDiscoverable === true && (
+        {discoverData?.isDiscoverable === true && (
           <MenuText cursor="pointer" color="brand.tertiary" onClick={onClick}>
             discover
           </MenuText>
         )}
-        {isDiscoverable === false && (
+        {discoverData?.isDiscoverable === false && (
           <MenuText cursor="pointer" color="brand.quaternary" onClick={onClick}>
             prospect
           </MenuText>

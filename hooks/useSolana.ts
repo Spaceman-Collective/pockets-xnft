@@ -181,13 +181,13 @@ const encodeTransaction = async ({
     instructions: txInstructions as TransactionInstruction[],
   }).compileToLegacyMessage();
   const tx = new VersionedTransaction(txMsg);
-  // try {
-  //   if (tx.serialize().length > 1200) {
-  //     throw new Error("Tx Too Big!");
-  //   }
-  // } catch (e) {
-  //   return Error("Tx Couldn't Serialize!");
-  // }
+  try {
+    if (tx.serialize().length > 1200) {
+      throw new Error("Tx Too Big!");
+    }
+  } catch (e) {
+    return Error("Tx Couldn't Serialize!");
+  }
 
   const signedTx = await signTransaction(tx);
   const encodedSignedTx = encode(signedTx.serialize());
@@ -376,6 +376,7 @@ function getRFPDA(rfId: string): PublicKey {
     [Buffer.from("rf"), Buffer.from(rfId)],
     new PublicKey(POCKETS_PROGRAM_PROGRAMID)
   );
+  console.log('rfpda: ', rfPDA)
   return rfPDA;
 }
 
@@ -386,8 +387,5 @@ async function getRFAccount(connection: Connection, rfId: string) {
     { connection }
   );
 
-  return await POCKETS_PROGRAM.account.resourceField.fetch(
-    getRFPDA(rfId),
-    "confirmed"
-  );
+  return await POCKETS_PROGRAM.account.resourceField.fetch(getRFPDA(rfId), "confirmed");
 }

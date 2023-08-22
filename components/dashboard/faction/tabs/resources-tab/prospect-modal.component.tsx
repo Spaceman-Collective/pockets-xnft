@@ -23,6 +23,7 @@ import { colors } from "@/styles/defaultTheme";
 import Link from "next/link";
 import { useRfAllocate } from "@/hooks/useRf";
 import { Character } from "@/types/server";
+import { timeout } from "@/lib/utils";
 
 const tickets = [ 1, 5, 10, 50, 100 ];
 const MAX_NUM_IX = 20;
@@ -30,7 +31,7 @@ const MAX_NUM_IX = 20;
 type RFAccount = {
   harvest: any | null;
   id: string;
-  initalClaimant: string | null;
+  initialClaimant: string | null;
   isHarvestable: boolean;
   refreshSeconds: BN | null;
   timesDeveloped: BN;
@@ -44,7 +45,8 @@ export const ModalRfProspect: FC<{
   factionId?: string;
   refetchRF?: any;
   currentCharacter: Character;
-}> = ({ isOpen, onClose, rf, charMint: characterMint, factionId, refetchRF, currentCharacter }) => {
+  fire: () => void
+}> = ({ isOpen, onClose, rf, charMint: characterMint, factionId, refetchRF, currentCharacter, fire: fireConfetti }) => {
   const {
     walletAddress,
     connection,
@@ -62,37 +64,40 @@ export const ModalRfProspect: FC<{
   const [prospectLoading, setProspectLoading] = useState<boolean>(false);
   const [numProspectTickets, setNumProspectTickets] = useState<number>(0);
 
+
+
   const refreshRFAccount = useCallback(async () => {
     if (!rf?.id) return console.error("NO  ACCOUNT ID", rf);
 
     try {
       const account = await getRFAccount(connection, rf?.id);
-      const parsedAcc = JSON.parse(JSON.stringify(account)) as RFAccount;
-      setRfAccount(parsedAcc);
-      setJackpot(
-        parsedAcc.isHarvestable && parsedAcc.initalClaimant === walletAddress
-      );
+      console.log('rfa account: ', account)
+      setRfAccount(account as RFAccount);
+      const hitJackpot = account.isHarvestable && account?.initialClaimant?.toString() === walletAddress
+      setJackpot(hitJackpot);
     } catch (err) {
       console.error(err);
     }
-  }, [rf]);
+  }, [connection, getRFAccount, rf, walletAddress]);
 
   useEffect(() => {
     refreshRFAccount();
-  }, [rf, connection]);
+  }, [rf, connection, refreshRFAccount]);
 
   const handleJackpot = async () => {
     try {
       setClaimLoading(true);
       mutate(
-        { signedTx: undefined, charMint: currentCharacter.mint },
+        { signedTx: undefined, charMint: currentCharacter!.mint },
       );
     } catch (err) {
       console.error(err);
     } finally {
       /* For better UX - hold on a second before closing */
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      toast.success('JACKPOT!!!! RF Claimed')
       setClaimLoading(false);
+      fireConfetti()
       onClose();
     }
   }
