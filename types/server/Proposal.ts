@@ -1,31 +1,26 @@
 export interface Proposal
   extends Build,
     Upgrade,
-    ATK_City,
-    ATK_RF,
     Withdraw,
     Mint,
     Allocate,
     Threshold,
-    Warband,
     Tax,
     Burn {
   id?: string;
-  type: ProposalType;
+  type: string;
 }
 
-export type ProposalType =
-  | "BUILD"
-  | "UPGRADE"
-  | "ATK_CITY"
-  | "ATK_RF"
-  | "WITHDRAW"
-  | "MINT"
-  | "ALLOCATE"
-  | "THRESHOLD"
-  | "WARBAND"
-  | "TAX"
-  | "BURN";
+export const ProposalTypes = [
+  "BUILD",
+  "UPGRADE",
+  "WITHDRAW",
+  "MINT",
+  "ALLOCATE",
+  "THRESHOLD",
+  "TAX",
+  "BURN",
+];
 
 interface Build {
   blueprintName?: string;
@@ -33,14 +28,6 @@ interface Build {
 
 interface Upgrade {
   stationId?: string | "Townhall";
-}
-
-interface ATK_City {
-  factionId?: string;
-}
-
-interface ATK_RF {
-  rfId?: string;
 }
 
 interface Withdraw {
@@ -60,10 +47,6 @@ interface Allocate {
 
 interface Threshold {
   newThreshold?: string; //bigint
-}
-
-interface Warband {
-  warband?: string[];
 }
 
 interface Tax {

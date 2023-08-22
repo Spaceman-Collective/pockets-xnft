@@ -26,14 +26,6 @@ const headerFont = Roboto({ weight: ["400", "700"], subsets: ["latin"] });
 const bodyFont = Montserrat({ weight: ["400", "700"], subsets: ["latin"] });
 
 export default function App({ Component, pageProps }: AppProps) {
-  // const network = WalletAdapterNetwork.Mainnet;
-  // const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-  // const endpoint = 'https://rpc.helius.xyz/?api-key=1b21b073-a222-47bb-8628-564145e58f4e';
-  // const wallets = useMemo(
-  //   () => [],
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [network]
-  // );
 
   return (
     <>

@@ -13,7 +13,7 @@ const ReactUIWalletModalProviderDynamic = dynamic(
 export const ContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     // const network = WalletAdapterNetwork.Mainnet;
     // const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-    const endpoint = 'https://rpc.helius.xyz/?api-key=327d87d1-4b0d-4bf3-9490-72d7aeae4ace';
+    const endpoint = process.env.NEXT_PUBLIC_RPC;
 
     const wallets = useMemo(
         () => [
@@ -31,7 +31,7 @@ export const ContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
     return (
         // TODO: updates needed for updating and referencing endpoint: wallet adapter rework
 
-        <ConnectionProvider endpoint={endpoint}>
+        <ConnectionProvider endpoint={endpoint as string}>
             <WalletProvider wallets={wallets} onError={onError} autoConnect>
                 <ReactUIWalletModalProviderDynamic>
                     {children}

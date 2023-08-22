@@ -4,5 +4,5 @@ import { Connection } from "@solana/web3.js";
 
 export const useProposalAccount = (connection: Connection, proposalId: string) => {
   return useQuery(["proposal-account"], 
-  (context: QueryFunctionContext<any>) => getProposalAccount(proposalId));
+  (context: QueryFunctionContext<any>) => getProposalAccount(connection, proposalId));
 };

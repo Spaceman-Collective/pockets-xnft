@@ -108,7 +108,7 @@ export const CreateFaction: FC<{
       return;
     }
     const payload = {
-      mint: selectedCharacter,
+      mint: selectedCharacter?.mint,
       timestamp: Date.now().toString(),
     };
 
@@ -149,7 +149,7 @@ export const CreateFaction: FC<{
         { onSuccess }
       );
     } else {
-      console.error("No Tx");
+      console.error("No Tx, encoded tx: ", encodedSignedTx);
       return;
     }
   };

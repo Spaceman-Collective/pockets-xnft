@@ -158,6 +158,7 @@ export async function getCitizensIx(
 }
 
 export async function voteOnProposalIx(
+  connection: Connection,
   wallet: PublicKey,
   characterMint: PublicKey,
   proposalId: string,
@@ -168,9 +169,7 @@ export async function voteOnProposalIx(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
     {
-      connection: new Connection(
-        "https://rpc.helius.xyz/?api-key=1b21b073-a222-47bb-8628-564145e58f4e"
-      ),
+      connection
     }
   );
 
