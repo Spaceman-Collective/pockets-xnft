@@ -529,13 +529,8 @@ const ProposalLabels: React.FC<{
           Voting Power:
         </Label>
         <Value>
-          {data?.citizen?.maxPledgedVotingPower
-            ? new BN(data?.citizen?.maxPledgedVotingPower).toString()
-            : "0"}
-          /
-          {data?.citizen?.totalVotingPower
-            ? new BN(data?.citizen?.totalVotingPower).toString()
-            : "0"}
+          {data?.citizen?.maxPledgedVotingPower}/
+          {data?.citizen?.totalVotingPower}
         </Value>
         <ValueCalculation
           color={colors.brand.tertiary}
