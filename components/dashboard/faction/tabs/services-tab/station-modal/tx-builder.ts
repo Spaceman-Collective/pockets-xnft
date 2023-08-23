@@ -21,7 +21,7 @@ type Props = {
   queryClient: QueryClient;
 };
 
-const startStationProcess = async ({
+export const startStationProcess = async ({
   connection,
   walletAddress,
   selectedCharacter,

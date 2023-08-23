@@ -6,7 +6,6 @@ import {
   ModalBody,
   ModalCloseButton,
   Flex,
-  Box,
   VStack,
   Image,
   Grid,
@@ -29,6 +28,7 @@ import { BONK_MINT, RESOURCES, STATION_USE_COST_PER_LEVEL } from "@/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaClock } from "react-icons/fa";
 import { ResourceContainer } from "./resource-container.component";
+import { startStationProcess as startStation } from "./tx-builder";
 
 export const ModalStation: FC<{
   station?: {
@@ -53,6 +53,7 @@ export const ModalStation: FC<{
   const [selectedCharacter, _] = useSelectedCharacter();
   const { data: walletAssets } = useAllWalletAssets();
   const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
+  console.log({ timersData });
 
   const timer = timersData?.stationTimers.find(
     (e) => e.station === station?.id,
@@ -69,8 +70,6 @@ export const ModalStation: FC<{
     countStart: isFuture ? Math.floor(remainingTime) : 15,
     intervalMs: 1000,
   });
-
-  // console.table({ timersData, remainingTime, count, isFuture });
 
   useEffect(() => {
     if (!isClaimable) return;
@@ -100,69 +99,86 @@ export const ModalStation: FC<{
     return stationInputs?.includes(e.name);
   });
 
+  const startStationProcess = async () =>
+    await startStation({
+      connection,
+      walletAddress,
+      selectedCharacter,
+      station,
+      stationBlueprint,
+      signTransaction,
+      encodeTransaction,
+      buildMemoIx,
+      buildTransferIx,
+      buildBurnIx,
+      mutateStartStation: mutate,
+      startCountdown,
+      queryClient,
+    });
+
   // TODO: DEV THIS IS FOR YOU TO FILL IN
   // startStationProcess
   // claimStationReward
-  const startStationProcess = async () => {
-    if (!walletAddress) return toast.error("No wallet connected");
-    const ix = buildMemoIx({
-      walletAddress,
-      payload: {
-        mint: selectedCharacter?.mint,
-        timestamp: Date.now().toString(),
-        stationId: station?.id,
-      },
-    });
+  // const startStationProcess = async () => {
+  //   if (!walletAddress) return toast.error("No wallet connected");
+  //   const ix = buildMemoIx({
+  //     walletAddress,
+  //     payload: {
+  //       mint: selectedCharacter?.mint,
+  //       timestamp: Date.now().toString(),
+  //       stationId: station?.id,
+  //     },
+  //   });
 
-    const bonkIx = buildTransferIx({
-      walletAddress,
-      mint: BONK_MINT.toString(),
-      amount: STATION_USE_COST_PER_LEVEL * BigInt(station?.level!),
-      decimals: 5,
-    });
+  //   const bonkIx = buildTransferIx({
+  //     walletAddress,
+  //     mint: BONK_MINT.toString(),
+  //     amount: STATION_USE_COST_PER_LEVEL * BigInt(station?.level!),
+  //     decimals: 5,
+  //   });
 
-    const burnIxs = stationBlueprint?.inputs?.map((e) => {
-      return buildBurnIx({
-        walletAddress,
-        mint: RESOURCES.find((r) => r.name == e.resource)?.mint as string,
-        amount: BigInt(e.amount),
-        decimals: 0,
-      });
-    });
+  //   const burnIxs = stationBlueprint?.inputs?.map((e) => {
+  //     return buildBurnIx({
+  //       walletAddress,
+  //       mint: RESOURCES.find((r) => r.name == e.resource)?.mint as string,
+  //       amount: BigInt(e.amount),
+  //       decimals: 0,
+  //     });
+  //   });
 
-    if (!burnIxs || burnIxs.length === 0 || burnIxs instanceof Error)
-      return toast.error("Ooops! No burnIx");
-    try {
-      const encodedTx = await encodeTransaction({
-        walletAddress,
-        connection,
-        signTransaction,
-        txInstructions: [ix, bonkIx, ...burnIxs],
-      });
+  //   if (!burnIxs || burnIxs.length === 0 || burnIxs instanceof Error)
+  //     return toast.error("Ooops! No burnIx");
+  //   try {
+  //     const encodedTx = await encodeTransaction({
+  //       walletAddress,
+  //       connection,
+  //       signTransaction,
+  //       txInstructions: [ix, bonkIx, ...burnIxs],
+  //     });
 
-      if (encodedTx instanceof Error || encodedTx === undefined)
-        return toast.error("Failed to start station");
+  //     if (encodedTx instanceof Error || encodedTx === undefined)
+  //       return toast.error("Failed to start station");
 
-      mutate(
-        { signedTx: encodedTx },
-        {
-          onSuccess: () => {
-            queryClient.refetchQueries({ queryKey: ["char-timers"] });
-            queryClient.refetchQueries({ queryKey: ["assets"] });
-            startCountdown();
-            toast.success(
-              "You've started a build in the " + station?.blueprint,
-            );
-          },
-          onError: (e: any) => {
-            toast.error("Ooops! Did not start station: \n\n" + e);
-          },
-        },
-      );
-    } catch (err) {
-      toast.error("Oops! That didn't work: \n\n" + JSON.stringify(err));
-    }
-  };
+  //     mutate(
+  //       { signedTx: encodedTx },
+  //       {
+  //         onSuccess: () => {
+  //           queryClient.refetchQueries({ queryKey: ["char-timers"] });
+  //           queryClient.refetchQueries({ queryKey: ["assets"] });
+  //           startCountdown();
+  //           toast.success(
+  //             "You've started a build in the " + station?.blueprint,
+  //           );
+  //         },
+  //         onError: (e: any) => {
+  //           toast.error("Ooops! Did not start station: \n\n" + e);
+  //         },
+  //       },
+  //     );
+  //   } catch (err) {
+  //     toast.error("Oops! That didn't work: \n\n" + JSON.stringify(err));
+  //   }
+  // };
   const claimStationReward = async () => {
     if (!selectedCharacter?.mint || !station?.id)
       return toast.error("No Mint or StationId");
