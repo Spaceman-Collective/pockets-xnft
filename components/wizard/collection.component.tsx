@@ -3,6 +3,7 @@ import { Button, Grid, Flex, Text, Box } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import { FC } from "react";
 import { H3 } from ".";
+import { Tip } from "../tooltip";
 
 export const SelectCollection: FC<{ next: () => void }> = ({
   next: nextStep,
@@ -10,12 +11,13 @@ export const SelectCollection: FC<{ next: () => void }> = ({
   return (
     <Flex direction="column" justifyContent="space-between" minH="60vh">
       <Box>
-        <Header>Welcome Anon!</Header>
+        <Header>Welcome!</Header>
         <Text>
-          Insert some random lore here or perhaps something about anons who are
-          out of pocket. This is just filler text that can also be removed if
-          wanted. That said it is nice to keep the container the same size from
-          screen to screen so maybe keep this text.
+          Before you begin your journey, you&apos;ll need to create a character
+          profile using an NFT from one of the below approved collections.
+          You'll be asked to generate a name and to sign a transaction. This
+          will generate a character with randomly rolled skills to start you
+          off!
         </Text>
         <H3 pt="4rem">Select a Collection:</H3>
         <Grid
@@ -23,15 +25,38 @@ export const SelectCollection: FC<{ next: () => void }> = ({
           gap="1rem"
           mb="3rem"
         >
-          <Thumbnail cursor="pointer" onClick={nextStep}>
-            Mad Lads
+          <Thumbnail
+            backgroundImage="collection/madlads.webp"
+            backgroundPosition="bottom"
+            backgroundSize="cover"
+            cursor="pointer"
+            onClick={nextStep}
+          >
+            <Text>Mad Lads</Text>
           </Thumbnail>
-          <Thumbnail cursor="pointer" onClick={nextStep}>
-            OKB POG Collectors Edition
+          <Thumbnail
+            cursor="pointer"
+            backgroundImage="collection/okb.webp"
+            backgroundSize="cover"
+            backgroundPosition="center"
+            onClick={nextStep}
+          >
+            <Text fontSize="2rem !important">OKB POG Collectors Edition</Text>
           </Thumbnail>
-          <Thumbnail userSelect="none" cursor="not-allowed" opacity="0.5">
-            Kyogen
+          <Thumbnail
+            cursor="pointer"
+            backgroundImage={"collection/famousfoxes.webp"}
+            backgroundSize="cover"
+            backgroundPosition="center"
+            onClick={nextStep}
+          >
+            <Text>Famous Foxes</Text>
           </Thumbnail>
+          <Tip label="Coming soon!">
+            <Thumbnail userSelect="none" cursor="not-allowed" opacity="0.5">
+              Kyogen
+            </Thumbnail>
+          </Tip>
         </Grid>
       </Box>
       <Button w="100%" alignSelf="end" onClick={nextStep}>
@@ -56,8 +81,12 @@ const Thumbnail = styled(Grid)<{ isSelected?: boolean }>`
     border: solid 2px ${colors.brand.secondary};
   }
   transition: all 0.25s ease-in-out;
-`;
 
+  p {
+    font-size: 3rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+  }
+`;
 
 const Header = styled(Text)`
   font-size: 32px;
