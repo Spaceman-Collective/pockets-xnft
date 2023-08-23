@@ -11,6 +11,8 @@ import {
   Grid,
   Progress,
   Button,
+  HStack,
+  Spinner,
 } from "@chakra-ui/react";
 import { FC, useEffect } from "react";
 import { useCountdown } from "usehooks-ts";
@@ -28,6 +30,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { FaClock } from "react-icons/fa";
 import { ResourceContainer } from "./resource-container.component";
 import { startStationProcess as startStation } from "./tx-builder";
+import { Tip } from "@/components/tooltip";
 
 export const ModalStation: FC<{
   station?: {
@@ -66,11 +69,11 @@ export const ModalStation: FC<{
 
   const remainingTime = (finishedTime - Date.now()) / 1000;
   const isFuture = remainingTime > 0;
-  const isClaimable = !isFuture || timer === undefined;
+  const isClaimable = startTime < finishedTime && timer !== undefined;
 
   const totalTimeInSeconds = (finishedTime - startTime) / 1000;
   const [count, { startCountdown, resetCountdown }] = useCountdown({
-    countStart: isFuture ? Math.floor(remainingTime) : 15,
+    countStart: isFuture ? Math.floor(remainingTime) : 0,
     intervalMs: 1000,
   });
 
@@ -92,7 +95,7 @@ export const ModalStation: FC<{
 
   const queryClient = useQueryClient();
   const { mutate } = useFactionStationStart();
-  const { mutate: claim } = useFactionStationClaim();
+  const { mutate: claim, isLoading } = useFactionStationClaim();
 
   const stationBlueprint = station && getBlueprint(station?.blueprint);
   const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
@@ -178,21 +181,43 @@ export const ModalStation: FC<{
               alignItems="center"
               mt="4rem"
             >
-              <Button onClick={() => {}} mb="2rem" isDisabled={progress > 1}>
-                <FaClock style={{ marginRight: "0.5rem" }} /> SPEED UP
-              </Button>
-              <Progress
-                hasStripe={progress === 100 ? false : true}
-                value={progress}
-                w="100%"
-                h="2rem"
-                colorScheme={progress === 100 ? "green" : "blue"}
-              />
-              <Text>{timeAgo(count)}</Text>
+              {timer && (
+                <Tip label="Coming soon! Will be able to speed up with BONK">
+                  <Button onClick={() => {}} mb="2rem" isDisabled={true}>
+                    <FaClock style={{ marginRight: "0.5rem" }} /> SPEED UP
+                  </Button>
+                </Tip>
+              )}
+              {timer && (
+                <Progress
+                  hasStripe={progress === 100 ? false : true}
+                  value={progress}
+                  w="100%"
+                  h="2rem"
+                  colorScheme={progress === 100 ? "green" : "blue"}
+                />
+              )}
+              {timer ? (
+                <Text>{timeAgo(count)}</Text>
+              ) : (
+                <Text fontWeight={700} fontSize="3rem" textAlign="center">
+                  Ready for the next build!
+                </Text>
+              )}
             </Flex>
             <VStack gap="2rem">
-              <Button onClick={claimStationReward} isDisabled={count !== 0}>
-                Claim
+              <Button
+                onClick={claimStationReward}
+                isDisabled={count !== 0 || isLoading}
+              >
+                {isLoading ? (
+                  <HStack>
+                    <Text>Claiming</Text>
+                    <Spinner />
+                  </HStack>
+                ) : (
+                  <Text>Claim</Text>
+                )}
               </Button>
               <ResourceContainer
                 type="units"
