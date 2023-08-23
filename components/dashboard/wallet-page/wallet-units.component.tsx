@@ -16,25 +16,26 @@ import { Label, Value } from "./wallet-page.styles";
 import { useSolana } from "@/hooks/useSolana";
 import styled from "@emotion/styled";
 
-export const WalletUnitPanel = () => {
-  const { connection, walletAddress } = useSolana();
-
+export const WalletUnitPanel: FC<{ isLoading: boolean; units: any[] }> = ({
+  isLoading,
+  units,
+}) => {
+  console.log({ units });
   const [MOCK_UNITS, setMockUnits] = useState<Unit[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (MOCK_UNITS.length == 0) {
       generateMockUnits(50).then((units: any) => {
         setMockUnits(units);
-        setIsLoading(false);
       });
     }
-  }, []); 
+  }, []);
 
   const counts = countDuplicates(MOCK_UNITS);
 
   const uniqueUnits = MOCK_UNITS.filter(
-    (unit, index, self) => index === self.findIndex((t) => t.name === unit.name)
+    (unit, index, self) =>
+      index === self.findIndex((t) => t.name === unit.name),
   );
 
   if (isLoading) {
@@ -156,7 +157,7 @@ const generateMockUnits = (count: number): Promise<Unit[]> => {
       ]);
       const allocations = generateRandomAllocation(
         shuffledTemplates.length,
-        count
+        count,
       );
       const units: Unit[] = [];
 
@@ -220,7 +221,6 @@ const generateRandomBonus = (): { [enemyName: string]: number } => {
 
   return bonus;
 };
-
 
 const LoadingContainer = styled.div`
   display: flex;
