@@ -298,7 +298,8 @@ const ResourceContainer: FC<{
     <Grid
       borderRadius="1rem"
       bg="brand.quaternary"
-      minH="22rem"
+      minH="33rem"
+      minW="33rem"
       placeItems="center"
       p="4rem"
       opacity={isDisabled ? 0.5 : 1}
