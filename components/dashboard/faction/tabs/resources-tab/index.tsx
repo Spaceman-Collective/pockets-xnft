@@ -106,7 +106,6 @@ export const FactionTabResources: React.FC<{
             ))}
         </Grid>
       </Box>
-      hdjksa
       <ResourceGridContainer
         isLoading={factionIsLoading}
         resources={factionData?.resources}
