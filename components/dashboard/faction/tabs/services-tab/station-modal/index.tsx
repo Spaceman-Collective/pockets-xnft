@@ -68,7 +68,7 @@ export const ModalStation: FC<{
 
   const remainingTime = (finishedTime - Date.now()) / 1000;
   const isFuture = remainingTime > 0;
-  const isClaimable = startTime < finishedTime && timer !== undefined;
+  const isClaimable = Date.now() > finishedTime && timer !== undefined;
 
   const totalTimeInSeconds = (finishedTime - startTime) / 1000;
   const [count, { startCountdown, resetCountdown }] = useCountdown({
@@ -157,9 +157,18 @@ export const ModalStation: FC<{
           />
           <Grid templateColumns="repeat(3, 1fr)" mt="4rem">
             <VStack gap="2rem">
-              <Button isDisabled={!!timer} onClick={startStationProcess}>
-                Start Build
-              </Button>
+              <Tip
+                isHidden={!timer}
+                label={`${isClaimable ? "Claim before starting again" : ""} ${
+                  !isClaimable
+                    ? "Wait for build to finish and then claim to start again."
+                    : ""
+                }`}
+              >
+                <Button isDisabled={!!timer} onClick={startStationProcess}>
+                  Start Build
+                </Button>
+              </Tip>
               <ResourceContainer
                 type="resources"
                 isDisabled={progress === 100}
@@ -205,19 +214,28 @@ export const ModalStation: FC<{
               )}
             </Flex>
             <VStack gap="2rem">
-              <Button
-                onClick={claimStationReward}
-                isDisabled={count !== 0 || isLoading}
+              <Tip
+                isHidden={!timer}
+                label={
+                  count !== 0
+                    ? "Wait for the build to finish before claiming"
+                    : "Ready to claim!"
+                }
               >
-                {isLoading ? (
-                  <HStack>
-                    <Text>Claiming</Text>
-                    <Spinner />
-                  </HStack>
-                ) : (
-                  <Text>Claim</Text>
-                )}
-              </Button>
+                <Button
+                  onClick={claimStationReward}
+                  isDisabled={count !== 0 || isLoading || !timer}
+                >
+                  {isLoading ? (
+                    <HStack>
+                      <Text>Claiming</Text>
+                      <Spinner />
+                    </HStack>
+                  ) : (
+                    <Text>Claim</Text>
+                  )}
+                </Button>
+              </Tip>
               <ResourceContainer
                 type="units"
                 isDisabled={progress !== 100}
