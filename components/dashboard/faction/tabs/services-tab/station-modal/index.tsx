@@ -57,17 +57,18 @@ export const ModalStation: FC<{
   const timer = timersData?.stationTimers.find(
     (e) => e.station === station?.id,
   );
+
   const finishedDate = timer?.finished && +timer?.finished;
   const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
 
   const startDate = timer?.started && +timer?.started;
-  const startTime = typeof finishedDate === "number" ? finishedDate : 0;
+  const startTime = typeof startDate === "number" ? startDate : 0;
 
   const remainingTime = (finishedTime - Date.now()) / 1000;
   const isFuture = remainingTime > 0;
   const isClaimable = !isFuture || timer === undefined;
 
-  const totalTimeInSeconds = 60;
+  const totalTimeInSeconds = (finishedTime - startTime) / 1000;
   const [count, { startCountdown, resetCountdown }] = useCountdown({
     countStart: isFuture ? Math.floor(remainingTime) : 15,
     intervalMs: 1000,
