@@ -24,7 +24,10 @@ export const WalletTabs: React.FC<{}> = () => {
           />
         </TabPanel>
         <TabPanel>
-          <WalletUnitPanel />
+          <WalletUnitPanel
+            isLoading={walletAssetsIsLoading}
+            units={walletAssets?.units}
+          />
         </TabPanel>
         <TabPanel>
           <WalletFavorPanel />

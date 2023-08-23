@@ -1,67 +1,73 @@
-import { Frame } from "@/components/wizard/wizard.components";
-import { Faction, UNIT_TEMPLATES, Unit } from "@/types/server";
+import { NFT, UNIT_TEMPLATES, Unit } from "@/types/server";
 import {
-  Box,
-  Button,
   Flex,
   Grid,
   HStack,
-  Spinner,
+  Skeleton,
   Text,
   Tooltip,
   VStack,
 } from "@chakra-ui/react";
-import { FC, ReactNode, useEffect, useState } from "react";
-import { Label, Value } from "./wallet-page.styles";
-import { useSolana } from "@/hooks/useSolana";
+import { FC, ReactNode } from "react";
+import { Value } from "./wallet-page.styles";
 import styled from "@emotion/styled";
+import { Tip } from "@/components/tooltip";
 
-export const WalletUnitPanel = () => {
-  const { connection, walletAddress } = useSolana();
-
-  const [MOCK_UNITS, setMockUnits] = useState<Unit[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (MOCK_UNITS.length == 0) {
-      generateMockUnits(50).then((units: any) => {
-        setMockUnits(units);
-        setIsLoading(false);
-      });
-    }
-  }, []); 
-
-  const counts = countDuplicates(MOCK_UNITS);
-
-  const uniqueUnits = MOCK_UNITS.filter(
-    (unit, index, self) => index === self.findIndex((t) => t.name === unit.name)
-  );
-
-  if (isLoading) {
-    return (
-      <VStack gap={"1rem"} align="center">
-        <LoadingContainer>
-          <Spinner size="lg" color="white" />
-          <LoadingText>LOADING</LoadingText>
-        </LoadingContainer>
-      </VStack>
-    );
-  }
-
+export const WalletUnitPanel: FC<{ isLoading: boolean; units: NFT[] }> = ({
+  isLoading,
+  units,
+}) => {
   return (
     <Flex minH="60vh" direction="column" justifyContent="space-between">
       <Flex direction="column">
-        <Flex gap="4rem">
+        <Flex mb="1rem">
           <Value style={{ textDecoration: "underline" }}>ARMY</Value>
-          {/* <HStack>
-            <Label>unequipped</Label>
-            <Value>123/456</Value>
-          </HStack> */}
         </Flex>
-        <Grid templateColumns="repeat(auto-fill,minmax(100px,1fr))">
-          {uniqueUnits.map((unit, index) => (
-            <TroopBox key={index} unit={unit} count={counts[unit.name]} />
-          ))}
+        <Grid templateColumns="repeat(auto-fill,minmax(100px,1fr))" gap="1rem">
+          {isLoading &&
+            Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton
+                key={i + "loadingunit"}
+                h="100px"
+                w="100px"
+                borderRadius="1rem"
+              />
+            ))}
+          {units?.map((unit) => {
+            const templateUnit = UNIT_TEMPLATES.find(
+              (template) => template?.name === unit.name,
+            );
+
+            if (!templateUnit) return;
+            if (
+              !unit?.mint ||
+              !unit?.attributes?.Skill ||
+              !unit?.attributes?.Rank
+            )
+              return;
+
+            const count = units.filter(
+              (countUnit) =>
+                countUnit.name.toLowerCase() ===
+                templateUnit.name.toLowerCase(),
+            ).length;
+
+            const selectedUnit: Unit = {
+              ...templateUnit,
+              mint: unit.mint,
+              assetId: "todo-replace-this",
+              bonus: {
+                [unit.attributes.Skill]: unit.attributes.Rank,
+              },
+            };
+            return (
+              <TroopBox
+                key={unit.mint}
+                unit={selectedUnit}
+                count={count ?? 0}
+              />
+            );
+          })}
         </Grid>
       </Flex>
     </Flex>
@@ -75,21 +81,24 @@ interface TroopBoxProps {
 const TroopBox: FC<TroopBoxProps> = ({ unit, count }) => {
   const size = "100px";
 
-  const tooltipInfo = `
-  Name: ${unit.name}
-  Skill: ${unit.skill}
-  Bonus: ${Object.entries(unit.bonus)
-    .map(([enemy, bonusValue]) => `${enemy}: ${bonusValue}`)
-    .join(", ")}
-`.trim();
+  const tip = (
+    <VStack alignItems="start">
+      <Text>Name: {unit?.name}</Text>
+      <Text>Skill: {unit?.skill}</Text>
+      <Text>
+        {" "}
+        {unit &&
+          unit?.bonus &&
+          Object.entries(unit?.bonus)
+            .map(([enemy, bonusValue]) => `${enemy}: ${bonusValue}`)
+            .join(", ")}
+      </Text>
+    </VStack>
+  );
 
+  if (!unit) return "";
   return (
-    <Tooltip
-      label={tooltipInfo}
-      fontSize="md"
-      placement="top"
-      whiteSpace="pre-line"
-    >
+    <Tip label={tip} placement="top">
       <Flex
         direction="column"
         justifyContent="space-between"
@@ -99,7 +108,7 @@ const TroopBox: FC<TroopBoxProps> = ({ unit, count }) => {
         bg="brand.primary"
         p="0.5rem 1rem"
         borderRadius="0.5rem"
-        backgroundImage={`url(${unit.image})`}
+        backgroundImage={`url(${unit?.image})`}
         backgroundSize="110%"
         backgroundPosition="center"
         filter="drop-shadow(0 5px 0 rgba(0,0,0,0.0)) saturate(0.7)"
@@ -114,7 +123,7 @@ const TroopBox: FC<TroopBoxProps> = ({ unit, count }) => {
         </Flex>
         <Flex justifyContent="space-between"></Flex>
       </Flex>
-    </Tooltip>
+    </Tip>
   );
 };
 
@@ -137,90 +146,6 @@ const Badge = ({ children }: { children: ReactNode }) => {
     </Grid>
   );
 };
-
-function countDuplicates(units: Unit[]) {
-  const countMap: { [name: string]: number } = {};
-  units.forEach((unit) => {
-    countMap[unit.name] = Math.floor(Math.random() * 4) + 1;
-    // countMap[unit.name] = (countMap[unit.name] || 0) + 1;
-  });
-  return countMap;
-}
-
-const generateMockUnits = (count: number): Promise<Unit[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const shuffledTemplates = shuffleArray([
-        ...UNIT_TEMPLATES,
-        ...UNIT_TEMPLATES.slice(0, 2),
-      ]);
-      const allocations = generateRandomAllocation(
-        shuffledTemplates.length,
-        count
-      );
-      const units: Unit[] = [];
-
-      shuffledTemplates.forEach((template, i) => {
-        for (let j = 0; j < allocations[i]; j++) {
-          units.push({
-            assetId: `unit_${units.length}`,
-            name: template.name,
-            image: template.image,
-            skill: template.skill,
-            bonus: generateRandomBonus(),
-            mint: "AF93fJxEvN8GBVyPZY3RVfbpv6gieTeP4fZ7Rt9zdcpA",
-          });
-        }
-      });
-
-      resolve(units);
-    }, 3000);
-  });
-};
-
-function shuffleArray(array: any[]) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
-const generateRandomAllocation = (numUnits: number, totalCount: number) => {
-  let remaining = totalCount - numUnits;
-  const allocations: number[] = Array(numUnits).fill(1);
-
-  for (let i = 0; i < numUnits - 1; i++) {
-    if (remaining <= 0) break;
-    const allocate = Math.floor(Math.random() * (remaining + 1));
-    allocations[i] += allocate;
-    remaining -= allocate;
-  }
-  allocations[numUnits - 1] += remaining;
-
-  return allocations;
-};
-
-const generateRandomBonus = (): { [enemyName: string]: number } => {
-  const enemies = [
-    "Brawler",
-    "Blademaster",
-    "Gunner",
-    "Ranger",
-    "Mindbreaker",
-    "Wizard",
-  ];
-  const bonusCount = Math.floor(Math.random() * (enemies.length + 1));
-  const bonus: { [enemyName: string]: number } = {};
-
-  for (let i = 0; i < bonusCount; i++) {
-    const enemy = enemies[Math.floor(Math.random() * enemies.length)];
-    bonus[enemy] = Math.floor(Math.random() * 11);
-  }
-
-  return bonus;
-};
-
 
 const LoadingContainer = styled.div`
   display: flex;
