@@ -15,9 +15,9 @@ export const SelectCollection: FC<{ next: () => void }> = ({
         <Text>
           Before you begin your journey, you&apos;ll need to create a character
           profile using an NFT from one of the below approved collections.
-          You'll be asked to generate a name and to sign a transaction. This
-          will generate a character with randomly rolled skills to start you
-          off!
+          You&apos;ll be asked to generate a name and to sign a transaction.
+          This will generate a character with randomly rolled skills to start
+          you off!
         </Text>
         <H3 pt="4rem">Select a Collection:</H3>
         <Grid

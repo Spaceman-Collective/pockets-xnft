@@ -1,21 +1,18 @@
 import { NFT, UNIT_TEMPLATES, Unit } from "@/types/server";
 import {
   Checkbox,
-  CheckboxGroup,
   Flex,
   Grid,
   HStack,
   Skeleton,
   Text,
-  Tooltip,
   VStack,
 } from "@chakra-ui/react";
-import { FC, ReactNode, useEffect, useState } from "react";
+import { FC, ReactNode, useState } from "react";
 import { Value } from "./wallet-page.styles";
-import styled from "@emotion/styled";
 import { Tip } from "@/components/tooltip";
 
-export const WalletUnitPanel: FC<{ isLoading: boolean; units: NFT[] }> = ({
+export const WalletUnitPanel: FC<{ isLoading: boolean; units?: NFT[] }> = ({
   isLoading,
   units,
 }) => {
@@ -170,16 +167,3 @@ const Badge = ({ children }: { children: ReactNode }) => {
     </Grid>
   );
 };
-
-const LoadingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const LoadingText = styled.div`
-  color: white;
-  font-weight: 800;
-  font-size: 12px;
-  margin-top: 8px;
-`;
