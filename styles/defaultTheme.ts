@@ -41,6 +41,7 @@ const {
   Progress,
   NumberInput,
   Slider,
+  Checkbox,
 } = chakraTheme.components;
 
 export const defaultTheme = extendBaseTheme({
@@ -73,6 +74,7 @@ export const defaultTheme = extendBaseTheme({
     Tooltip: ToolTip,
     NumberInput,
     Slider,
+    Checkbox,
   },
   colors,
   fonts,
