@@ -5,9 +5,15 @@ export const Tip: FC<{
   children: ReactNode;
   label: string | ReactNode;
   placement?: PlacementWithLogical;
-}> = ({ label, placement = "auto", children }) => {
+  isHidden?: boolean;
+}> = ({ label, placement = "auto", isHidden, children }) => {
   return (
-    <Tooltip label={label} hasArrow placement={placement}>
+    <Tooltip
+      label={label}
+      hasArrow
+      placement={placement}
+      display={isHidden ? "none" : "block"}
+    >
       {children}
     </Tooltip>
   );

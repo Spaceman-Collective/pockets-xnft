@@ -6,19 +6,17 @@ import {
   ModalBody,
   ModalCloseButton,
   Flex,
-  Box,
   VStack,
   Image,
   Grid,
   Progress,
   Button,
+  HStack,
+  Spinner,
 } from "@chakra-ui/react";
 import { FC, useEffect } from "react";
-import styled from "@emotion/styled";
 import { useCountdown } from "usehooks-ts";
-import { getBlueprint } from "./constants";
-import { getLocalImage } from "@/lib/utils";
-import { Tip } from "@/components/tooltip";
+import { getBlueprint } from "../constants";
 import { toast } from "react-hot-toast";
 import { useCharTimers } from "@/hooks/useCharTimers";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
@@ -28,9 +26,11 @@ import {
   useFactionStationStart,
 } from "@/hooks/useFaction";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
-import { BONK_MINT, RESOURCES, STATION_USE_COST_PER_LEVEL } from "@/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaClock } from "react-icons/fa";
+import { ResourceContainer } from "./resource-container.component";
+import { startStationProcess as startStation } from "./tx-builder";
+import { Tip } from "@/components/tooltip";
 
 export const ModalStation: FC<{
   station?: {
@@ -59,20 +59,22 @@ export const ModalStation: FC<{
   const timer = timersData?.stationTimers.find(
     (e) => e.station === station?.id,
   );
+
   const finishedDate = timer?.finished && +timer?.finished;
   const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
 
+  const startDate = timer?.started && +timer?.started;
+  const startTime = typeof startDate === "number" ? startDate : 0;
+
   const remainingTime = (finishedTime - Date.now()) / 1000;
   const isFuture = remainingTime > 0;
-  const isClaimable = !isFuture || timer === undefined;
+  const isClaimable = Date.now() > finishedTime && timer !== undefined;
 
-  const totalTimeInSeconds = 60;
+  const totalTimeInSeconds = (finishedTime - startTime) / 1000;
   const [count, { startCountdown, resetCountdown }] = useCountdown({
-    countStart: isFuture ? Math.floor(remainingTime) : 15,
+    countStart: isFuture ? Math.floor(remainingTime) : 0,
     intervalMs: 1000,
   });
-
-  // console.table({ timersData, remainingTime, count, isFuture });
 
   useEffect(() => {
     if (!isClaimable) return;
@@ -92,7 +94,7 @@ export const ModalStation: FC<{
 
   const queryClient = useQueryClient();
   const { mutate } = useFactionStationStart();
-  const { mutate: claim } = useFactionStationClaim();
+  const { mutate: claim, isLoading } = useFactionStationClaim();
 
   const stationBlueprint = station && getBlueprint(station?.blueprint);
   const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
@@ -102,69 +104,23 @@ export const ModalStation: FC<{
     return stationInputs?.includes(e.name);
   });
 
-  // TODO: DEV THIS IS FOR YOU TO FILL IN
-  // startStationProcess
-  // claimStationReward
-  const startStationProcess = async () => {
-    if (!walletAddress) return toast.error("No wallet connected");
-    const ix = buildMemoIx({
+  const startStationProcess = async () =>
+    await startStation({
+      connection,
       walletAddress,
-      payload: {
-        mint: selectedCharacter?.mint,
-        timestamp: Date.now().toString(),
-        stationId: station?.id,
-      },
+      selectedCharacter,
+      station,
+      stationBlueprint,
+      signTransaction,
+      encodeTransaction,
+      buildMemoIx,
+      buildTransferIx,
+      buildBurnIx,
+      mutateStartStation: mutate,
+      startCountdown,
+      queryClient,
     });
 
-    const bonkIx = buildTransferIx({
-      walletAddress,
-      mint: BONK_MINT.toString(),
-      amount: STATION_USE_COST_PER_LEVEL * BigInt(station?.level!),
-      decimals: 5,
-    });
-
-    const burnIxs = stationBlueprint?.inputs?.map((e) => {
-      return buildBurnIx({
-        walletAddress,
-        mint: RESOURCES.find((r) => r.name == e.resource)?.mint as string,
-        amount: BigInt(e.amount),
-        decimals: 0,
-      });
-    });
-
-    if (!burnIxs || burnIxs.length === 0 || burnIxs instanceof Error)
-      return toast.error("Ooops! No burnIx");
-    try {
-      const encodedTx = await encodeTransaction({
-        walletAddress,
-        connection,
-        signTransaction,
-        txInstructions: [ix, bonkIx, ...burnIxs],
-      });
-
-      if (encodedTx instanceof Error || encodedTx === undefined)
-        return toast.error("Failed to start station");
-
-      mutate(
-        { signedTx: encodedTx },
-        {
-          onSuccess: () => {
-            queryClient.refetchQueries({ queryKey: ["char-timers"] });
-            queryClient.refetchQueries({ queryKey: ["assets"] });
-            startCountdown();
-            toast.success(
-              "You've started a build in the " + station?.blueprint,
-            );
-          },
-          onError: (e: any) => {
-            toast.error("Ooops! Did not start station: \n\n" + e);
-          },
-        },
-      );
-    } catch (err) {
-      toast.error("Oops! That didn't work: \n\n" + JSON.stringify(err));
-    }
-  };
   const claimStationReward = async () => {
     if (!selectedCharacter?.mint || !station?.id)
       return toast.error("No Mint or StationId");
@@ -201,9 +157,18 @@ export const ModalStation: FC<{
           />
           <Grid templateColumns="repeat(3, 1fr)" mt="4rem">
             <VStack gap="2rem">
-              <Button isDisabled={!!timer} onClick={startStationProcess}>
-                Start Build
-              </Button>
+              <Tip
+                isHidden={!timer}
+                label={`${isClaimable ? "Claim before starting again" : ""} ${
+                  !isClaimable
+                    ? "Wait for build to finish and then claim to start again."
+                    : ""
+                }`}
+              >
+                <Button isDisabled={!!timer} onClick={startStationProcess}>
+                  Start Build
+                </Button>
+              </Tip>
               <ResourceContainer
                 type="resources"
                 isDisabled={progress === 100}
@@ -224,22 +189,53 @@ export const ModalStation: FC<{
               alignItems="center"
               mt="4rem"
             >
-              <Button onClick={() => {}} mb="2rem" isDisabled={progress > 1}>
-                <FaClock style={{ marginRight: "0.5rem" }} /> SPEED UP
-              </Button>
-              <Progress
-                hasStripe={progress === 100 ? false : true}
-                value={progress}
-                w="100%"
-                h="2rem"
-                colorScheme={progress === 100 ? "green" : "blue"}
-              />
-              <Text>{timeAgo(count)}</Text>
+              {timer && (
+                <Tip label="Coming soon! Will be able to speed up with BONK">
+                  <Button onClick={() => {}} mb="2rem" isDisabled={true}>
+                    <FaClock style={{ marginRight: "0.5rem" }} /> SPEED UP
+                  </Button>
+                </Tip>
+              )}
+              {timer && (
+                <Progress
+                  hasStripe={progress === 100 ? false : true}
+                  value={progress}
+                  w="100%"
+                  h="2rem"
+                  colorScheme={progress === 100 ? "green" : "blue"}
+                />
+              )}
+              {timer ? (
+                <Text>{timeAgo(count)}</Text>
+              ) : (
+                <Text fontWeight={700} fontSize="3rem" textAlign="center">
+                  Ready for the next build
+                </Text>
+              )}
             </Flex>
             <VStack gap="2rem">
-              <Button onClick={claimStationReward} isDisabled={count !== 0}>
-                Claim
-              </Button>
+              <Tip
+                isHidden={!timer}
+                label={
+                  count !== 0
+                    ? "Wait for the build to finish before claiming"
+                    : "Ready to claim!"
+                }
+              >
+                <Button
+                  onClick={claimStationReward}
+                  isDisabled={count !== 0 || isLoading || !timer}
+                >
+                  {isLoading ? (
+                    <HStack>
+                      <Text>Claiming</Text>
+                      <Spinner />
+                    </HStack>
+                  ) : (
+                    <Text>Claim</Text>
+                  )}
+                </Button>
+              </Tip>
               <ResourceContainer
                 type="units"
                 isDisabled={progress !== 100}
@@ -247,7 +243,14 @@ export const ModalStation: FC<{
                   {
                     name: stationBlueprint?.unitOutput?.[0] ?? "",
                     amount: 1,
-                    balance: "0",
+                    balance:
+                      walletAssets?.units
+                        ?.filter(
+                          (unit) =>
+                            unit.name.toLowerCase() ===
+                            stationBlueprint?.unitOutput?.[0].toLowerCase(),
+                        )
+                        ?.length.toString() ?? "0",
                   },
                 ]}
               />
@@ -288,85 +291,6 @@ const ModalHeader = ({
     </Flex>
   );
 };
-
-const ResourceContainer: FC<{
-  isDisabled?: boolean;
-  resources?: { name: string; balance: string; amount: string | number }[];
-  type: "resources" | "units";
-}> = ({ resources, isDisabled, type }) => {
-  return (
-    <Grid
-      borderRadius="1rem"
-      bg="brand.quaternary"
-      minH="22rem"
-      placeItems="center"
-      p="4rem"
-      opacity={isDisabled ? 0.5 : 1}
-    >
-      <Grid
-        templateColumns={resources && resources?.length > 1 ? "1fr 1fr" : "1fr"}
-        gap="1rem"
-      >
-        {resources?.map((resource) => (
-          <Box
-            key={resource.name}
-            userSelect="none"
-            opacity={
-              type === "units" || +resource.amount < +resource.balance
-                ? 1
-                : 0.25
-            }
-          >
-            <Tip
-              label={"You own " + resource?.balance + " " + resource.name}
-              placement="top"
-            >
-              <Text fontWeight={700} color="brand.secondary">
-                {resource?.balance}x
-              </Text>
-            </Tip>
-            <Tip
-              label={
-                (type === "resources" ? "Requires " : "Creates ") +
-                resource.amount +
-                " " +
-                resource.name
-              }
-            >
-              <Box
-                position="relative"
-                transition="all 0.25s ease-in-out"
-                _hover={{ transform: "scale(1.1)" }}
-              >
-                <Resource
-                  alt="resource"
-                  src={getLocalImage({ type, name: resource.name })}
-                />
-                <Text
-                  position="absolute"
-                  bottom="0"
-                  right="0"
-                  bg="rgba(0,0,0,0.5)"
-                  p="0.25rem 0.5rem"
-                  borderRadius="1rem"
-                  fontWeight={700}
-                  minW="3rem"
-                  textAlign="center"
-                >
-                  {resource.amount}
-                </Text>
-              </Box>
-            </Tip>
-          </Box>
-        ))}
-      </Grid>
-    </Grid>
-  );
-};
-
-const Resource = styled(Image)`
-  border-radius: 1rem;
-`;
 
 function timeAgo(timestamp: number): string {
   const timeDifference = Math.floor(timestamp); // Convert to seconds
