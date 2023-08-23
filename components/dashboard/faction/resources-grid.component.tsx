@@ -67,7 +67,6 @@ const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
   const hoverProps = useDisclosure();
   return (
     <Flex
-      title={resource?.name}
       key={resource?.name + "resource"}
       bg="blacks.500"
       minH="5rem"
@@ -76,9 +75,11 @@ const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
       p="1rem"
       borderRadius="1rem"
       transition="all 0.25s ease-in-out"
+      opacity={resource?.value === "0" ? 0.25 : 1}
       _hover={{
         filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.25))",
         transform: "scale(1.05)",
+        opacity: 1,
       }}
       onMouseOver={hoverProps.onOpen}
       onMouseOut={hoverProps.onClose}
