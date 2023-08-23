@@ -335,12 +335,14 @@ export const fetchCharTimers = async ({
   stationTimers: {
     character: string;
     finished: string;
+    started: string;
     id: string;
     station: string;
   }[];
   rfTimers: {
     character: string;
     finished: string;
+    started: string;
     id: string;
     rf: string;
   }[];

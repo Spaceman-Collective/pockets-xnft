@@ -24,7 +24,6 @@ import {
   useFactionStationStart,
 } from "@/hooks/useFaction";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
-import { BONK_MINT, RESOURCES, STATION_USE_COST_PER_LEVEL } from "@/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaClock } from "react-icons/fa";
 import { ResourceContainer } from "./resource-container.component";
@@ -60,6 +59,9 @@ export const ModalStation: FC<{
   );
   const finishedDate = timer?.finished && +timer?.finished;
   const finishedTime = typeof finishedDate === "number" ? finishedDate : 0;
+
+  const startDate = timer?.started && +timer?.started;
+  const startTime = typeof finishedDate === "number" ? finishedDate : 0;
 
   const remainingTime = (finishedTime - Date.now()) / 1000;
   const isFuture = remainingTime > 0;
@@ -116,69 +118,6 @@ export const ModalStation: FC<{
       queryClient,
     });
 
-  // TODO: DEV THIS IS FOR YOU TO FILL IN
-  // startStationProcess
-  // claimStationReward
-  // const startStationProcess = async () => {
-  //   if (!walletAddress) return toast.error("No wallet connected");
-  //   const ix = buildMemoIx({
-  //     walletAddress,
-  //     payload: {
-  //       mint: selectedCharacter?.mint,
-  //       timestamp: Date.now().toString(),
-  //       stationId: station?.id,
-  //     },
-  //   });
-
-  //   const bonkIx = buildTransferIx({
-  //     walletAddress,
-  //     mint: BONK_MINT.toString(),
-  //     amount: STATION_USE_COST_PER_LEVEL * BigInt(station?.level!),
-  //     decimals: 5,
-  //   });
-
-  //   const burnIxs = stationBlueprint?.inputs?.map((e) => {
-  //     return buildBurnIx({
-  //       walletAddress,
-  //       mint: RESOURCES.find((r) => r.name == e.resource)?.mint as string,
-  //       amount: BigInt(e.amount),
-  //       decimals: 0,
-  //     });
-  //   });
-
-  //   if (!burnIxs || burnIxs.length === 0 || burnIxs instanceof Error)
-  //     return toast.error("Ooops! No burnIx");
-  //   try {
-  //     const encodedTx = await encodeTransaction({
-  //       walletAddress,
-  //       connection,
-  //       signTransaction,
-  //       txInstructions: [ix, bonkIx, ...burnIxs],
-  //     });
-
-  //     if (encodedTx instanceof Error || encodedTx === undefined)
-  //       return toast.error("Failed to start station");
-
-  //     mutate(
-  //       { signedTx: encodedTx },
-  //       {
-  //         onSuccess: () => {
-  //           queryClient.refetchQueries({ queryKey: ["char-timers"] });
-  //           queryClient.refetchQueries({ queryKey: ["assets"] });
-  //           startCountdown();
-  //           toast.success(
-  //             "You've started a build in the " + station?.blueprint,
-  //           );
-  //         },
-  //         onError: (e: any) => {
-  //           toast.error("Ooops! Did not start station: \n\n" + e);
-  //         },
-  //       },
-  //     );
-  //   } catch (err) {
-  //     toast.error("Oops! That didn't work: \n\n" + JSON.stringify(err));
-  //   }
-  // };
   const claimStationReward = async () => {
     if (!selectedCharacter?.mint || !station?.id)
       return toast.error("No Mint or StationId");
