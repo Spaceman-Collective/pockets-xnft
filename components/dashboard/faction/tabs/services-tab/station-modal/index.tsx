@@ -55,7 +55,6 @@ export const ModalStation: FC<{
   const [selectedCharacter, _] = useSelectedCharacter();
   const { data: walletAssets } = useAllWalletAssets();
   const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
-  console.log({ timersData });
 
   const timer = timersData?.stationTimers.find(
     (e) => e.station === station?.id,
@@ -201,7 +200,7 @@ export const ModalStation: FC<{
                 <Text>{timeAgo(count)}</Text>
               ) : (
                 <Text fontWeight={700} fontSize="3rem" textAlign="center">
-                  Ready for the next build!
+                  Ready for the next build
                 </Text>
               )}
             </Flex>
@@ -226,7 +225,14 @@ export const ModalStation: FC<{
                   {
                     name: stationBlueprint?.unitOutput?.[0] ?? "",
                     amount: 1,
-                    balance: "0",
+                    balance:
+                      walletAssets?.units
+                        ?.filter(
+                          (unit) =>
+                            unit.name.toLowerCase() ===
+                            stationBlueprint?.unitOutput?.[0].toLowerCase(),
+                        )
+                        ?.length.toString() ?? "0",
                   },
                 ]}
               />
