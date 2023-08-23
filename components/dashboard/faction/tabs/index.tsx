@@ -1,11 +1,4 @@
-import {
-  Flex,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-} from "@chakra-ui/react";
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
 import { FactionTabServices } from "./services-tab";
 import { FactionTabPolitics } from "./politics.component";
 import { FactionTabResources } from "./resources-tab";

@@ -10,7 +10,7 @@ import {
   VStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { ModalStation } from "./station-modal.component";
+import { ModalStation } from "@/components/dashboard/faction/tabs/services-tab/station-modal";
 import { FC, useState } from "react";
 import { useFaction } from "@/hooks/useFaction";
 import { Tip } from "@/components/tooltip";

@@ -16,7 +16,7 @@ import {
 import { FC, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useCountdown } from "usehooks-ts";
-import { getBlueprint } from "./constants";
+import { getBlueprint } from "../constants";
 import { getLocalImage } from "@/lib/utils";
 import { Tip } from "@/components/tooltip";
 import { toast } from "react-hot-toast";
