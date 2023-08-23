@@ -135,7 +135,7 @@ export const ResourceFieldAction: FC<{
           <Value>{rf.amount}</Value>
         </VStack>
       </HStack>
-      <HStack>
+      <HStack gap="1rem">
         {isFuture && <Value>{timeAgo(count)}</Value>}
         {isHarvestable && (
           <Button
@@ -147,16 +147,18 @@ export const ResourceFieldAction: FC<{
             Harvest
           </Button>
         )}
-        <Tooltip label="Speed up" aria-label="Speed up tooltip">
-          <IconButton
-            icon={<FaClock />}
-            aria-label="Speed up"
-            bg={colors.blacks[400]}
-            w="3rem" // Adjust the width as needed
-            h="3rem" // Adjust the height as needed
-            isDisabled={false}
-          />
-        </Tooltip>
+        {!isHarvestable && (
+          <Tip label="Coming soon! Speed up with BONK">
+            <IconButton
+              icon={<FaClock />}
+              aria-label="Speed up"
+              bg={colors.blacks[400]}
+              w="3rem" // Adjust the width as needed
+              h="3rem" // Adjust the height as needed
+              isDisabled={true}
+            />
+          </Tip>
+        )}
       </HStack>
     </ResourceActionContainer>
   );
