@@ -1,8 +1,17 @@
 import { NFT, UNIT_TEMPLATES, Unit } from "@/types/server";
-import { Flex, Grid, Skeleton, Text, Tooltip } from "@chakra-ui/react";
+import {
+  Flex,
+  Grid,
+  HStack,
+  Skeleton,
+  Text,
+  Tooltip,
+  VStack,
+} from "@chakra-ui/react";
 import { FC, ReactNode } from "react";
 import { Value } from "./wallet-page.styles";
 import styled from "@emotion/styled";
+import { Tip } from "@/components/tooltip";
 
 export const WalletUnitPanel: FC<{ isLoading: boolean; units: NFT[] }> = ({
   isLoading,
@@ -59,9 +68,6 @@ export const WalletUnitPanel: FC<{ isLoading: boolean; units: NFT[] }> = ({
               />
             );
           })}
-          {/* {uniqueUnits.map((unit, index) => ( */}
-          {/*   <TroopBox key={index} unit={unit} count={counts[unit.name]} /> */}
-          {/* ))} */}
         </Grid>
       </Flex>
     </Flex>
@@ -75,21 +81,24 @@ interface TroopBoxProps {
 const TroopBox: FC<TroopBoxProps> = ({ unit, count }) => {
   const size = "100px";
 
-  //   const tooltipInfo = `
-  //   Name: ${unit?.name}
-  //   Skill: ${unit?.skill}
-  //   Bonus: ${
-  //     unit &&
-  //     unit?.bonus &&
-  //     Object.entries(unit?.bonus)
-  //       .map(([enemy, bonusValue]) => `${enemy}: ${bonusValue}`)
-  //       .join(", ")
-  //   }
-  // `.trim();
+  const tip = (
+    <VStack alignItems="start">
+      <Text>Name: {unit?.name}</Text>
+      <Text>Skill: {unit?.skill}</Text>
+      <Text>
+        {" "}
+        {unit &&
+          unit?.bonus &&
+          Object.entries(unit?.bonus)
+            .map(([enemy, bonusValue]) => `${enemy}: ${bonusValue}`)
+            .join(", ")}
+      </Text>
+    </VStack>
+  );
 
   if (!unit) return "";
   return (
-    <Tooltip label={""} fontSize="md" placement="top" whiteSpace="pre-line">
+    <Tip label={tip} placement="top">
       <Flex
         direction="column"
         justifyContent="space-between"
@@ -114,7 +123,7 @@ const TroopBox: FC<TroopBoxProps> = ({ unit, count }) => {
         </Flex>
         <Flex justifyContent="space-between"></Flex>
       </Flex>
-    </Tooltip>
+    </Tip>
   );
 };
 

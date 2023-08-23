@@ -3,7 +3,7 @@ import { PlacementWithLogical, Tooltip, TooltipProps } from "@chakra-ui/react";
 
 export const Tip: FC<{
   children: ReactNode;
-  label: string;
+  label: string | ReactNode;
   placement?: PlacementWithLogical;
 }> = ({ label, placement = "auto", children }) => {
   return (
