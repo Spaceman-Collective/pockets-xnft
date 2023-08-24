@@ -14,7 +14,7 @@ import { ModalStation } from "@/components/dashboard/faction/tabs/services-tab/s
 import { FC, useState } from "react";
 import { useFaction } from "@/hooks/useFaction";
 import { Tip } from "@/components/tooltip";
-import { BLUEPRINTS, getBlueprint } from "./constants";
+import { getBlueprint } from "./constants";
 
 const stationSize = "7rem";
 
@@ -26,7 +26,6 @@ export const FactionTabServices: React.FC<{
   const { data: factionData } = useFaction({
     factionId: currentCharacter?.faction?.id ?? "",
   });
-  console.log({ factionData });
 
   const availableSlots = factionData?.faction?.townhallLevel;
   const remainingSlots =
@@ -49,6 +48,8 @@ export const FactionTabServices: React.FC<{
           factionName={currentCharacter.faction?.name}
           factionImage={currentCharacter?.faction?.image}
           description={currentCharacter?.faction?.description}
+          factionLevel={factionData?.faction?.townhallLevel}
+          population={factionData?.citizens?.length}
         />
         <Grid
           bg="blacks.700"
@@ -88,7 +89,9 @@ const HeaderStats: React.FC<{
   factionName: string | undefined;
   factionImage: string | undefined;
   description: string | undefined;
-}> = ({ factionName, factionImage, description }) => {
+  factionLevel: string | undefined;
+  population: string | undefined;
+}> = ({ factionName, factionImage, description, factionLevel, population }) => {
   return (
     <Flex mt="2rem" w="100%">
       <TownHall image={factionImage ?? ""} />
@@ -109,11 +112,11 @@ const HeaderStats: React.FC<{
         <HStack alignSelf="end" justifySelf="end" gap="2rem">
           <Flex alignItems="center" gap="0.5rem">
             <Label>Level</Label>
-            <Value>12</Value>
+            <Value>{factionLevel}</Value>
           </Flex>
           <Flex alignItems="center" gap="0.5rem">
             <Label>Population</Label>
-            <Value>12</Value>
+            <Value>{population}</Value>
           </Flex>
         </HStack>
       </Flex>
