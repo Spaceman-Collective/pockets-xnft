@@ -73,14 +73,25 @@ export const FactionTabServices: React.FC<{
           ))}
           {remainingSlots &&
             remainingSlots > 0 &&
-            Array.from({ length: remainingSlots }).map((_, i) => (
-              <Tip
-                key={"emptystation" + i}
-                label={`Townhall Level ${availableSlots}: Your faction has ${remainingSlots}/${availableSlots} remaining station slots`}
-              >
-                <Box bg="brand.primary" h={stationSize} w={stationSize} />
-              </Tip>
-            ))}
+            Array.from({ length: remainingSlots }).map((_, i) => {
+              const hasConstruction =
+                factionData?.faction?.construction !== undefined;
+              if (i === 0 && hasConstruction)
+                return <Box h={stationSize} w={stationSize} bg="red" />;
+              return (
+                <Tip
+                  key={"emptystation" + i}
+                  label={`Townhall Level ${availableSlots}: Your faction has ${remainingSlots}/${availableSlots} remaining station slots`}
+                >
+                  <Box
+                    bg="brand.primary"
+                    h={stationSize}
+                    w={stationSize}
+                    borderRadius="1rem"
+                  />
+                </Tip>
+              );
+            })}
         </Grid>
       </PanelContainer>
     </>
@@ -166,34 +177,32 @@ const Station: FC<{
   station?: { blueprint: string; faction: string; id: string; level: number };
   onClick: () => void;
 }> = ({ station, image, onClick }) => {
-  const isStation = !!station;
   const mockImage = "https://picsum.photos/200";
   const stationImage = station?.blueprint
     ? station?.blueprint && getBlueprint(station.blueprint)?.image
     : undefined;
   const img = image ?? stationImage ?? mockImage;
-  return (
-    <Box
-      onClick={onClick}
-      minH={stationSize}
-      minW={stationSize}
-      w="100%"
-      h="100%"
-      bg="red"
-      borderRadius="1rem"
-      backgroundImage={img}
-      backgroundSize="cover"
-      backgroundPosition="center"
-      transition="all 0.25s ease-in-out"
-      _hover={{
-        transform: "scale(1.2)",
-      }}
-    />
-  );
+  return <StationBox onClick={onClick} backgroundImage={img} />;
 };
 
 const Title = styled(Text)`
   text-transform: uppercase;
   font-size: 3rem;
   font-weight: 700;
+`;
+
+const StationBox = styled(Box)`
+  background-color: white;
+  width: 100%;
+  height: 100%;
+  min-height: ${stationSize};
+  min-width: ${stationSize};
+  border-radius: 1rem;
+  background-size: cover;
+  background-position: center;
+  transition: all 0.25s ease-in-out;
+
+  :hover {
+    transform: scale(1.2);
+  }
 `;
