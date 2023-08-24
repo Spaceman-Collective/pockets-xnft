@@ -21,6 +21,7 @@ import {
   Stack,
   Select,
   HStack,
+  Spinner,
 } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useEffect, useState } from "react";
@@ -38,12 +39,13 @@ import { FaTimes } from "react-icons/fa";
 import { z } from "zod";
 import { useFaction } from "@/hooks/useFaction";
 import { Value } from "../tabs/tab.styles";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const CreateProposal: React.FC<{
   currentCharacter?: Character;
   fire: () => void;
 }> = ({ currentCharacter, fire: fireConfetti }) => {
-  const { mutate } = useCreateProposal();
+  const { mutate, isLoading } = useCreateProposal();
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
   const {
     connection,
@@ -69,7 +71,7 @@ export const CreateProposal: React.FC<{
   const { data: allProposals, refetch } = useFetchProposalsByFaction(
     factionId,
     0,
-    10
+    10,
   );
 
   const { isOpen, onOpen, onClose: closeIt } = useDisclosure();
@@ -84,13 +86,15 @@ export const CreateProposal: React.FC<{
     useState<string>("0");
 
   const handleProposalTypeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     const selectedType = event.target.value;
     setProposalType(selectedType);
   };
 
+  const queryClient = useQueryClient();
   const onSuccess = (data: any) => {
+    queryClient.refetchQueries({ queryKey: ["fetch-proposals-by-faction"] });
     fireConfetti();
     refetch();
     toast.success("Proposal created!");
@@ -133,7 +137,6 @@ export const CreateProposal: React.FC<{
     };
 
     const payload = CreateProposalData.parse(payloadAttempt);
-    console.log(payload);
     if (!walletAddress) return console.error("No wallet");
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
@@ -508,7 +511,7 @@ export const CreateProposal: React.FC<{
                 border: `2px solid ${colors.blacks[700]}`,
               }}
             >
-              Create Proposal
+              {isLoading ? <Spinner /> : "Create Proposal"}
             </CreateButton>
           </ModalFooter>
         </ModalContent>
