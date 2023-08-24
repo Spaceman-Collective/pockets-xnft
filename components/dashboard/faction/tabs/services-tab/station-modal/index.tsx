@@ -130,6 +130,7 @@ export const ModalStation: FC<{
         onSuccess: () => {
           queryClient.refetchQueries({ queryKey: ["char-timers"] });
           queryClient.refetchQueries({ queryKey: ["assets"] });
+          queryClient.refetchQueries({ queryKey: ["wallet-assets"] });
           toast.success(
             "You've claimed the reward from the " + station?.blueprint,
           );

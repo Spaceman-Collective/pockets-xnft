@@ -81,6 +81,7 @@ export const startStationProcess = async ({
         onSuccess: () => {
           queryClient.refetchQueries({ queryKey: ["char-timers"] });
           queryClient.refetchQueries({ queryKey: ["assets"] });
+          queryClient.refetchQueries({ queryKey: ["wallet-assets"] });
           startCountdown();
           toast.success("You've started a build in the " + station?.blueprint);
         },
