@@ -19,8 +19,9 @@ import { getBlueprint } from "./constants";
 const stationSize = "7rem";
 
 export const FactionTabServices: React.FC<{
+  openCitizenModal: () => void;
   currentCharacter: Character;
-}> = ({ currentCharacter }) => {
+}> = ({ currentCharacter, openCitizenModal }) => {
   const stationDisclosure = useDisclosure();
   const [selectedStationId, setSelectedStationId] = useState<string>("");
   const { data: factionData } = useFaction({
@@ -50,6 +51,7 @@ export const FactionTabServices: React.FC<{
           description={currentCharacter?.faction?.description}
           factionLevel={factionData?.faction?.townhallLevel}
           population={factionData?.citizens?.length}
+          onOpen={openCitizenModal}
         />
         <Grid
           bg="blacks.700"
@@ -86,12 +88,20 @@ export const FactionTabServices: React.FC<{
 };
 
 const HeaderStats: React.FC<{
+  onOpen: () => void;
   factionName: string | undefined;
   factionImage: string | undefined;
   description: string | undefined;
   factionLevel: number | undefined;
   population: number | undefined;
-}> = ({ factionName, factionImage, description, factionLevel, population }) => {
+}> = ({
+  onOpen,
+  factionName,
+  factionImage,
+  description,
+  factionLevel,
+  population,
+}) => {
   return (
     <Flex mt="2rem" w="100%">
       <TownHall image={factionImage ?? ""} />
@@ -114,7 +124,12 @@ const HeaderStats: React.FC<{
             <Label>Level</Label>
             <Value>{factionLevel}</Value>
           </Flex>
-          <Flex alignItems="center" gap="0.5rem">
+          <Flex
+            alignItems="center"
+            gap="0.5rem"
+            onClick={onOpen}
+            cursor="pointer"
+          >
             <Label>Population</Label>
             <Value>{population}</Value>
           </Flex>
