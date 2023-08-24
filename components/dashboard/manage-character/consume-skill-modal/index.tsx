@@ -43,7 +43,7 @@ export const ConsumeSkillModal: FC<{
         bg="brand.primary"
         color="brand.secondary"
         p="1rem"
-        minW="425px"
+        minW="500px"
       >
         <ModalBody>
           <Text fontSize="4rem" textTransform="uppercase" fontWeight={700}>

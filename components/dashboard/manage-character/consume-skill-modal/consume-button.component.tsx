@@ -37,7 +37,7 @@ export const ConsumeButton: FC<{
             border="solid 2px rgba(0,0,0,0.25)"
             fontWeight={700}
             fontSize="1.75rem"
-            w="5rem"
+            w="8rem"
             color="brand.secondary"
             bg="brand.primary"
             borderRadius="1rem 0 0 1rem"
