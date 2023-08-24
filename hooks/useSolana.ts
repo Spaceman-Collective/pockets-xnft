@@ -49,9 +49,11 @@ export const useSolana = () => {
   useEffect(() => {
     const init = () => {
       if (window?.xnft?.solana?.isXnft) {
+        console.log('xnft!!! and wa is: ', window.xnft.solana.publicKey?.toString());
+
         const accountXnft = window.xnft.solana.publicKey?.toString();
         setPayload({
-          connection: window.xnft.solana.connection,
+          connection: connection,
           walletAddress: accountXnft,
           signTransaction: window.xnft.solana.signTransaction,
           signAllTransactions: window.xnft.solana.signAllTransactions,
@@ -189,7 +191,9 @@ const encodeTransaction = async ({
     return Error("Tx Couldn't Serialize!");
   }
 
-  const signedTx = await signTransaction(tx);
+  console.log('tx is: ', Buffer.from(tx.serialize()).toString("base64"));
+
+  const signedTx = await  window?.xnft?.solana?.signTransaction(tx);
   const encodedSignedTx = encode(signedTx.serialize());
   return encodedSignedTx;
 };
@@ -307,6 +311,8 @@ const getBonkBalance = async ({
   walletAddress: string;
   connection: Connection;
 }) => {
+  console.log('wa bb: ', walletAddress)
+  console.log('connection bb: ', connection)
   const bonkBalance = await getTokenAccountBalance(
     walletAddress,
     connection,

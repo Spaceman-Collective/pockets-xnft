@@ -308,66 +308,84 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
   const handleVote = async (votingAmt: number) => {
     setIsVoteInProgress(true);
-    const encodedSignedTx = await encodeTransaction({
-      walletAddress,
-      connection,
-      signTransaction,
-      txInstructions: [
-        await voteOnProposalIx(
-          connection,
-          new PublicKey(walletAddress!),
-          new PublicKey(currentCharacter?.mint!),
-          proposalId!,
-          votingAmt,
-          currentCharacter?.faction?.id!,
-        ),
-      ],
-    });
+    try {
 
-    if (typeof encodedSignedTx === "string") {
-      const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
-      console.log("vote sig: sig");
-      toast.success("Vote successful!");
-    } else {
-      toast.error("Vote failed!");
+      const encodedSignedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        txInstructions: [
+          await voteOnProposalIx(
+            connection,
+            new PublicKey(walletAddress!),
+            new PublicKey(currentCharacter?.mint!),
+            proposalId!,
+            votingAmt,
+            currentCharacter?.faction?.id!,
+          ),
+        ],
+      });
+  
+      if (typeof encodedSignedTx === "string") {
+        const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
+        console.log("vote sig: sig");
+        toast.success("Vote successful!");
+      } else {
+        toast.error("Vote failed!");
+      }
+      setLocalVote("");
+  
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+  
+      setIsVoteInProgress(false);
+
+    } catch (e) {
+      console.log('Vote failed: ', e)
+      toast.error("Vote failed");
+      setIsVoteInProgress(false);
     }
-    setLocalVote("");
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsVoteInProgress(false);
   };
 
   const updateVote = async (votingAmt: number) => {
     setIsVoteInProgress(true);
-    const encodedSignedTx = await encodeTransaction({
-      walletAddress,
-      connection,
-      signTransaction,
-      txInstructions: [
-        await updateVoteOnProposalIx(
-          connection,
-          new PublicKey(walletAddress!),
-          new PublicKey(currentCharacter?.mint!),
-          proposalId!,
-          votingAmt,
-          currentCharacter?.faction?.id!,
-          true,
-        ),
-      ],
-    });
+    try { 
 
-    if (typeof encodedSignedTx === "string") {
-      const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
-      console.log("update vot sig: ", sig);
-      toast.success("Update vote successful!");
+      const encodedSignedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        txInstructions: [
+          await updateVoteOnProposalIx(
+            connection,
+            new PublicKey(walletAddress!),
+            new PublicKey(currentCharacter?.mint!),
+            proposalId!,
+            votingAmt,
+            currentCharacter?.faction?.id!,
+            true,
+          ),
+        ],
+      });
+  
+      if (typeof encodedSignedTx === "string") {
+        const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
+        console.log("update vot sig: ", sig);
+        toast.success("Update vote successful!");
+      }
+  
+      setLocalVote("");
+  
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+  
+      setIsVoteInProgress(false);
+
+    } catch (e) {
+      console.log(e)
+      console.log('Update failed: ', e)
+      setIsVoteInProgress(false);
     }
 
-    setLocalVote("");
-
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsVoteInProgress(false);
   };
 
   const processProposalMutation = useProcessProposal(proposal?.id);

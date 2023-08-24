@@ -34,7 +34,7 @@ import { useCreateProposal } from "@/hooks/useCreateProposal";
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import toast from "react-hot-toast";
-import { BLUEPRINTS } from "../tabs/services-tab/constants";
+import { BLUEPRINTS } from "@/types/server/Station";
 import { FaTimes } from "react-icons/fa";
 import { z } from "zod";
 import { useFaction } from "@/hooks/useFaction";

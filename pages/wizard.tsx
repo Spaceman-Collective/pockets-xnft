@@ -13,7 +13,7 @@ import { timeout } from "@/lib/utils";
 import Confetti from "@/components/Confetti";
 import { CenteredBoxContainer as WizardContainer } from "@/components/Containers.styled";
 import { useSolana } from "@/hooks/useSolana";
-import { Text } from "@chakra-ui/react";
+import { Grid, Text } from "@chakra-ui/react";
 
 export default function Wizard() {
   const [wizardStep, setWizardStep] = useState<number>(0);
@@ -63,48 +63,50 @@ export default function Wizard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      {walletAddress ? (
-        <WizardContainer>
-          {wizardStep === 0 && <Collection next={next} />}
-          {wizardStep === 1 && (
-            <NFT
-              back={back}
-              next={next}
-              data={allAssetData}
-              isLoading={allAssetDataIsLoading}
-              select={setSelectedMint}
-              setReview={setReviewMint}
-            />
-          )}
-          {wizardStep === 2 && (
-            <Mint
-              back={() => {
-                setSelectedMint(undefined);
-                back();
-              }}
-              next={next}
-              setReviewMint={setReviewMint}
-              nft={allAssetData?.nfts?.find(
-                (record) => record?.mint === selectedMint
-              )}
-              fireConfetti={fireConfetti}
-            />
-          )}
-          {wizardStep === 3 && (
-            <ReviewMint
-              data={reviewMint}
-              back={() => {
-                setSelectedMint(undefined);
-                setReviewMint(undefined);
-                setWizardStep(1);
-              }}
-            />
-          )}
-        {confetti && <Confetti canFire={confetti} />}
-        </WizardContainer>
-      ) : (
-        <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
-      )}
+      <Grid placeItems="center" minH="50vh">
+        {walletAddress ? (
+          <WizardContainer>
+            {wizardStep === 0 && <Collection next={next} />}
+            {wizardStep === 1 && (
+              <NFT
+                back={back}
+                next={next}
+                data={allAssetData}
+                isLoading={allAssetDataIsLoading}
+                select={setSelectedMint}
+                setReview={setReviewMint}
+              />
+            )}
+            {wizardStep === 2 && (
+              <Mint
+                back={() => {
+                  setSelectedMint(undefined);
+                  back();
+                }}
+                next={next}
+                setReviewMint={setReviewMint}
+                nft={allAssetData?.nfts?.find(
+                  (record) => record?.mint === selectedMint
+                )}
+                fireConfetti={fireConfetti}
+              />
+            )}
+            {wizardStep === 3 && (
+              <ReviewMint
+                data={reviewMint}
+                back={() => {
+                  setSelectedMint(undefined);
+                  setReviewMint(undefined);
+                  setWizardStep(1);
+                }}
+              />
+            )}
+            {confetti && <Confetti canFire={confetti} />}
+          </WizardContainer>
+        ) : (
+          <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
+        )}
+      </Grid>
     </>
   );
 }
