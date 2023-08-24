@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useSolana } from "@/hooks/useSolana";
 import { formatBalance } from "@/lib/utils";
 import { useRouter } from "next/router";
+import { Tip } from "../tooltip";
 
 export const DashboardInfo = () => {
   const { data: currentFs } = useAllFactions();
@@ -70,35 +71,42 @@ export const DashboardInfo = () => {
       {/*   </TextContainer> */}
       {/* </Flex> */}
       <Flex gap="2rem">
-        <IconButton
-          onClick={() => {
-            // Handle the click event for the first icon
-          }}
-        >
-          <AiFillGold size={24} color={colors.brand.secondary} />
-        </IconButton>
-        <IconButton
-          onClick={() => {
-            // Handle the click event for the second icon
-          }}
-        >
-          <MdLeaderboard
-            size={24}
-            color={
-              router.pathname === "/leaderboard"
-                ? colors.brand.quaternary
-                : colors.brand.secondary
-            }
-            onClick={() => router.push("/leaderboard")}
-          />
-        </IconButton>
-        <IconButton
-          onClick={() => {
-            // Handle the click event for the third icon
-          }}
-        >
-          <MdNotificationsActive size={24} color={colors.brand.secondary} />
-        </IconButton>
+        <Tip label="Coming soon">
+          <IconButton
+            onClick={() => {
+              // Handle the click event for the first icon
+            }}
+          >
+            <AiFillGold size={24} color={colors.brand.secondary} />
+          </IconButton>
+        </Tip>
+        <Tip label="Leaderboard">
+          <IconButton
+            onClick={() => {
+              // Handle the click event for the second icon
+            }}
+          >
+            <MdLeaderboard
+              size={24}
+              color={
+                router.pathname === "/leaderboard"
+                  ? colors.brand.quaternary
+                  : colors.brand.secondary
+              }
+              onClick={() => router.push("/leaderboard")}
+            />
+          </IconButton>
+        </Tip>
+
+        <Tip label="Coming soon">
+          <IconButton
+            onClick={() => {
+              // Handle the click event for the third icon
+            }}
+          >
+            <MdNotificationsActive size={24} color={colors.brand.secondary} />
+          </IconButton>
+        </Tip>
       </Flex>
     </Flex>
   );
