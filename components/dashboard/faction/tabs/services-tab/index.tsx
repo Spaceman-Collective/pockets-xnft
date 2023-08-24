@@ -59,7 +59,7 @@ export const FactionTabServices: React.FC<{
           templateColumns={`repeat(auto-fill, minmax(${stationSize}, 1fr))`}
           templateRows={stationSize}
         >
-          {factionData?.stations?.map((station, i) => (
+          {factionData?.stations?.map((station) => (
             <Station
               key={station.id}
               station={station}
@@ -89,8 +89,8 @@ const HeaderStats: React.FC<{
   factionName: string | undefined;
   factionImage: string | undefined;
   description: string | undefined;
-  factionLevel: string | undefined;
-  population: string | undefined;
+  factionLevel: number | undefined;
+  population: number | undefined;
 }> = ({ factionName, factionImage, description, factionLevel, population }) => {
   return (
     <Flex mt="2rem" w="100%">
