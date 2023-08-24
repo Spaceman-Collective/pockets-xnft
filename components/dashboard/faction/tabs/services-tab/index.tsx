@@ -1,11 +1,11 @@
 import { Character } from "@/types/server";
 import { Label, PanelContainer, Value } from "../tab.styles";
-import styled from "@emotion/styled";
 import {
   Box,
   Flex,
   Grid,
   HStack,
+  Spinner,
   Text,
   VStack,
   useDisclosure,
@@ -13,8 +13,11 @@ import {
 import { ModalStation } from "@/components/dashboard/faction/tabs/services-tab/station-modal";
 import { FC, useState } from "react";
 import { useFaction } from "@/hooks/useFaction";
-import { Tip } from "@/components/tooltip";
 import { getBlueprint } from "./constants";
+import { getLocalImage } from "@/lib/utils";
+import { CheckmarkIcon } from "react-hot-toast";
+import { StationBox, Title } from "./service-tab.styles";
+import { EmptySlot } from "./remaining-slot.component";
 
 const stationSize = "7rem";
 
@@ -71,25 +74,39 @@ export const FactionTabServices: React.FC<{
               }}
             />
           ))}
+
           {remainingSlots &&
             remainingSlots > 0 &&
             Array.from({ length: remainingSlots }).map((_, i) => {
               const hasConstruction =
-                factionData?.faction?.construction !== undefined;
-              if (i === 0 && hasConstruction)
-                return <Box h={stationSize} w={stationSize} bg="red" />;
+                factionData?.faction?.construction?.blueprint !== undefined;
+              if (i === 0 && hasConstruction) {
+                const { blueprint, finishedAt: finished = Date.now() } =
+                  factionData.faction.construction;
+                const isFinished = +finished < Date.now();
+                const img = getLocalImage({
+                  type: "stations",
+                  name: blueprint ?? "",
+                });
+
+                return (
+                  <StationBox
+                    key="underconstruction"
+                    backgroundImage={img}
+                    filter={isFinished ? "" : "saturate(0.5)"}
+                  >
+                    {!isFinished && <Spinner size="lg" m="0 auto" />}
+                    {isFinished && <CheckmarkIcon />}
+                  </StationBox>
+                );
+              }
+
               return (
-                <Tip
-                  key={"emptystation" + i}
-                  label={`Townhall Level ${availableSlots}: Your faction has ${remainingSlots}/${availableSlots} remaining station slots`}
-                >
-                  <Box
-                    bg="brand.primary"
-                    h={stationSize}
-                    w={stationSize}
-                    borderRadius="1rem"
-                  />
-                </Tip>
+                <EmptySlot
+                  key={i + "emptyslot"}
+                  remainingSlots={remainingSlots}
+                  availableSlots={availableSlots}
+                />
               );
             })}
         </Grid>
@@ -184,25 +201,3 @@ const Station: FC<{
   const img = image ?? stationImage ?? mockImage;
   return <StationBox onClick={onClick} backgroundImage={img} />;
 };
-
-const Title = styled(Text)`
-  text-transform: uppercase;
-  font-size: 3rem;
-  font-weight: 700;
-`;
-
-const StationBox = styled(Box)`
-  background-color: white;
-  width: 100%;
-  height: 100%;
-  min-height: ${stationSize};
-  min-width: ${stationSize};
-  border-radius: 1rem;
-  background-size: cover;
-  background-position: center;
-  transition: all 0.25s ease-in-out;
-
-  :hover {
-    transform: scale(1.2);
-  }
-`;
