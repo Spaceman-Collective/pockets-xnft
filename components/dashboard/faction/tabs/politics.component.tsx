@@ -61,18 +61,17 @@ type FactionTabPoliticsProps = {
   currentCharacter: Character;
   setFactionStatus: (value: boolean) => void;
   fire: () => void;
+  openCitizenModal: () => void;
 };
 
 export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   currentCharacter,
   setFactionStatus,
   fire: fireConfetti,
+  openCitizenModal,
 }) => {
   const factionId = currentCharacter?.faction?.id ?? "";
-
-  const { data: factionData } = useFaction({
-    factionId: currentCharacter?.faction?.id ?? "",
-  });
+  const { data: factionData } = useFaction({ factionId });
 
   const {
     data: allProposals,
@@ -120,7 +119,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header factionName={currentCharacter?.faction?.name} />
       <Flex>
-        <CitizensButton onClick={() => {}} cursor="pointer">
+        <CitizensButton onClick={openCitizenModal} cursor="pointer">
           citizens
         </CitizensButton>
         <LeaveFactionModal
