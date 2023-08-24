@@ -17,13 +17,13 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { css } from "@emotion/react";
-import { Label, PanelContainer, Value, ValueCalculation } from "./tab.styles";
+import { Label, PanelContainer, Value, ValueCalculation } from "../tab.styles";
 import { colors } from "@/styles/defaultTheme";
 import styled from "@emotion/styled";
 import { useSolana } from "@/hooks/useSolana";
 import { Character } from "@/types/server";
 import { useEffect, useState } from "react";
-import { CreateProposal } from "../create-proposal-modal/create-proposal.component";
+import { CreateProposal } from "../../create-proposal-modal/create-proposal.component";
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
 import { Proposal } from "@/types/server/Proposal";
 import { FetchResponse } from "@/lib/apiClient";
@@ -51,10 +51,11 @@ import { useFaction } from "@/hooks/useFaction";
 import { decode } from "bs58";
 import { TransactionMessage } from "@solana/web3.js";
 import { useCitizen } from "@/hooks/useCitizen";
-import { LeaveFactionModal } from "../leave-faction.component";
+import { LeaveFactionModal } from "../../leave-faction.component";
 import toast from "react-hot-toast";
 import useProcessProposal from "@/hooks/useProcessProposal";
 import { useProposalVotes } from "@/hooks/useProposalVotes";
+import { useVoteThreshold } from "@/hooks/useVoteThreshold";
 
 const spacing = "1rem";
 type FactionTabPoliticsProps = {
@@ -90,6 +91,36 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     console.info("ap: ", allProposals);
   }, [currentCharacter, allProposals, setFactionStatus]);
 
+  const [votingPower, setVotingPower] = useState<string>("");
+
+  const { data } = useCitizen(currentCharacter?.mint);
+  const { connection, walletAddress, signTransaction, encodeTransaction } =
+    useSolana();
+
+  const getVotingPower = async () => {
+    // if (vpA) {
+    //   setVotingPower(vpA.votingPower.toString());
+    // } else {
+    //   setVotingPower("0");
+    // }
+  };
+
+  useEffect(() => {
+    getVotingPower().then(() => {
+      console.log("Votes: ", votingPower);
+      console.log("Inital Page Load Vote Count:  ", votingPower);
+    });
+  });
+
+
+  const reclaimAllVotes = async () => {
+    // if (vpA) {
+    //   setVotingPower(vpA.votingPower.toString());
+    // } else {
+    //   setVotingPower("0");
+    // }
+  };
+
   const renderContent = () => {
     if (allProposalsIsLoading || isError) {
       return (
@@ -103,7 +134,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     }
     return (
       <VStack gap={spacing}>
-        <ProposalLabels fire={fireConfetti} character={currentCharacter} />
+        <ProposalLabels fire={fireConfetti} character={currentCharacter} proposals={allProposals?.proposals!} />
         {allProposals?.proposals?.map((proposal: Proposal) => (
           <ProposalItem
             key={proposal.id}
@@ -117,7 +148,38 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
+      <Flex justifyContent="space-between">
       <Header factionName={currentCharacter?.faction?.name} />
+      <Flex alignItems="end">
+      <Text
+        fontSize="1.5rem"
+        color="brand.secondary"
+        cursor="pointer"
+        onClick={reclaimAllVotes}
+      >
+        RECLAIM PROPOSAL VOTES
+      </Text>
+      </Flex>
+      <HStack alignItems="end" pb="0.5rem">
+        <Label color={colors.brand.tertiary} pb="0.25rem">
+          Voting Power:
+        </Label>
+        <Value>
+          {data?.citizen?.maxPledgedVotingPower}/
+          {data?.citizen?.totalVotingPower}
+        </Value>
+        <ValueCalculation
+          color={colors.brand.tertiary}
+          pl="0.25rem"
+          pb="0.25rem"
+        >
+          ({data?.citizen?.grantedVotingPower.toString()}
+          {" + "}
+          {data?.citizen?.maxPledgedVotingPower.toString()})
+        </ValueCalculation>
+      </HStack>
+      </Flex>
+
       <Flex>
         <CitizensButton onClick={openCitizenModal} cursor="pointer">
           citizens
@@ -235,28 +297,17 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
 
-  const getProposalVotes = async () => {
-    const propPDA = getProposalPDA(proposalId!);
-    const citiPDA = getCitizenPDA(new PublicKey(currentCharacter?.mint));
-    const votePDA = getVotePDA(citiPDA, propPDA);
-    const vA = await getVoteAccount(connection, votePDA);
-
-    if (vA) {
-      console.log("VA: ", vA);
-      setVoteAmount(vA.voteAmt.toString());
-    } else {
-      setVoteAmount("0");
-    }
-  };
   const { data: proposalVotes } = useProposalVotes(proposalId!);
 
   useEffect(() => {
-    console.log(`votes for ${proposalId}: `, proposalVotes);
-
     setVoteAmount(proposalVotes);
-    // if (proposalVotes && voteAmount == "") {
-    // }
   }, [proposalId, proposalVotes, voteAmount]);
+
+  const vT = useVoteThreshold();
+
+  useEffect(() => {
+    setVoteThreshold(vT);
+  }, []);
 
   const getVoteThreshold = async () => {
     if (!currentCharacter?.faction?.id) {
@@ -349,8 +400,16 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
   const updateVote = async (votingAmt: number) => {
     setIsVoteInProgress(true);
-    try { 
+    let isIncrement = true;
+    let normalizedVotingAmt = votingAmt;
 
+    try { 
+      if (votingAmt < 0) {
+        isIncrement = false;
+        console.log('is: ', isIncrement);
+        normalizedVotingAmt *= -1;
+        console.log('nva: ', normalizedVotingAmt);
+      }
       const encodedSignedTx = await encodeTransaction({
         walletAddress,
         connection,
@@ -363,7 +422,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             proposalId!,
             votingAmt,
             currentCharacter?.faction?.id!,
-            true,
+            isIncrement,
           ),
         ],
       });
@@ -475,49 +534,71 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 const ProposalLabels: React.FC<{
   fire: () => void;
   character: Character;
-}> = ({ fire: fireConfetti, character }) => {
-  const [votingPower, setVotingPower] = useState<string>("");
+  proposals: Proposal[];
+}> = ({ fire: fireConfetti, character, proposals }) => {
 
-  const { data } = useCitizen(character?.mint);
   const { connection, walletAddress, signTransaction, encodeTransaction } =
-    useSolana();
+  useSolana();
 
-  const getVotingPower = async () => {
-    // if (vpA) {
-    //   setVotingPower(vpA.votingPower.toString());
-    // } else {
-    //   setVotingPower("0");
-    // }
+
+  const updateVote = async (votingAmt: number, proposal: Proposal) => {
+    let isIncrement = true;
+    let normalizedVotingAmt = votingAmt;
+
+    try { 
+      if (votingAmt < 0) {
+        isIncrement = false;
+        console.log('is: ', isIncrement);
+        normalizedVotingAmt *= -1;
+        console.log('nva: ', normalizedVotingAmt);
+      }
+      const encodedSignedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        txInstructions: [
+          await updateVoteOnProposalIx(
+            connection,
+            new PublicKey(walletAddress!),
+            new PublicKey(character?.mint!),
+            proposal?.id!,
+            votingAmt,
+            character?.faction?.id!,
+            isIncrement,
+          ),
+        ],
+      });
+  
+      if (typeof encodedSignedTx === "string") {
+        const sig = await connection.sendRawTransaction(decode(encodedSignedTx));
+        console.log("update vot sig: ", sig);
+        toast.success("Update vote successful!");
+      }
+  
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    } catch (e) {
+      console.log(e)
+      console.log('Update failed: ', e)
+    }
   };
 
-  useEffect(() => {
-    getVotingPower().then(() => {
-      console.log("Votes: ", votingPower);
-      console.log("Inital Page Load Vote Count:  ", votingPower);
-    });
-  });
+  const reclaimProposalVotes = async () => {
+    
+  };
 
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <MenuTitle>proposals</MenuTitle>
-      <HStack alignItems="end">
-        <Label color={colors.brand.tertiary} pb="0.25rem">
-          Voting Power:
-        </Label>
-        <Value>
-          {data?.citizen?.maxPledgedVotingPower}/
-          {data?.citizen?.totalVotingPower}
-        </Value>
-        <ValueCalculation
-          color={colors.brand.tertiary}
-          pl="0.25rem"
-          pb="0.25rem"
-        >
-          ({data?.citizen?.grantedVotingPower.toString()}
-          {" + "}
-          {data?.citizen?.maxPledgedVotingPower.toString()})
-        </ValueCalculation>
-      </HStack>
+      <Flex alignItems="end">
+      <Text
+        fontSize="1.5rem"
+        color="brand.secondary"
+        cursor="pointer"
+        onClick={reclaimProposalVotes}
+      >
+        RECLAIM PROPOSAL VOTES
+      </Text>
+      </Flex>
       <Flex alignItems="end">
         <CreateProposal fire={fireConfetti} />
       </Flex>

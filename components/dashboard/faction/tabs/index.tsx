@@ -7,13 +7,13 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { FactionTabServices } from "./services-tab";
-import { FactionTabPolitics } from "./politics.component";
+import { FactionTabPolitics } from "./politics-tab";
 import { FactionTabResources } from "./resources-tab";
 import { Character } from "@/types/server";
 import Confetti from "@/components/Confetti";
 import { useState } from "react";
 import { timeout } from "@/lib/utils";
-import { CitizenModal } from "./citizens-modal.component";
+import { CitizenModal } from "./politics-tab/citizens-modal.component";
 import { useFaction } from "@/hooks/useFaction";
 
 export const FactionTabs: React.FC<{
