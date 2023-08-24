@@ -49,8 +49,6 @@ export const useSolana = () => {
   useEffect(() => {
     const init = () => {
       if (window?.xnft?.solana?.isXnft) {
-        console.log('xnft!!! and wa is: ', window.xnft.solana.publicKey?.toString());
-
         const accountXnft = window.xnft.solana.publicKey?.toString();
         setPayload({
           connection: connection,
@@ -215,7 +213,7 @@ const sendTransaction = async (
 
   const tx = new VersionedTransaction(txMsg);
   if (!tx) return;
-  const signedTx = await signTransaction(tx);
+  const signedTx = await window?.xnft?.solana?.signTransaction(tx);
   return await connection.sendRawTransaction(signedTx.serialize());
 };
 
@@ -248,7 +246,7 @@ const sendAllTransactions = async (
   }
 
   const signatures: string[] = [];
-  const signedTxs = await signAllTransactions(versionedTxs);
+  const signedTxs = await window?.xnft?.solana?.signAllTransaction(versionedTxs);
   for (let signedTx of signedTxs) {
     let sig = await connection.sendRawTransaction(signedTx.serialize());
     signatures.push(sig);
@@ -311,8 +309,6 @@ const getBonkBalance = async ({
   walletAddress: string;
   connection: Connection;
 }) => {
-  console.log('wa bb: ', walletAddress)
-  console.log('connection bb: ', connection)
   const bonkBalance = await getTokenAccountBalance(
     walletAddress,
     connection,
@@ -382,7 +378,7 @@ function getRFPDA(rfId: string): PublicKey {
     [Buffer.from("rf"), Buffer.from(rfId)],
     new PublicKey(POCKETS_PROGRAM_PROGRAMID)
   );
-  console.log('rfpda: ', rfPDA)
+  // console.log('rfpda: ', rfPDA)
   return rfPDA;
 }
 
