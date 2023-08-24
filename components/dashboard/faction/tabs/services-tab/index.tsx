@@ -5,7 +5,6 @@ import {
   Flex,
   Grid,
   HStack,
-  Spinner,
   Text,
   VStack,
   useDisclosure,
@@ -14,10 +13,8 @@ import { ModalStation } from "@/components/dashboard/faction/tabs/services-tab/s
 import { FC, useState } from "react";
 import { useFaction } from "@/hooks/useFaction";
 import { getBlueprint } from "./constants";
-import { getLocalImage } from "@/lib/utils";
-import { CheckmarkIcon } from "react-hot-toast";
 import { StationBox, Title } from "./service-tab.styles";
-import { EmptySlot } from "./remaining-slot.component";
+import { RemainingSlot } from "./remaining-slot.component";
 
 const stationSize = "7rem";
 
@@ -34,6 +31,7 @@ export const FactionTabServices: React.FC<{
   const availableSlots = factionData?.faction?.townhallLevel;
   const remainingSlots =
     availableSlots && availableSlots - factionData?.stations.length;
+  const hasRemainingSlots = remainingSlots && remainingSlots > 0;
 
   return (
     <>
@@ -75,37 +73,19 @@ export const FactionTabServices: React.FC<{
             />
           ))}
 
-          {remainingSlots &&
-            remainingSlots > 0 &&
+          {hasRemainingSlots &&
             Array.from({ length: remainingSlots }).map((_, i) => {
               const hasConstruction =
-                factionData?.faction?.construction?.blueprint !== undefined;
-              if (i === 0 && hasConstruction) {
-                const { blueprint, finishedAt: finished = Date.now() } =
-                  factionData.faction.construction;
-                const isFinished = +finished < Date.now();
-                const img = getLocalImage({
-                  type: "stations",
-                  name: blueprint ?? "",
-                });
-
-                return (
-                  <StationBox
-                    key="underconstruction"
-                    backgroundImage={img}
-                    filter={isFinished ? "" : "saturate(0.5)"}
-                  >
-                    {!isFinished && <Spinner size="lg" m="0 auto" />}
-                    {isFinished && <CheckmarkIcon />}
-                  </StationBox>
-                );
-              }
-
+                i === 0 && factionData?.faction?.construction;
               return (
-                <EmptySlot
-                  key={i + "emptyslot"}
-                  remainingSlots={remainingSlots}
-                  availableSlots={availableSlots}
+                <RemainingSlot
+                  key={"slot" + i}
+                  construction={
+                    hasConstruction
+                      ? factionData.faction.construction
+                      : undefined
+                  }
+                  slots={[remainingSlots, availableSlots]}
                 />
               );
             })}
