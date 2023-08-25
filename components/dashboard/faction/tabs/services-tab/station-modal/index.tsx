@@ -30,7 +30,7 @@ import { FaClock } from "react-icons/fa";
 import { ResourceContainer } from "./resource-container.component";
 import { startStationProcess as startStation } from "./tx-builder";
 import { Tip } from "@/components/tooltip";
-import { getLocalImage } from "@/lib/utils";
+import { getLocalImage, timeAgo } from "@/lib/utils";
 import { getBlueprint } from "@/types/server";
 
 export const ModalStation: FC<{
@@ -303,12 +303,3 @@ const ModalHeader = ({
     </Flex>
   );
 };
-
-function timeAgo(timestamp: number): string {
-  const timeDifference = Math.floor(timestamp); // Convert to seconds
-  const hours = Math.floor(timeDifference / 3600);
-  const minutes = Math.floor((timeDifference % 3600) / 60);
-  const seconds = timeDifference % 60;
-
-  return `${hours}h ${minutes}m ${seconds}s`;
-}

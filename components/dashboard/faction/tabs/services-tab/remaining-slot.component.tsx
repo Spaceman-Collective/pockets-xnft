@@ -1,10 +1,12 @@
-import { getLocalImage } from "@/lib/utils";
+import { getLocalImage, timeAgo } from "@/lib/utils";
 import { FC } from "react";
 import { StationBox } from "./service-tab.styles";
 import { Box, Spinner } from "@chakra-ui/react";
 import { CheckmarkIcon, toast } from "react-hot-toast";
 import { Tip } from "@/components/tooltip";
 import { useCompleteConstruction } from "@/hooks/useFaction";
+import { FaHammer } from "react-icons/fa";
+import styled from "@emotion/styled";
 
 type Construction = {
   blueprint?: string;
@@ -36,6 +38,8 @@ export const RemainingSlot: FC<{
 
   const { blueprint, finishedAt: finished = Date.now() } = construction;
   const isFinished = +finished < Date.now();
+  const remainingTime = isFinished ? 0 : +finished - Date.now();
+  console.log({ remainingTime: remainingTime / 1000 });
   const img = getLocalImage({
     type: "stations",
     name: blueprint ?? "",
@@ -62,7 +66,7 @@ export const RemainingSlot: FC<{
       label={
         isFinished
           ? "Station ready! Click to continue"
-          : `Remaining Build Time: `
+          : `Remaining Build Time: ${timeAgo(remainingTime / 1000)} `
       }
     >
       <StationBox
@@ -73,6 +77,7 @@ export const RemainingSlot: FC<{
       >
         {isLoading && <Spinner size="lg" m="0 auto" />}
         {!isLoading && isFinished && <CheckmarkIcon />}
+        {!isLoading && !isFinished && <AnimatedHammer />}
       </StationBox>
     </Tip>
   );
@@ -92,3 +97,24 @@ export const EmptySlot: FC<{
     </Tip>
   );
 };
+
+const AnimatedHammer = styled(FaHammer)`
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 1));
+  animation: pulse 5s ease-in-out infinite;
+
+  svg {
+    stroke: black;
+    stroke-width: 2px;
+  }
+  @keyframes pulse {
+    from {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(2);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+`;

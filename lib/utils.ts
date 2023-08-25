@@ -52,6 +52,15 @@ export function getRandomName({
   return randomFirstName + " " + randomLastName;
 }
 
+export function timeAgo(timestamp: number): string {
+  const timeDifference = Math.floor(timestamp); // Convert to seconds
+  const hours = Math.floor(timeDifference / 3600);
+  const minutes = Math.floor((timeDifference % 3600) / 60);
+  const seconds = timeDifference % 60;
+
+  return `${hours}h ${minutes}m ${seconds}s`;
+}
+
 export function getLocalImage({
   type,
   name,
@@ -65,16 +74,16 @@ export function getLocalImage({
 }
 
 export const formatBalance = (balance: number) => {
-    let format = ''
-    if (balance > 1000000000) {
-        format = (balance / 1000000000).toFixed(2) + 'B'
-    } else if (balance > 1000000) {
-        format = (balance / 1000000).toFixed(2) + 'M'
-    } else if (balance > 1000) {
-        format = (balance / 1000).toFixed(2) + 'K'
-    } else {
-        format = balance.toFixed(2)
-    }
+  let format = "";
+  if (balance > 1000000000) {
+    format = (balance / 1000000000).toFixed(2) + "B";
+  } else if (balance > 1000000) {
+    format = (balance / 1000000).toFixed(2) + "M";
+  } else if (balance > 1000) {
+    format = (balance / 1000).toFixed(2) + "K";
+  } else {
+    format = balance.toFixed(2);
+  }
 
-    return format;
-}
+  return format;
+};
