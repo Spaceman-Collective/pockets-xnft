@@ -178,6 +178,7 @@ const Station: FC<{
 }> = ({ image, station, onClick }) => {
   return (
     <StationBox
+      cursor="pointer"
       onClick={onClick}
       backgroundImage={
         image ??

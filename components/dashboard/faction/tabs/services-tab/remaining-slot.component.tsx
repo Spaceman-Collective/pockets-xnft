@@ -8,6 +8,7 @@ import { useCompleteConstruction } from "@/hooks/useFaction";
 import { FaHammer } from "react-icons/fa";
 import styled from "@emotion/styled";
 import { useCountdown } from "usehooks-ts";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Construction = {
   blueprint?: string;
@@ -61,6 +62,26 @@ export const RemainingSlot: FC<{
     resetCountdown();
   }, [hasConstruction]);
 
+  const queryClient = useQueryClient();
+  const onClick = () => {
+    if (!isFinished || !factionId) return;
+    mutate(
+      { factionId },
+      {
+        onSuccess: (_) => {
+          queryClient.refetchQueries({ queryKey: ["fetch-faction"] });
+          toast.success(
+            construction?.blueprint +
+              " created! You can now use it to process resources",
+          );
+        },
+        onError: (_) => {
+          toast.error("Oops! Did not create a station");
+        },
+      },
+    );
+  };
+
   if (!hasConstruction) {
     return (
       <EmptySlot
@@ -69,21 +90,6 @@ export const RemainingSlot: FC<{
       />
     );
   }
-
-  const onClick = () => {
-    if (!isFinished || !factionId) return;
-    mutate(
-      { factionId },
-      {
-        onSuccess: (_) => {
-          toast.success(construction?.blueprint + " created");
-        },
-        onError: (_) => {
-          toast.error("Oops! Did not create a station");
-        },
-      },
-    );
-  };
 
   return (
     <Tip
@@ -97,7 +103,7 @@ export const RemainingSlot: FC<{
         key="underconstruction"
         onClick={onClick}
         backgroundImage={img}
-        filter={isFinished ? "" : "saturate(0.5)"}
+        filter={isFinished ? "" : "saturate(0.1)"}
       >
         {isLoading && <Spinner size="lg" m="0 auto" />}
         {!isLoading && isFinished && <CheckmarkIcon />}
