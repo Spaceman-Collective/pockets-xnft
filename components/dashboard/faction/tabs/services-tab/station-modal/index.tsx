@@ -16,7 +16,6 @@ import {
 } from "@chakra-ui/react";
 import { FC, useEffect } from "react";
 import { useCountdown } from "usehooks-ts";
-import { getBlueprint } from "../constants";
 import { toast } from "react-hot-toast";
 import { useCharTimers } from "@/hooks/useCharTimers";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
@@ -32,6 +31,7 @@ import { ResourceContainer } from "./resource-container.component";
 import { startStationProcess as startStation } from "./tx-builder";
 import { Tip } from "@/components/tooltip";
 import { getLocalImage } from "@/lib/utils";
+import { getBlueprint } from "@/types/server";
 
 export const ModalStation: FC<{
   station?: {
