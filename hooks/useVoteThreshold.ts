@@ -18,8 +18,8 @@ export const useVoteThreshold = (currentCharacter: Character | undefined, connec
     const factPDA = getFactionPDA(currentCharacter?.faction?.id!);
     const fA = await getFactionAccount(connection!, factPDA);
 
-    if (fA) {
-      return fA?.thresholdToPass.toString()!;
+    if (fA) {      
+      return fA?.thresholdToPass.toString();
     } else {
       return "NA";
     }

@@ -57,6 +57,7 @@ import useProcessProposal from "@/hooks/useProcessProposal";
 import { useProposalVotes } from "@/hooks/useProposalVotes";
 import { useVoteThreshold } from "@/hooks/useVoteThreshold";
 import { useProposalVotesAll } from "@/hooks/useProposalVotesAll";
+import { useProposalVoteAccount } from "@/hooks/useProposalVoteAccount";
 
 const spacing = "1rem";
 type FactionTabPoliticsProps = {
@@ -75,6 +76,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   const factionId = currentCharacter?.faction?.id ?? "";
   const { data: factionData } = useFaction({ factionId });
   const [isLoading, setIsLoading] = useState(false);
+  const [isThresholdLoading, setIsThresholdLoading] = useState(false);
   const [voteThreshold, setVoteThreshold] = useState<string>("");
   const [votingPower, setVotingPower] = useState<string>("");
 
@@ -91,14 +93,15 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 
   useEffect(() => {
     if (vT) {
-      setIsLoading(false);
+      setIsThresholdLoading(false);
       setVoteThreshold(vT);
       console.log(`Proposal vote threshold: `, vT);
     } else {
-      setIsLoading(true);
-      console.log(`Getting vt`);
+      setIsThresholdLoading(true);
+      console.log('Loading threshold')
     }
-  }, []);
+  }, [vT]);
+  
 
   useEffect(() => {
     if (factionData) {
@@ -309,16 +312,27 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   const [localVote, setLocalVote] = useState<string>("");
   const [inputError, setInputError] = useState<string | null>(null);
   const [voteAmount, setVoteAmount] = useState<string>("");
+  const [voteAccountExists, setVoteAccountExists] = useState<boolean>(false);
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
 
   const { data: proposalVotes } = useProposalVotes(proposalId!);
+  const voteAccountStatus = useProposalVoteAccount(proposalId!);
 
   useEffect(() => {
     if (proposalVotes) {
       setVoteAmount(proposalVotes);
     }
   }, [proposalId, proposalVotes, voteAmount]);
+
+  useEffect(() => {
+      setVoteAccountExists(voteAccountStatus);
+  }, [proposalId, proposalVotes, voteAmount]);
+
+  useEffect(() => {
+    console.log('vtttt: ', voteThreshold)
+}, [proposalId, proposalVotes, voteAmount]);
+  
 
   // const getProposalOnChainInfo = async () => {
   //   const pA = await getProposalAccount(connection, proposalId!);
@@ -490,9 +504,9 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                 letterSpacing="1px"
                 bg={colors.blacks[700]}
                 onClick={() => {
-                  if (Number(voteAmount) >= Number(voteThreshold)) {
+                  if (voteAccountExists && Number(voteAmount) >= Number(voteThreshold)) {
                     processProposalMutation.mutate();
-                  } else if (validateInput() && Number(voteAmount) > 0) {
+                  } else if (validateInput() && voteAccountExists) {
                     updateVote(parseInt(localVote));
                   } else {
                     handleVote(parseInt(localVote));
