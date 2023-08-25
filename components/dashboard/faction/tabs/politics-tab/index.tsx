@@ -56,6 +56,7 @@ import toast from "react-hot-toast";
 import useProcessProposal from "@/hooks/useProcessProposal";
 import { useProposalVotes } from "@/hooks/useProposalVotes";
 import { useVoteThreshold } from "@/hooks/useVoteThreshold";
+import { useProposalVotesAll } from "@/hooks/useProposalVotesAll";
 
 const spacing = "1rem";
 type FactionTabPoliticsProps = {
@@ -73,6 +74,8 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 }) => {
   const factionId = currentCharacter?.faction?.id ?? "";
   const { data: factionData } = useFaction({ factionId });
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const {
     data: allProposals,
@@ -112,17 +115,8 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     });
   });
 
-
-  const reclaimAllVotes = async () => {
-    // if (vpA) {
-    //   setVotingPower(vpA.votingPower.toString());
-    // } else {
-    //   setVotingPower("0");
-    // }
-  };
-
   const renderContent = () => {
-    if (allProposalsIsLoading || isError) {
+    if (isLoading || allProposalsIsLoading || isError) {
       return (
         <VStack gap={spacing} align="center">
           <LoadingContainer>
@@ -134,7 +128,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     }
     return (
       <VStack gap={spacing}>
-        <ProposalLabels fire={fireConfetti} character={currentCharacter} proposals={allProposals?.proposals!} />
+        <ProposalLabels fire={fireConfetti} character={currentCharacter} proposals={allProposals?.proposals!} setIsLoading={setIsLoading} />
         {allProposals?.proposals?.map((proposal: Proposal) => (
           <ProposalItem
             key={proposal.id}
@@ -151,14 +145,14 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
       <Flex justifyContent="space-between">
       <Header factionName={currentCharacter?.faction?.name} />
       <Flex alignItems="end">
-      <Text
+      {/* <Text
         fontSize="1.5rem"
         color="brand.secondary"
         cursor="pointer"
         onClick={reclaimAllVotes}
       >
         RECLAIM PROPOSAL VOTES
-      </Text>
+      </Text> */}
       </Flex>
       <HStack alignItems="end" pb="0.5rem">
         <Label color={colors.brand.tertiary} pb="0.25rem">
@@ -535,13 +529,38 @@ const ProposalLabels: React.FC<{
   fire: () => void;
   character: Character;
   proposals: Proposal[];
-}> = ({ fire: fireConfetti, character, proposals }) => {
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({ fire: fireConfetti, character, proposals, setIsLoading }) => {
 
   const { connection, walletAddress, signTransaction, encodeTransaction } =
   useSolana();
 
+  const proposalIds = (proposals || []).map(proposal => proposal.id).filter(Boolean) as string[];
+  const { data: votesData } = useProposalVotesAll(proposalIds!);
 
-  const updateVote = async (votingAmt: number, proposal: Proposal) => {
+  useEffect(() => {
+    if (votesData) {
+      console.log("Votes Data:", votesData);
+    }
+  }, [votesData]);
+  
+  const fetchVotesForProposal = async (proposalId: string) => {
+    const propPDA = getProposalPDA(proposalId);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+    const citiPDA = getCitizenPDA(new PublicKey(character?.mint!));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+    const votePDA = getVotePDA(citiPDA, propPDA);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+    const vA = await getVoteAccount(connection, votePDA);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+    return vA ? parseInt(vA.voteAmt.toString(), 10) : 0;
+  };
+
+  const updateVote = async (votingAmt: number, currentProposalId: string) => {
     let isIncrement = true;
     let normalizedVotingAmt = votingAmt;
 
@@ -561,7 +580,7 @@ const ProposalLabels: React.FC<{
             connection,
             new PublicKey(walletAddress!),
             new PublicKey(character?.mint!),
-            proposal?.id!,
+            currentProposalId!,
             votingAmt,
             character?.faction?.id!,
             isIncrement,
@@ -576,14 +595,34 @@ const ProposalLabels: React.FC<{
       }
   
       await new Promise((resolve) => setTimeout(resolve, 2000));
+  
+
     } catch (e) {
       console.log(e)
       console.log('Update failed: ', e)
     }
+
   };
 
   const reclaimProposalVotes = async () => {
-    
+    setIsLoading(true);
+    if (!proposalIds || proposalIds.length === 0) {
+      console.log("No proposals to fetch votes for");
+      return;
+    }
+    const voteAmounts = await Promise.all(proposalIds.map(fetchVotesForProposal));
+  
+    for (let i = 0; i < proposalIds.length; i++) {
+      const proposalId = proposalIds[i];
+      const voteAmount = voteAmounts[i];
+  
+      if (voteAmount > 0) {
+        await updateVote(-voteAmount, proposalId);
+      }
+    }
+  
+    console.log("All votes reclaimed!");
+    setIsLoading(false);
   };
 
   return (

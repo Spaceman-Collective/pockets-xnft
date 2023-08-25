@@ -36,8 +36,6 @@ export const useProposalVotes = (proposalId: string | undefined) => {
 
         const vA = await getVoteAccount(connection, votePDA);
         await new Promise((resolve) => setTimeout(resolve, 1000));
-
-
   
         if (vA) {
           return vA.voteAmt.toString();
