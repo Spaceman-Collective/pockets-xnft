@@ -95,14 +95,11 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     if (vT) {
       setIsThresholdLoading(false);
       setVoteThreshold(vT);
-      console.log(`Proposal vote threshold: `, vT);
     } else {
       setIsThresholdLoading(true);
-      console.log('Loading threshold')
     }
   }, [vT]);
   
-
   useEffect(() => {
     if (factionData) {
       console.info("faction data politics: ", factionData);
