@@ -2,8 +2,9 @@ import { getLocalImage } from "@/lib/utils";
 import { FC } from "react";
 import { StationBox } from "./service-tab.styles";
 import { Box, Spinner } from "@chakra-ui/react";
-import { CheckmarkIcon } from "react-hot-toast";
+import { CheckmarkIcon, toast } from "react-hot-toast";
 import { Tip } from "@/components/tooltip";
+import { useCompleteConstruction } from "@/hooks/useFaction";
 
 type Construction = {
   blueprint?: string;
@@ -13,10 +14,16 @@ type Construction = {
 };
 
 export const RemainingSlot: FC<{
+  factionId?: string;
   construction?: Construction;
   slots?: [number, number];
-}> = ({ construction, slots: [remainingSlots, availableSlots] = [0, 0] }) => {
+}> = ({
+  factionId,
+  construction,
+  slots: [remainingSlots, availableSlots] = [0, 0],
+}) => {
   const hasConstruction = construction?.blueprint !== undefined;
+  const { mutate, isLoading } = useCompleteConstruction();
 
   if (!hasConstruction) {
     return (
@@ -34,6 +41,22 @@ export const RemainingSlot: FC<{
     name: blueprint ?? "",
   });
 
+  const onClick = () => {
+    if (!isFinished || !factionId) return;
+    console.log("CLICK");
+    mutate(
+      { factionId },
+      {
+        onSuccess: (_) => {
+          toast.success(construction?.blueprint + " created");
+        },
+        onError: (_) => {
+          toast.error("Oops! Did not create a station");
+        },
+      },
+    );
+  };
+
   return (
     <Tip
       label={
@@ -44,11 +67,12 @@ export const RemainingSlot: FC<{
     >
       <StationBox
         key="underconstruction"
+        onClick={onClick}
         backgroundImage={img}
         filter={isFinished ? "" : "saturate(0.5)"}
       >
-        {!isFinished && <Spinner size="lg" m="0 auto" />}
-        {isFinished && <CheckmarkIcon />}
+        {isLoading && <Spinner size="lg" m="0 auto" />}
+        {!isLoading && isFinished && <CheckmarkIcon />}
       </StationBox>
     </Tip>
   );
