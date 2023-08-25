@@ -1,5 +1,5 @@
 import { getLocalImage, timeAgo } from "@/lib/utils";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { StationBox } from "./service-tab.styles";
 import { Box, Spinner } from "@chakra-ui/react";
 import { CheckmarkIcon, toast } from "react-hot-toast";
@@ -7,6 +7,7 @@ import { Tip } from "@/components/tooltip";
 import { useCompleteConstruction } from "@/hooks/useFaction";
 import { FaHammer } from "react-icons/fa";
 import styled from "@emotion/styled";
+import { useCountdown } from "usehooks-ts";
 
 type Construction = {
   blueprint?: string;
@@ -24,8 +25,41 @@ export const RemainingSlot: FC<{
   construction,
   slots: [remainingSlots, availableSlots] = [0, 0],
 }) => {
-  const hasConstruction = construction?.blueprint !== undefined;
   const { mutate, isLoading } = useCompleteConstruction();
+  const hasConstruction = construction?.blueprint !== undefined;
+
+  const blueprint = construction?.blueprint;
+  const finished = construction?.finishedAt ?? Date.now();
+  const isFinished = +finished < Date.now();
+  const remainingTime = isFinished ? 0 : +finished - Date.now();
+  const img = getLocalImage({
+    type: "stations",
+    name: blueprint ?? "",
+  });
+
+  const isFuture = remainingTime > 0;
+  const isClaimable = Date.now() > +finished && construction !== undefined;
+
+  const [count, { startCountdown, resetCountdown }] = useCountdown({
+    countStart: isFuture ? Math.floor(remainingTime) : 0,
+    intervalMs: 1000,
+  });
+
+  useEffect(() => {
+    if (!isClaimable) return;
+    startCountdown();
+  }, [isClaimable, startCountdown]);
+
+  useEffect(() => {
+    if (remainingTime < 0) return;
+    resetCountdown();
+    startCountdown();
+  }, [remainingTime, resetCountdown, startCountdown]);
+
+  useEffect(() => {
+    if (hasConstruction) return;
+    resetCountdown();
+  }, [hasConstruction]);
 
   if (!hasConstruction) {
     return (
@@ -35,14 +69,6 @@ export const RemainingSlot: FC<{
       />
     );
   }
-
-  const { blueprint, finishedAt: finished = Date.now() } = construction;
-  const isFinished = +finished < Date.now();
-  const remainingTime = isFinished ? 0 : +finished - Date.now();
-  const img = getLocalImage({
-    type: "stations",
-    name: blueprint ?? "",
-  });
 
   const onClick = () => {
     if (!isFinished || !factionId) return;
@@ -64,7 +90,7 @@ export const RemainingSlot: FC<{
       label={
         isFinished
           ? "Station ready! Click to continue"
-          : `Remaining Build Time: ${timeAgo(remainingTime / 1000)} `
+          : `Remaining Build Time: ${timeAgo(count / 1000)} `
       }
     >
       <StationBox
