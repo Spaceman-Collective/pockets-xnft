@@ -22,6 +22,10 @@ export interface Blueprint {
   rareDrop?: string;
 }
 
+export const getBlueprint = (stationName: string) =>
+  BLUEPRINTS.find(
+    (print) => print.name.toLowerCase() === stationName.toLowerCase(),
+  );
 export const COMBAT_BLUEPRINTS: Blueprint[] = [
   {
     name: "Tavern",
@@ -433,8 +437,8 @@ export const BLUEPRINTS: Blueprint[] = [
 ];
 
 export interface Station {
-  id: string
-  faction: string
-  blueprint: string
-  level: number
+  id: string;
+  faction: string;
+  blueprint: string;
+  level: number;
 }

@@ -4,16 +4,14 @@ import {
   Flex,
   Image,
   Button,
-  Tooltip,
   IconButton,
   VStack,
 } from "@chakra-ui/react";
 import { Tip } from "@/components/tooltip";
-import { getLocalImage } from "@/lib/utils";
+import { getLocalImage, timeAgo } from "@/lib/utils";
 import { Label, Value } from "../tab.styles";
 import { colors } from "@/styles/defaultTheme";
 import { FC, useEffect } from "react";
-import { formatRelative } from "date-fns";
 import { useCountdown } from "usehooks-ts";
 import { useRfHarvest } from "@/hooks/useRf";
 import { useSolana } from "@/hooks/useSolana";
@@ -163,26 +161,6 @@ export const ResourceFieldAction: FC<{
     </ResourceActionContainer>
   );
 };
-
-function timeAgo(timestamp: number): string {
-  const timeDifference = Math.floor(timestamp); // Convert to seconds
-  const hours = Math.floor(timeDifference / 3600);
-  const minutes = Math.floor((timeDifference % 3600) / 60);
-  const seconds = timeDifference % 60;
-
-  return `${hours}h ${minutes}m ${seconds}s`;
-}
-
-function formatTime(timestamp: number): string {
-  const currentTime = Date.now();
-  const timeDifference = Math.floor((currentTime - timestamp) / 1000); // Convert to seconds
-
-  const hours = Math.floor(timeDifference / 3600);
-  const minutes = Math.floor((timeDifference % 3600) / 60);
-  const seconds = timeDifference % 60;
-
-  return `${hours}h ${minutes}m ${seconds}s`;
-}
 
 export const ResourceActionContainer = styled(Flex)`
   background-color: ${colors.blacks[500]};

@@ -117,6 +117,30 @@ export const postCreateFaction = async ({
   }
 };
 
+export const postCompleteConstruction = async ({
+  factionId,
+}: {
+  factionId?: string;
+}): Promise<any> => {
+  const URL = API_BASE_URL + "/faction/construction/complete";
+  try {
+    const response = await fetch.post<any>(URL, {
+      factionId,
+    });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data;
+    } else {
+      console.error("Server Error while completing construction:", response);
+      throw new Error("Server Error while completing construction:");
+    }
+  } catch (error) {
+    console.error("Server Error while completing construction:", error);
+    throw error;
+  }
+};
+
 export const postFactionStationStart = async ({
   signedTx,
 }: {

@@ -16,7 +16,6 @@ import {
 } from "@chakra-ui/react";
 import { FC, useEffect } from "react";
 import { useCountdown } from "usehooks-ts";
-import { getBlueprint } from "../constants";
 import { toast } from "react-hot-toast";
 import { useCharTimers } from "@/hooks/useCharTimers";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
@@ -31,6 +30,8 @@ import { FaClock } from "react-icons/fa";
 import { ResourceContainer } from "./resource-container.component";
 import { startStationProcess as startStation } from "./tx-builder";
 import { Tip } from "@/components/tooltip";
+import { getLocalImage, timeAgo } from "@/lib/utils";
+import { getBlueprint } from "@/types/server";
 
 export const ModalStation: FC<{
   station?: {
@@ -98,7 +99,10 @@ export const ModalStation: FC<{
 
   const stationBlueprint = station && getBlueprint(station?.blueprint);
   const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
-  const image = stationBlueprint?.image;
+  const image = getLocalImage({
+    type: "stations",
+    name: station?.blueprint ?? "",
+  });
   const stationInputs = stationBlueprint?.inputs.map((e) => e.resource);
   const resourcesInWallet = walletAssets?.resources.filter((e) => {
     return stationInputs?.includes(e.name);
@@ -238,11 +242,18 @@ export const ModalStation: FC<{
                 </Button>
               </Tip>
               <ResourceContainer
-                type="units"
+                type={
+                  stationBlueprint?.unitOutput !== undefined
+                    ? "units"
+                    : "resources"
+                }
                 isDisabled={progress !== 100}
                 resources={[
                   {
-                    name: stationBlueprint?.unitOutput?.[0] ?? "",
+                    name:
+                      stationBlueprint?.unitOutput?.[0] ??
+                      stationBlueprint?.resourceOutput?.[0] ??
+                      "",
                     amount: 1,
                     balance:
                       walletAssets?.units
@@ -292,12 +303,3 @@ const ModalHeader = ({
     </Flex>
   );
 };
-
-function timeAgo(timestamp: number): string {
-  const timeDifference = Math.floor(timestamp); // Convert to seconds
-  const hours = Math.floor(timeDifference / 3600);
-  const minutes = Math.floor((timeDifference % 3600) / 60);
-  const seconds = timeDifference % 60;
-
-  return `${hours}h ${minutes}m ${seconds}s`;
-}

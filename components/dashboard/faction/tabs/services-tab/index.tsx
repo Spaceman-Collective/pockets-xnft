@@ -1,6 +1,5 @@
 import { Character } from "@/types/server";
 import { Label, PanelContainer, Value } from "../tab.styles";
-import styled from "@emotion/styled";
 import {
   Box,
   Flex,
@@ -13,8 +12,9 @@ import {
 import { ModalStation } from "@/components/dashboard/faction/tabs/services-tab/station-modal";
 import { FC, useState } from "react";
 import { useFaction } from "@/hooks/useFaction";
-import { Tip } from "@/components/tooltip";
-import { getBlueprint } from "./constants";
+import { StationBox, Title } from "./service-tab.styles";
+import { RemainingSlot } from "./remaining-slot.component";
+import { getLocalImage } from "@/lib/utils";
 
 const stationSize = "7rem";
 
@@ -31,6 +31,7 @@ export const FactionTabServices: React.FC<{
   const availableSlots = factionData?.faction?.townhallLevel;
   const remainingSlots =
     availableSlots && availableSlots - factionData?.stations.length;
+  const hasRemainingSlots = remainingSlots && remainingSlots > 0;
 
   return (
     <>
@@ -71,16 +72,25 @@ export const FactionTabServices: React.FC<{
               }}
             />
           ))}
-          {remainingSlots &&
-            remainingSlots > 0 &&
-            Array.from({ length: remainingSlots }).map((_, i) => (
-              <Tip
-                key={"emptystation" + i}
-                label={`Townhall Level ${availableSlots}: Your faction has ${remainingSlots}/${availableSlots} remaining station slots`}
-              >
-                <Box bg="brand.primary" h={stationSize} w={stationSize} />
-              </Tip>
-            ))}
+
+          {hasRemainingSlots
+            ? Array.from({ length: remainingSlots }).map((_, i) => {
+                const hasConstruction =
+                  i === 0 && factionData?.faction?.construction;
+                return (
+                  <RemainingSlot
+                    key={"slot" + i}
+                    factionId={factionData?.faction?.id}
+                    construction={
+                      hasConstruction
+                        ? factionData.faction.construction
+                        : undefined
+                    }
+                    slots={[remainingSlots, availableSlots]}
+                  />
+                );
+              })
+            : ""}
         </Grid>
       </PanelContainer>
     </>
@@ -165,35 +175,18 @@ const Station: FC<{
   image?: string;
   station?: { blueprint: string; faction: string; id: string; level: number };
   onClick: () => void;
-}> = ({ station, image, onClick }) => {
-  const isStation = !!station;
-  const mockImage = "https://picsum.photos/200";
-  const stationImage = station?.blueprint
-    ? station?.blueprint && getBlueprint(station.blueprint)?.image
-    : undefined;
-  const img = image ?? stationImage ?? mockImage;
+}> = ({ image, station, onClick }) => {
   return (
-    <Box
+    <StationBox
+      cursor="pointer"
       onClick={onClick}
-      minH={stationSize}
-      minW={stationSize}
-      w="100%"
-      h="100%"
-      bg="red"
-      borderRadius="1rem"
-      backgroundImage={img}
-      backgroundSize="cover"
-      backgroundPosition="center"
-      transition="all 0.25s ease-in-out"
-      _hover={{
-        transform: "scale(1.2)",
-      }}
+      backgroundImage={
+        image ??
+        getLocalImage({
+          type: "stations",
+          name: station?.blueprint ?? "",
+        })
+      }
     />
   );
 };
-
-const Title = styled(Text)`
-  text-transform: uppercase;
-  font-size: 3rem;
-  font-weight: 700;
-`;
