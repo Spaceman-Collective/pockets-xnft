@@ -242,11 +242,18 @@ export const ModalStation: FC<{
                 </Button>
               </Tip>
               <ResourceContainer
-                type="units"
+                type={
+                  stationBlueprint?.unitOutput !== undefined
+                    ? "units"
+                    : "resources"
+                }
                 isDisabled={progress !== 100}
                 resources={[
                   {
-                    name: stationBlueprint?.unitOutput?.[0] ?? "",
+                    name:
+                      stationBlueprint?.unitOutput?.[0] ??
+                      stationBlueprint?.resourceOutput?.[0] ??
+                      "",
                     amount: 1,
                     balance:
                       walletAssets?.units
