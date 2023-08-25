@@ -153,6 +153,7 @@ const HeaderStats: React.FC<{
 
 const TownHall: FC<{ image: string }> = ({ image }) => {
   const size = 17;
+  console.log({ image });
   return (
     <Box
       bg="blacks.700"
@@ -177,14 +178,17 @@ const Station: FC<{
   image?: string;
   station?: { blueprint: string; faction: string; id: string; level: number };
   onClick: () => void;
-}> = ({ station, onClick }) => {
+}> = ({ image, station, onClick }) => {
   return (
     <StationBox
       onClick={onClick}
-      backgroundImage={getLocalImage({
-        type: "stations",
-        name: station?.blueprint ?? "",
-      })}
+      backgroundImage={
+        image ??
+        getLocalImage({
+          type: "stations",
+          name: station?.blueprint ?? "",
+        })
+      }
     />
   );
 };
