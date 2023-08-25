@@ -12,7 +12,6 @@ import {
 import { ModalStation } from "@/components/dashboard/faction/tabs/services-tab/station-modal";
 import { FC, useState } from "react";
 import { useFaction } from "@/hooks/useFaction";
-import { getBlueprint } from "./constants";
 import { StationBox, Title } from "./service-tab.styles";
 import { RemainingSlot } from "./remaining-slot.component";
 import { getLocalImage } from "@/lib/utils";
@@ -33,7 +32,6 @@ export const FactionTabServices: React.FC<{
   const remainingSlots =
     availableSlots && availableSlots - factionData?.stations.length;
   const hasRemainingSlots = remainingSlots && remainingSlots > 0;
-  console.log({ hasRemainingSlots });
 
   return (
     <>
@@ -153,7 +151,6 @@ const HeaderStats: React.FC<{
 
 const TownHall: FC<{ image: string }> = ({ image }) => {
   const size = 17;
-  console.log({ image });
   return (
     <Box
       bg="blacks.700"

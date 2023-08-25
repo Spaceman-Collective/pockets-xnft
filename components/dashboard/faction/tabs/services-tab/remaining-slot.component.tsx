@@ -39,7 +39,6 @@ export const RemainingSlot: FC<{
   const { blueprint, finishedAt: finished = Date.now() } = construction;
   const isFinished = +finished < Date.now();
   const remainingTime = isFinished ? 0 : +finished - Date.now();
-  console.log({ remainingTime: remainingTime / 1000 });
   const img = getLocalImage({
     type: "stations",
     name: blueprint ?? "",
@@ -47,7 +46,6 @@ export const RemainingSlot: FC<{
 
   const onClick = () => {
     if (!isFinished || !factionId) return;
-    console.log("CLICK");
     mutate(
       { factionId },
       {
