@@ -31,6 +31,7 @@ import { FaClock } from "react-icons/fa";
 import { ResourceContainer } from "./resource-container.component";
 import { startStationProcess as startStation } from "./tx-builder";
 import { Tip } from "@/components/tooltip";
+import { getLocalImage } from "@/lib/utils";
 
 export const ModalStation: FC<{
   station?: {
@@ -98,7 +99,10 @@ export const ModalStation: FC<{
 
   const stationBlueprint = station && getBlueprint(station?.blueprint);
   const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100;
-  const image = stationBlueprint?.image;
+  const image = getLocalImage({
+    type: "stations",
+    name: station?.blueprint ?? "",
+  });
   const stationInputs = stationBlueprint?.inputs.map((e) => e.resource);
   const resourcesInWallet = walletAssets?.resources.filter((e) => {
     return stationInputs?.includes(e.name);

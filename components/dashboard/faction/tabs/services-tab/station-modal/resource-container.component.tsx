@@ -9,6 +9,7 @@ export const ResourceContainer: FC<{
   resources?: { name: string; balance: string; amount: string | number }[];
   type: "resources" | "units";
 }> = ({ resources, isDisabled, type }) => {
+  console.log("saadda", resources?.map((e) => e.name));
   return (
     <Grid
       borderRadius="1rem"
