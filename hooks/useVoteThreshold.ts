@@ -4,38 +4,27 @@ import { useSelectedCharacter } from "./useSelectedCharacter";
 import { getFactionPDA, getFactionAccount } from "@/lib/solanaClient";
 import { Connection } from "@solana/web3.js";
 import { Character } from "@/types/server";
+import { useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
-export const useVoteThreshold = () => {
-  const [voteThreshold, setVoteThreshold] = useState<string>("NA");
-  const [currentCharacter] = useSelectedCharacter();
-  const { connection } = useSolana();
 
-  const getVoteThreshold = async () => {
+export const useVoteThreshold = (currentCharacter: Character | undefined, connection: Connection | undefined) => {
+  return useQuery(['voteThreshold', currentCharacter?.faction?.id], async () => {
     if (!currentCharacter?.faction?.id) {
-      console.error("Character undefined on vote threshold retrieval");
-      return;
+      toast.error('Failed to get vote threshold')
+      console.log("Character undefined on vote threshold retrieval");
     }
-    
-    const factPDA = getFactionPDA(currentCharacter?.faction?.id);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    const fA = await getFactionAccount(connection, factPDA);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const factPDA = getFactionPDA(currentCharacter?.faction?.id!);
+    const fA = await getFactionAccount(connection!, factPDA);
 
     if (fA) {
-      console.log("FA: ", fA);
-      setVoteThreshold(fA?.thresholdToPass.toString()!);
+      return fA?.thresholdToPass.toString()!;
     } else {
-      console.error("FA does not exist");
-      setVoteThreshold("NA");
+      return "NA";
     }
-  };
-
-  useEffect(() => {
-    getVoteThreshold().then(() => {
-      console.log("Vote threshold: ", voteThreshold);
-    });
-  }, [currentCharacter?.faction?.id, connection]);
-
-  return voteThreshold;
+  }, {
+    enabled: !!currentCharacter && !!connection
+  });
 };
+
