@@ -181,6 +181,7 @@ const encodeTransaction = async ({
     instructions: txInstructions as TransactionInstruction[],
   }).compileToLegacyMessage();
   const tx = new VersionedTransaction(txMsg);
+
   try {
     if (tx.serialize().length > 1200) {
       throw new Error("Tx Too Big!");

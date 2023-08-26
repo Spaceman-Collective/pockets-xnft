@@ -68,7 +68,7 @@ export async function getVoteAccount(
   );
   return await POCKETS_PROGRAM.account.proposalVote.fetchNullable(
     votePDAAddress,
-    "confirmed"
+    "finalized"
   );
 }
 

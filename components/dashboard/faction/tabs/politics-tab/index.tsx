@@ -197,7 +197,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
           citizens
         </CitizensButton>
         <LeaveFactionModal
-          character={currentCharacter}
+          character={currentCharacter} 
           setFactionStatus={setFactionStatus}
         />
       </Flex>
@@ -474,7 +474,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
           <Label color={colors.brand.tertiary} pb="0.25rem">
             proposal id:
           </Label>
-          <Value>{proposalId}</Value>
+          <Value style={{textTransform: "lowercase"}} >{proposalId}</Value>
         </HStack>
 
         <Flex width="100%">
