@@ -71,7 +71,7 @@ export const CreateProposal: React.FC<{
   const { data: allProposals, refetch } = useFetchProposalsByFaction(
     factionId,
     0,
-    10,
+    10
   );
 
   const { isOpen, onOpen, onClose: closeIt } = useDisclosure();
@@ -86,7 +86,7 @@ export const CreateProposal: React.FC<{
     useState<string>("0");
 
   const handleProposalTypeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>,
+    event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const selectedType = event.target.value;
     setProposalType(selectedType);
@@ -208,7 +208,17 @@ export const CreateProposal: React.FC<{
                     >
                       {BLUEPRINTS.map((blueprint) => (
                         <option key={blueprint.name} value={blueprint.name}>
-                          {blueprint.name}
+                          {blueprint.name} / Cost:{" "}
+                          {blueprint.upgradeResources[0].map(
+                            (resource, resourceIndex) => (
+                              <span key={resourceIndex}>
+                                {resource.resource} x{resource.amount}
+                                {resourceIndex !==
+                                  blueprint.upgradeResources[0].length - 1 &&
+                                  ", "}
+                              </span>
+                            )
+                          )}
                         </option>
                       ))}
                     </Select>
