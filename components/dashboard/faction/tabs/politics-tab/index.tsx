@@ -99,7 +99,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
       setIsThresholdLoading(true);
     }
   }, [vT]);
-  
+
   useEffect(() => {
     if (factionData) {
       console.info("faction data politics: ", factionData);
@@ -126,6 +126,11 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     });
   });
 
+  const sortedProposals = allProposals?.proposals?.slice().sort((a, b) => {
+    return new Date(b.created).getTime() - new Date(a.created).getTime();
+  });
+
+
   const renderContent = () => {
     if (isLoading || allProposalsIsLoading || isError) {
       return (
@@ -145,7 +150,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
           proposals={allProposals?.proposals!}
           setIsLoading={setIsLoading}
         />
-        {allProposals?.proposals?.map((proposal: Proposal) => (
+        {sortedProposals?.map((proposal: Proposal) => (
           <ProposalItem
             key={proposal.id}
             proposal={proposal}
@@ -154,6 +159,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
             setIsLoading={setIsLoading}
           />
         ))}
+
       </VStack>
     );
   };
@@ -197,7 +203,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
           citizens
         </CitizensButton>
         <LeaveFactionModal
-          character={currentCharacter} 
+          character={currentCharacter}
           setFactionStatus={setFactionStatus}
         />
       </Flex>
@@ -323,13 +329,13 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   }, [proposalId, proposalVotes, voteAmount]);
 
   useEffect(() => {
-      setVoteAccountExists(voteAccountStatus);
+    setVoteAccountExists(voteAccountStatus);
   }, [proposalId, proposalVotes, voteAmount]);
 
   useEffect(() => {
     console.log('vtttt: ', voteThreshold)
-}, [proposalId, proposalVotes, voteAmount]);
-  
+  }, [proposalId, proposalVotes, voteAmount]);
+
 
   // const getProposalOnChainInfo = async () => {
   //   const pA = await getProposalAccount(connection, proposalId!);
@@ -474,14 +480,14 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
           <Label color={colors.brand.tertiary} pb="0.25rem">
             proposal id:
           </Label>
-          <Value style={{textTransform: "lowercase"}} >{proposalId}</Value>
+          <Value style={{ textTransform: "lowercase" }} >{proposalId}</Value>
         </HStack>
 
         <Flex width="100%">
           {isVoteInProgress ? (
             <HStack gap={spacing}>
-                <Spinner size="md" color="white" />
-                <LoadingText style={{marginTop: "0px"}}>LOADING...</LoadingText>
+              <Spinner size="md" color="white" />
+              <LoadingText style={{ marginTop: "0px" }}>LOADING...</LoadingText>
             </HStack>
           ) : (
             <>
@@ -514,8 +520,8 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                 {voteAccountExists && Number(voteAmount) >= Number(voteThreshold)
                   ? "process"
                   : voteAccountExists
-                  ? "add votes"
-                  : "vote"}
+                    ? "add votes"
+                    : "vote"}
               </Button>
             </>
           )}
