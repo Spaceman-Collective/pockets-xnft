@@ -511,9 +511,9 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                 }}
                 disabled={isVoteInProgress}
               >
-                {Number(voteAmount) >= Number(voteThreshold)
+                {voteAccountExists && Number(voteAmount) >= Number(voteThreshold)
                   ? "process"
-                  : Number(voteAmount) > 0
+                  : voteAccountExists
                   ? "add votes"
                   : "vote"}
               </Button>
