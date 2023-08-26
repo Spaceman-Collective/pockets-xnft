@@ -10,42 +10,42 @@ import { useSelectedCharacter } from "./useSelectedCharacter";
 import { useSolana } from "./useSolana";
 
 export const useProposalVotesAll = (proposalIds: string[] | undefined) => {
-    const [selectedCharacter] = useSelectedCharacter();
-    const { connection } = useSolana();
-  
-    const defaultQueryResult = {
-      data: "NA",
-    };
+  const [selectedCharacter] = useSelectedCharacter();
+  const { connection } = useSolana();
 
-    const fetchVotesForProposal = async (proposalId: string) => {
-      const propPDA = getProposalPDA(proposalId);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+  const defaultQueryResult = {
+    data: "NA",
+  };
 
-      const citiPDA = getCitizenPDA(new PublicKey(selectedCharacter?.mint!));
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+  const fetchVotesForProposal = async (proposalId: string) => {
+    if (!selectedCharacter?.mint) {
+      throw new Error("Character mint is missing");
+    }
 
-      const votePDA = getVotePDA(citiPDA, propPDA);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    const propPDA = getProposalPDA(proposalId);
+    const citiPDA = getCitizenPDA(new PublicKey(selectedCharacter.mint));
+    const votePDA = getVotePDA(citiPDA, propPDA);
+    const vA = await getVoteAccount(connection, votePDA);
 
-      const vA = await getVoteAccount(connection, votePDA);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    return vA ? parseInt(vA.voteAmt.toString(), 10) : 0;
+  };
 
-      return vA ? parseInt(vA.voteAmt.toString(), 10) : 0;
-    };
-
-    const queryResults = useQuery(
-      ['proposalVotes', proposalIds, selectedCharacter?.mint],
-      async () => {
-        if (!proposalIds || proposalIds.length === 0) {
-          return defaultQueryResult;
-        }
-        
-        const voteAmounts = await Promise.all(proposalIds.map(fetchVotesForProposal));
-        const sumVotes = voteAmounts.reduce((acc, curr) => acc + curr, 0);
-        
-        return sumVotes.toString();
+  const queryResults = useQuery(
+    ['proposalVotes', proposalIds, selectedCharacter?.mint],
+    async () => {
+      if (!proposalIds || proposalIds.length === 0) {
+        return defaultQueryResult;
       }
-    );
-  
-    return proposalIds ? queryResults : defaultQueryResult;
+
+      const voteAmounts = await Promise.all(proposalIds.map(fetchVotesForProposal));
+      const sumVotes = voteAmounts.reduce((acc, curr) => acc + curr, 0);
+
+      return sumVotes.toString();
+    },
+    {
+      enabled: !!proposalIds && proposalIds.length > 0 && !!selectedCharacter?.mint,
+    }
+  );
+
+  return proposalIds && selectedCharacter?.mint ? queryResults : defaultQueryResult;
 };

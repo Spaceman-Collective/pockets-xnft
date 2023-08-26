@@ -90,6 +90,26 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     isLoading: allProposalsIsLoading,
     isError,
   } = useFetchProposalsByFaction(factionId, 0, 50);
+  let proposalIds: string[] = [];
+
+  if (Array.isArray(allProposals)) {
+    proposalIds = allProposals
+      .map((proposal: Proposal) => proposal.id)
+      .filter(Boolean) as string[];
+  }
+
+  const { data: votesData } = useProposalVotesAll(proposalIds);
+
+  useEffect(() => {
+    if (votesData) {
+      console.log("Votes Data:", votesData);
+      if (typeof votesData === "string") {
+        setVotingPower(votesData);
+      } else if ("data" in votesData) {
+        setVotingPower(votesData.data);
+      }
+    }
+  }, [votesData]);
 
   useEffect(() => {
     if (vT) {
@@ -130,7 +150,6 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     return new Date(b.created).getTime() - new Date(a.created).getTime();
   });
 
-
   const renderContent = () => {
     if (isLoading || allProposalsIsLoading || isError) {
       return (
@@ -159,7 +178,6 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
             setIsLoading={setIsLoading}
           />
         ))}
-
       </VStack>
     );
   };
@@ -191,9 +209,9 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
             pl="0.25rem"
             pb="0.25rem"
           >
-            ({data?.citizen?.grantedVotingPower.toString()}
+            ({votingPower.toString()}
             {" + "}
-            {data?.citizen?.maxPledgedVotingPower.toString()})
+            {data?.citizen?.delegatedVotingPower.toString()})
           </ValueCalculation>
         </HStack>
       </Flex>
@@ -333,9 +351,8 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   }, [proposalId, proposalVotes, voteAmount]);
 
   useEffect(() => {
-    console.log('vtttt: ', voteThreshold)
+    console.log("vtttt: ", voteThreshold);
   }, [proposalId, proposalVotes, voteAmount]);
-
 
   // const getProposalOnChainInfo = async () => {
   //   const pA = await getProposalAccount(connection, proposalId!);
@@ -480,7 +497,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
           <Label color={colors.brand.tertiary} pb="0.25rem">
             proposal id:
           </Label>
-          <Value style={{ textTransform: "lowercase" }} >{proposalId}</Value>
+          <Value style={{ textTransform: "lowercase" }}>{proposalId}</Value>
         </HStack>
 
         <Flex width="100%">
@@ -507,7 +524,10 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                 letterSpacing="1px"
                 bg={colors.blacks[700]}
                 onClick={() => {
-                  if (voteAccountExists && Number(voteAmount) >= Number(voteThreshold)) {
+                  if (
+                    voteAccountExists &&
+                    Number(voteAmount) >= Number(voteThreshold)
+                  ) {
                     processProposalMutation.mutate();
                   } else if (validateInput() && voteAccountExists) {
                     updateVote(parseInt(localVote));
@@ -517,11 +537,12 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                 }}
                 disabled={isVoteInProgress}
               >
-                {voteAccountExists && Number(voteAmount) >= Number(voteThreshold)
+                {voteAccountExists &&
+                Number(voteAmount) >= Number(voteThreshold)
                   ? "process"
                   : voteAccountExists
-                    ? "add votes"
-                    : "vote"}
+                  ? "add votes"
+                  : "vote"}
               </Button>
             </>
           )}
@@ -543,13 +564,6 @@ const ProposalLabels: React.FC<{
   const proposalIds = (proposals || [])
     .map((proposal) => proposal.id)
     .filter(Boolean) as string[];
-  const { data: votesData } = useProposalVotesAll(proposalIds!);
-
-  useEffect(() => {
-    if (votesData) {
-      console.log("Votes Data:", votesData);
-    }
-  }, [votesData]);
 
   const fetchVotesForProposal = async (proposalId: string) => {
     const propPDA = getProposalPDA(proposalId);
