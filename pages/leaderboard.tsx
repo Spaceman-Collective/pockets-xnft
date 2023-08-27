@@ -16,32 +16,19 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useSolana } from "@/hooks/useSolana";
 import {
   DashboardContainer,
   DashboardInfoContainer,
   DashboardMenuContainer,
-  SectionContainer,
 } from "@/components/Containers.styled";
-import {
-  CharacterList,
-  DashboardInfo,
-  DashboardMenu,
-} from "@/components/dashboard";
-import { useAssets } from "@/hooks/useCharacters";
+import { DashboardInfo, DashboardMenu } from "@/components/dashboard";
 import { colors } from "@/styles/defaultTheme";
 import { Faction } from "@/types/server/Faction";
-import { useMockFactions } from "@/hooks/useMockFactions";
-import { useMockFactionStats } from "@/hooks/useMockFactionStats";
-import { H3 } from "@/components/wizard";
-import { Label, Value } from "@/components/dashboard/personal/personal.styled";
+import { Value } from "@/components/dashboard/personal/personal.styled";
 import { useState } from "react";
 import { FaFilter } from "react-icons/fa";
 
 export default function Leaderboard() {
-  const { walletAddress } = useSolana();
-  const { data: assets, isLoading: assetsIsLoading } = useAssets(); // chars/nfts
-
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
   const handleFilter = (value: string) => {
@@ -82,132 +69,128 @@ export default function Leaderboard() {
       </Head>
       <NavBar />
       <Grid placeItems="center" minH="50vh">
-        {walletAddress ? (
-          <DashboardContainer>
-            <DashboardInfoContainer>
-              <DashboardInfo />
-            </DashboardInfoContainer>
-            <DashboardMenuContainer>
-              <DashboardMenu />
-            </DashboardMenuContainer>
-            <LeaderboardContainer>
-              <Flex justifyContent="space-between">
-                <Title>LEADERBOARD</Title>
-                <Flex
+        <DashboardContainer>
+          <DashboardInfoContainer>
+            <DashboardInfo />
+          </DashboardInfoContainer>
+          <DashboardMenuContainer>
+            <DashboardMenu />
+          </DashboardMenuContainer>
+          <LeaderboardContainer>
+            <Flex justifyContent="space-between">
+              <Title>LEADERBOARD</Title>
+              <Flex
+                display="flex"
+                justifyContent="flex-end"
+                alignItems="flex-end"
+                w="100%"
+                m="0rem 2rem 1rem 5rem"
+              >
+                <Text
+                  w="16rem"
+                  h="100%"
                   display="flex"
                   justifyContent="flex-end"
                   alignItems="flex-end"
-                  w="100%"
-                  m="0rem 2rem 1rem 5rem"
                 >
-                  <Text
-                    w="16rem"
-                    h="100%"
-                    display="flex"
-                    justifyContent="flex-end"
-                    alignItems="flex-end"
+                  Favors
+                </Text>
+                <Text
+                  w="16rem"
+                  h="100%"
+                  display="flex"
+                  justifyContent="flex-end"
+                  alignItems="flex-end"
+                >
+                  Dom Wins
+                </Text>
+                <Text
+                  w="16rem"
+                  h="100%"
+                  display="flex"
+                  justifyContent="flex-end"
+                  alignItems="flex-end"
+                >
+                  Wealth
+                </Text>
+                <Text
+                  w="16rem"
+                  h="100%"
+                  display="flex"
+                  justifyContent="flex-end"
+                  alignItems="flex-end"
+                >
+                  Knowledge
+                </Text>
+              </Flex>
+
+              <Menu>
+                <MenuButton
+                  bg="transparent"
+                  _hover={{
+                    bg: "transparent",
+                    color: colors.brand.tertiary,
+                  }}
+                  as={Button}
+                  leftIcon={<Icon as={FaFilter} />}
+                >
+                  SORT
+                </MenuButton>
+                <MenuList bg={colors.blacks[700]} border="none">
+                  <MenuItem
+                    bg={colors.blacks[700]}
+                    _hover={{ bg: colors.blacks[500] }}
+                    onClick={() => handleFilter("favor")}
                   >
-                    Favors
-                  </Text>
-                  <Text
-                    w="16rem"
-                    h="100%"
-                    display="flex"
-                    justifyContent="flex-end"
-                    alignItems="flex-end"
+                    Favor
+                  </MenuItem>
+                  <MenuItem
+                    bg={colors.blacks[700]}
+                    _hover={{ bg: colors.blacks[500] }}
+                    onClick={() => handleFilter("domWins")}
                   >
                     Dom Wins
-                  </Text>
-                  <Text
-                    w="16rem"
-                    h="100%"
-                    display="flex"
-                    justifyContent="flex-end"
-                    alignItems="flex-end"
+                  </MenuItem>
+                  <MenuItem
+                    bg={colors.blacks[700]}
+                    _hover={{ bg: colors.blacks[500] }}
+                    onClick={() => handleFilter("wealth")}
                   >
                     Wealth
-                  </Text>
-                  <Text
-                    w="16rem"
-                    h="100%"
-                    display="flex"
-                    justifyContent="flex-end"
-                    alignItems="flex-end"
+                  </MenuItem>
+                  <MenuItem
+                    bg={colors.blacks[700]}
+                    _hover={{ bg: colors.blacks[500] }}
+                    onClick={() => handleFilter("knowledge")}
                   >
                     Knowledge
-                  </Text>
-                </Flex>
-
-                <Menu>
-                  <MenuButton
-                    bg="transparent"
-                    _hover={{
-                      bg: "transparent",
-                      color: colors.brand.tertiary,
-                    }}
-                    as={Button}
-                    leftIcon={<Icon as={FaFilter} />}
-                  >
-                    SORT
-                  </MenuButton>
-                  <MenuList bg={colors.blacks[700]} border="none">
-                    <MenuItem
-                      bg={colors.blacks[700]}
-                      _hover={{ bg: colors.blacks[500] }}
-                      onClick={() => handleFilter("favor")}
-                    >
-                      Favor
-                    </MenuItem>
-                    <MenuItem
-                      bg={colors.blacks[700]}
-                      _hover={{ bg: colors.blacks[500] }}
-                      onClick={() => handleFilter("domWins")}
-                    >
-                      Dom Wins
-                    </MenuItem>
-                    <MenuItem
-                      bg={colors.blacks[700]}
-                      _hover={{ bg: colors.blacks[500] }}
-                      onClick={() => handleFilter("wealth")}
-                    >
-                      Wealth
-                    </MenuItem>
-                    <MenuItem
-                      bg={colors.blacks[700]}
-                      _hover={{ bg: colors.blacks[500] }}
-                      onClick={() => handleFilter("knowledge")}
-                    >
-                      Knowledge
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-              </Flex>
-              <VStack
-                align="start"
-                spacing={5}
-                overflowY="auto"
-                h="100%"
-                w="100%"
-              >
-                {sortedFactions().map((faction, index) => {
-                  const stats = tenMockFactionStats.find(
-                    (stat) => stat.id === faction.id
-                  );
-                  return stats ? (
-                    <FactionItem
-                      key={faction.id}
-                      rank={index + 1}
-                      faction={faction}
-                      stats={stats}
-                    />
-                  ) : null;
-                })}
-              </VStack>
-            </LeaderboardContainer>
-          </DashboardContainer>
-        ) : (
-          <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
-        )}
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </Flex>
+            <VStack
+              align="start"
+              spacing={5}
+              overflowY="auto"
+              h="100%"
+              w="100%"
+            >
+              {sortedFactions().map((faction, index) => {
+                const stats = tenMockFactionStats.find(
+                  (stat) => stat.id === faction.id,
+                );
+                return stats ? (
+                  <FactionItem
+                    key={faction.id}
+                    rank={index + 1}
+                    faction={faction}
+                    stats={stats}
+                  />
+                ) : null;
+              })}
+            </VStack>
+          </LeaderboardContainer>
+        </DashboardContainer>
       </Grid>
     </>
   );
