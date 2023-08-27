@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Text, Button, Flex, Box, Grid, HStack } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import type { Character, Faction } from "@/types/server";
@@ -185,7 +186,9 @@ const Header: FC<{
           {faction ? (
             <Text>{faction?.id}</Text>
           ) : (
-            <Button fontSize="1rem">Join Faction</Button>
+            <Link href="/faction">
+              <Button fontSize="1rem">Join Faction</Button>
+            </Link>
           )}
         </Flex>
       </Box>
