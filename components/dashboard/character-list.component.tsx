@@ -106,11 +106,13 @@ export const CharacterList: FC<Props> = ({
                     </Text>
                   </Flex>
                 </Flex>
-                <CharFactionThumbnail
-                  factionName={char?.faction?.name}
-                  factionImage={char?.faction?.image}
-                  charName={char?.name.split(" ")[0]}
-                />
+                {char?.faction?.name && (
+                  <CharFactionThumbnail
+                    factionName={char?.faction?.name}
+                    factionImage={char?.faction?.image}
+                    charName={char?.name.split(" ")[0]}
+                  />
+                )}
               </CharacterFlex>
             );
           })}
@@ -166,7 +168,7 @@ const CharFactionThumbnail: FC<{
 const FactionThumbnail = styled(Box)`
   height: 4rem;
   width: 4rem;
-  background-color: ${colors.blacks[700]};
+  background-color: white;
   border-radius: 1rem;
   background-size: cover;
   background-position: center;
