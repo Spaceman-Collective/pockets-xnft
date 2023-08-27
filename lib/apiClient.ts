@@ -188,7 +188,7 @@ export const postFactionStationClaim = async ({
 };
 
 type FetchFactionsType = {
-  factions: any[];
+  factions: Faction[];
   total: number;
   skip: number;
   take: number;
