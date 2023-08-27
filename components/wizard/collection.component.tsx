@@ -36,15 +36,6 @@ export const SelectCollection: FC<{ next: () => void }> = ({
           </Thumbnail>
           <Thumbnail
             cursor="pointer"
-            backgroundImage="collection/okb.webp"
-            backgroundSize="cover"
-            backgroundPosition="center"
-            onClick={nextStep}
-          >
-            <Text fontSize="2rem !important">OKB POG Collectors Edition</Text>
-          </Thumbnail>
-          <Thumbnail
-            cursor="pointer"
             backgroundImage={"collection/famousfoxes.webp"}
             backgroundSize="cover"
             backgroundPosition="center"
