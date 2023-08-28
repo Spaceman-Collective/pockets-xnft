@@ -26,5 +26,5 @@ export const useFactionStationClaim = () => {
 
 // Complete a station construction
 export const useCompleteConstruction = () => {
-  return useMutation(["station-start"], postCompleteConstruction);
+  return useMutation(["station-complete"], postCompleteConstruction);
 };

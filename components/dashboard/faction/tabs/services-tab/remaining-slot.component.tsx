@@ -13,7 +13,8 @@ import { useQueryClient } from "@tanstack/react-query";
 type Construction = {
   blueprint?: string;
   stationId?: string;
-  finishedAt?: string;
+  finished?: string;
+  started?: string;
   stationNewLevel?: number;
 };
 
@@ -30,7 +31,7 @@ export const RemainingSlot: FC<{
   const hasConstruction = construction?.blueprint !== undefined;
 
   const blueprint = construction?.blueprint;
-  const finished = construction?.finishedAt ?? Date.now();
+  const finished = construction?.finished ?? Date.now();
   const isFinished = +finished < Date.now();
   const remainingTime = isFinished ? 0 : +finished - Date.now();
   const img = getLocalImage({
