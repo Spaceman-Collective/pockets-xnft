@@ -13,6 +13,8 @@ import {
   ModalCloseButton,
   useDisclosure,
   Textarea,
+  Flex,
+  HStack,
 } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useSolana } from "@/hooks/useSolana";
@@ -20,6 +22,7 @@ import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
 import { useAllFactions } from "@/hooks/useAllFactions";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { Label, Value } from "./tabs/tab.styles";
 import toast from "react-hot-toast";
 
 export const CreateFaction: FC<{
@@ -50,6 +53,9 @@ export const CreateFaction: FC<{
     description: "",
   });
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
+
+  const totalFactions = currentFactions?.total;
+  const requiredBONK = FACTION_CREATION_MULTIPLIER * BigInt(totalFactions ?? 0);
 
   const validateInputs = () => {
     let errors = {
@@ -99,6 +105,7 @@ export const CreateFaction: FC<{
 
   const onSuccess = (data: any) => {
     setFactionStatus(true);
+    toast.success('Faction created successfully!')
     fireConfetti();
     onClose();
   };
@@ -115,10 +122,6 @@ export const CreateFaction: FC<{
     if (!walletAddress || !signTransaction || !connection) {
       throw alert("The *basics* are undefined");
     }
-
-    const totalFactions = currentFactions?.total;
-    const requiredBONK =
-      FACTION_CREATION_MULTIPLIER * BigInt(totalFactions ?? 0);
     const bonkInWallet = await getBonkBalance({ walletAddress, connection });
     if (bonkInWallet < requiredBONK / BigInt(1e5)) {
       throw alert(
@@ -193,6 +196,14 @@ export const CreateFaction: FC<{
           <ModalCloseButton position="absolute" top="30px" right="30px" />
           <ModalBody flex="1">
             <Box w="100%" h="100%">
+              <Flex>
+                <HStack alignItems="end" pb="0.5rem">
+                  <Label color={colors.brand.tertiary} pb="0.25rem">
+                    Faction Creation Cost:
+                  </Label>
+                  <Value>{requiredBONK.toString()}</Value>
+                </HStack>
+              </Flex>
               <Box mb="2rem">
                 <Input
                   type="text"
