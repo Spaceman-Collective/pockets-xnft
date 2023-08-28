@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Box,
   Input,
@@ -15,6 +15,8 @@ import {
   Textarea,
   Flex,
   HStack,
+  Spinner,
+  Link,
 } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useSolana } from "@/hooks/useSolana";
@@ -24,6 +26,8 @@ import { useAllFactions } from "@/hooks/useAllFactions";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import { Label, Value } from "./tabs/tab.styles";
 import toast from "react-hot-toast";
+import styled from "@emotion/styled";
+import { formatBalance } from "@/lib/utils";
 
 export const CreateFaction: FC<{
   fire: () => void;
@@ -52,10 +56,19 @@ export const CreateFaction: FC<{
     external_link: "",
     description: "",
   });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
+  const [requiredBonk, setRequiredBonk] = useState<string>('0');
 
   const totalFactions = currentFactions?.total;
   const requiredBONK = FACTION_CREATION_MULTIPLIER * BigInt(totalFactions ?? 0);
+
+  useEffect(() => {
+    if (requiredBONK) {
+      const wholeBalance = Math.floor(Number(requiredBONK));
+      setRequiredBonk(formatBalance(wholeBalance));
+    }
+  },[]);
 
   const validateInputs = () => {
     let errors = {
@@ -105,7 +118,7 @@ export const CreateFaction: FC<{
 
   const onSuccess = (data: any) => {
     setFactionStatus(true);
-    toast.success('Faction created successfully!')
+    toast.success("Faction created successfully!");
     fireConfetti();
     onClose();
   };
@@ -196,12 +209,28 @@ export const CreateFaction: FC<{
           <ModalCloseButton position="absolute" top="30px" right="30px" />
           <ModalBody flex="1">
             <Box w="100%" h="100%">
-              <Flex>
-                <HStack alignItems="end" pb="0.5rem">
-                  <Label color={colors.brand.tertiary} pb="0.25rem">
-                    Faction Creation Cost:
-                  </Label>
-                  <Value>{requiredBONK.toString()}</Value>
+              <Flex mb={5}>
+                <HStack>
+                  <Label>COST TO CREATE:</Label>
+                  <Value>
+                    {isLoading && <Spinner />}
+                    {requiredBonk!.toString()}
+                  </Value>
+                  <Link href="https://jup.ag/swap/SOL-Bonk" target="_blank">
+                    <Button
+                      variant="outline"
+                      fontSize="1rem"
+                      py="0.5rem"
+                      ml="0.5rem"
+                      mb="0.25rem"
+                      opacity="0.15"
+                      _hover={{
+                        opacity: 0.6,
+                      }}
+                    >
+                      Buy More
+                    </Button>
+                  </Link>
                 </HStack>
               </Flex>
               <Box mb="2rem">
