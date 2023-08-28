@@ -1,8 +1,8 @@
-import { PageTabs } from "@/components/nav/page-tabs"
+import { PageTabs } from "@/components/nav"
 import { Character } from "@/types/server"
 import { ArenaTab } from "./arena-tab"
 import { SkillsTab } from "./skills-tab"
-import { FavorsTab } from "./favors-tab"
+import { EquipmentTab } from "./equipment-tab"
 
 export const CharacterTabs: React.FC<{
   currentCharacter: Character
@@ -28,8 +28,8 @@ export const CharacterTabs: React.FC<{
             },
           },
           {
-            tabName: "Favors",
-            Component: FavorsTab,
+            tabName: "Equipment",
+            Component: EquipmentTab,
             componentProps: {
               currentCharacter: currentCharacter,
             },
