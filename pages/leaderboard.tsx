@@ -1,13 +1,13 @@
-import Head from "next/head";
-import { NavBar } from "@/components/nav";
-import { Grid } from "@chakra-ui/react";
+import Head from "next/head"
+import { NavBar } from "@/components/nav"
+import { Grid } from "@chakra-ui/react"
 import {
   DashboardContainer,
   DashboardInfoContainer,
   DashboardMenuContainer,
-} from "@/components/Containers.styled";
-import { DashboardInfo, DashboardMenu } from "@/components/dashboard";
-import { LeaderboardList } from "@/components/leaderboard";
+} from "@/components/layout/containers.styled"
+import { DashboardInfo, DashboardMenu } from "@/components/dashboard"
+import { LeaderboardList } from "@/components/leaderboard"
 
 export default function Leaderboard() {
   return (
@@ -31,5 +31,5 @@ export default function Leaderboard() {
         </DashboardContainer>
       </Grid>
     </>
-  );
+  )
 }

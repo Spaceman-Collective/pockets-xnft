@@ -12,7 +12,7 @@ import {
   DashboardInfoContainer,
   DashboardContainer,
   SectionContainer,
-} from "@/components/Containers.styled"
+} from "@/components/layout/containers.styled"
 import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react"
 import { useSolana } from "@/hooks/useSolana"
 import { FactionModal } from "@/components/dashboard/faction/join-faction-modal"

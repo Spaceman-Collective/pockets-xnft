@@ -1,29 +1,29 @@
-import Head from "next/head";
-import { NavBar } from "@/components/nav";
-import styled from "@emotion/styled";
-import { Box, Grid } from "@chakra-ui/react";
-import { useSolana } from "@/hooks/useSolana";
+import Head from "next/head"
+import { NavBar } from "@/components/nav"
+import styled from "@emotion/styled"
+import { Box, Grid } from "@chakra-ui/react"
+import { useSolana } from "@/hooks/useSolana"
 import {
   DashboardMenuContainer,
   DashboardInfoContainer,
   DashboardContainer,
   SectionContainer,
-} from "@/components/Containers.styled";
+} from "@/components/layout/containers.styled"
 import {
   DashboardInfo,
   DashboardMenu,
   CharacterList,
-} from "@/components/dashboard";
-import { useAssets } from "@/hooks/useCharacters";
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
-import { WalletTabs } from "@/components/dashboard/wallet-page";
-import { PleaseSignInContainer } from "@/components/no-wallet.component";
+} from "@/components/dashboard"
+import { useAssets } from "@/hooks/useCharacters"
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
+import { WalletTabs } from "@/components/dashboard/wallet-page"
+import { PleaseSignInContainer } from "@/components/no-wallet.component"
 
 export default function Home() {
-  const { walletAddress } = useSolana();
-  const { data: assets, isLoading: assetsIsLoading } = useAssets(); // chars/nfts
+  const { walletAddress } = useSolana()
+  const { data: assets, isLoading: assetsIsLoading } = useAssets() // chars/nfts
 
-  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter()
 
   return (
     <>
@@ -62,11 +62,11 @@ export default function Home() {
         )}
       </Grid>
     </>
-  );
+  )
 }
 
 const PersonalSection = styled(Box)`
   margin: 0 auto;
   display: flex;
   flex-direction: row;
-`;
+`

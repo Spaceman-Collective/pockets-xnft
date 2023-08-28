@@ -1,2 +1,2 @@
-export * from "./containers.component"
+export * from "./containers.styled"
 export * from "./layout.wrapper"

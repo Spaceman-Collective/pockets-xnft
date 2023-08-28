@@ -1,19 +1,19 @@
-import { FC, useState } from "react";
-import { useRouter } from "next/router";
-import { Flex, Button, Text, Box, Skeleton, SlideFade } from "@chakra-ui/react";
-import { CharacterListContainer } from "@/components/Containers.styled";
-import { Character } from "@/types/server";
-import { Frame } from "../wizard/wizard.components";
-import styled from "@emotion/styled";
+import { FC, useState } from "react"
+import { useRouter } from "next/router"
+import { Flex, Button, Text, Box, Skeleton, SlideFade } from "@chakra-ui/react"
+import { CharacterListContainer } from "@/components/layout/containers.styled"
+import { Character } from "@/types/server"
+import { Frame } from "../wizard/wizard.components"
+import styled from "@emotion/styled"
 
-import { colors } from "@/styles/defaultTheme";
-import { Tip } from "../tooltip";
+import { colors } from "@/styles/defaultTheme"
+import { Tip } from "../tooltip"
 
 interface Props {
-  selectedCharacter: Character | undefined | null;
-  setSelectedCharacter: (char?: Character | null) => void;
-  data?: Character[];
-  isLoading?: boolean;
+  selectedCharacter: Character | undefined | null
+  setSelectedCharacter: (char?: Character | null) => void
+  data?: Character[]
+  isLoading?: boolean
 }
 
 export const CharacterList: FC<Props> = ({
@@ -22,16 +22,16 @@ export const CharacterList: FC<Props> = ({
   data,
   isLoading,
 }: Props) => {
-  const router = useRouter();
-  const [actionStatus, setActionStatus] = useState(false);
+  const router = useRouter()
+  const [actionStatus, setActionStatus] = useState(false)
 
   const handleCharacterSelect = (char: Character) => {
     if (selectedCharacter?.mint === char.mint) {
-      setSelectedCharacter(undefined);
+      setSelectedCharacter(undefined)
     } else {
-      setSelectedCharacter(char);
+      setSelectedCharacter(char)
     }
-  };
+  }
 
   return (
     <CharacterListContainer>
@@ -114,13 +114,13 @@ export const CharacterList: FC<Props> = ({
                   />
                 )}
               </CharacterFlex>
-            );
+            )
           })}
         </SlideFade>
       </Flex>
     </CharacterListContainer>
-  );
-};
+  )
+}
 
 const CharacterFlex = styled(Flex)<{ selected?: boolean }>`
   flex: auto 1 auto;
@@ -133,14 +133,14 @@ const CharacterFlex = styled(Flex)<{ selected?: boolean }>`
   background-color: ${colors.blacks[500]};
   border: 2px solid
     ${(props) => {
-      return props.selected ? colors.brand.secondary : colors.blacks[500];
+      return props.selected ? colors.brand.secondary : colors.blacks[500]
     }};
-`;
+`
 
 const CharFactionThumbnail: FC<{
-  factionName?: string;
-  factionImage?: string;
-  charName: string;
+  factionName?: string
+  factionImage?: string
+  charName: string
 }> = ({ factionName, factionImage, charName }) => {
   return (
     <>
@@ -162,8 +162,8 @@ const CharFactionThumbnail: FC<{
         </Tip>
       )}
     </>
-  );
-};
+  )
+}
 
 const FactionThumbnail = styled(Box)`
   height: 4rem;
@@ -172,4 +172,4 @@ const FactionThumbnail = styled(Box)`
   border-radius: 1rem;
   background-size: cover;
   background-position: center;
-`;
+`
