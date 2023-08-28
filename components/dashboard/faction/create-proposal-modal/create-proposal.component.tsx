@@ -63,9 +63,13 @@ export const CreateProposal: React.FC<{
   });
 
   useEffect(() => {
+    console.log("scf: ", selectedCharacter?.faction?.id);
+    console.log("fddd: ", factionData);
+
+
     if (factionData) {
       console.log("fd: ", factionData);
-      console.log("scf: ", selectedCharacter?.faction);
+      console.log("current resources: ", factionData?.resources);
     }
   }, [factionData, selectedCharacter?.faction]);
   const { data: allProposals, refetch } = useFetchProposalsByFaction(
