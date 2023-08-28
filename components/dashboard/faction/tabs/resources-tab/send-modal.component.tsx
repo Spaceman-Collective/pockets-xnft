@@ -1,5 +1,7 @@
+import { getResource } from "@/constants";
 import { useSolana } from "@/hooks/useSolana";
 import { getLocalImage } from "@/lib/utils";
+import { getBlueprint } from "@/types/server";
 import {
   Text,
   Image,
@@ -24,23 +26,57 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { FC, useState } from "react";
+import { toast } from "react-hot-toast";
 
 export const ModalSendResource: FC<{
   isOpen: boolean;
   onClose: () => void;
   selectedResource?: string;
   factionPubKey?: string;
+  factionName?: string;
   valueInWallet?: number;
-}> = ({ isOpen, onClose, selectedResource, valueInWallet }) => {
-  const { walletAddress, buildTransferIx, sendTransaction } = useSolana();
+}> = ({
+  isOpen,
+  onClose,
+  selectedResource,
+  valueInWallet,
+  factionPubKey,
+  factionName,
+}) => {
+  const {
+    walletAddress,
+    buildTransferIx,
+    sendTransaction,
+    connection,
+    signTransaction,
+  } = useSolana();
   const [input, setInput] = useState<number>(0);
 
   const sendResource = async () => {
-    const bonkIx = buildTransferIx({
+    if (selectedResource === undefined) return;
+    if (walletAddress === undefined) return;
+    if (getResource(selectedResource) === undefined) return;
+
+    const resourceIx = buildTransferIx({
       walletAddress: walletAddress ?? "",
+      mint: getResource(selectedResource)?.mint!,
       amount: BigInt(input),
       decimals: 5,
     });
+
+    try {
+      const receipt = await sendTransaction({
+        connection,
+        ixs: [resourceIx],
+        wallet: walletAddress,
+        signTransaction,
+      });
+      console.log({ receipt });
+    } catch (err) {
+      console.error({ err });
+      const parsedErr = JSON.stringify(err);
+      toast.error("Failed to send resource" + parsedErr);
+    }
   };
 
   return (
@@ -89,7 +125,12 @@ export const ModalSendResource: FC<{
           </Box>
         </ModalBody>
         <ModalFooter>
-          <Button size="lg" p="2rem 3rem" borderRadius="1rem">
+          <Button
+            size="lg"
+            p="2rem 3rem"
+            borderRadius="1rem"
+            onClick={sendResource}
+          >
             Send Resource
           </Button>
         </ModalFooter>

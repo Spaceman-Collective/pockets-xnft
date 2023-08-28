@@ -106,6 +106,8 @@ export const FactionTabResources: React.FC<{
       <ResourceGridContainer
         isLoading={factionIsLoading}
         resources={factionData?.resources}
+        factionPubKey={factionData?.faction?.pubkey}
+        factionName={factionData?.faction?.name}
       />
       <ModalRfDiscover
         refetchDiscoverData={refetchRFAllocation}

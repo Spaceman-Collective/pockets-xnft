@@ -19,7 +19,8 @@ export const ResourceGridContainer: FC<{
   isLoading: boolean;
   resources?: { name: string; value: string }[];
   factionPubKey?: string;
-}> = ({ isLoading, resources }) => {
+  factionName?: string;
+}> = ({ isLoading, resources, factionPubKey, factionName }) => {
   const { data } = useAllWalletAssets();
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
@@ -80,6 +81,8 @@ export const ResourceGridContainer: FC<{
         {...sendDisclosure}
         selectedResource={selectedResource}
         valueInWallet={+valueInWallet}
+        factionPubKey={factionPubKey}
+        factionName={factionName}
       />
     </Box>
   );
