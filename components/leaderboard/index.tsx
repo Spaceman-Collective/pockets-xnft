@@ -17,7 +17,7 @@ export const LeaderboardList = () => {
         <SortButton handleFilter={handleFilter} />
       </Flex>
 
-      <Grid templateColumns="2fr 3fr">
+      <Grid templateColumns="2fr 3fr" display={{ base: "none", sm: "grid" }}>
         <Spacer />
         <Flex justifyContent="space-between" my="1.5rem" opacity="0.5">
           <Label>Favors</Label>

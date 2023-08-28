@@ -18,11 +18,11 @@ export const LeaderboardItem: FC<{
 }> = ({ name, imageUrl, rank, stats }) => {
   return (
     <Grid
-      templateColumns="2fr 3fr"
       bg={colors.blacks[600]}
       w="100%"
       p="2rem 3rem"
       borderRadius="1rem"
+      templateColumns={{ base: "1fr", sm: "2fr 3fr" }}
     >
       <Flex alignItems="center" gap="2rem" mr="2rem">
         <Tip label={"Townhall Level"}>
@@ -44,7 +44,11 @@ export const LeaderboardItem: FC<{
         />
         <LeaderTitle>{name}</LeaderTitle>
       </Flex>
-      <Flex justifyContent="space-between" alignItems="center">
+      <Flex
+        display={{ base: "none", sm: "flex" }}
+        justifyContent="space-between"
+        alignItems="center"
+      >
         <Value>{stats.favor}</Value>
         <Value>{stats.domWins}</Value>
         <Value>{stats.wealth}</Value>

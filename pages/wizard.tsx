@@ -14,6 +14,7 @@ import Confetti from "@/components/Confetti";
 import { CenteredBoxContainer as WizardContainer } from "@/components/Containers.styled";
 import { useSolana } from "@/hooks/useSolana";
 import { Grid, Text } from "@chakra-ui/react";
+import { PleaseSignInContainer } from "@/components/no-wallet.component";
 
 export default function Wizard() {
   const [wizardStep, setWizardStep] = useState<number>(0);
@@ -86,7 +87,7 @@ export default function Wizard() {
                 next={next}
                 setReviewMint={setReviewMint}
                 nft={allAssetData?.nfts?.find(
-                  (record) => record?.mint === selectedMint
+                  (record) => record?.mint === selectedMint,
                 )}
                 fireConfetti={fireConfetti}
               />
@@ -104,7 +105,7 @@ export default function Wizard() {
             {confetti && <Confetti canFire={confetti} />}
           </WizardContainer>
         ) : (
-          <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
+          <PleaseSignInContainer />
         )}
       </Grid>
     </>
