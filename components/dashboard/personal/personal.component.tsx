@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { Box, Flex, Grid, HStack, Input, Text, VStack } from "@chakra-ui/react";
-import { Label, PanelContainer, Value } from "../personal/personal.styled";
-import { colors } from "@/styles/defaultTheme";
-import styled from "@emotion/styled";
-import { useDebounce } from "@uidotdev/usehooks";
+import { useState } from "react"
+import { Box, Flex, Grid, HStack, Input, Text, VStack } from "@chakra-ui/react"
+import { Label, PanelContainer, Value } from "../personal/personal.styled"
+import { colors } from "@/styles/defaultTheme"
+import styled from "@emotion/styled"
+import { useDebounce } from "@uidotdev/usehooks"
 
-const spacing = "1rem";
+const spacing = "1rem"
 
 export const Personal = () => {
   // NOTE: use this to handle local search through teasury items
   // when the api is available
-  const [search, setSearch] = useState<string>("");
-  const debouncedSearch = useDebounce(search, 400);
-  const onSearch = (e: any) => setSearch(e.target.value);
+  const [search, setSearch] = useState<string>("")
+  const debouncedSearch = useDebounce(search, 400)
+  const onSearch = (e: any) => setSearch(e.target.value)
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
@@ -87,8 +87,8 @@ export const Personal = () => {
         </Grid>
       </Box>
     </PanelContainer>
-  );
-};
+  )
+}
 
 const ResourceLabels = () => {
   return (
@@ -98,14 +98,14 @@ const ResourceLabels = () => {
         <MenuText color="brand.tertiary">see all</MenuText>
       </HStack>
     </Flex>
-  );
-};
+  )
+}
 
 const FavorTitle = styled(Text)`
   text-transform: uppercase;
   font-size: 3rem;
   font-weight: 700;
-`;
+`
 
 const MenuTitle = styled(Text)`
   font-size: 1.75rem;
@@ -113,13 +113,13 @@ const MenuTitle = styled(Text)`
   text-transform: uppercase;
   letter-spacing: 1px;
   text-decoration: underline;
-`;
+`
 const MenuText = styled(Text)`
   font-size: 1.25rem;
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 1px;
-`;
+`
 const ResourceAction = styled(Flex)`
   background-color: ${colors.blacks[500]};
   width: 100%;
@@ -127,4 +127,4 @@ const ResourceAction = styled(Flex)`
   border-radius: ${spacing};
   align-items: center;
   justify-content: space-between;
-`;
+`
