@@ -1,20 +1,19 @@
-import { PageTabs } from "@/components/nav/page-tabs";
-import { useFaction } from "@/hooks/useFaction";
-import { Character } from "@/types/server";
-import { useDisclosure } from "@chakra-ui/react";
-import { FactionTabPolitics } from "./politics-tab";
-import { CitizenModal } from "./politics-tab/citizens-modal.component";
-import { FactionTabResources } from "./resources-tab";
-import { FactionTabServices } from "./services-tab";
+import { PageTabs } from "@/components/nav"
+import { useFaction } from "@/hooks/useFaction"
+import { Character } from "@/types/server"
+import { useDisclosure } from "@chakra-ui/react"
+import { FactionTabPolitics } from "./politics-tab"
+import { CitizenModal } from "./politics-tab/citizens-modal.component"
+import { FactionTabResources } from "./resources-tab"
+import { FactionTabServices } from "./services-tab"
 
 export const FactionTabs: React.FC<{
-  currentCharacter: Character;
-  setFactionStatus: (value: boolean) => void;
+  currentCharacter: Character
+  setFactionStatus: (value: boolean) => void
 }> = ({ currentCharacter, setFactionStatus }) => {
-
-  const citizenDisclosure = useDisclosure();
-  const factionId = currentCharacter?.faction?.id ?? "";
-  const { data: factionData } = useFaction({ factionId });
+  const citizenDisclosure = useDisclosure()
+  const factionId = currentCharacter?.faction?.id ?? ""
+  const { data: factionData } = useFaction({ factionId })
 
   return (
     <>
@@ -28,7 +27,7 @@ export const FactionTabs: React.FC<{
             Component: FactionTabServices,
             componentProps: {
               currentCharacter: currentCharacter,
-              openCitizenModal: citizenDisclosure.onOpen
+              openCitizenModal: citizenDisclosure.onOpen,
             },
           },
           {
@@ -37,7 +36,7 @@ export const FactionTabs: React.FC<{
             componentProps: {
               currentCharacter: currentCharacter,
               setFactionStatus: setFactionStatus,
-              openCitizenModal: citizenDisclosure.onOpen
+              openCitizenModal: citizenDisclosure.onOpen,
             },
           },
           {
@@ -51,5 +50,5 @@ export const FactionTabs: React.FC<{
         ]}
       />
     </>
-  );
-};
+  )
+}
