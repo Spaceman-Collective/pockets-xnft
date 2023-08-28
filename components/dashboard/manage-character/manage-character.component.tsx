@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styled from "@emotion/styled";
 import {
   Box,
@@ -113,7 +114,9 @@ const Header: FC<{ image: string; name: string; faction: any }> = ({
           {faction ? (
             <Text>{faction}</Text>
           ) : (
-            <Button fontSize="1rem">Join Faction</Button>
+            <Link href="/faction">
+              <Button fontSize="1rem">Join Faction</Button>
+            </Link>
           )}
         </Flex>
       </Box>
