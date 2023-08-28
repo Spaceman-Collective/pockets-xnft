@@ -1,14 +1,14 @@
 import styled from "@emotion/styled";
-import { HStack, Image, Flex, Text } from "@chakra-ui/react";
+import { Grid, Image, Flex, Text } from "@chakra-ui/react";
 import { Value } from "@/components/dashboard/personal/personal.styled";
 import { colors } from "@/styles/defaultTheme";
 import { FC } from "react";
-import { Faction } from "@/types/server";
+import { Tip } from "../tooltip";
 
 export const LeaderboardItem: FC<{
   name: string;
   imageUrl: string;
-  rank: number;
+  rank: number; // town hall level
   stats: {
     favor: number;
     domWins: number;
@@ -17,45 +17,40 @@ export const LeaderboardItem: FC<{
   };
 }> = ({ name, imageUrl, rank, stats }) => {
   return (
-    <HStack
-      spacing={4}
-      alignItems="center"
-      w="100%"
-      display="flex"
-      justifyContent="space-between"
+    <Grid
+      templateColumns="2fr 3fr"
       bg={colors.blacks[600]}
-      pr="2rem"
-      pl="2rem"
-      py="2rem"
+      w="100%"
+      p="2rem 3rem"
+      borderRadius="1rem"
     >
-      <HStack spacing={2} alignItems="center">
+      <Flex alignItems="center" gap="2rem" mr="2rem">
+        <Tip label={"Townhall Level"}>
+          <Value
+            bg="blacks.400"
+            p="1rem 2rem"
+            borderRadius="2rem"
+            userSelect="none"
+          >
+            {rank}
+          </Value>
+        </Tip>
         <Image
-          boxSize="50px"
-          objectFit="cover"
           src={imageUrl}
           alt={name}
+          boxSize="50px"
+          objectFit="cover"
           borderRadius="0.5rem"
-          mr="2rem"
         />
-        <LeaderTitle>
-          {rank}. {name}
-        </LeaderTitle>
-      </HStack>
-      <Flex justifyContent="flex-end" mr="10rem">
-        <Flex w="5rem" h="100%" justifyContent="flex-end" alignItems="center">
-          <Value>{stats.favor}</Value>
-        </Flex>
-        <Flex w="16rem" h="100%" justifyContent="flex-end" alignItems="center">
-          <Value>{stats.domWins}</Value>
-        </Flex>
-        <Flex w="16rem" h="100%" justifyContent="flex-end" alignItems="center">
-          <Value>{stats.wealth}</Value>
-        </Flex>
-        <Flex w="16rem" h="100%" justifyContent="flex-end" alignItems="center">
-          <Value>{stats.knowledge}</Value>
-        </Flex>
+        <LeaderTitle>{name}</LeaderTitle>
       </Flex>
-    </HStack>
+      <Flex justifyContent="space-between" alignItems="center">
+        <Value>{stats.favor}</Value>
+        <Value>{stats.domWins}</Value>
+        <Value>{stats.wealth}</Value>
+        <Value>{stats.knowledge}</Value>
+      </Flex>
+    </Grid>
   );
 };
 
