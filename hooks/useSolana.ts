@@ -203,12 +203,17 @@ const encodeTransaction = async ({
   }
 };
 
-const sendTransaction = async (
-  connection: Connection,
-  ixs: TransactionInstruction[],
-  wallet: string,
-  signTransaction: any,
-) => {
+const sendTransaction = async ({
+  connection,
+  ixs,
+  wallet,
+  signTransaction,
+}: {
+  connection: Connection;
+  ixs: TransactionInstruction[];
+  wallet: string;
+  signTransaction: any;
+}) => {
   if (!wallet || !ixs || !signTransaction) return;
   const { blockhash } = await connection!.getLatestBlockhash();
 
