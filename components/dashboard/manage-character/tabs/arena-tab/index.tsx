@@ -1,7 +1,7 @@
 import { FC } from "react"
 import { Flex, Text } from "@chakra-ui/react"
 
-export const BattlesTab: FC = () => {
+export const ArenaTab: FC = () => {
   return (
     <Flex
       flexDirection="column"
@@ -17,7 +17,7 @@ export const BattlesTab: FC = () => {
         maxWidth="50rem"
         letterSpacing="1px"
       >
-        Battles Tab
+        Arena Tab
       </Text>
     </Flex>
   )
