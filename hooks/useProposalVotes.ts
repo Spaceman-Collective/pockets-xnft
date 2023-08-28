@@ -26,9 +26,16 @@ export const useProposalVotes = (proposalId: string | undefined) => {
         }
   
         const propPDA = getProposalPDA(proposalId);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         const citiPDA = getCitizenPDA(new PublicKey(selectedCharacter?.mint!));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         const votePDA = getVotePDA(citiPDA, propPDA);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         const vA = await getVoteAccount(connection, votePDA);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
   
         if (vA) {
           return vA.voteAmt.toString();

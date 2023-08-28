@@ -181,6 +181,7 @@ const encodeTransaction = async ({
     instructions: txInstructions as TransactionInstruction[],
   }).compileToLegacyMessage();
   const tx = new VersionedTransaction(txMsg);
+
   try {
     if (tx.serialize().length > 1200) {
       throw new Error("Tx Too Big!");
@@ -191,9 +192,16 @@ const encodeTransaction = async ({
 
   console.log('tx is: ', Buffer.from(tx.serialize()).toString("base64"));
 
-  const signedTx = await  window?.xnft?.solana?.signTransaction(tx);
-  const encodedSignedTx = encode(signedTx.serialize());
-  return encodedSignedTx;
+  if (window?.xnft?.solana?.isXnft) {
+    const signedTx = await window?.xnft?.solana?.signTransaction(tx);
+    const encodedSignedTx = encode(signedTx.serialize());
+    return encodedSignedTx;
+  } else {
+    const signedTx = await signTransaction(tx);
+    const encodedSignedTx = encode(signedTx.serialize());
+    return encodedSignedTx;
+  }
+
 };
 
 const sendTransaction = async (
@@ -213,8 +221,14 @@ const sendTransaction = async (
 
   const tx = new VersionedTransaction(txMsg);
   if (!tx) return;
-  const signedTx = await window?.xnft?.solana?.signTransaction(tx);
-  return await connection.sendRawTransaction(signedTx.serialize());
+
+  if (window?.xnft?.solana?.isXnft) {
+    const signedTx = await  window?.xnft?.solana?.signTransaction(tx);
+    return await connection.sendRawTransaction(signedTx.serialize());
+  } else {
+    const signedTx = await signTransaction(tx);
+    return await connection.sendRawTransaction(signedTx.serialize());
+  }
 };
 
 const sendAllTransactions = async (
@@ -246,10 +260,18 @@ const sendAllTransactions = async (
   }
 
   const signatures: string[] = [];
-  const signedTxs = await window?.xnft?.solana?.signAllTransaction(versionedTxs);
-  for (let signedTx of signedTxs) {
-    let sig = await connection.sendRawTransaction(signedTx.serialize());
-    signatures.push(sig);
+  if (window?.xnft?.solana?.isXnft) {
+    const signedTxs = await window?.xnft?.solana?.signAllTransactions(versionedTxs);
+    for (let signedTx of signedTxs) {
+      let sig = await connection.sendRawTransaction(signedTx.serialize());
+      signatures.push(sig);
+    }
+  } else {
+    const signedTxs = await signAllTransactions(versionedTxs);
+    for (let signedTx of signedTxs) {
+      let sig = await connection.sendRawTransaction(signedTx.serialize());
+      signatures.push(sig);
+    }
   }
 
   return signatures;

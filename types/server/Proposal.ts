@@ -7,6 +7,7 @@ export interface Proposal
     Threshold,
     Tax,
     Burn {
+  created: string | number | Date;
   id?: string;
   type: string;
 }

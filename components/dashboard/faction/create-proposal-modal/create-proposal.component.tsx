@@ -29,7 +29,7 @@ import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { useSolana } from "@/hooks/useSolana";
-import { Character, Proposal, ProposalTypes } from "@/types/server";
+import { Character, Faction, Proposal, ProposalTypes } from "@/types/server";
 import { useCreateProposal } from "@/hooks/useCreateProposal";
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
@@ -41,10 +41,26 @@ import { useFaction } from "@/hooks/useFaction";
 import { Value } from "../tabs/tab.styles";
 import { useQueryClient } from "@tanstack/react-query";
 
+type FactionData = {
+  citizens: Character[];
+  faction: Faction;
+  resources: {
+      name: string;
+      value: string;
+  }[];
+  stations: {
+      blueprint: string;
+      faction: string;
+      id: string;
+      level: number;
+  }[];
+} | undefined
+
 export const CreateProposal: React.FC<{
+  factionData: FactionData;
   currentCharacter?: Character;
   fire: () => void;
-}> = ({ currentCharacter, fire: fireConfetti }) => {
+}> = ({ currentCharacter, fire: fireConfetti, factionData,  }) => {
   const { mutate, isLoading } = useCreateProposal();
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
   const {
@@ -57,21 +73,10 @@ export const CreateProposal: React.FC<{
     getBonkBalance,
   } = useSolana();
 
-  const factionId = currentCharacter?.faction?.id;
-  const { data: factionData, isLoading: factionIsLoading } = useFaction({
-    factionId: factionId ?? "",
-  });
-
-  useEffect(() => {
-    if (factionData) {
-      console.log("fd: ", factionData);
-      console.log("scf: ", selectedCharacter?.faction);
-    }
-  }, [factionData, selectedCharacter?.faction]);
   const { data: allProposals, refetch } = useFetchProposalsByFaction(
-    factionId,
+    currentCharacter?.faction?.id,
     0,
-    10,
+    10
   );
 
   const { isOpen, onOpen, onClose: closeIt } = useDisclosure();
@@ -86,7 +91,7 @@ export const CreateProposal: React.FC<{
     useState<string>("0");
 
   const handleProposalTypeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>,
+    event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const selectedType = event.target.value;
     setProposalType(selectedType);
@@ -208,7 +213,17 @@ export const CreateProposal: React.FC<{
                     >
                       {BLUEPRINTS.map((blueprint) => (
                         <option key={blueprint.name} value={blueprint.name}>
-                          {blueprint.name}
+                          {blueprint.name} / Cost:{" "}
+                          {blueprint.upgradeResources[0].map(
+                            (resource, resourceIndex) => (
+                              <span key={resourceIndex}>
+                                {resource.resource} x{resource.amount}
+                                {resourceIndex !==
+                                  blueprint.upgradeResources[0].length - 1 &&
+                                  ", "}
+                              </span>
+                            )
+                          )}
                         </option>
                       ))}
                     </Select>

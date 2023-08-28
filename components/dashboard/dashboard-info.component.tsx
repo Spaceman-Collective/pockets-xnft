@@ -72,7 +72,7 @@ export const DashboardInfo = () => {
       {/*   </TextContainer> */}
       {/* </Flex> */}
       <Flex gap="2rem">
-        <Tip label="Coming soon">
+        {/* <Tip label="Coming soon">
           <IconButton
             onClick={() => {
               // Handle the click event for the first icon
@@ -80,7 +80,7 @@ export const DashboardInfo = () => {
           >
             <AiFillGold size={24} color={colors.brand.secondary} />
           </IconButton>
-        </Tip>
+        </Tip> */}
         <Tip label="Leaderboard">
           <IconButton
             onClick={() => {
@@ -98,7 +98,7 @@ export const DashboardInfo = () => {
             />
           </IconButton>
         </Tip>
-
+{/* 
         <Tip label="Coming soon">
           <IconButton
             onClick={() => {
@@ -107,7 +107,7 @@ export const DashboardInfo = () => {
           >
             <MdNotificationsActive size={24} color={colors.brand.secondary} />
           </IconButton>
-        </Tip>
+        </Tip> */}
       </Flex>
     </Flex>
   );
