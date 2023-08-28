@@ -10,9 +10,7 @@ export const WalletTabs: React.FC = () => {
     useAllWalletAssets()
   return (
     <PageTabs
-      tabPanelStyles={{
-        p: "4rem",
-      }}
+      tabPanelStyles={{ p: "4rem" }}
       tabItems={[
         {
           tabName: "Resources",
