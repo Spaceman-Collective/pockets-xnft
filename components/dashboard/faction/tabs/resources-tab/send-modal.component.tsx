@@ -8,6 +8,8 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalHeader,
+  ModalFooter,
+  Button,
 } from "@chakra-ui/react";
 import { FC } from "react";
 
@@ -43,6 +45,9 @@ export const ModalSendResource: FC<{
             w="7rem"
           />
         </ModalBody>
+        <ModalFooter>
+          <Button>Send Resource</Button>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );
