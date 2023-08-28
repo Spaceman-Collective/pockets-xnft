@@ -119,11 +119,11 @@ const buildTransferIx = ({
 }) => {
   const senderATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(walletAddress as string)
+    new PublicKey(walletAddress as string),
   );
   const serverATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(SERVER_KEY)
+    new PublicKey(SERVER_KEY),
   );
   const ix = createTransferCheckedInstruction(
     senderATA,
@@ -131,7 +131,7 @@ const buildTransferIx = ({
     serverATA,
     new PublicKey(walletAddress as string),
     amount,
-    decimals
+    decimals,
   );
   return ix;
 };
@@ -149,7 +149,7 @@ const buildBurnIx = ({
 }) => {
   const senderATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(walletAddress as string)
+    new PublicKey(walletAddress as string),
   );
 
   const ix = createBurnCheckedInstruction(
@@ -157,7 +157,7 @@ const buildBurnIx = ({
     new PublicKey(mint),
     new PublicKey(walletAddress as string),
     amount,
-    decimals
+    decimals,
   );
   return ix;
 };
@@ -190,7 +190,7 @@ const encodeTransaction = async ({
     return Error("Tx Couldn't Serialize!");
   }
 
-  console.log('tx is: ', Buffer.from(tx.serialize()).toString("base64"));
+  console.log("tx is: ", Buffer.from(tx.serialize()).toString("base64"));
 
   if (window?.xnft?.solana?.isXnft) {
     const signedTx = await window?.xnft?.solana?.signTransaction(tx);
@@ -201,14 +201,13 @@ const encodeTransaction = async ({
     const encodedSignedTx = encode(signedTx.serialize());
     return encodedSignedTx;
   }
-
 };
 
 const sendTransaction = async (
   connection: Connection,
   ixs: TransactionInstruction[],
   wallet: string,
-  signTransaction: any
+  signTransaction: any,
 ) => {
   if (!wallet || !ixs || !signTransaction) return;
   const { blockhash } = await connection!.getLatestBlockhash();
@@ -223,7 +222,7 @@ const sendTransaction = async (
   if (!tx) return;
 
   if (window?.xnft?.solana?.isXnft) {
-    const signedTx = await  window?.xnft?.solana?.signTransaction(tx);
+    const signedTx = await window?.xnft?.solana?.signTransaction(tx);
     return await connection.sendRawTransaction(signedTx.serialize());
   } else {
     const signedTx = await signTransaction(tx);
@@ -235,7 +234,7 @@ const sendAllTransactions = async (
   connection: Connection,
   ixs: TransactionInstruction[],
   wallet: string,
-  signAllTransactions: any
+  signAllTransactions: any,
 ) => {
   if (!wallet || !ixs || !signAllTransactions) return;
 
@@ -261,7 +260,8 @@ const sendAllTransactions = async (
 
   const signatures: string[] = [];
   if (window?.xnft?.solana?.isXnft) {
-    const signedTxs = await window?.xnft?.solana?.signAllTransactions(versionedTxs);
+    const signedTxs =
+      await window?.xnft?.solana?.signAllTransactions(versionedTxs);
     for (let signedTx of signedTxs) {
       let sig = await connection.sendRawTransaction(signedTx.serialize());
       signatures.push(sig);
@@ -280,7 +280,7 @@ const sendAllTransactions = async (
 async function getTokenAccountBalance(
   wallet: string,
   solanaConnection: Connection,
-  mint: string
+  mint: string,
 ) {
   const filters: any[] = [
     {
@@ -294,9 +294,9 @@ async function getTokenAccountBalance(
     },
   ];
 
-  const accounts = await solanaConnection.getParsedProgramAccounts(
+  const accounts = await solanaConnection?.getParsedProgramAccounts(
     new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), // TOKEN_PROGRAM_ID
-    { filters: filters }
+    { filters: filters },
   );
 
   // console.log(
@@ -334,7 +334,7 @@ const getBonkBalance = async ({
   const bonkBalance = await getTokenAccountBalance(
     walletAddress,
     connection,
-    SPL_TOKENS.bonk.mint
+    SPL_TOKENS.bonk.mint,
   );
 
   return bonkBalance;
@@ -355,13 +355,13 @@ const buildProspectIx = async ({
 
   const walletAta = getAssociatedTokenAddressSync(
     new PublicKey(characterMint),
-    new PublicKey(walletAddress)
+    new PublicKey(walletAddress),
   );
 
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
-    { connection: new Connection("https://api.mainnet-beta.solana.com") }
+    { connection: new Connection("https://api.mainnet-beta.solana.com") },
   );
 
   const ix = await POCKETS_PROGRAM.methods
@@ -382,7 +382,7 @@ const buildProspectIx = async ({
 function getCitizenPDA(characterMint: PublicKey): PublicKey {
   const [citizenPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("citizen"), Buffer.from(characterMint.toBuffer())],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
   );
   return citizenPDA;
 }
@@ -390,7 +390,7 @@ function getCitizenPDA(characterMint: PublicKey): PublicKey {
 function getFactionPDA(factionId: string): PublicKey {
   const [factionPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("faction"), Buffer.from(factionId)],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
   );
   return factionPDA;
 }
@@ -398,7 +398,7 @@ function getFactionPDA(factionId: string): PublicKey {
 function getRFPDA(rfId: string): PublicKey {
   const [rfPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("rf"), Buffer.from(rfId)],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
   );
   // console.log('rfpda: ', rfPDA)
   return rfPDA;
@@ -408,8 +408,11 @@ async function getRFAccount(connection: Connection, rfId: string) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
-    { connection }
+    { connection },
   );
 
-  return await POCKETS_PROGRAM.account.resourceField.fetch(getRFPDA(rfId), "confirmed");
+  return await POCKETS_PROGRAM.account.resourceField.fetch(
+    getRFPDA(rfId),
+    "confirmed",
+  );
 }
