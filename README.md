@@ -1,8 +1,24 @@
+# Pockets.GG Frontend Application
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
 
-First, run the development server:
+First, install the dependencies:
+
+```bash
+npm install
+```
+
+Then, copy the `.env.example` file to `.env.local` and fill in the values:
+
+```bash
+cp .env.example .env.local
+```
+
+You will need a Helius RPC endpoint for the `NEXT_PUBLIC_RPC` variable. You can get one from [Helius](https://helius.dev/).
+
+Finally, run the development server:
 
 ```bash
 npm run dev
