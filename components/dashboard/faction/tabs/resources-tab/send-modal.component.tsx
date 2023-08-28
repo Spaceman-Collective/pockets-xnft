@@ -1,4 +1,6 @@
+import { getLocalImage } from "@/lib/utils";
 import {
+  Image,
   Text,
   Modal,
   ModalOverlay,
@@ -30,6 +32,16 @@ export const ModalSendResource: FC<{
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
         <ModalBody>
           <Text>{selectedResource}</Text>
+          <Image
+            alt={selectedResource}
+            src={getLocalImage({
+              type: "resources",
+              name: selectedResource ?? "",
+            })}
+            fallbackSrc="https://via.placeholder.com/150"
+            borderRadius="0.5rem"
+            w="7rem"
+          />
         </ModalBody>
       </ModalContent>
     </Modal>
