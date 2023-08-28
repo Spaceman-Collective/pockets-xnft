@@ -20,6 +20,7 @@ import { useSolana } from "@/hooks/useSolana";
 import { Character } from "@/types/server";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { ComputeBudgetProgram } from "@solana/web3.js";
 
 export const LeaveFactionModal: React.FC<{
   character: Character;
@@ -64,12 +65,16 @@ export const LeaveFactionModal: React.FC<{
       factionId,
     };
 
+    const computeIx = ComputeBudgetProgram.setComputeUnitLimit({
+      units: 1400000,
+    });
+
     if (!walletAddress) return console.error("no wallet");
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
       connection,
       signTransaction,
-      txInstructions: [buildMemoIx({ walletAddress, payload })],
+      txInstructions: [computeIx, buildMemoIx({ walletAddress, payload })],
     });
 
     if (!encodedSignedTx) {
