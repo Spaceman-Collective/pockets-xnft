@@ -1,7 +1,6 @@
 import { getLocalImage } from "@/lib/utils";
 import {
   Image,
-  Text,
   Modal,
   ModalOverlay,
   ModalContent,

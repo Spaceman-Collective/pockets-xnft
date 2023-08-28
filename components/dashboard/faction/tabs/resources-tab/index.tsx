@@ -179,69 +179,6 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
   );
 };
 
-const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
-  resource,
-}) => {
-  const hoverProps = useDisclosure();
-  return (
-    <Flex
-      title={resource?.name}
-      key={resource?.name + "resource"}
-      bg="blacks.500"
-      minH="5rem"
-      alignItems="center"
-      justifyContent="space-between"
-      p="1rem"
-      borderRadius="1rem"
-      transition="all 0.25s ease-in-out"
-      _hover={{
-        filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.25))",
-        transform: "scale(1.05)",
-      }}
-      onMouseOver={hoverProps.onOpen}
-      onMouseOut={hoverProps.onClose}
-      position="relative"
-    >
-      <Image
-        alt={resource.name}
-        src={getLocalImage({
-          type: "resources",
-          name: resource.name,
-        })}
-        fallbackSrc="https://via.placeholder.com/150"
-        borderRadius="0.5rem"
-        w="7rem"
-      />
-      <Value pr="1rem">{resource?.value ?? 0}</Value>
-      {hoverProps.isOpen && (
-        <Flex
-          position="absolute"
-          bg="blacks.700"
-          top="-14rem"
-          left="-50%"
-          gap="1rem"
-          alignItems="center"
-          borderRadius="1rem"
-        >
-          <Image
-            alt={resource?.name}
-            src={getLocalImage({
-              type: "resources",
-              name: resource?.name,
-            })}
-            fallbackSrc="https://via.placeholder.com/150"
-            borderRadius="0.5rem"
-            h="13rem"
-          />
-          <Text fontWeight={700} w="fit-content" mr="2rem">
-            {resource?.name}
-          </Text>
-        </Flex>
-      )}
-    </Flex>
-  );
-};
-
 const Title = styled(Text)`
   text-transform: uppercase;
   font-size: 3rem;
