@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getProposalPDA,
   getCitizenPDA,
@@ -13,6 +13,8 @@ import { useSolana } from "./useSolana";
 export const useProposalVoteAccount = (proposalId: string | undefined): boolean => {
   const [selectedCharacter] = useSelectedCharacter();
   const { connection } = useSolana();
+
+  const queryClient = useQueryClient();
 
   const defaultQueryResult = false;
 
@@ -33,6 +35,8 @@ export const useProposalVoteAccount = (proposalId: string | undefined): boolean 
 
       const vA = await getVoteAccount(connection, votePDA);
       await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      queryClient.invalidateQueries(['proposalVotes', proposalId, selectedCharacter?.mint]);
 
       return !!vA;
     }

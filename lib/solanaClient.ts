@@ -56,21 +56,18 @@ export function getVotePDA(
   return votePDA;
 }
 
-export async function getVoteAccount(
-  connection: Connection,
-  votePDAAddress: PublicKey
-) {
-  if (!connection || !votePDAAddress) return;
-  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
-    pocketsIDL,
-    POCKETS_PROGRAM_PROGRAMID,
-    { connection }
-  );
-  return await POCKETS_PROGRAM.account.proposalVote.fetchNullable(
-    votePDAAddress,
-    "finalized"
-  );
+export async function getVoteAccount(connection: Connection, votePDAAddress: PublicKey) {
+  console.log("getVoteAccount called with:", connection, votePDAAddress);
+  if (!connection || !votePDAAddress) {
+    console.log(`Early return due to missing connection or votePDAAddress! connection: `, connection, ` votePDAAddy: `, votePDAAddress);
+    return;
+  }
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(pocketsIDL, POCKETS_PROGRAM_PROGRAMID, { connection });
+  const result = await POCKETS_PROGRAM.account.proposalVote.fetchNullable(votePDAAddress, "finalized");
+  console.log("fetchNullable result:", result);
+  return result;
 }
+
 
 // export async function getMultipleVoteAccounts(connection: Connection, votePDAAddresses: PublicKey[]) {
 //   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
