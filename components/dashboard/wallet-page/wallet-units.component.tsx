@@ -1,4 +1,5 @@
-import { NFT, UNIT_TEMPLATES, Unit } from "@/types/server";
+import { Tip } from "@/components/tooltip"
+import { NFT, UNIT_TEMPLATES, Unit } from "@/types/server"
 import {
   Checkbox,
   Flex,
@@ -7,16 +8,15 @@ import {
   Skeleton,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { FC, ReactNode, useState } from "react";
-import { Value } from "./wallet-page.styles";
-import { Tip } from "@/components/tooltip";
+} from "@chakra-ui/react"
+import { FC, ReactNode, useState } from "react"
+import { Value } from "./wallet-page.styles"
 
 export const WalletUnitPanel: FC<{ isLoading: boolean; units?: NFT[] }> = ({
   isLoading,
   units,
 }) => {
-  const [showStack, setShowStack] = useState(true);
+  const [showStack, setShowStack] = useState(true)
   return (
     <Flex minH="60vh" direction="column" justifyContent="space-between">
       <Flex direction="column">
@@ -43,35 +43,35 @@ export const WalletUnitPanel: FC<{ isLoading: boolean; units?: NFT[] }> = ({
             ))}
           {units
             ?.filter((unit, index) => {
-              if (!showStack) return true;
-              const unitName = unit?.name?.toLowerCase();
+              if (!showStack) return true
+              const unitName = unit?.name?.toLowerCase()
               const firstUnit = units.find(
-                (item) => item.name.toLowerCase() === unitName,
-              );
-              const indexOfFirstUnit = units.indexOf(firstUnit!);
+                (item) => item.name.toLowerCase() === unitName
+              )
+              const indexOfFirstUnit = units.indexOf(firstUnit!)
 
               if (indexOfFirstUnit === index) {
-                return true;
+                return true
               }
             })
             ?.map((unit) => {
               const templateUnit = UNIT_TEMPLATES.find(
-                (template) => template?.name === unit.name,
-              );
+                (template) => template?.name === unit.name
+              )
 
-              if (!templateUnit) return;
+              if (!templateUnit) return
               if (
                 !unit?.mint ||
                 !unit?.attributes?.Skill ||
                 !unit?.attributes?.Rank
               )
-                return;
+                return
 
               const count = units.filter(
                 (countUnit) =>
                   countUnit.name.toLowerCase() ===
-                  templateUnit.name.toLowerCase(),
-              ).length;
+                  templateUnit.name.toLowerCase()
+              ).length
 
               const selectedUnit: Unit = {
                 ...templateUnit,
@@ -80,27 +80,27 @@ export const WalletUnitPanel: FC<{ isLoading: boolean; units?: NFT[] }> = ({
                 bonus: {
                   [unit.attributes.Skill]: unit.attributes.Rank,
                 },
-              };
+              }
               return (
                 <TroopBox
                   key={unit.mint}
                   unit={selectedUnit}
                   count={!showStack ? 1 : count ?? 0}
                 />
-              );
+              )
             })}
         </Grid>
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 interface TroopBoxProps {
-  unit: Unit;
-  count: number;
+  unit: Unit
+  count: number
 }
 
 const TroopBox: FC<TroopBoxProps> = ({ unit, count }) => {
-  const size = "100px";
+  const size = "100px"
 
   const tip = (
     <VStack alignItems="start">
@@ -115,9 +115,9 @@ const TroopBox: FC<TroopBoxProps> = ({ unit, count }) => {
             .join(", ")}
       </Text>
     </VStack>
-  );
+  )
 
-  if (!unit) return "";
+  if (!unit) return ""
   return (
     <Tip label={tip} placement="top">
       <Flex
@@ -145,8 +145,8 @@ const TroopBox: FC<TroopBoxProps> = ({ unit, count }) => {
         <Flex justifyContent="space-between"></Flex>
       </Flex>
     </Tip>
-  );
-};
+  )
+}
 
 const Badge = ({ children }: { children: ReactNode }) => {
   return (
@@ -165,5 +165,5 @@ const Badge = ({ children }: { children: ReactNode }) => {
         {children}
       </Text>
     </Grid>
-  );
-};
+  )
+}
