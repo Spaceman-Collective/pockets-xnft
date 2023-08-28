@@ -19,9 +19,9 @@ import { FactionModal } from "@/components/dashboard/faction/join-faction-modal"
 import { useEffect, useState } from "react"
 import { Character } from "@/types/server"
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
-import { ConsumeSkillModal } from "@/components/dashboard/manage-character/tabs/skills-tab/consume-skill-modal"
+import { ConsumeSkillModal } from "@/components/dashboard/character/tabs/skills-tab/consume-skill-modal"
 import { PleaseSignInContainer } from "@/components/no-wallet.component"
-import { CharacterTabs } from "@/components/dashboard/manage-character/tabs"
+import { CharacterTabs } from "@/components/dashboard/character/tabs"
 
 export default function CharacterPage() {
   const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets()

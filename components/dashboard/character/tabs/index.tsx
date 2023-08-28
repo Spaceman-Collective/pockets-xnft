@@ -1,10 +1,8 @@
-import { PageTabs } from "@/components/nav/page-tabs"
-import { useFaction } from "@/hooks/useFaction"
+import { PageTabs } from "@/components/nav"
 import { Character } from "@/types/server"
-import { useDisclosure } from "@chakra-ui/react"
-import { BattlesTab } from "./battles-tab"
+import { ArenaTab } from "./arena-tab"
 import { SkillsTab } from "./skills-tab"
-import { FavorsTab } from "./favors-tab"
+import { EquipmentTab } from "./equipment-tab"
 
 export const CharacterTabs: React.FC<{
   currentCharacter: Character
@@ -23,15 +21,15 @@ export const CharacterTabs: React.FC<{
             },
           },
           {
-            tabName: "Battles",
-            Component: BattlesTab,
+            tabName: "Arena",
+            Component: ArenaTab,
             componentProps: {
               currentCharacter: currentCharacter,
             },
           },
           {
-            tabName: "Favors",
-            Component: FavorsTab,
+            tabName: "Equipment",
+            Component: EquipmentTab,
             componentProps: {
               currentCharacter: currentCharacter,
             },

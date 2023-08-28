@@ -14,8 +14,8 @@ import {
 import styled from "@emotion/styled"
 import Link from "next/link"
 import { FC, ReactNode } from "react"
-import { EmptyState } from "../empty-state"
-import { PanelContainer } from "../../../personal/personal.styled"
+import { PageTabsEmptyState as EmptyState } from "@/components/nav"
+import { PanelContainer } from "@/components/layout"
 import { combatSkillKeys } from "./constants"
 
 export const SkillsTab: React.FC<{
