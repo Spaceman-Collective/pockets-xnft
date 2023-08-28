@@ -19,7 +19,7 @@ export const LeaderboardList = () => {
 
       <Grid templateColumns="2fr 3fr">
         <Spacer />
-        <Flex justifyContent="space-between" mb="1rem" opacity="0.5">
+        <Flex justifyContent="space-between" my="1.5rem" opacity="0.5">
           <Label>Favors</Label>
           <Label>Dom Wins</Label>
           <Label>Wealth</Label>
