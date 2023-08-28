@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Box,
   Input,
@@ -13,6 +13,10 @@ import {
   ModalCloseButton,
   useDisclosure,
   Textarea,
+  Flex,
+  HStack,
+  Spinner,
+  Link,
 } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useSolana } from "@/hooks/useSolana";
@@ -20,7 +24,10 @@ import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
 import { useAllFactions } from "@/hooks/useAllFactions";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { Label, Value } from "./tabs/tab.styles";
 import toast from "react-hot-toast";
+import styled from "@emotion/styled";
+import { formatBalance } from "@/lib/utils";
 
 export const CreateFaction: FC<{
   fire: () => void;
@@ -49,7 +56,19 @@ export const CreateFaction: FC<{
     external_link: "",
     description: "",
   });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
+  const [requiredBonk, setRequiredBonk] = useState<string>('0');
+
+  const totalFactions = currentFactions?.total;
+  const requiredBONK = FACTION_CREATION_MULTIPLIER * BigInt(totalFactions ?? 0);
+
+  useEffect(() => {
+    if (requiredBONK) {
+      const wholeBalance = Math.floor(Number(requiredBONK));
+      setRequiredBonk(formatBalance(wholeBalance));
+    }
+  },[]);
 
   const validateInputs = () => {
     let errors = {
@@ -99,6 +118,7 @@ export const CreateFaction: FC<{
 
   const onSuccess = (data: any) => {
     setFactionStatus(true);
+    toast.success("Faction created successfully!");
     fireConfetti();
     onClose();
   };
@@ -115,10 +135,6 @@ export const CreateFaction: FC<{
     if (!walletAddress || !signTransaction || !connection) {
       throw alert("The *basics* are undefined");
     }
-
-    const totalFactions = currentFactions?.total;
-    const requiredBONK =
-      FACTION_CREATION_MULTIPLIER * BigInt(totalFactions ?? 0);
     const bonkInWallet = await getBonkBalance({ walletAddress, connection });
     if (bonkInWallet < requiredBONK / BigInt(1e5)) {
       throw alert(
@@ -193,6 +209,15 @@ export const CreateFaction: FC<{
           <ModalCloseButton position="absolute" top="30px" right="30px" />
           <ModalBody flex="1">
             <Box w="100%" h="100%">
+              <Flex mb={5}>
+                <HStack>
+                  <Label>COST:</Label>
+                  <Value>
+                    {isLoading && <Spinner />}
+                    {`${requiredBonk!.toString()} BONK`}
+                  </Value>
+                </HStack>
+              </Flex>
               <Box mb="2rem">
                 <Input
                   type="text"

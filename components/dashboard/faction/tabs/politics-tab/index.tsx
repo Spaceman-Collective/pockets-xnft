@@ -77,7 +77,6 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   const factionId = currentCharacter?.faction?.id ?? "";
   const { data: factionData } = useFaction({ factionId });
   const [isLoading, setIsLoading] = useState(false);
-  const [isThresholdLoading, setIsThresholdLoading] = useState(false);
   const [voteThreshold, setVoteThreshold] = useState<string>("");
   const [votingPower, setVotingPower] = useState<string>("");
 
@@ -85,7 +84,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
 
-  const { data: vT } = useVoteThreshold(currentCharacter, connection);
+  const { data: vT, isLoading:  isThresholdLoading} = useVoteThreshold(currentCharacter, connection);
   const {
     data: allProposals,
     isLoading: allProposalsIsLoading,
@@ -113,13 +112,10 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   }, [votesData]);
 
   useEffect(() => {
-    if (vT) {
-      setIsThresholdLoading(false);
+    if (vT && !isThresholdLoading) {
       setVoteThreshold(vT);
-    } else {
-      setIsThresholdLoading(true);
     }
-  }, [vT]);
+  }, [isThresholdLoading, vT]);
 
   useEffect(() => {
     if (factionData) {
