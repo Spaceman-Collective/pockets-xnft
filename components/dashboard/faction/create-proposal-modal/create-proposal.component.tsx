@@ -29,7 +29,7 @@ import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
 import { useSolana } from "@/hooks/useSolana";
-import { Character, Proposal, ProposalTypes } from "@/types/server";
+import { Character, Faction, Proposal, ProposalTypes } from "@/types/server";
 import { useCreateProposal } from "@/hooks/useCreateProposal";
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
@@ -41,10 +41,26 @@ import { useFaction } from "@/hooks/useFaction";
 import { Value } from "../tabs/tab.styles";
 import { useQueryClient } from "@tanstack/react-query";
 
+type FactionData = {
+  citizens: Character[];
+  faction: Faction;
+  resources: {
+      name: string;
+      value: string;
+  }[];
+  stations: {
+      blueprint: string;
+      faction: string;
+      id: string;
+      level: number;
+  }[];
+} | undefined
+
 export const CreateProposal: React.FC<{
+  factionData: FactionData;
   currentCharacter?: Character;
   fire: () => void;
-}> = ({ currentCharacter, fire: fireConfetti }) => {
+}> = ({ currentCharacter, fire: fireConfetti, factionData,  }) => {
   const { mutate, isLoading } = useCreateProposal();
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
   const {
@@ -57,23 +73,8 @@ export const CreateProposal: React.FC<{
     getBonkBalance,
   } = useSolana();
 
-  const factionId = currentCharacter?.faction?.id;
-  const { data: factionData, isLoading: factionIsLoading } = useFaction({
-    factionId: factionId ?? "",
-  });
-
-  useEffect(() => {
-    console.log("scf: ", selectedCharacter?.faction?.id);
-    console.log("fddd: ", factionData);
-
-
-    if (factionData) {
-      console.log("fd: ", factionData);
-      console.log("current resources: ", factionData?.resources);
-    }
-  }, [factionData, selectedCharacter?.faction]);
   const { data: allProposals, refetch } = useFetchProposalsByFaction(
-    factionId,
+    currentCharacter?.faction?.id,
     0,
     10
   );

@@ -647,6 +647,19 @@ const ProposalLabels: React.FC<{
     setIsLoading(false);
   };
 
+  const factionId = character?.faction?.id;
+
+  const { data: factionData, isLoading: factionIsLoading } = useFaction({
+    factionId: factionId ?? "",
+  });
+
+  useEffect(() => {
+    console.log("scf: ", character?.faction?.id);
+    console.log("fddd: ", factionData);
+    console.log("fddd: ", factionData);
+    console.log("current resources: ", factionData?.resources);
+  }, [factionData, character?.faction]);
+
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <MenuTitle>proposals</MenuTitle>
@@ -661,7 +674,7 @@ const ProposalLabels: React.FC<{
         </Text>
       </Flex>
       <Flex alignItems="end">
-        <CreateProposal fire={fireConfetti} />
+        <CreateProposal currentCharacter={character} fire={fireConfetti} factionData={factionData}/>
       </Flex>
     </Flex>
   );
