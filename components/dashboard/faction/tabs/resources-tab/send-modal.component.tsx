@@ -12,7 +12,8 @@ import { FC } from "react";
 export const ModalSendResource: FC<{
   isOpen: boolean;
   onClose: () => void;
-}> = ({ isOpen, onClose }) => {
+  selectedResource?: string;
+}> = ({ isOpen, onClose, selectedResource }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -28,7 +29,7 @@ export const ModalSendResource: FC<{
         </ModalHeader>
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
         <ModalBody>
-          <Text>dsa</Text>
+          <Text>{selectedResource}</Text>
         </ModalBody>
       </ModalContent>
     </Modal>

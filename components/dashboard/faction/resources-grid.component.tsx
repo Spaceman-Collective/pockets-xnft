@@ -69,7 +69,10 @@ export const ResourceGridContainer: FC<{
             />
           ))}
       </Grid>
-      <ModalSendResource {...sendDisclosure} />
+      <ModalSendResource
+        {...sendDisclosure}
+        selectedResource={selectedResource}
+      />
     </Box>
   );
 };
