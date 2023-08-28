@@ -56,9 +56,13 @@ export const ModalSendResource: FC<{
     if (selectedResource === undefined) return;
     if (walletAddress === undefined) return;
     if (getResource(selectedResource) === undefined) return;
+    console.table({
+      resource: getResource(selectedResource),
+      input,
+    });
 
     const resourceIx = buildTransferIx({
-      walletAddress: walletAddress ?? "",
+      walletAddress: factionPubKey,
       mint: getResource(selectedResource)?.mint!,
       amount: BigInt(input),
       decimals: 5,

@@ -225,6 +225,7 @@ const sendTransaction = async ({
 
   const tx = new VersionedTransaction(txMsg);
   if (!tx) return;
+  console.log("0000000tx is: ", Buffer.from(tx.serialize()).toString("base64"));
 
   if (window?.xnft?.solana?.isXnft) {
     const signedTx = await window?.xnft?.solana?.signTransaction(tx);
