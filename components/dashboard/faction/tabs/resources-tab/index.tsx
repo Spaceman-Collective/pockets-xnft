@@ -39,9 +39,6 @@ export const FactionTabResources: React.FC<{
   const discoverDisclosure = useDisclosure();
   const prospectDisclosure = useDisclosure();
 
-  const [search, setSearch] = useState<string>("");
-  const debouncedSearch = useDebounce(search, 400);
-  const onSearch = (e: any) => setSearch(e.target.value);
   const { data: factionData, isLoading: factionIsLoading } = useFaction({
     factionId: currentCharacter?.faction?.id ?? "",
   });

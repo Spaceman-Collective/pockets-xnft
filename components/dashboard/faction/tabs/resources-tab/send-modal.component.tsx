@@ -1,3 +1,4 @@
+import { useSolana } from "@/hooks/useSolana";
 import { getLocalImage } from "@/lib/utils";
 import {
   Text,
@@ -28,9 +29,19 @@ export const ModalSendResource: FC<{
   isOpen: boolean;
   onClose: () => void;
   selectedResource?: string;
+  factionPubKey?: string;
   valueInWallet?: number;
 }> = ({ isOpen, onClose, selectedResource, valueInWallet }) => {
+  const { walletAddress, buildTransferIx, sendTransaction } = useSolana();
   const [input, setInput] = useState<number>(0);
+
+  const sendResource = async () => {
+    const bonkIx = buildTransferIx({
+      walletAddress: walletAddress ?? "",
+      amount: BigInt(input),
+      decimals: 5,
+    });
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>

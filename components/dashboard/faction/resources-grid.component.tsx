@@ -12,21 +12,25 @@ import {
 import { FC, useState } from "react";
 import { getLocalImage } from "@/lib/utils";
 import { useDebounce } from "@uidotdev/usehooks";
-import { ModalSendResource } from "./tabs/resources-tab/send-modal.component";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
+import { ModalSendResource } from "./tabs/resources-tab/send-modal.component";
 
 export const ResourceGridContainer: FC<{
   isLoading: boolean;
   resources?: { name: string; value: string }[];
+  factionPubKey?: string;
 }> = ({ isLoading, resources }) => {
   const { data } = useAllWalletAssets();
-  console.log({ data });
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
   const onSearch = (e: any) => setSearch(e.target.value);
 
   const sendDisclosure = useDisclosure();
   const [selectedResource, setSelectedResource] = useState<string>(""); // for displaying resource modal
+  const valueInWallet =
+    data?.resources.find(
+      (e) => e.name.toLowerCase() === selectedResource.toLowerCase(),
+    )?.value ?? 0;
 
   return (
     <Box>
@@ -75,11 +79,7 @@ export const ResourceGridContainer: FC<{
       <ModalSendResource
         {...sendDisclosure}
         selectedResource={selectedResource}
-        valueInWallet={
-          data?.resources.find(
-            (e) => e.name.toLowerCase() === selectedResource.toLowerCase(),
-          )?.value
-        }
+        valueInWallet={+valueInWallet}
       />
     </Box>
   );
