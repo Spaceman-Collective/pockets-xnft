@@ -1,5 +1,6 @@
 import { getLocalImage } from "@/lib/utils";
 import {
+  Text,
   Image,
   Modal,
   ModalOverlay,
@@ -27,7 +28,8 @@ export const ModalSendResource: FC<{
   isOpen: boolean;
   onClose: () => void;
   selectedResource?: string;
-}> = ({ isOpen, onClose, selectedResource }) => {
+  valueInWallet?: number;
+}> = ({ isOpen, onClose, selectedResource, valueInWallet }) => {
   const [input, setInput] = useState<number>(0);
 
   return (
@@ -56,16 +58,23 @@ export const ModalSendResource: FC<{
               borderRadius="0.5rem"
               w="15rem"
             />
-            <Flex alignSelf="end" w="50%">
+            <Flex alignSelf="end" w="50%" direction="column">
+              <Text alignSelf="end" p="1rem 0">
+                You own {valueInWallet}x
+              </Text>
               <NumberInputContainer
                 input={input}
                 setInput={setInput}
-                maxValue={100}
+                maxValue={valueInWallet ?? 0}
               />
             </Flex>
           </Flex>
           <Box p="3rem 0">
-            <SliderContainer input={input} setInput={setInput} maxValue={100} />
+            <SliderContainer
+              input={input}
+              setInput={setInput}
+              maxValue={valueInWallet ?? 0}
+            />
           </Box>
         </ModalBody>
         <ModalFooter>
