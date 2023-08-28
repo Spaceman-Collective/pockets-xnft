@@ -58,17 +58,18 @@ export const CreateFaction: FC<{
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
-  const [requiredBonk, setRequiredBonk] = useState<string>('0');
+  const [requiredBonk, setRequiredBonk] = useState<string>("0");
 
   const totalFactions = currentFactions?.total;
   const requiredBONK = FACTION_CREATION_MULTIPLIER * BigInt(totalFactions ?? 0);
+  const displayBonk = requiredBONK / BigInt(1e5);
 
   useEffect(() => {
     if (requiredBONK) {
       const wholeBalance = Math.floor(Number(requiredBONK));
       setRequiredBonk(formatBalance(wholeBalance));
     }
-  },[]);
+  }, []);
 
   const validateInputs = () => {
     let errors = {
@@ -138,9 +139,7 @@ export const CreateFaction: FC<{
     const bonkInWallet = await getBonkBalance({ walletAddress, connection });
     if (bonkInWallet < requiredBONK / BigInt(1e5)) {
       throw alert(
-        `You have insufficient BONK in your wallet. Please add more BONK and try again! Required amount: ${
-          requiredBONK / BigInt(1e5)
-        } Current balance: ${bonkInWallet}`
+        `You have insufficient BONK in your wallet. Please add more BONK and try again! Required amount: ${displayBonk.toString()} Current balance: ${bonkInWallet}`
       );
     }
 
@@ -214,7 +213,7 @@ export const CreateFaction: FC<{
                   <Label>COST:</Label>
                   <Value>
                     {isLoading && <Spinner />}
-                    {`${requiredBonk!.toString()} BONK`}
+                    {`${displayBonk.toString()} BONK`}
                   </Value>
                 </HStack>
               </Flex>
