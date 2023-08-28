@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { Character } from "@/types/server";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import { ConsumeSkillModal } from "@/components/dashboard/manage-character/consume-skill-modal";
+import { PleaseSignInContainer } from "@/components/no-wallet.component";
 
 export default function CharacterPage() {
   const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
@@ -83,7 +84,7 @@ export default function CharacterPage() {
             />
           </>
         ) : (
-          <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
+          <PleaseSignInContainer />
         )}
       </Grid>
       <ConsumeSkillModal skill={selectedSkill} {...consumeResourceDisclosure} />

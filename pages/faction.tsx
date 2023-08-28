@@ -23,6 +23,7 @@ import {
 import { FactionTabs } from "@/components/dashboard/faction/tabs";
 import { useEffect, useState } from "react";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { PleaseSignInContainer } from "@/components/no-wallet.component";
 
 export default function FactionPage() {
   const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
@@ -89,7 +90,7 @@ export default function FactionPage() {
             />
           </>
         ) : (
-          <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
+          <PleaseSignInContainer />
         )}
       </Grid>
     </>

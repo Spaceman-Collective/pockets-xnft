@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { NavBar } from "@/components/nav";
 import styled from "@emotion/styled";
-import { Box, Grid, Text } from "@chakra-ui/react";
+import { Box, Grid } from "@chakra-ui/react";
 import { useSolana } from "@/hooks/useSolana";
 import {
   DashboardMenuContainer,
@@ -17,6 +17,7 @@ import {
 import { useAssets } from "@/hooks/useCharacters";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import { WalletTabs } from "@/components/dashboard/wallet-page";
+import { PleaseSignInContainer } from "@/components/no-wallet.component";
 
 export default function Home() {
   const { walletAddress } = useSolana();
@@ -57,7 +58,7 @@ export default function Home() {
             </DashboardContainer>
           </>
         ) : (
-          <Text>PLEASE SIGN IN WITH A SOLANA WALLET</Text>
+          <PleaseSignInContainer />
         )}
       </Grid>
     </>
