@@ -1,5 +1,6 @@
-import Link from "next/link";
-import styled from "@emotion/styled";
+import { IconSkill } from "@/components/icons"
+import { colors } from "@/styles/defaultTheme"
+import { Character } from "@/types/server"
 import {
   Box,
   Button,
@@ -9,26 +10,25 @@ import {
   HStack,
   Img,
   Text,
-} from "@chakra-ui/react";
-import { PanelContainer } from "../personal/personal.styled";
-import { colors } from "@/styles/defaultTheme";
-import { Character } from "@/types/server";
-import { IconSkill } from "@/components/icons";
-import { FC, ReactNode } from "react";
-import { NoSelectedCharacter } from "../faction/no-faction.component";
-import { combatSkillKeys } from "./constants";
+} from "@chakra-ui/react"
+import styled from "@emotion/styled"
+import Link from "next/link"
+import { FC, ReactNode } from "react"
+import { EmptyState } from "../empty-state"
+import { PanelContainer } from "../../../personal/personal.styled"
+import { combatSkillKeys } from "./constants"
 
-export const ManageCharacter: React.FC<{
-  currentCharacter?: Character;
-  selectSkill: (skill: string) => void;
+export const SkillsTab: React.FC<{
+  currentCharacter?: Character
+  selectSkill: (skill: string) => void
 }> = ({ currentCharacter, selectSkill }) => {
   if (!currentCharacter) {
-    return <NoSelectedCharacter />;
+    return <EmptyState />
   }
 
   const experienceKeys = Object.keys(currentCharacter.experience) as Array<
     keyof typeof currentCharacter.experience
-  >;
+  >
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="2rem">
@@ -94,8 +94,8 @@ export const ManageCharacter: React.FC<{
       {/*   <TroopBox /> */}
       {/* </Grid> */}
     </PanelContainer>
-  );
-};
+  )
+}
 
 const Header: FC<{ image: string; name: string; faction: any }> = ({
   image,
@@ -121,11 +121,11 @@ const Header: FC<{ image: string; name: string; faction: any }> = ({
         </Flex>
       </Box>
     </Flex>
-  );
-};
+  )
+}
 
 const TroopBox = ({ num = 4 }: { num?: number }) => {
-  const size = "90px";
+  const size = "90px"
   return (
     <Flex
       direction="column"
@@ -155,8 +155,8 @@ const TroopBox = ({ num = 4 }: { num?: number }) => {
         <Badge>+</Badge>
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
 const Badge = ({ children }: { children: ReactNode }) => {
   return (
@@ -176,8 +176,8 @@ const Badge = ({ children }: { children: ReactNode }) => {
         {children}
       </Text>
     </Grid>
-  );
-};
+  )
+}
 
 const SkillContainer: FC<{ children: ReactNode; isCombat?: boolean }> = ({
   children,
@@ -190,24 +190,24 @@ const SkillContainer: FC<{ children: ReactNode; isCombat?: boolean }> = ({
         {children}
       </Grid>
     </Box>
-  );
-};
+  )
+}
 
 const SkillBox: FC<{
-  name: string;
-  level: string;
-  xp: string;
-  onClick: (skill: string) => void;
+  name: string
+  level: string
+  xp: string
+  onClick: (skill: string) => void
 }> = ({ name, level, xp, onClick }) => {
-  const click = () => onClick(name.toLowerCase());
+  const click = () => onClick(name.toLowerCase())
   const Icon = () => {
     function is(value: string) {
-      return name.toLowerCase() === value.toLowerCase();
+      return name.toLowerCase() === value.toLowerCase()
     }
     const style = {
       color: colors.brand.quaternary,
       fontSize: "3rem",
-    };
+    }
 
     return is("athletics") ? (
       <IconSkill.athletics {...style} />
@@ -235,8 +235,8 @@ const SkillBox: FC<{
       <IconSkill.strength {...style} />
     ) : (
       <div />
-    );
-  };
+    )
+  }
 
   return (
     <Flex
@@ -276,25 +276,25 @@ const SkillBox: FC<{
         </HStack>
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
 const Frame = ({
   img,
   select,
   size = "50px",
 }: {
-  img: string;
-  select?: () => void;
-  size?: string;
+  img: string
+  select?: () => void
+  size?: string
 }) => {
-  if (!img) return "";
+  if (!img) return ""
   return (
     <Box cursor={!!select ? "pointer" : "initial"} position="relative">
       <Img width="50" height="50" borderRadius="1rem" alt="nft" src={img} />
     </Box>
-  );
-};
+  )
+}
 
 const Label = styled(Text)`
   text-transform: uppercase;
@@ -302,10 +302,10 @@ const Label = styled(Text)`
   opacity: 0.5;
   font-weight: 400;
   font-size: 1.25rem;
-`;
+`
 
 const Value = styled(Text)`
   font-weight: 700;
   font-size: 1.75rem;
   text-transform: uppercase;
-`;
+`

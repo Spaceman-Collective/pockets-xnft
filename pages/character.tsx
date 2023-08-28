@@ -1,45 +1,45 @@
-import Head from "next/head";
-import styled from "@emotion/styled";
-import { NavBar } from "@/components/nav";
+import Head from "next/head"
+import styled from "@emotion/styled"
+import { NavBar } from "@/components/nav"
 import {
   DashboardInfo,
   DashboardMenu,
   CharacterList,
-  ManageCharacter,
-} from "@/components/dashboard";
-import { useAssets } from "@/hooks/useCharacters";
+} from "@/components/dashboard"
+import { useAssets } from "@/hooks/useCharacters"
 import {
   DashboardMenuContainer,
   DashboardInfoContainer,
   DashboardContainer,
   SectionContainer,
-} from "@/components/Containers.styled";
-import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react";
-import { useSolana } from "@/hooks/useSolana";
-import { FactionModal } from "@/components/dashboard/faction/join-faction-modal";
-import { useEffect, useState } from "react";
-import { Character } from "@/types/server";
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
-import { ConsumeSkillModal } from "@/components/dashboard/manage-character/consume-skill-modal";
-import { PleaseSignInContainer } from "@/components/no-wallet.component";
+} from "@/components/Containers.styled"
+import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react"
+import { useSolana } from "@/hooks/useSolana"
+import { FactionModal } from "@/components/dashboard/faction/join-faction-modal"
+import { useEffect, useState } from "react"
+import { Character } from "@/types/server"
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
+import { ConsumeSkillModal } from "@/components/dashboard/manage-character/tabs/skills-tab/consume-skill-modal"
+import { PleaseSignInContainer } from "@/components/no-wallet.component"
+import { CharacterTabs } from "@/components/dashboard/manage-character/tabs"
 
 export default function CharacterPage() {
-  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets();
-  const { walletAddress } = useSolana();
-  const joinFactionDisclosure = useDisclosure();
-  const consumeResourceDisclosure = useDisclosure();
-  const [isInFaction, setIsInFaction] = useState(false);
-  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
-  const [selectedSkill, setSelectedSkill] = useState<string>("");
+  const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets()
+  const { walletAddress } = useSolana()
+  const joinFactionDisclosure = useDisclosure()
+  const consumeResourceDisclosure = useDisclosure()
+  const [isInFaction, setIsInFaction] = useState(false)
+  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter()
+  const [selectedSkill, setSelectedSkill] = useState<string>("")
 
   useEffect(() => {
-    setIsInFaction(!!selectedCharacter?.faction);
-  }, [selectedCharacter]);
+    setIsInFaction(!!selectedCharacter?.faction)
+  }, [selectedCharacter])
 
   const selectSkill = (skill: string) => {
-    setSelectedSkill(skill);
-    consumeResourceDisclosure.onOpen();
-  };
+    setSelectedSkill(skill)
+    consumeResourceDisclosure.onOpen()
+  }
 
   return (
     <>
@@ -68,9 +68,9 @@ export default function CharacterPage() {
                   setSelectedCharacter={setSelectedCharacter}
                 />
                 <SectionContainer>
-                  <ManageCharacter
+                  <CharacterTabs
                     currentCharacter={allAssetData?.characters?.find(
-                      (e) => e.mint === selectedCharacter?.mint,
+                      (e) => e.mint === selectedCharacter?.mint
                     )}
                     selectSkill={selectSkill}
                   />
@@ -89,11 +89,11 @@ export default function CharacterPage() {
       </Grid>
       <ConsumeSkillModal skill={selectedSkill} {...consumeResourceDisclosure} />
     </>
-  );
+  )
 }
 
 const FactionSection = styled(Box)`
   margin: 0 auto;
   display: flex;
   flex-direction: row;
-`;
+`
