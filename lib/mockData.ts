@@ -1,4 +1,4 @@
-import { FactionStats } from '@/pages/leaderboard';
+// import { FactionStats } from '@/pages/leaderboard';
 import { Faction } from '@/types/server/Faction'; 
 
 
@@ -203,88 +203,88 @@ export const tenMockFactions: Faction[] = [
   }
 ];
 
-export const tenMockFactionStats: FactionStats[] = [
-  {
-    id: 'f1',
-    name: 'Dragon Clan',
-    favor: 75,
-    domWins: 15,
-    wealth: 10000,
-    knowledge: 150
-  },
-  {
-    id: 'f2',
-    name: 'Elf Kingdom',
-    favor: 90,
-    domWins: 10,
-    wealth: 12000,
-    knowledge: 180
-  },
-  {
-    id: 'f3',
-    name: 'Mystic Wizards',
-    favor: 85,
-    domWins: 18,
-    wealth: 14000,
-    knowledge: 200
-  },
-  {
-    id: 'f4',
-    name: 'Orc Tribes',
-    favor: 65,
-    domWins: 12,
-    wealth: 8000,
-    knowledge: 110
-  },
-  {
-    id: 'f5',
-    name: 'Dwarf Engineers',
-    favor: 78,
-    domWins: 14,
-    wealth: 9000,
-    knowledge: 140
-  },
-  {
-    id: 'f6',
-    name: 'Undead Horde',
-    favor: 60,
-    domWins: 9,
-    wealth: 7500,
-    knowledge: 90
-  },
-  {
-    id: 'f7',
-    name: 'Beast Tamers',
-    favor: 80,
-    domWins: 16,
-    wealth: 9500,
-    knowledge: 160
-  },
-  {
-    id: 'f8',
-    name: 'Sea Raiders',
-    favor: 70,
-    domWins: 11,
-    wealth: 8500,
-    knowledge: 120
-  },
-  {
-    id: 'f9',
-    name: 'Celestial Beings',
-    favor: 95,
-    domWins: 20,
-    wealth: 13000,
-    knowledge: 210
-  },
-  {
-    id: 'f10',
-    name: 'Knight Order',
-    favor: 88,
-    domWins: 17,
-    wealth: 11000,
-    knowledge: 170
-  }
-];
+// export const tenMockFactionStats: FactionStats[] = [
+//   {
+//     id: 'f1',
+//     name: 'Dragon Clan',
+//     favor: 75,
+//     domWins: 15,
+//     wealth: 10000,
+//     knowledge: 150
+//   },
+//   {
+//     id: 'f2',
+//     name: 'Elf Kingdom',
+//     favor: 90,
+//     domWins: 10,
+//     wealth: 12000,
+//     knowledge: 180
+//   },
+//   {
+//     id: 'f3',
+//     name: 'Mystic Wizards',
+//     favor: 85,
+//     domWins: 18,
+//     wealth: 14000,
+//     knowledge: 200
+//   },
+//   {
+//     id: 'f4',
+//     name: 'Orc Tribes',
+//     favor: 65,
+//     domWins: 12,
+//     wealth: 8000,
+//     knowledge: 110
+//   },
+//   {
+//     id: 'f5',
+//     name: 'Dwarf Engineers',
+//     favor: 78,
+//     domWins: 14,
+//     wealth: 9000,
+//     knowledge: 140
+//   },
+//   {
+//     id: 'f6',
+//     name: 'Undead Horde',
+//     favor: 60,
+//     domWins: 9,
+//     wealth: 7500,
+//     knowledge: 90
+//   },
+//   {
+//     id: 'f7',
+//     name: 'Beast Tamers',
+//     favor: 80,
+//     domWins: 16,
+//     wealth: 9500,
+//     knowledge: 160
+//   },
+//   {
+//     id: 'f8',
+//     name: 'Sea Raiders',
+//     favor: 70,
+//     domWins: 11,
+//     wealth: 8500,
+//     knowledge: 120
+//   },
+//   {
+//     id: 'f9',
+//     name: 'Celestial Beings',
+//     favor: 95,
+//     domWins: 20,
+//     wealth: 13000,
+//     knowledge: 210
+//   },
+//   {
+//     id: 'f10',
+//     name: 'Knight Order',
+//     favor: 88,
+//     domWins: 17,
+//     wealth: 11000,
+//     knowledge: 170
+//   }
+// ];
 
 
 
