@@ -211,26 +211,11 @@ export const CreateFaction: FC<{
             <Box w="100%" h="100%">
               <Flex mb={5}>
                 <HStack>
-                  <Label>COST TO CREATE:</Label>
+                  <Label>COST:</Label>
                   <Value>
                     {isLoading && <Spinner />}
-                    {requiredBonk!.toString()}
+                    {`${requiredBonk!.toString()} BONK`}
                   </Value>
-                  <Link href="https://jup.ag/swap/SOL-Bonk" target="_blank">
-                    <Button
-                      variant="outline"
-                      fontSize="1rem"
-                      py="0.5rem"
-                      ml="0.5rem"
-                      mb="0.25rem"
-                      opacity="0.15"
-                      _hover={{
-                        opacity: 0.6,
-                      }}
-                    >
-                      Buy More
-                    </Button>
-                  </Link>
                 </HStack>
               </Flex>
               <Box mb="2rem">
