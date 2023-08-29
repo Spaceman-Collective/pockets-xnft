@@ -19,13 +19,9 @@ import { PanelContainer } from "@/components/layout"
 import { combatSkillKeys } from "../../constants"
 
 export const SkillsTab: React.FC<{
-	currentCharacter?: Character
+	currentCharacter: Character
 	selectSkill: (skill: string) => void
 }> = ({ currentCharacter, selectSkill }) => {
-	if (!currentCharacter) {
-		return <EmptyState />
-	}
-
 	const experienceKeys = Object.keys(currentCharacter.experience) as Array<
 		keyof typeof currentCharacter.experience
 	>

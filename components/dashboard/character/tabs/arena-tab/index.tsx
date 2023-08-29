@@ -1,4 +1,6 @@
-import { FC } from "react"
+import { PanelContainer } from "@/components/layout"
+import { colors } from "@/styles/defaultTheme"
+import { BellIcon, SearchIcon } from "@chakra-ui/icons"
 import {
 	Box,
 	Button,
@@ -7,14 +9,38 @@ import {
 	GridItem,
 	Image,
 	Input,
+	Select,
 	Spacer,
 	Text,
 } from "@chakra-ui/react"
-import { BellIcon, Search2Icon, SearchIcon } from "@chakra-ui/icons"
-import { PanelContainer } from "@/components/layout"
-import { colors } from "@/styles/defaultTheme"
+import React, { useState, FormEvent, FC } from "react"
 
-export const ArenaTab: FC = () => {
+import { combatSkillKeys } from "../../constants"
+import { Character, Faction } from "@/types/server"
+
+import { useFaction } from "@/hooks/useFaction"
+
+export const ArenaTab: FC<{
+	currentCharacter: Character
+	allFactions: Faction[]
+}> = ({ currentCharacter, allFactions }) => {
+	const [factionId, setFactionId] = useState<string>("")
+	const [factionSelected, setFactionSelected] = useState<boolean>(false)
+	// Remove user's faction from the list of all factions
+	const allFactionsExceptUser = allFactions.filter(
+		(faction) => faction.id !== currentCharacter?.faction?.id ?? "",
+	)
+
+	const { data: factionData, isLoading: factionIsLoading } = useFaction({
+		factionId,
+	})
+
+	const onFactionSelectionChange = (e: FormEvent<HTMLSelectElement>) => {
+		e.preventDefault()
+		setFactionId(e.currentTarget.value)
+		setFactionSelected(true)
+	}
+
 	return (
 		<PanelContainer
 			display="flex"
@@ -22,20 +48,51 @@ export const ArenaTab: FC = () => {
 			gap="2rem"
 			width={"100%"}
 		>
-			<Header />
-			<SearchBar />
-			<Box overflowY="auto" gap="2rem">
-				<Opponent enabled={true} />
-				<Opponent enabled={false} />
-				<Opponent enabled={true} />
-				<Opponent enabled={true} />
-				<Opponent enabled={true} />
+			<Header character={currentCharacter} />
+			<Select
+				onChange={onFactionSelectionChange}
+				borderRadius="0.5rem"
+				alignItems="center"
+				display="block"
+				flex="1"
+				fontSize="1.75rem"
+				lineHeight="1.75rem"
+				fontWeight="600"
+				outline="none"
+				letterSpacing="0"
+			>
+				<option defaultChecked value="default" disabled selected>
+					SELECT A FACTION
+				</option>
+				{allFactionsExceptUser.map((faction) => (
+					<option key={faction.id} value={faction.id}>
+						{faction.name}
+					</option>
+				))}
+			</Select>
+			<SearchBar disabled={factionSelected} />
+			<Box
+				overflowY="auto"
+				gap="2rem"
+				opacity={factionIsLoading ? 0.25 : 1}
+				pointerEvents={factionIsLoading ? "none" : "auto"}
+				transition="all 0.1s ease-in-out"
+			>
+				{factionData?.citizens.map((citizen) => (
+					<Opponent key={citizen.mint} enabled={true} citizen={citizen} />
+				))}
 			</Box>
 		</PanelContainer>
 	)
 }
 
-const Header = () => {
+const Header: FC<{ character: Character }> = ({ character }) => {
+	const combatLevel = combatSkillKeys.reduce(
+		(acc, key) =>
+			acc + character.skills[key.charAt(0).toUpperCase() + key.slice(1)] || 0,
+		0,
+	)
+
 	return (
 		<Box>
 			<Flex justifyContent="space-between" alignItems="center">
@@ -43,27 +100,27 @@ const Header = () => {
 					{/* Total Battle Points and Current Combat Level */}
 					<Text
 						textTransform="uppercase"
-						fontSize="1.5rem"
-						lineHeight="1.5rem"
+						fontSize="1.75rem"
+						lineHeight="1.75rem"
 						fontWeight="600"
 						color="brand.tertiary"
 					>
 						Total Battle Points:{" "}
-						<Text as="span" color="brand.secondary">
-							0
+						<Text as="span" color="brand.quaternary">
+							{character.battlepoints}
 						</Text>
 					</Text>
 					<Spacer width="2rem" />
 					<Text
 						textTransform="uppercase"
-						fontSize="1.5rem"
-						lineHeight="1.5rem"
+						fontSize="1.75rem"
+						lineHeight="1.75rem"
 						fontWeight="600"
 						color="brand.tertiary"
 					>
 						Current Combat Level:{" "}
-						<Text as="span" color="brand.secondary">
-							0
+						<Text as="span" color="brand.quaternary">
+							{combatLevel}
 						</Text>
 					</Text>
 				</Flex>
@@ -75,7 +132,7 @@ const Header = () => {
 	)
 }
 
-const SearchBar = () => {
+const SearchBar: FC<{ disabled: boolean }> = ({ disabled }) => {
 	return (
 		<Flex
 			width="100%"
@@ -83,12 +140,12 @@ const SearchBar = () => {
 			borderRadius="0.5rem"
 			alignItems="center"
 		>
-			{/* Search Bar */}
 			<Input
+				pointerEvents={disabled ? "none" : "auto"}
 				display="block"
 				flex="1"
-				fontSize="2rem"
-				lineHeight="2rem"
+				fontSize="1.75rem"
+				lineHeight="1.75rem"
 				fontWeight="600"
 				placeholder="Search Opponents"
 				backgroundColor="transparent"
@@ -97,12 +154,25 @@ const SearchBar = () => {
 				padding="1.75rem"
 				color="brand.secondary"
 			/>
-			<SearchIcon color="brand.tertiary" fontSize="2.25rem" margin="2rem" />
+			<SearchIcon
+				color="brand.tertiary"
+				fontSize="1.75rem"
+				marginRight="2rem"
+			/>
 		</Flex>
 	)
 }
 
-const Opponent = ({ enabled }: { enabled: boolean }) => {
+const Opponent: FC<{ enabled: boolean; citizen: Character }> = ({
+	enabled,
+	citizen,
+}) => {
+	const combatLevel = combatSkillKeys.reduce(
+		(acc, key) =>
+			acc + citizen.skills[key.charAt(0).toUpperCase() + key.slice(1)] || 0,
+		0,
+	)
+
 	return (
 		<Flex
 			w="100%"
@@ -119,17 +189,29 @@ const Opponent = ({ enabled }: { enabled: boolean }) => {
 					w="12rem"
 					h="12rem"
 					p="1rem"
-					justifyContent="space-between"
+					bgImage={citizen.image}
+					bgSize="cover"
+					bgPos="center"
 				>
-					<Text fontSize="2rem" fontWeight="700" lineHeight="2rem">
-						5
-					</Text>
 					<Box
-						backgroundColor="blacks.500"
-						width="2.5rem"
-						height="2.5rem"
+						backgroundColor="brand.quaternary"
+						width="2.75rem"
+						height="2.75rem"
 						borderRadius="0.25rem"
-					/>
+						justifyContent="center"
+						alignItems="center"
+					>
+						<Text
+							fontSize="1.75rem"
+							fontWeight="700"
+							display="block"
+							textAlign="center"
+							alignSelf="center"
+							color="blacks.500"
+						>
+							{combatLevel}
+						</Text>
+					</Box>
 				</Flex>
 				<Flex p="0 1.75rem" flexDirection="column" w="100%" flex="1 1 auto">
 					<Text
@@ -141,16 +223,17 @@ const Opponent = ({ enabled }: { enabled: boolean }) => {
 						color="brand.secondary"
 						textTransform="uppercase"
 					>
-						Opponent Name
+						{citizen.name}
 					</Text>
 					<Grid templateColumns="repeat(8, 0fr)" gap="1rem">
 						{Array.from({ length: 16 }, (_, i) => (
 							<GridItem
 								key={i}
-								bg="brand.tertiary"
+								bgColor="brand.tertiary"
 								h="3.5rem"
 								w="3.5rem"
 								borderRadius="0.25rem"
+								opacity="0.5"
 							/>
 						))}
 					</Grid>
