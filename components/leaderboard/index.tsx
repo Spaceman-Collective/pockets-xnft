@@ -15,6 +15,10 @@ export interface FactionScore {
   knowledge: number;
 }
 
+/**
+ * Leaderboard
+ * @returns
+ */
 export const LeaderboardList = () => {
   //const handleFilter = (e: any) => console.info(e);
   const { data } = useGetLeaderboard();
