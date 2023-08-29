@@ -1,6 +1,6 @@
 import { getResource } from "@/constants";
 import { useSolana } from "@/hooks/useSolana";
-import { getLocalImage } from "@/lib/utils";
+import { getLocalImage, timeout } from "@/lib/utils";
 import {
   Text,
   Image,
@@ -69,16 +69,23 @@ export const ModalSendResource: FC<{
     });
 
     try {
-      const receipt = await sendTransaction({
+      await sendTransaction({
         connection,
         ixs: [...resourceIx],
         wallet: walletAddress,
         signTransaction,
-      }).then((e) => {
-        queryClient.refetchQueries({
-          queryKey: ["wallet-assets"],
-        });
-        toast.success("Sent to " + factionName);
+      }).then(async (_) => {
+        await new Promise((_) =>
+          setTimeout(() => {
+            queryClient.refetchQueries({
+              queryKey: ["wallet-assets", walletAddress],
+            });
+            queryClient.refetchQueries({
+              queryKey: ["fetch-faction", "hJ-NbOu059u1GfLF75OnB"],
+            });
+            toast.success("Sent to " + factionName);
+          }, 1500),
+        );
       });
     } catch (err) {
       console.error({ err });
