@@ -71,6 +71,7 @@ export const ResourceGridContainer: FC<{
               key={resource.name}
               resource={resource}
               openModal={() => {
+                if (!factionPubKey) return;
                 setSelectedResource(resource.name);
                 sendDisclosure.onOpen();
               }}
