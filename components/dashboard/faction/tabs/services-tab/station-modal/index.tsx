@@ -58,7 +58,7 @@ export const ModalStation: FC<{
   const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
 
   const timer = timersData?.stationTimers.find(
-    (e) => e.station === station?.id,
+    (e) => e.station === station?.id
   );
 
   const finishedDate = timer?.finished && +timer?.finished;
@@ -118,7 +118,6 @@ export const ModalStation: FC<{
       signTransaction,
       encodeTransaction,
       buildMemoIx,
-      buildTransferIx,
       buildBurnIx,
       mutateStartStation: mutate,
       startCountdown,
@@ -136,10 +135,10 @@ export const ModalStation: FC<{
           queryClient.refetchQueries({ queryKey: ["assets"] });
           queryClient.refetchQueries({ queryKey: ["wallet-assets"] });
           toast.success(
-            "You've claimed the reward from the " + station?.blueprint,
+            "You've claimed the reward from the " + station?.blueprint
           );
         },
-      },
+      }
     );
   };
 
@@ -260,7 +259,7 @@ export const ModalStation: FC<{
                         ?.filter(
                           (unit) =>
                             unit.name.toLowerCase() ===
-                            stationBlueprint?.unitOutput?.[0].toLowerCase(),
+                            stationBlueprint?.unitOutput?.[0].toLowerCase()
                         )
                         ?.length.toString() ?? "0",
                   },

@@ -84,7 +84,10 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
 
-  const { data: vT, isLoading:  isThresholdLoading} = useVoteThreshold(currentCharacter, connection);
+  const { data: vT, isLoading: isThresholdLoading } = useVoteThreshold(
+    currentCharacter,
+    connection
+  );
   const {
     data: allProposals,
     isLoading: allProposalsIsLoading,
@@ -274,16 +277,22 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
             />
           </Flex>
         </Flex>
-        {sortedProposals?.map((proposal: Proposal) => (
-          <ProposalItem
-            key={proposal.id}
-            proposal={proposal}
-            currentCharacter={currentCharacter}
-            voteThreshold={voteThreshold}
-            setIsLoading={setIsLoading}
-            connection={connection}
-          />
-        ))}
+        {allProposals.total === 0 ? (
+          <ProposalAction>
+            <Value>NO PROPOSALS CREATED</Value>
+          </ProposalAction>
+        ) : (
+          sortedProposals?.map((proposal: Proposal) => (
+            <ProposalItem
+              key={proposal.id}
+              proposal={proposal}
+              currentCharacter={currentCharacter}
+              voteThreshold={voteThreshold}
+              setIsLoading={setIsLoading}
+              connection={connection}
+            />
+          ))
+        )}
       </VStack>
     );
   };
@@ -444,7 +453,10 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   const { walletAddress, signTransaction, encodeTransaction } = useSolana();
   const queryClient = useQueryClient();
 
-  const { data, refetch, isLoading } = useProposalVoteInfo(proposalId!, connection!);
+  const { data, refetch, isLoading } = useProposalVoteInfo(
+    proposalId!,
+    connection!
+  );
   const { voteAccountExists, voteAmount } = data;
 
   const handleRefetch = () => {

@@ -12,14 +12,27 @@ import {
 import { FC, useState } from "react";
 import { getLocalImage } from "@/lib/utils";
 import { useDebounce } from "@uidotdev/usehooks";
+import { useAllWalletAssets } from "@/hooks/useWalletAssets";
+import { ModalSendResource } from "./tabs/resources-tab/send-modal.component";
 
 export const ResourceGridContainer: FC<{
   isLoading: boolean;
   resources?: { name: string; value: string }[];
-}> = ({ isLoading, resources }) => {
+  factionPubKey?: string;
+  factionName?: string;
+}> = ({ isLoading, resources, factionPubKey, factionName }) => {
+  const { data } = useAllWalletAssets();
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 400);
   const onSearch = (e: any) => setSearch(e.target.value);
+
+  const sendDisclosure = useDisclosure();
+  const [selectedResource, setSelectedResource] = useState<string>(""); // for displaying resource modal
+  const valueInWallet =
+    data?.resources.find(
+      (e) => e.name.toLowerCase() === selectedResource.toLowerCase(),
+    )?.value ?? 0;
+
   return (
     <Box>
       <Flex justifyContent="space-between" alignItems="end" mb="1rem">
@@ -54,20 +67,36 @@ export const ResourceGridContainer: FC<{
             return isWithinSearchParams;
           })
           ?.map((resource) => (
-            <ResourceItem key={resource.name} resource={resource} />
+            <ResourceItem
+              key={resource.name}
+              resource={resource}
+              openModal={() => {
+                setSelectedResource(resource.name);
+                sendDisclosure.onOpen();
+              }}
+            />
           ))}
       </Grid>
+      <ModalSendResource
+        {...sendDisclosure}
+        selectedResource={selectedResource}
+        valueInWallet={+valueInWallet}
+        factionPubKey={factionPubKey}
+        factionName={factionName}
+      />
     </Box>
   );
 };
 
-const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
-  resource,
-}) => {
+const ResourceItem: FC<{
+  openModal: () => void;
+  resource: { name: string; value: string };
+}> = ({ resource, openModal }) => {
   const hoverProps = useDisclosure();
   return (
     <Flex
       key={resource?.name + "resource"}
+      cursor="pointer"
       bg="blacks.500"
       minH="5rem"
       alignItems="center"
@@ -83,6 +112,7 @@ const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
       }}
       onMouseOver={hoverProps.onOpen}
       onMouseOut={hoverProps.onClose}
+      onClick={openModal}
       position="relative"
     >
       <Image
@@ -100,11 +130,11 @@ const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
         <Flex
           position="absolute"
           bg="blacks.700"
-          top="-14rem"
-          left="-50%"
+          top="-18rem"
           gap="1rem"
           alignItems="center"
           borderRadius="1rem"
+          direction="column"
         >
           <Image
             alt={resource?.name}
@@ -116,7 +146,7 @@ const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
             borderRadius="0.5rem"
             h="13rem"
           />
-          <Text fontWeight={700} w="fit-content" mr="2rem">
+          <Text fontWeight={700} w="fit-content" m="1rem">
             {resource?.name}
           </Text>
         </Flex>
@@ -125,22 +155,10 @@ const ResourceItem: FC<{ resource: { name: string; value: string } }> = ({
   );
 };
 
-const Title = styled(Text)`
-  text-transform: uppercase;
-  font-size: 3rem;
-  font-weight: 700;
-`;
-
 const MenuTitle = styled(Text)`
   font-size: 1.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   text-decoration: underline;
-`;
-const MenuText = styled(Text)`
-  font-size: 1.5rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 `;

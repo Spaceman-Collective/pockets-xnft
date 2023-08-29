@@ -25,7 +25,7 @@ export const DashboardMenu = () => {
         minW="38rem"
         onClick={() => router.push("/")}
       >
-        WALLET
+        INVENTORY
       </Button>
       <Button
         bg={colors.brand.primary}

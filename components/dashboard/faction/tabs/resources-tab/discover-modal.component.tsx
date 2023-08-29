@@ -1,4 +1,8 @@
-import { BONK_MINT, RESOURCE_FIELD_CREATION_MULTIPLIER } from "@/constants";
+import {
+  BONK_MINT,
+  RESOURCE_FIELD_CREATION_MULTIPLIER,
+  SERVER_KEY,
+} from "@/constants";
 import { useRfAllocate } from "@/hooks/useRf";
 import { useSolana } from "@/hooks/useSolana";
 import {
@@ -43,16 +47,18 @@ export const ModalRfDiscover: FC<{
       setDiscoverLoading(true);
       let ix =
         buildTransferIx &&
-        buildTransferIx({
-          walletAddress,
+        (await buildTransferIx({
+          walletAddress: walletAddress as string,
+          connection,
+          receipientAddress: SERVER_KEY,
           mint: BONK_MINT.toString(),
           decimals: 5,
           amount: bonkForNextField * BigInt(1e5),
-        });
+        }));
 
       if (!ix) return;
       const encodedTx = await encodeTransaction({
-        txInstructions: [ix],
+        txInstructions: [...ix],
         walletAddress,
         connection,
         signTransaction,
@@ -61,14 +67,12 @@ export const ModalRfDiscover: FC<{
       if (typeof encodedTx == "string") {
         mutate({
           signedTx: encodedTx,
-          charMint: undefined
+          charMint: undefined,
         });
-        toast.success('Successfully allocated Resource Field');
+        toast.success("Successfully allocated Resource Field");
       } else {
-        throw Error('failed tx')
+        throw Error("failed tx");
       }
-
-
     } catch (error) {
       console.error(error);
       toast.error("Error allocating Resource Field");
@@ -90,18 +94,29 @@ export const ModalRfDiscover: FC<{
         minW="40vw"
         minH="40vh"
       >
-        <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">Discover a new Resource Field</ModalHeader>
+        <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">
+          Discover a new Resource Field
+        </ModalHeader>
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
-        <ModalBody display={'flex'} flexDirection={'column'} justifyContent={'space-between'}>
-          <Text>Resource Fields, when controlled by a faction, allow that faction’s citizens to harvest it every so often for it’s yield.</Text>
-          <Text pt='44'>There are currently {rf?.rfCount} fields.</Text>
+        <ModalBody
+          display={"flex"}
+          flexDirection={"column"}
+          justifyContent={"space-between"}
+        >
+          <Text>
+            Resource Fields, when controlled by a faction, allow that faction’s
+            citizens to harvest it every so often for it’s yield.
+          </Text>
+          <Text pt="44">There are currently {rf?.rfCount} fields.</Text>
           <HStack>
             <Text>BONK for next Resource Field:</Text>
             <Text>{formatBalance(Number(bonkForNextField))}</Text>
           </HStack>
         </ModalBody>
         <ModalHeader>
-          <Button isLoading={discoverLoading}  w='100%' onClick={post}>Allocate</Button>
+          <Button isLoading={discoverLoading} w="100%" onClick={post}>
+            Allocate
+          </Button>
         </ModalHeader>
       </ModalContent>
     </Modal>
