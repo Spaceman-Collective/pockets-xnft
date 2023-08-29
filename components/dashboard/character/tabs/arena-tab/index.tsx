@@ -73,6 +73,7 @@ export const ArenaTab: FC<{
 				fontWeight="600"
 				outline="none"
 				letterSpacing="0"
+				borderRight="2.1rem solid transparent"
 			>
 				<option defaultChecked value="default" disabled selected>
 					SELECT A FACTION
@@ -174,14 +175,16 @@ const SearchBar: FC<{
 			backgroundColor="blacks.500"
 			borderRadius="0.5rem"
 			alignItems="center"
+			opacity={disabled ? 0.25 : 1}
+			cursor={disabled ? "not-allowed" : ""}
 		>
 			<Input
+				pointerEvents={disabled ? "none" : "auto"}
 				_placeholder={{
 					color: "brand.tertiary",
 				}}
 				onChange={handleSearch}
 				value={search}
-				pointerEvents={disabled ? "none" : "auto"}
 				display="block"
 				flex="1"
 				fontSize="1.75rem"
