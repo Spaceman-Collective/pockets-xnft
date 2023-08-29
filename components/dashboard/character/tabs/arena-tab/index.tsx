@@ -26,6 +26,7 @@ export const ArenaTab: FC<{
 }> = ({ currentCharacter, allFactions }) => {
 	const [factionId, setFactionId] = useState<string>("")
 	const [factionSelected, setFactionSelected] = useState<boolean>(false)
+	const [search, setSearch] = useState<string>("")
 	// Remove user's faction from the list of all factions
 	const allFactionsExceptUser = allFactions.filter(
 		(faction) => faction.id !== currentCharacter?.faction?.id ?? "",
@@ -37,9 +38,21 @@ export const ArenaTab: FC<{
 
 	const onFactionSelectionChange = (e: FormEvent<HTMLSelectElement>) => {
 		e.preventDefault()
-		setFactionId(e.currentTarget.value)
+		setSearch("")
 		setFactionSelected(true)
+		setFactionId(e.currentTarget.value)
 	}
+
+	const handleSearch = (e: FormEvent<HTMLInputElement>) => {
+		e.preventDefault()
+		setSearch(e.currentTarget.value)
+	}
+
+	const filteredCitizens = factionData?.citizens.filter((citizen) =>
+		search !== ""
+			? citizen.name.toLowerCase().includes(search.toLowerCase())
+			: true,
+	)
 
 	return (
 		<PanelContainer
@@ -70,7 +83,11 @@ export const ArenaTab: FC<{
 					</option>
 				))}
 			</Select>
-			<SearchBar disabled={factionSelected} />
+			<SearchBar
+				disabled={!factionSelected}
+				handleSearch={handleSearch}
+				search={search}
+			/>
 			<Box
 				overflowY="auto"
 				gap="2rem"
@@ -78,9 +95,23 @@ export const ArenaTab: FC<{
 				pointerEvents={factionIsLoading ? "none" : "auto"}
 				transition="all 0.1s ease-in-out"
 			>
-				{factionData?.citizens.map((citizen) => (
-					<Opponent key={citizen.mint} enabled={true} citizen={citizen} />
-				))}
+				{factionIsLoading
+					? null
+					: filteredCitizens?.map((citizen) => (
+							<Opponent key={citizen.mint} enabled={true} citizen={citizen} />
+					  ))}
+
+				{filteredCitizens?.length === 0 && (
+					<Text
+						fontSize="1.75rem"
+						lineHeight="1.75rem"
+						fontWeight="600"
+						color="brand.tertiary"
+						textAlign="center"
+					>
+						No Opponents Found
+					</Text>
+				)}
 			</Box>
 		</PanelContainer>
 	)
@@ -132,7 +163,11 @@ const Header: FC<{ character: Character }> = ({ character }) => {
 	)
 }
 
-const SearchBar: FC<{ disabled: boolean }> = ({ disabled }) => {
+const SearchBar: FC<{
+	disabled: boolean
+	handleSearch: (e: FormEvent<HTMLInputElement>) => void
+	search: string
+}> = ({ disabled, handleSearch, search }) => {
 	return (
 		<Flex
 			width="100%"
@@ -141,6 +176,11 @@ const SearchBar: FC<{ disabled: boolean }> = ({ disabled }) => {
 			alignItems="center"
 		>
 			<Input
+				_placeholder={{
+					color: "brand.tertiary",
+				}}
+				onChange={handleSearch}
+				value={search}
 				pointerEvents={disabled ? "none" : "auto"}
 				display="block"
 				flex="1"
@@ -163,15 +203,17 @@ const SearchBar: FC<{ disabled: boolean }> = ({ disabled }) => {
 	)
 }
 
-const Opponent: FC<{ enabled: boolean; citizen: Character }> = ({
-	enabled,
-	citizen,
-}) => {
+const Opponent: FC<{
+	enabled: boolean
+	citizen: Character
+}> = ({ enabled, citizen }) => {
 	const combatLevel = combatSkillKeys.reduce(
 		(acc, key) =>
 			acc + citizen.skills[key.charAt(0).toUpperCase() + key.slice(1)] || 0,
 		0,
 	)
+
+	const hasUnits = citizen.army.length
 
 	return (
 		<Flex
@@ -180,8 +222,26 @@ const Opponent: FC<{ enabled: boolean; citizen: Character }> = ({
 			borderRadius="0.5rem"
 			p="1.75rem"
 			_notLast={{ marginBottom: "2rem" }}
+			pos="relative"
 		>
-			<Flex w="100%">
+			{hasUnits ? null : (
+				<Text
+					fontSize="2rem"
+					fontWeight="700"
+					position="absolute"
+					width="100%"
+					height="calc(100% - 2rem)"
+					textAlign="center"
+					display="flex"
+					alignItems="center"
+					justifyContent="center"
+					zIndex={100}
+					color="brand.secondary"
+				>
+					NO UNITS EQUIPPED
+				</Text>
+			)}
+			<Flex w="100%" opacity={hasUnits ? 1 : 0.25}>
 				<Flex
 					flex="0 0 auto"
 					bgColor="brand.tertiary"
@@ -229,11 +289,10 @@ const Opponent: FC<{ enabled: boolean; citizen: Character }> = ({
 						{Array.from({ length: 16 }, (_, i) => (
 							<GridItem
 								key={i}
-								bgColor="brand.tertiary"
+								bgColor="blacks.400"
 								h="3.5rem"
 								w="3.5rem"
 								borderRadius="0.25rem"
-								opacity="0.5"
 							/>
 						))}
 					</Grid>
