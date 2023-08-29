@@ -1,13 +1,18 @@
-import { BONK_MINT, RESOURCES, STATION_USE_COST_PER_LEVEL } from "@/constants";
+import {
+  BONK_MINT,
+  RESOURCES,
+  SERVER_KEY,
+  STATION_USE_COST_PER_LEVEL,
+} from "@/constants";
 import { Connection, TransactionInstruction } from "@solana/web3.js";
 import { toast } from "react-hot-toast";
 import { Blueprint } from "../constants";
 import { QueryClient, UseMutateFunction } from "@tanstack/react-query";
+import { buildTransferIx } from "@/hooks/useSolana";
 import { Faction } from "@/types/server";
 
 type Props = {
   startCountdown: () => void;
-  buildTransferIx: (prop: any) => TransactionInstruction;
   buildMemoIx: (prop: any) => TransactionInstruction;
   buildBurnIx: (prop: any) => TransactionInstruction;
   mutateStartStation: (prop: any, handle: any) => any;
@@ -30,7 +35,6 @@ export const startStationProcess = async ({
   signTransaction,
   encodeTransaction,
   buildMemoIx,
-  buildTransferIx,
   buildBurnIx,
   mutateStartStation,
   startCountdown,
@@ -46,8 +50,10 @@ export const startStationProcess = async ({
     },
   });
 
-  const bonkIx = buildTransferIx({
+  const bonkIx = await buildTransferIx({
     walletAddress,
+    connection,
+    receipientAddress: SERVER_KEY,
     mint: BONK_MINT.toString(),
     amount: STATION_USE_COST_PER_LEVEL * BigInt(station?.level!),
     decimals: 5,
@@ -88,7 +94,7 @@ export const startStationProcess = async ({
         onError: (e: any) => {
           toast.error("Ooops! Did not start station: \n\n" + e);
         },
-      },
+      }
     );
   } catch (err) {
     toast.error("Oops! That didn't work: \n\n" + JSON.stringify(err));

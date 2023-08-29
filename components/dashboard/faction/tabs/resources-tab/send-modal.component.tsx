@@ -61,17 +61,23 @@ export const ModalSendResource: FC<{
       input,
     });
 
-    const resourceIx = buildTransferIx({
-      walletAddress: factionPubKey,
+    if (!factionPubKey) {
+      toast.error("Faction must be selected!");
+      return;
+    }
+    const resourceIx = await buildTransferIx({
+      walletAddress,
+      connection,
+      receipientAddress: factionPubKey,
       mint: getResource(selectedResource)?.mint!,
       amount: BigInt(input),
-      decimals: 5,
+      decimals: 0,
     });
 
     try {
       const receipt = await sendTransaction({
         connection,
-        ixs: [resourceIx],
+        ixs: [...resourceIx],
         wallet: walletAddress,
         signTransaction,
       });

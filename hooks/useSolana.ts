@@ -6,6 +6,7 @@ declare global {
 import { useEffect, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
+  createAssociatedTokenAccountInstruction,
   createBurnCheckedInstruction,
   createTransferCheckedInstruction,
   getAssociatedTokenAddressSync,
@@ -17,7 +18,6 @@ import {
   TransactionInstruction,
   TransactionMessage,
   VersionedTransaction,
-  LAMPORTS_PER_SOL,
   SystemProgram,
 } from "@solana/web3.js";
 import { decode, encode } from "bs58";
@@ -106,34 +106,54 @@ const buildMemoIx = ({
   return TxInstruct;
 };
 
-const buildTransferIx = ({
+export const buildTransferIx = async ({
   walletAddress,
+  connection,
+  receipientAddress,
   mint,
   amount,
   decimals,
 }: {
-  walletAddress?: string;
+  walletAddress: string;
+  connection: Connection;
+  receipientAddress: string;
   mint: string;
   amount: bigint;
   decimals: number;
 }) => {
+  let ixArray: TransactionInstruction[] = [];
   const senderATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(walletAddress as string),
+    new PublicKey(walletAddress as string)
   );
-  const serverATA = getAssociatedTokenAddressSync(
+  const receipientATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(SERVER_KEY),
+    new PublicKey(receipientAddress)
   );
-  const ix = createTransferCheckedInstruction(
-    senderATA,
-    new PublicKey(mint),
-    serverATA,
-    new PublicKey(walletAddress as string),
-    amount,
-    decimals,
+
+  const recipientAcc = await connection.getAccountInfo(receipientATA);
+  if (recipientAcc == null) {
+    ixArray.push(
+      createAssociatedTokenAccountInstruction(
+        new PublicKey(walletAddress),
+        receipientATA,
+        new PublicKey(receipientAddress),
+        new PublicKey(mint)
+      )
+    );
+  }
+
+  ixArray.push(
+    createTransferCheckedInstruction(
+      senderATA,
+      new PublicKey(mint),
+      receipientATA,
+      new PublicKey(walletAddress as string),
+      amount,
+      decimals
+    )
   );
-  return ix;
+  return ixArray;
 };
 
 const buildBurnIx = ({
@@ -149,7 +169,7 @@ const buildBurnIx = ({
 }) => {
   const senderATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(walletAddress as string),
+    new PublicKey(walletAddress as string)
   );
 
   const ix = createBurnCheckedInstruction(
@@ -157,7 +177,7 @@ const buildBurnIx = ({
     new PublicKey(mint),
     new PublicKey(walletAddress as string),
     amount,
-    decimals,
+    decimals
   );
   return ix;
 };
@@ -240,7 +260,7 @@ const sendAllTransactions = async (
   connection: Connection,
   ixs: TransactionInstruction[],
   wallet: string,
-  signAllTransactions: any,
+  signAllTransactions: any
 ) => {
   if (!wallet || !ixs || !signAllTransactions) return;
 
@@ -286,7 +306,7 @@ const sendAllTransactions = async (
 async function getTokenAccountBalance(
   wallet: string,
   solanaConnection: Connection,
-  mint: string,
+  mint: string
 ) {
   const filters: any[] = [
     {
@@ -302,7 +322,7 @@ async function getTokenAccountBalance(
 
   const accounts = await solanaConnection?.getParsedProgramAccounts(
     new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), // TOKEN_PROGRAM_ID
-    { filters: filters },
+    { filters: filters }
   );
 
   // console.log(
@@ -340,7 +360,7 @@ const getBonkBalance = async ({
   const bonkBalance = await getTokenAccountBalance(
     walletAddress,
     connection,
-    SPL_TOKENS.bonk.mint,
+    SPL_TOKENS.bonk.mint
   );
 
   return bonkBalance;
@@ -361,13 +381,13 @@ const buildProspectIx = async ({
 
   const walletAta = getAssociatedTokenAddressSync(
     new PublicKey(characterMint),
-    new PublicKey(walletAddress),
+    new PublicKey(walletAddress)
   );
 
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
-    { connection: new Connection("https://api.mainnet-beta.solana.com") },
+    { connection: new Connection("https://api.mainnet-beta.solana.com") }
   );
 
   const ix = await POCKETS_PROGRAM.methods
@@ -388,7 +408,7 @@ const buildProspectIx = async ({
 function getCitizenPDA(characterMint: PublicKey): PublicKey {
   const [citizenPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("citizen"), Buffer.from(characterMint.toBuffer())],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
   );
   return citizenPDA;
 }
@@ -396,7 +416,7 @@ function getCitizenPDA(characterMint: PublicKey): PublicKey {
 function getFactionPDA(factionId: string): PublicKey {
   const [factionPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("faction"), Buffer.from(factionId)],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
   );
   return factionPDA;
 }
@@ -404,7 +424,7 @@ function getFactionPDA(factionId: string): PublicKey {
 function getRFPDA(rfId: string): PublicKey {
   const [rfPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("rf"), Buffer.from(rfId)],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
   );
   // console.log('rfpda: ', rfPDA)
   return rfPDA;
@@ -414,11 +434,11 @@ async function getRFAccount(connection: Connection, rfId: string) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
-    { connection },
+    { connection }
   );
 
   return await POCKETS_PROGRAM.account.resourceField.fetch(
     getRFPDA(rfId),
-    "confirmed",
+    "confirmed"
   );
 }
