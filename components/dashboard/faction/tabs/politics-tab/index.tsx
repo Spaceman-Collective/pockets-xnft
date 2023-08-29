@@ -120,14 +120,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   }, [isThresholdLoading, vT]);
 
   useEffect(() => {
-    if (factionData) {
-      console.info("faction data politics: ", factionData);
-    }
-  }, [factionData]);
-
-  useEffect(() => {
     setFactionStatus(!!currentCharacter?.faction);
-    console.info("ap: ", allProposals);
   }, [currentCharacter, allProposals, setFactionStatus]);
 
   const getVotingPower = async () => {
@@ -224,12 +217,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     setIsLoading(false);
   };
 
-  useEffect(() => {
-    console.log("scf: ", currentCharacter?.faction?.id);
-    console.log("fddd: ", factionData);
-    console.log("fddd: ", factionData);
-    console.log("current resources: ", factionData?.resources);
-  }, [factionData, currentCharacter?.faction]);
+  useEffect(() => {}, [factionData, currentCharacter?.faction]);
 
   const renderContent = () => {
     if (isLoading || allProposalsIsLoading || isError) {
@@ -459,9 +447,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     ]);
   };
 
-  useEffect(() => {
-    console.log("vtttt: ", voteThreshold);
-  }, [voteThreshold]);
+  useEffect(() => {}, [voteThreshold]);
 
   // const getProposalOnChainInfo = async () => {
   //   const pA = await getProposalAccount(connection, proposalId!);
@@ -511,14 +497,13 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         const sig = await connection.sendRawTransaction(
           decode(encodedSignedTx)
         );
-        console.log("vote sig: sig");
         toast.success("Vote successful!");
       } else {
         toast.error("Vote failed!");
       }
       setLocalVote("");
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      await refetch();
+      refetch();
 
       setIsVoteInProgress(false);
     } catch (e) {
@@ -536,9 +521,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
     try {
       if (votingAmt < 0) {
         isIncrement = false;
-        console.log("is: ", isIncrement);
         normalizedVotingAmt *= -1;
-        console.log("nva: ", normalizedVotingAmt);
       }
       const encodedSignedTx = await encodeTransaction({
         walletAddress,
@@ -561,7 +544,6 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         const sig = await connection.sendRawTransaction(
           decode(encodedSignedTx)
         );
-        console.log("update vot sig: ", sig);
         toast.success("Update vote successful!");
       }
 
@@ -572,7 +554,6 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
       setIsVoteInProgress(false);
     } catch (e) {
-      console.log(e);
       console.log("Update failed: ", e);
       setIsVoteInProgress(false);
     }

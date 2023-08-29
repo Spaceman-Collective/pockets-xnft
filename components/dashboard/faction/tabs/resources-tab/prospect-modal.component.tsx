@@ -21,7 +21,7 @@ import { colors } from "@/styles/defaultTheme";
 import Link from "next/link";
 import { useRfAllocate } from "@/hooks/useRf";
 import { Character } from "@/types/server";
-import { timeout } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 const tickets = [1, 5, 10, 25];
 const MAX_NUM_IX = 20;
@@ -41,18 +41,20 @@ export const ModalRfProspect: FC<{
   rf?: { rfCount: number; id: string };
   charMint?: string;
   factionId?: string;
-  refetchRF?: any;
   currentCharacter: Character;
   fire: () => void;
+  setDiscoverableData: Function;
+  refetchRFAllocation: Function;
 }> = ({
   isOpen,
   onClose,
   rf,
   charMint: characterMint,
   factionId,
-  refetchRF,
   currentCharacter,
   fire: fireConfetti,
+  setDiscoverableData,
+  refetchRFAllocation,
 }) => {
   const {
     walletAddress,
@@ -70,24 +72,25 @@ export const ModalRfProspect: FC<{
   const [signedArr, setSignedArr] = useState<string[]>();
   const [prospectLoading, setProspectLoading] = useState<boolean>(false);
   const [numProspectTickets, setNumProspectTickets] = useState<number>(0);
+  const queryClient = useQueryClient();
 
   const refreshRFAccount = useCallback(async () => {
-    if (!rf?.id) return console.error("NO  ACCOUNT ID", rf);
+    if (!rf) return;
 
     try {
+      const refetchRFAllocationData = await refetchRFAllocation();
+      setDiscoverableData(refetchRFAllocationData.data);
+
       const account = await getRFAccount(connection, rf?.id);
-      console.log("rfa account: ", account);
-      if (rfAccount?.initialClaimant) {
-        console.log(
-          "RF Account already has a claimaint, posting to claim it for them."
-        );
-        mutate({ charMint: rfAccount.initialClaimant.toString() });
+      if (account?.initialClaimant) {
+        if (account.initialClaimant.toString() == characterMint) {
+          const hitJackpot =
+            account?.initialClaimant?.toString() === characterMint;
+          setJackpot(hitJackpot);
+        }
+        mutate({ charMint: account.initialClaimant.toString() });
       }
       setRfAccount(account as RFAccount);
-      const hitJackpot =
-        account.isHarvestable &&
-        account?.initialClaimant?.toString() === characterMint;
-      setJackpot(hitJackpot);
     } catch (err) {
       console.error(err);
     }
@@ -95,27 +98,18 @@ export const ModalRfProspect: FC<{
 
   useEffect(() => {
     refreshRFAccount();
-  }, [refreshRFAccount]);
+  }, [rfAccount, refreshRFAccount]);
 
   useEffect(() => {
     refreshRFAccount();
-  }, [rf, connection, refreshRFAccount]);
-
-  const handleJackpot = async () => {
-    try {
-      setClaimLoading(true);
-      mutate({ signedTx: undefined, charMint: currentCharacter!.mint });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      /* For better UX - hold on a second before closing */
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("JACKPOT!!!! Resource Field Claimed");
-      setClaimLoading(false);
-      fireConfetti();
-      onClose();
-    }
-  };
+    refetchRFAllocation().then((data: any) => setDiscoverableData(data.data));
+  }, [
+    rf,
+    connection,
+    refreshRFAccount,
+    refetchRFAllocation,
+    setDiscoverableData,
+  ]);
 
   const post = async () => {
     if (!characterMint || !factionId || !rf?.id || !walletAddress) {
@@ -189,16 +183,21 @@ export const ModalRfProspect: FC<{
         sigArr.push(...sigs!);
       }
 
-      //TODO: remove this log when building page
-      console.info("SUCCESSFUL SIGN with sigs", sigArr);
-      toast.success("Successfully sent prospect TXs");
-      /* TODO have some array of sigs to be set */
       setSignedArr(sigArr);
+      await new Promise((resolve) =>
+        setTimeout(resolve, 1000 * (signedArr ? signedArr?.length : 1))
+      );
     } catch (err) {
+      // Error could mean they got one
+      await new Promise((resolve) => setTimeout(resolve, 15000));
+      await refreshRFAccount();
+      queryClient.refetchQueries({ queryKey: ["rf-allocation"] });
       console.error(err);
-      toast.error("Error prospecting Resource Field");
     } finally {
       await refreshRFAccount();
+      toast.custom(
+        "Successfully sent prospect TXs, but seems like none of them were winners"
+      );
       setProspectLoading(false);
     }
   };
@@ -225,17 +224,24 @@ export const ModalRfProspect: FC<{
           <Text>
             Take a chance to claim this resource field for your faction. Even if
             you fail, you increase chance the next transaction will successfully
-            claim the resource field.
+            claim the resource field. CURRENTLY NOT SUPPORTED ON LEDGER.
           </Text>
+          <br></br>
+          <Text>
+            Every roll has a 1 in 1000 chance plus the times developed to land
+            on a winning transaction. If it doesnt win, it increments times
+            developed for the next transaction.
+          </Text>
+          <br></br>
+          <Text>RF ID: {rfAccount?.id}</Text>
+          <Text>Times Developed: {rfAccount?.timesDeveloped.toString()}</Text>
           {jackpot ? (
             <VStack gap={4}>
               <Text textAlign={"center"}>
                 Congrats, anon! You have claimed the resource field for your
-                faction!
+                faction! This field has been added to your factions resource
+                fields.
               </Text>
-              <Button isLoading={claimLoading} onClick={handleJackpot}>
-                Claim
-              </Button>
             </VStack>
           ) : (
             <VStack pt="28">

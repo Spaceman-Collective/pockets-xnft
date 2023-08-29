@@ -25,8 +25,9 @@ export const ModalRfDiscover: FC<{
   isOpen: boolean;
   onClose: () => void;
   rf?: { rfCount: number };
-  refetchDiscoverData?: any;
-}> = ({ isOpen, onClose, rf, refetchDiscoverData }) => {
+  setDiscoverableData: Function;
+  refetchRFAllocation: Function;
+}> = ({ isOpen, onClose, rf, setDiscoverableData, refetchRFAllocation }) => {
   const { mutate } = useRfAllocate();
   const {
     walletAddress,
@@ -69,7 +70,11 @@ export const ModalRfDiscover: FC<{
           signedTx: encodedTx,
           charMint: undefined,
         });
+        await new Promise((resolve) => setTimeout(resolve, 1500)); //wait so the account gets initialized on the blockchain
         toast.success("Successfully allocated Resource Field");
+        refetchRFAllocation().then((data: any) =>
+          setDiscoverableData(data.data)
+        );
       } else {
         throw Error("failed tx");
       }
@@ -77,8 +82,6 @@ export const ModalRfDiscover: FC<{
       console.error(error);
       toast.error("Error allocating Resource Field");
     } finally {
-      await refetchDiscoverData();
-
       setDiscoverLoading(false);
       onClose();
     }

@@ -23,7 +23,6 @@ export const DashboardInfo = () => {
     (async () => {
       if (walletAddress && connection) {
         setIsLoading(true);
-        console.log('connection getbb: ', connection)
         let balance = await getBonkBalance({ walletAddress, connection });
         const wholeBalance = Math.floor(balance);
 
@@ -98,7 +97,7 @@ export const DashboardInfo = () => {
             />
           </IconButton>
         </Tip>
-{/* 
+        {/* 
         <Tip label="Coming soon">
           <IconButton
             onClick={() => {

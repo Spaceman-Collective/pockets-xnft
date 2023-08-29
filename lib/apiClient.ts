@@ -451,7 +451,7 @@ export const fetchRfAllocation = async (): Promise<{
   }
 };
 
-type ResourceFieldPDA = String;
+type ResourceFieldPDA = string;
 
 export const postRfAllocate = async ({
   signedTx,
@@ -464,9 +464,10 @@ export const postRfAllocate = async ({
   const errorMsg = "Server Error while posting resource field allocation";
   try {
     let body = !!signedTx ? { signedTx } : { mint: charMint };
-    console.log(`Posting Allocation Claim for Mint ${charMint}`);
+    if ((!signedTx && !charMint) || charMint == "" || signedTx == "") {
+      return "";
+    }
     const response = await fetch.post<any>(URL, body);
-    console.log("Response: ", response);
     if (response.status === 200) {
       const data = await response.data;
       return data.rfPDA as ResourceFieldPDA;
@@ -475,6 +476,7 @@ export const postRfAllocate = async ({
       throw new Error(errorMsg);
     }
   } catch (error) {
+    console.error("Request info: ", signedTx, charMint);
     console.error("Network Error while allocating resources:", error);
     throw error;
   }
