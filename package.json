@@ -10,6 +10,7 @@
     "backpack": "npx xnft --iframe http://localhost:3000"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.1.0",
     "@chakra-ui/react": "^2.8.0",
     "@coral-xyz/anchor": "^0.28.0",
     "@emotion/react": "^11.11.1",
