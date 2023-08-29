@@ -3,6 +3,7 @@ import type { NFT, Character, Faction, Station } from "@/types/server";
 import { BN } from "@coral-xyz/anchor";
 import { QueryFunctionContext } from "@tanstack/react-query";
 import fetch from "axios";
+import { FactionScore } from "@/components/leaderboard";
 const API_BASE_URL = "https://api.pockets.gg";
 
 export const getLadImageURL = (ladNumber: number) =>
@@ -210,6 +211,25 @@ export const fetchFactions = async (): Promise<FetchFactionsType> => {
     }
   } catch (error) {
     console.error("Network Error while fetching factions:", error);
+    throw error;
+  }
+};
+
+export const fetchLeaderboard = async (): Promise<
+  { condition: string; factions: FactionScore[] }[]
+> => {
+  const URL = API_BASE_URL + "/leaderboard";
+  try {
+    const response = await fetch.get<any>(URL);
+
+    if (response.status === 200) {
+      return await response.data;
+    } else {
+      console.error("Server Error while fetching leaderboard:", response);
+      throw new Error("Server Error while fetching leaderboard");
+    }
+  } catch (error) {
+    console.error("Network Error while fetching leaderboard:", error);
     throw error;
   }
 };

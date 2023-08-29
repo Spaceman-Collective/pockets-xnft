@@ -10,7 +10,6 @@ export const LeaderboardItem: FC<{
   imageUrl: string;
   rank: number; // town hall level
   stats: {
-    favor: number;
     domWins: number;
     wealth: number;
     knowledge: number;
@@ -49,7 +48,6 @@ export const LeaderboardItem: FC<{
         justifyContent="space-between"
         alignItems="center"
       >
-        <Value>{stats.favor}</Value>
         <Value>{stats.domWins}</Value>
         <Value>{stats.wealth}</Value>
         <Value>{stats.knowledge}</Value>
