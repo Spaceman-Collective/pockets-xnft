@@ -81,7 +81,14 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   const [votingPower, setVotingPower] = useState<string>("");
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
+  const [proposalIds, setProposalIds] = useState<string[]>();
 
+
+  const {
+    data: allProposals,
+    isLoading: allProposalsIsLoading,
+    isError,
+  } = useFetchProposalsByFaction(factionId, 0, 50);
   const {
     data: citizen,
     refetch,
@@ -91,20 +98,15 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     currentCharacter,
     connection
   );
-  const {
-    data: allProposals,
-    isLoading: allProposalsIsLoading,
-    isError,
-  } = useFetchProposalsByFaction(factionId, 0, 50);
-  let proposalIds: string[] = [];
-
-  if (Array.isArray(allProposals)) {
-    proposalIds = allProposals
-      .map((proposal: Proposal) => proposal.id)
-      .filter(Boolean) as string[];
-  }
-
   const { data: votesData } = useProposalVotesAll(proposalIds);
+  useEffect(() => {
+    if (Array.isArray(allProposals) && !allProposalsIsLoading) {
+      setProposalIds(allProposals
+        .map((proposal: Proposal) => proposal.id)
+        .filter(Boolean) as string[])
+    }
+  }, [allProposals, votesData]);
+
 
   useEffect(() => {
     if (votesData) {
@@ -216,6 +218,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     setIsLoading(true);
     if (!proposalIds || proposalIds.length === 0) {
       console.log("No proposals to fetch votes for");
+      setIsLoading(false);
       return;
     }
     const voteAmounts = await Promise.all(
@@ -268,6 +271,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
               color="brand.secondary"
               cursor="pointer"
               onClick={reclaimProposalVotes}
+
             >
               RECLAIM PROPOSAL VOTES
             </Text>
