@@ -105,7 +105,6 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 
   useEffect(() => {
     if (votesData) {
-      console.log("Votes Data:", votesData);
       if (typeof votesData === "string") {
         setVotingPower(votesData);
       } else if ("data" in votesData) {
@@ -140,10 +139,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   };
 
   useEffect(() => {
-    getVotingPower().then(() => {
-      console.log("Votes: ", votingPower);
-      console.log("Inital Page Load Vote Count:  ", votingPower);
-    });
+    getVotingPower().then(() => {});
   });
 
   const sortedProposals = allProposals?.proposals?.slice().sort((a, b) => {
@@ -173,9 +169,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     try {
       if (votingAmt < 0) {
         isIncrement = false;
-        console.log("is: ", isIncrement);
         normalizedVotingAmt *= -1;
-        console.log("nva: ", normalizedVotingAmt);
       }
       const encodedSignedTx = await encodeTransaction({
         walletAddress,
@@ -198,14 +192,12 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
         const sig = await connection.sendRawTransaction(
           decode(encodedSignedTx)
         );
-        console.log("update vot sig: ", sig);
         toast.success("Update vote successful!");
       }
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
     } catch (e) {
-      console.log(e);
-      console.log("Update failed: ", e);
+      console.error("Update failed: ", e);
     }
   };
 

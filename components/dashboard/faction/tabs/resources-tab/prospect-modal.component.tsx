@@ -10,12 +10,10 @@ import {
   ModalHeader,
   Flex,
   Input,
-  ModalFooter,
-  HStack,
   VStack,
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
-import { PublicKey, TransactionInstruction } from "@solana/web3.js";
+import { TransactionInstruction } from "@solana/web3.js";
 import { FC, useCallback, useEffect, useState } from "react";
 import { BN } from "@coral-xyz/anchor";
 import { toast } from "react-hot-toast";
@@ -25,7 +23,7 @@ import { useRfAllocate } from "@/hooks/useRf";
 import { Character } from "@/types/server";
 import { timeout } from "@/lib/utils";
 
-const tickets = [1, 5, 10, 50, 100];
+const tickets = [1, 5, 10, 25];
 const MAX_NUM_IX = 20;
 
 type RFAccount = {
@@ -79,6 +77,12 @@ export const ModalRfProspect: FC<{
     try {
       const account = await getRFAccount(connection, rf?.id);
       console.log("rfa account: ", account);
+      if (rfAccount?.initialClaimant) {
+        console.log(
+          "RF Account already has a claimaint, posting to claim it for them."
+        );
+        mutate({ charMint: rfAccount.initialClaimant.toString() });
+      }
       setRfAccount(account as RFAccount);
       const hitJackpot =
         account.isHarvestable &&
@@ -87,7 +91,11 @@ export const ModalRfProspect: FC<{
     } catch (err) {
       console.error(err);
     }
-  }, [connection, getRFAccount, rf, walletAddress]);
+  }, [connection, getRFAccount, rf, characterMint]);
+
+  useEffect(() => {
+    refreshRFAccount();
+  }, [refreshRFAccount]);
 
   useEffect(() => {
     refreshRFAccount();
@@ -102,7 +110,7 @@ export const ModalRfProspect: FC<{
     } finally {
       /* For better UX - hold on a second before closing */
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("JACKPOT!!!! RF Claimed");
+      toast.success("JACKPOT!!!! Resource Field Claimed");
       setClaimLoading(false);
       fireConfetti();
       onClose();
@@ -215,15 +223,15 @@ export const ModalRfProspect: FC<{
           justifyContent={"space-between"}
         >
           <Text>
-            Take a chance to claim this resource field. Even if you fail, you
-            increase development of the resource field, increasing the chance
-            for the next transaction to win.
+            Take a chance to claim this resource field for your faction. Even if
+            you fail, you increase chance the next transaction will successfully
+            claim the resource field.
           </Text>
           {jackpot ? (
             <VStack gap={4}>
               <Text textAlign={"center"}>
-                Congrats, anon! You scored the lucky ticket. You can now claim
-                the resource field for your faction.
+                Congrats, anon! You have claimed the resource field for your
+                faction!
               </Text>
               <Button isLoading={claimLoading} onClick={handleJackpot}>
                 Claim
@@ -231,7 +239,7 @@ export const ModalRfProspect: FC<{
             </VStack>
           ) : (
             <VStack pt="28">
-              <Text>Choose number of tickets</Text>
+              <Text>How many transactions do you want to try?</Text>
               <Flex gap={"6"} justifyContent={"center"} my="2rem">
                 <Button
                   w="24"

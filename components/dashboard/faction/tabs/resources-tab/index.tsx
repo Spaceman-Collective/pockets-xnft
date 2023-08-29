@@ -3,20 +3,16 @@ import {
   Flex,
   Grid,
   HStack,
-  Input,
   Text,
-  Image,
-  Skeleton,
   useDisclosure,
   Spinner,
 } from "@chakra-ui/react";
 import { Label, PanelContainer, Value } from "../tab.styles";
 import styled from "@emotion/styled";
 import { FC, useEffect, useState } from "react";
-import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
 import { useFaction } from "@/hooks/useFaction";
-import { getLocalImage, timeout } from "@/lib/utils";
+import { timeout } from "@/lib/utils";
 import { TIP } from "@/components/tooltip/constants";
 import { Tip } from "@/components/tooltip";
 import { useResourceField } from "@/hooks/useResourceField";
@@ -62,12 +58,6 @@ export const FactionTabResources: React.FC<{
   const { data: discoverData, refetch: refetchRFAllocation } =
     useRfAllocation();
 
-  useEffect(() => {
-    if (discoverData) {
-      console.log("dd: ", discoverData);
-    }
-  }, [discoverData]);
-
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
       <Header
@@ -79,9 +69,7 @@ export const FactionTabResources: React.FC<{
           onClick={() => {
             if (discoverData?.isDiscoverable) {
               discoverDisclosure.onOpen();
-              console.log("isDiscoverable 2: ", discoverData?.isDiscoverable);
             } else {
-              console.log("isDiscoverable 3: ", discoverData?.isDiscoverable);
               prospectDisclosure.onOpen();
             }
           }}

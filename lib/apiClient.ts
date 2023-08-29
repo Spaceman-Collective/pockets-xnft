@@ -314,16 +314,16 @@ export const fetchAllAssets = async ({
     } else {
       console.error(
         "Server Error while fetching compressed assets for wallet:",
-        response,
+        response
       );
       throw new Error(
-        "Server Error while fetching compressed assets for wallet:",
+        "Server Error while fetching compressed assets for wallet:"
       );
     }
   } catch (error) {
     console.error(
       "Network Error while fetching compressed assets for wallet",
-      error,
+      error
     );
     throw error;
   }
@@ -460,13 +460,13 @@ export const postRfAllocate = async ({
   signedTx?: string;
   charMint?: string;
 }): Promise<ResourceFieldPDA> => {
-  console.log("charmint: ", charMint);
   const URL = API_BASE_URL + "/rf/allocate";
   const errorMsg = "Server Error while posting resource field allocation";
   try {
     let body = !!signedTx ? { signedTx } : { mint: charMint };
+    console.log(`Posting Allocation Claim for Mint ${charMint}`);
     const response = await fetch.post<any>(URL, body);
-
+    console.log("Response: ", response);
     if (response.status === 200) {
       const data = await response.data;
       return data.rfPDA as ResourceFieldPDA;
@@ -495,14 +495,14 @@ export const postConsumeResource = async ({
     } else {
       console.error(
         "Server Error while consuming resources for character:",
-        response,
+        response
       );
       throw new Error("Server Error while consuming resources for character");
     }
   } catch (error) {
     console.error(
       "Network Error while consuming resources for character:",
-      error,
+      error
     );
     throw error;
   }
@@ -589,7 +589,7 @@ export type FetchResponse = {
 export const fetchProposalsByFaction = async (
   faction: string,
   skip: number,
-  take: number,
+  take: number
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/faction/proposals`;
   try {
@@ -650,7 +650,7 @@ interface ProposalAccount {
 }
 
 export const fetchProposalAccount = async (
-  proposalId: string,
+  proposalId: string
 ): Promise<ProposalAccount> => {
   const URL = `${API_BASE_URL}/accounts/proposal`;
   try {
@@ -668,7 +668,7 @@ export const fetchProposalAccount = async (
 
 export const fetchProposalVotesByCitizen = async (
   mint: string,
-  proposalId: string,
+  proposalId: string
 ): Promise<any> => {
   const URL = `${API_BASE_URL}/accounts/vote`;
   try {
@@ -688,7 +688,7 @@ export const fetchProposalVotesByCitizen = async (
 
 export const delegateVotes = async (
   mint: string,
-  recipientMint: string,
+  recipientMint: string
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/accounts/delegation`;
   try {
