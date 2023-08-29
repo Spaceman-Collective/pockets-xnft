@@ -36,10 +36,8 @@ export const useCitizen = (
       const characterMint = new PublicKey(mint);
       const citizenPDA = getCitizenPDA(characterMint);
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log('citizen pda: ', citizenPDA);
 
       const citizenAccount = await getCitizenAccount(connection, citizenPDA);
-      console.log('citizen account: ', citizenAccount);
 
       if (!citizenAccount) {
         console.error('Failed to fetch citizen');

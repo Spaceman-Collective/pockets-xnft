@@ -83,7 +83,6 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     useSolana();
   const [proposalIds, setProposalIds] = useState<string[]>();
 
-
   const {
     data: allProposals,
     isLoading: allProposalsIsLoading,
@@ -101,12 +100,13 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   const { data: votesData } = useProposalVotesAll(proposalIds);
   useEffect(() => {
     if (Array.isArray(allProposals) && !allProposalsIsLoading) {
-      setProposalIds(allProposals
-        .map((proposal: Proposal) => proposal.id)
-        .filter(Boolean) as string[])
+      setProposalIds(
+        allProposals
+          .map((proposal: Proposal) => proposal.id)
+          .filter(Boolean) as string[]
+      );
     }
   }, [allProposals, votesData]);
-
 
   useEffect(() => {
     if (votesData) {
@@ -271,7 +271,6 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
               color="brand.secondary"
               cursor="pointer"
               onClick={reclaimProposalVotes}
-
             >
               RECLAIM PROPOSAL VOTES
             </Text>
@@ -322,18 +321,24 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
           <Label color={colors.brand.tertiary} pb="0.25rem">
             Voting Power:
           </Label>
-          <Value>
-            {citizen?.maxPledgedVotingPower}/{citizen?.totalVotingPower}
-          </Value>
-          <ValueCalculation
-            color={colors.brand.tertiary}
-            pl="0.25rem"
-            pb="0.25rem"
-          >
-            ({citizen?.grantedVotingPower.toString()}
-            {" + "}
-            {citizen?.delegatedVotingPower.toString()})
-          </ValueCalculation>
+          {citizen ? (
+            <>
+              <Value>
+                {citizen?.maxPledgedVotingPower}/{citizen?.totalVotingPower}
+              </Value>
+              <ValueCalculation
+                color={colors.brand.tertiary}
+                pl="0.25rem"
+                pb="0.25rem"
+              >
+                ({citizen?.grantedVotingPower.toString()}
+                {" + "}
+                {citizen?.delegatedVotingPower.toString()})
+              </ValueCalculation>
+            </>
+          ) : (
+            <Spinner size="md" color="white" />
+          )}
         </HStack>
       </Flex>
 
@@ -614,7 +619,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             </Label>
             <ProposalTitle>
               {voteAmount ? voteAmount : <Spinner size="md" color="white" />}/
-              {voteThreshold}
+              {voteThreshold ? (
+                voteThreshold
+              ) : (
+                <Spinner size="md" color="white" />
+              )}
             </ProposalTitle>
           </HStack>
         </Flex>
