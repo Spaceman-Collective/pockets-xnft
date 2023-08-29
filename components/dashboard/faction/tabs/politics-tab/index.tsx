@@ -82,7 +82,11 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
 
-  const { data: citizen, refetch, isLoading: isCitizenLoading } = useCitizen(currentCharacter?.mint, connection);
+  const {
+    data: citizen,
+    refetch,
+    isLoading: isCitizenLoading,
+  } = useCitizen(currentCharacter?.mint, connection);
   const { data: vT, isLoading: isThresholdLoading } = useVoteThreshold(
     currentCharacter,
     connection
@@ -315,8 +319,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
             Voting Power:
           </Label>
           <Value>
-            {citizen?.maxPledgedVotingPower}/
-            {citizen?.totalVotingPower}
+            {citizen?.maxPledgedVotingPower}/{citizen?.totalVotingPower}
           </Value>
           <ValueCalculation
             color={colors.brand.tertiary}
@@ -626,44 +629,46 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
               <LoadingText style={{ marginTop: "0px" }}>LOADING...</LoadingText>
             </HStack>
           ) : (
-            <>
-              <StyledInput
-                placeholder={"Enter amount of voting power"}
-                value={localVote}
-                onChange={(e) => setLocalVote(e.target.value)}
-                isInvalid={!!inputError}
-                disabled={
-                  isVoteInProgress ||
-                  Number(voteAmount) >= Number(voteThreshold)
-                }
-              />
-              {inputError && <Text color="red.500">{inputError}</Text>}
-              <Button
-                ml="2rem"
-                letterSpacing="1px"
-                bg={colors.blacks[700]}
-                onClick={() => {
-                  if (
-                    voteAccountExists &&
+            <Box w="100%">
+              <Flex flexDirection="row" w="100%">
+                <StyledInput
+                  placeholder={"Enter amount of voting power"}
+                  value={localVote}
+                  onChange={(e) => setLocalVote(e.target.value)}
+                  isInvalid={!!inputError}
+                  disabled={
+                    isVoteInProgress ||
                     Number(voteAmount) >= Number(voteThreshold)
-                  ) {
-                    processProposalMutation.mutate();
-                  } else if (validateInput() && voteAccountExists) {
-                    updateVote(parseInt(localVote));
-                  } else {
-                    handleVote(parseInt(localVote));
                   }
-                }}
-                disabled={isVoteInProgress}
-              >
-                {voteAccountExists &&
-                Number(voteAmount) >= Number(voteThreshold)
-                  ? "process"
-                  : voteAccountExists
-                  ? "add votes"
-                  : "vote"}
-              </Button>
-            </>
+                />
+                <Button
+                  ml="2rem"
+                  letterSpacing="1px"
+                  bg={colors.blacks[700]}
+                  onClick={() => {
+                    if (
+                      voteAccountExists &&
+                      Number(voteAmount) >= Number(voteThreshold)
+                    ) {
+                      processProposalMutation.mutate();
+                    } else if (validateInput() && voteAccountExists) {
+                      updateVote(parseInt(localVote));
+                    } else {
+                      handleVote(parseInt(localVote));
+                    }
+                  }}
+                  disabled={isVoteInProgress}
+                >
+                  {voteAccountExists &&
+                  Number(voteAmount) >= Number(voteThreshold)
+                    ? "process"
+                    : voteAccountExists
+                    ? "add votes"
+                    : "vote"}
+                </Button>
+              </Flex>
+              {inputError && <Text color="red.500">{inputError}</Text>}
+            </Box>
           )}
         </Flex>
       </Flex>
