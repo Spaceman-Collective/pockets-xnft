@@ -630,6 +630,7 @@ export const fetchCitizen = async (mint: string) => {
         mint,
       },
     });
+    console.log('fetched citizen: ', data);
     return data;
   } catch (err) {
     console.error(err);

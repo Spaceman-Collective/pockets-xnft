@@ -79,11 +79,10 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [voteThreshold, setVoteThreshold] = useState<string>("");
   const [votingPower, setVotingPower] = useState<string>("");
-
-  const { data } = useCitizen(currentCharacter?.mint);
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
 
+  const { data: citizen, refetch, isLoading: isCitizenLoading } = useCitizen(currentCharacter?.mint, connection);
   const { data: vT, isLoading: isThresholdLoading } = useVoteThreshold(
     currentCharacter,
     connection
@@ -316,17 +315,17 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
             Voting Power:
           </Label>
           <Value>
-            {data?.citizen?.maxPledgedVotingPower}/
-            {data?.citizen?.totalVotingPower}
+            {citizen?.maxPledgedVotingPower}/
+            {citizen?.totalVotingPower}
           </Value>
           <ValueCalculation
             color={colors.brand.tertiary}
             pl="0.25rem"
             pb="0.25rem"
           >
-            ({votingPower.toString()}
+            ({citizen?.grantedVotingPower.toString()}
             {" + "}
-            {data?.citizen?.delegatedVotingPower.toString()})
+            {citizen?.delegatedVotingPower.toString()})
           </ValueCalculation>
         </HStack>
       </Flex>

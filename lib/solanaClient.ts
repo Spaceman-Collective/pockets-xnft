@@ -45,6 +45,23 @@ export function getCitizenPDA(characterMint: PublicKey): PublicKey {
   return citizenPDA;
 }
 
+export async function getCitizenAccount(
+  connection: Connection,
+  citizenPDA: PublicKey
+) {
+  if (!connection || !citizenPDA) return;
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    { connection }
+  );
+  return await POCKETS_PROGRAM.account.citizen.fetchNullable(
+    citizenPDA,
+    "confirmed"
+  );
+}
+
+
 export function getVotePDA(
   citizen: PublicKey,
   proposalPDA: PublicKey

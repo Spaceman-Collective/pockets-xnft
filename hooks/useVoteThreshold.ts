@@ -11,8 +11,8 @@ import toast from "react-hot-toast";
 export const useVoteThreshold = (currentCharacter: Character | undefined, connection: Connection | undefined) => {
   return useQuery(['voteThreshold', currentCharacter?.faction?.id], async () => {
     if (!currentCharacter?.faction?.id) {
-      toast.error('Failed to get vote threshold')
       console.log("Character undefined on vote threshold retrieval");
+      return "UND";
     }
 
     const factPDA = getFactionPDA(currentCharacter?.faction?.id!);
@@ -21,6 +21,7 @@ export const useVoteThreshold = (currentCharacter: Character | undefined, connec
     if (fA) {      
       return fA?.thresholdToPass.toString();
     } else {
+      toast.error('Failed to get vote threshold')
       return "NA";
     }
   }, {
