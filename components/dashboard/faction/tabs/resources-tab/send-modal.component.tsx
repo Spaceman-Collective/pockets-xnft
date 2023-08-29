@@ -1,7 +1,6 @@
 import { getResource } from "@/constants";
 import { useSolana } from "@/hooks/useSolana";
-import { getLocalImage } from "@/lib/utils";
-import { getBlueprint } from "@/types/server";
+import { getLocalImage, timeout } from "@/lib/utils";
 import {
   Text,
   Image,
@@ -25,6 +24,7 @@ import {
   Flex,
   Box,
 } from "@chakra-ui/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { FC, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -51,20 +51,14 @@ export const ModalSendResource: FC<{
     signTransaction,
   } = useSolana();
   const [input, setInput] = useState<number>(0);
+  const queryClient = useQueryClient();
 
   const sendResource = async () => {
     if (selectedResource === undefined) return;
     if (walletAddress === undefined) return;
     if (getResource(selectedResource) === undefined) return;
-    console.table({
-      resource: getResource(selectedResource),
-      input,
-    });
+    if (!factionPubKey) return;
 
-    if (!factionPubKey) {
-      toast.error("Faction must be selected!");
-      return;
-    }
     const resourceIx = await buildTransferIx({
       walletAddress,
       connection,
@@ -75,13 +69,24 @@ export const ModalSendResource: FC<{
     });
 
     try {
-      const receipt = await sendTransaction({
+      await sendTransaction({
         connection,
         ixs: [...resourceIx],
         wallet: walletAddress,
         signTransaction,
+      }).then(async (_) => {
+        await new Promise((_) =>
+          setTimeout(() => {
+            queryClient.refetchQueries({
+              queryKey: ["wallet-assets", walletAddress],
+            });
+            queryClient.refetchQueries({
+              queryKey: ["fetch-faction", "hJ-NbOu059u1GfLF75OnB"],
+            });
+            toast.success("Sent to " + factionName);
+          }, 1500),
+        );
       });
-      console.log({ receipt });
     } catch (err) {
       console.error({ err });
       const parsedErr = JSON.stringify(err);
@@ -135,14 +140,20 @@ export const ModalSendResource: FC<{
           </Box>
         </ModalBody>
         <ModalFooter>
-          <Button
-            size="lg"
-            p="2rem 3rem"
-            borderRadius="1rem"
-            onClick={sendResource}
-          >
-            Send Resource
-          </Button>
+          <Box>
+            <Text textAlign="end" mb="1rem">
+              Send {input}x {selectedResource} <br />
+              to faction bank of {factionName}
+            </Text>
+            <Button
+              size="lg"
+              p="2rem 3rem"
+              borderRadius="1rem"
+              onClick={sendResource}
+            >
+              Send Resource
+            </Button>
+          </Box>
         </ModalFooter>
       </ModalContent>
     </Modal>
