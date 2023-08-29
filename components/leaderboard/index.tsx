@@ -23,17 +23,21 @@ export const LeaderboardList = () => {
   //const handleFilter = (e: any) => console.info(e);
   const { data } = useGetLeaderboard();
   const [factions, setFactions] = useState<FactionScore[]>(
-    data?.find((c) => c.condition === "knowledge")?.factions || []
+    data?.find((c) => c.condition === "knowledge")?.factions || [],
   );
+
+  useEffect(() => {
+    setFactions(data?.find((c) => c.condition == "domination")?.factions || []);
+  }, [data]);
 
   const selectTab = (tab: string) => {
     if (tab == "domination") {
       setFactions(
-        data?.find((c) => c.condition == "domination")?.factions || []
+        data?.find((c) => c.condition == "domination")?.factions || [],
       );
     } else if (tab == "knowledge") {
       setFactions(
-        data?.find((c) => c.condition == "knowledge")?.factions || []
+        data?.find((c) => c.condition == "knowledge")?.factions || [],
       );
     } else if (tab == "wealth") {
       setFactions(data?.find((c) => c.condition == "wealth")?.factions || []);
