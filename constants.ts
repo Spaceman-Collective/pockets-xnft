@@ -8,7 +8,7 @@ export const FACTION_CREATION_MULTIPLIER = BigInt(10_00000); // ~ $0.3-0.5 * # o
 export const RESOURCE_FIELD_CREATION_MULTIPLIER = BigInt(50000_00000); // ~0.15-0.20c * # of resource fields // 100th will cost around $25
 export const BONK_PER_MS_WIPED = 10; // wipe 1 ms for every 100 bonk they send in 1s = 100K Bonk, 1hr = 36M Bonk (~$12)
 export const BONK_MINT = new PublicKey(
-  "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"
+  "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
 );
 
 export const SPL_TOKENS: {
@@ -30,12 +30,18 @@ export const RESOURCE_XP_GAIN = {
   legendary: 300,
 };
 
-export const RESOURCES: {
+export const getResource = (
+  resourceName: string,
+): ResourceConstantType | undefined =>
+  RESOURCES.find((e) => e.name.toLowerCase() === resourceName.toLowerCase());
+
+type ResourceConstantType = {
   name: string;
   tier: string;
   skills: string[];
   mint: string;
-}[] = [
+};
+export const RESOURCES: ResourceConstantType[] = [
   {
     name: "Cables",
     tier: "common",

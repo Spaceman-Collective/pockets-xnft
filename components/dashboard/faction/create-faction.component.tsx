@@ -21,7 +21,11 @@ import {
 import { colors } from "@/styles/defaultTheme";
 import { useSolana } from "@/hooks/useSolana";
 import { useCreateFaction } from "@/hooks/useCreateFaction";
-import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants";
+import {
+  SPL_TOKENS,
+  FACTION_CREATION_MULTIPLIER,
+  SERVER_KEY,
+} from "@/constants";
 import { useAllFactions } from "@/hooks/useAllFactions";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import { Label, Value } from "./tabs/tab.styles";
@@ -145,7 +149,9 @@ export const CreateFaction: FC<{
     }
 
     const memoIx = buildMemoIx({ walletAddress, payload });
-    const transferIx = buildTransferIx({
+    const transferIx = await buildTransferIx({
+      connection,
+      receipientAddress: SERVER_KEY,
       walletAddress,
       mint: SPL_TOKENS["bonk"].mint,
       amount: requiredBONK,
@@ -156,7 +162,7 @@ export const CreateFaction: FC<{
       walletAddress,
       connection,
       signTransaction,
-      txInstructions: [memoIx, transferIx],
+      txInstructions: [memoIx, ...transferIx],
     });
 
     if (typeof encodedSignedTx == "string") {
