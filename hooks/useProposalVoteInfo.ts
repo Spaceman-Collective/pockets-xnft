@@ -59,7 +59,7 @@ export const useProposalVoteInfo = (
 
       return {
         voteAccountExists: !!vA,
-        voteAmount: vA ? vA.voteAmt.toString() : "NA",
+        voteAmount: vA ? vA!.voteAmt.toString() : "NA",
       };
     }
   );
