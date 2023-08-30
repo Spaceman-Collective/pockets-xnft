@@ -1,4 +1,8 @@
 import {
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
   Text,
   Modal,
   ModalOverlay,
@@ -13,8 +17,9 @@ import {
   Button,
   HStack,
   Spinner,
+  Box,
 } from "@chakra-ui/react";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import { useCountdown } from "usehooks-ts";
 import { toast } from "react-hot-toast";
 import { useCharTimers, useSpeedUpTimer } from "@/hooks/useCharTimers";
@@ -61,6 +66,11 @@ export const ModalStation: FC<{
   const [selectedCharacter, _] = useSelectedCharacter();
   const { data: walletAssets } = useAllWalletAssets();
   const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
+
+  const [input, setInput] = useState<number>(0);
+  const [onHover, setOnHover] = useState<boolean>(false);
+  const over = () => setOnHover(true);
+  const out = () => setOnHover(false);
 
   const timer = timersData?.stationTimers.find(
     (e) => e.station === station?.id,
@@ -183,7 +193,7 @@ export const ModalStation: FC<{
       return;
     }
 
-    const speedUpTime = 30 * 1000;
+    const speedUpTime = input * 1000;
     const memoIx = buildMemoIx({
       walletAddress,
       payload: {
@@ -284,17 +294,39 @@ export const ModalStation: FC<{
               justifyContent="center"
               alignItems="center"
               mt="4rem"
+              onMouseOver={over}
+              onMouseOut={out}
             >
-              {timer && (
-                <Tip label="Coming soon! Will be able to speed up with BONK">
-                  <Button
-                    onClick={speedUpWithBonk}
-                    mb="2rem"
-                    isDisabled={!timer && !isClaimable}
+              {timer && !isClaimable && (
+                <>
+                  <Slider
+                    focusThumbOnChange={false}
+                    value={input}
+                    onChange={setInput}
+                    min={0}
+                    max={count}
+                    maxW="80%"
+                    m="1rem auto"
+                    transition="all 0.25 ease-in-out"
+                    opacity={onHover ? 1 : 0}
                   >
+                    <SliderTrack>
+                      <SliderFilledTrack bg="brand.secondary" />
+                    </SliderTrack>
+                    <SliderThumb
+                      fontWeight={700}
+                      fontSize="1rem"
+                      w="10rem"
+                      h="3rem"
+                      bg="blacks.700"
+                    >
+                      {timeAgo(input)}
+                    </SliderThumb>
+                  </Slider>
+                  <Button onClick={speedUpWithBonk} mb="2rem">
                     <FaClock style={{ marginRight: "0.5rem" }} /> SPEED UP
                   </Button>
-                </Tip>
+                </>
               )}
               {timer && (
                 <Progress
