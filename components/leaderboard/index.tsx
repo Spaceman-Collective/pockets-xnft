@@ -8,6 +8,7 @@ import { SortButton } from "./sort-button.component";
 import { useEffect, useState } from "react";
 import { Faction } from "@/types/server";
 import { Tip } from "../tooltip";
+import { usePrizePool } from "@/hooks/useWalletAssets";
 
 export interface FactionScore {
   faction: Faction;
@@ -22,6 +23,7 @@ export interface FactionScore {
  */
 export const LeaderboardList = () => {
   //const handleFilter = (e: any) => console.info(e);
+  const { data: prizePool, isLoading: prizePoolIsLoading } = usePrizePool();
   const { data } = useGetLeaderboard();
   const [factions, setFactions] = useState<FactionScore[]>(
     data?.find((c) => c.condition === "knowledge")?.factions || [],
@@ -49,7 +51,7 @@ export const LeaderboardList = () => {
     <LeaderboardContainer>
       <Flex justifyContent="space-between">
         <Title>LEADERBOARD</Title>
-        <Title>LEADERBOARD</Title>
+        <Title>{prizePool}</Title>
       </Flex>
 
       <Grid templateColumns="2fr 3fr" display={{ base: "none", sm: "grid" }}>
