@@ -4,16 +4,17 @@ import {
   Image,
   Flex,
   Text,
-  Input,
+  Button,
   Grid,
   Skeleton,
   useDisclosure,
 } from "@chakra-ui/react";
 import { FC, useState } from "react";
 import { getLocalImage } from "@/lib/utils";
-import { useDebounce } from "@uidotdev/usehooks";
+import { useCopyToClipboard } from "@uidotdev/usehooks";
 import { useAllWalletAssets } from "@/hooks/useWalletAssets";
 import { ModalSendResource } from "./tabs/resources-tab/send-modal.component";
+import { toast } from "react-hot-toast";
 
 export const ResourceGridContainer: FC<{
   isLoading: boolean;
@@ -22,9 +23,7 @@ export const ResourceGridContainer: FC<{
   factionName?: string;
 }> = ({ isLoading, resources, factionPubKey, factionName }) => {
   const { data } = useAllWalletAssets();
-  const [search, setSearch] = useState<string>("");
-  const debouncedSearch = useDebounce(search, 400);
-  const onSearch = (e: any) => setSearch(e.target.value);
+  const [_, copy] = useCopyToClipboard();
 
   const sendDisclosure = useDisclosure();
   const [selectedResource, setSelectedResource] = useState<string>(""); // for displaying resource modal
@@ -33,19 +32,31 @@ export const ResourceGridContainer: FC<{
       (e) => e.name.toLowerCase() === selectedResource.toLowerCase(),
     )?.value ?? 0;
 
+  const abbreviatedFactionKey =
+    factionPubKey?.substring(0, 5) + "..." + factionPubKey?.substring(28, 32);
+
   return (
     <Box>
       <Flex justifyContent="space-between" alignItems="end" mb="1rem">
         <MenuTitle mb="1rem">{factionPubKey && "Faction "}Treasury</MenuTitle>
-        <Input
-          bg="blacks.500"
-          outline="none"
-          placeholder="Search Items"
-          p="0.5rem 2rem"
-          borderRadius="1rem"
-          opacity="0.5"
-          onChange={onSearch}
-        />
+        <Button
+          onClick={() => {
+            if (!factionPubKey) {
+              toast.error("No faction to copy");
+              return;
+            }
+            copy(factionPubKey);
+            toast.success(
+              <Text wordBreak="break-all">
+                Copied <br />
+                <strong>{factionPubKey}</strong> <br />
+                to clipboard!
+              </Text>,
+            );
+          }}
+        >
+          {factionPubKey ? abbreviatedFactionKey : ""}
+        </Button>
       </Flex>
       <Grid templateColumns="repeat(4,1fr)" gap="1rem">
         {isLoading &&
@@ -57,26 +68,17 @@ export const ResourceGridContainer: FC<{
               borderRadius="1rem"
             />
           ))}
-        {resources
-          ?.filter((resource) => {
-            if (debouncedSearch === undefined || debouncedSearch === "")
-              return true;
-            const flatName = resource.name.replace(" ", "").toLowerCase();
-            const search = debouncedSearch.toLowerCase();
-            const isWithinSearchParams = flatName.includes(search);
-            return isWithinSearchParams;
-          })
-          ?.map((resource) => (
-            <ResourceItem
-              key={resource.name}
-              resource={resource}
-              openModal={() => {
-                if (!factionPubKey) return;
-                setSelectedResource(resource.name);
-                sendDisclosure.onOpen();
-              }}
-            />
-          ))}
+        {resources?.map((resource) => (
+          <ResourceItem
+            key={resource.name}
+            resource={resource}
+            openModal={() => {
+              if (!factionPubKey) return;
+              setSelectedResource(resource.name);
+              sendDisclosure.onOpen();
+            }}
+          />
+        ))}
       </Grid>
       <ModalSendResource
         {...sendDisclosure}
