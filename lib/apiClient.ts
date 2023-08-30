@@ -334,16 +334,16 @@ export const fetchAllAssets = async ({
     } else {
       console.error(
         "Server Error while fetching compressed assets for wallet:",
-        response
+        response,
       );
       throw new Error(
-        "Server Error while fetching compressed assets for wallet:"
+        "Server Error while fetching compressed assets for wallet:",
       );
     }
   } catch (error) {
     console.error(
       "Network Error while fetching compressed assets for wallet",
-      error
+      error,
     );
     throw error;
   }
@@ -517,14 +517,14 @@ export const postConsumeResource = async ({
     } else {
       console.error(
         "Server Error while consuming resources for character:",
-        response
+        response,
       );
       throw new Error("Server Error while consuming resources for character");
     }
   } catch (error) {
     console.error(
       "Network Error while consuming resources for character:",
-      error
+      error,
     );
     throw error;
   }
@@ -611,7 +611,7 @@ export type FetchResponse = {
 export const fetchProposalsByFaction = async (
   faction: string,
   skip: number,
-  take: number
+  take: number,
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/faction/proposals`;
   try {
@@ -652,7 +652,6 @@ export const fetchCitizen = async (mint: string) => {
         mint,
       },
     });
-    console.log('fetched citizen: ', data);
     return data;
   } catch (err) {
     console.error(err);
@@ -673,7 +672,7 @@ interface ProposalAccount {
 }
 
 export const fetchProposalAccount = async (
-  proposalId: string
+  proposalId: string,
 ): Promise<ProposalAccount> => {
   const URL = `${API_BASE_URL}/accounts/proposal`;
   try {
@@ -691,7 +690,7 @@ export const fetchProposalAccount = async (
 
 export const fetchProposalVotesByCitizen = async (
   mint: string,
-  proposalId: string
+  proposalId: string,
 ): Promise<any> => {
   const URL = `${API_BASE_URL}/accounts/vote`;
   try {
@@ -711,7 +710,7 @@ export const fetchProposalVotesByCitizen = async (
 
 export const delegateVotes = async (
   mint: string,
-  recipientMint: string
+  recipientMint: string,
 ): Promise<FetchResponse> => {
   const URL = `${API_BASE_URL}/accounts/delegation`;
   try {
