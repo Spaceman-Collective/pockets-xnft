@@ -32,6 +32,7 @@ import { startStationProcess as startStation } from "./tx-builder";
 import { Tip } from "@/components/tooltip";
 import { getLocalImage, timeAgo } from "@/lib/utils";
 import { getBlueprint } from "@/types/server";
+import { STATION_USE_COST_PER_LEVEL } from "@/constants";
 
 export const ModalStation: FC<{
   station?: {
@@ -150,12 +151,15 @@ export const ModalStation: FC<{
     claim(
       { mint: selectedCharacter?.mint, stationId: station.id },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
           queryClient.refetchQueries({ queryKey: ["char-timers"] });
           queryClient.refetchQueries({ queryKey: ["assets"] });
           queryClient.refetchQueries({ queryKey: ["wallet-assets"] });
+          console.log({ response });
           toast.success(
-            "You've claimed the reward from the " + station?.blueprint,
+            "You've claimed the reward from the " +
+              station?.blueprint +
+              "\nCheck inventory for new items.",
           );
         },
       },
@@ -307,6 +311,8 @@ const ModalHeader = ({
   desc?: string;
   level?: number;
 }) => {
+  const stationCost =
+    (STATION_USE_COST_PER_LEVEL * BigInt(level ?? 0)) / BigInt(1e5);
   return (
     <Flex gap="1rem">
       <Image src={image} alt="station" w="15rem" borderRadius="1rem" />
@@ -325,6 +331,10 @@ const ModalHeader = ({
         </Text>
         <Text>
           Station Level: <strong>{level}</strong>
+        </Text>
+        <Text>
+          Station cost to use:{" "}
+          <strong>{(stationCost / BigInt(1000)).toString()}K BONK</strong>
         </Text>
       </VStack>
     </Flex>
