@@ -111,6 +111,8 @@ export const FactionTabResources: React.FC<{
         refetchRFAllocation={refetchRFAllocation}
         setDiscoverableData={setDiscoverableData}
         rf={discoverableData}
+        openProspect={prospectDisclosure.onOpen}
+        fire={fireConfetti}
         {...discoverDisclosure}
       />
       <ModalRfProspect
