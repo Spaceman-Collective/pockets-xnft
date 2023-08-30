@@ -16,6 +16,8 @@ import {
   HStack,
   ModalHeader,
   Flex,
+  Box,
+  ModalFooter,
 } from "@chakra-ui/react";
 import { FC, useState } from "react";
 import { formatBalance } from "@/lib/utils";
@@ -73,7 +75,7 @@ export const ModalRfDiscover: FC<{
         await new Promise((resolve) => setTimeout(resolve, 1500)); //wait so the account gets initialized on the blockchain
         toast.success("Successfully allocated Resource Field");
         refetchRFAllocation().then((data: any) =>
-          setDiscoverableData(data.data)
+          setDiscoverableData(data.data),
         );
       } else {
         throw Error("failed tx");
@@ -87,6 +89,7 @@ export const ModalRfDiscover: FC<{
     }
   };
 
+  // TODO: DEV update the below with tooltips
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -95,32 +98,28 @@ export const ModalRfDiscover: FC<{
         p="2rem"
         borderRadius="1rem"
         minW="40vw"
-        minH="40vh"
+        minH="30vh"
       >
         <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">
           Discover a new Resource Field
         </ModalHeader>
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
-        <ModalBody
-          display={"flex"}
-          flexDirection={"column"}
-          justifyContent={"space-between"}
-        >
+        <ModalBody display={"flex"} flexDirection={"column"} gap="2rem">
           <Text>
             Resource Fields, when controlled by a faction, allow that faction’s
             citizens to harvest it every so often for it’s yield.
           </Text>
-          <Text pt="44">There are currently {rf?.rfCount} fields.</Text>
+          <Text>There are currently {rf?.rfCount} fields.</Text>
           <HStack>
             <Text>BONK for next Resource Field:</Text>
             <Text>{formatBalance(Number(bonkForNextField))}</Text>
           </HStack>
         </ModalBody>
-        <ModalHeader>
+        <ModalFooter>
           <Button isLoading={discoverLoading} w="100%" onClick={post}>
             Allocate
           </Button>
-        </ModalHeader>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );
