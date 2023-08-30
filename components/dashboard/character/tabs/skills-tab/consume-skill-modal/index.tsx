@@ -49,7 +49,7 @@ export const ConsumeSkillModal: FC<{
           <Text fontSize="4rem" textTransform="uppercase" fontWeight={700}>
             {skill}
           </Text>
-          <Text fontFamily="header">
+          <Text fontFamily="header" mb="2rem">
             Upgrade your {skill} by consuming resources. The more rare the
             resource, the more XP it will yield. Consuming the resource burns
             it.
