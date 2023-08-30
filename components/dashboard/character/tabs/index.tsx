@@ -9,9 +9,8 @@ export const CharacterTabs: React.FC<{
 	allFactions: Faction[] | undefined
 	selectSkill: (skill: string) => void
 }> = ({ currentCharacter, selectSkill, allFactions }) => {
-	if (!currentCharacter) {
-		return <EmptyState />
-	}
+	if (!currentCharacter) return <EmptyState />
+
 	return (
 		<>
 			<PageTabs
