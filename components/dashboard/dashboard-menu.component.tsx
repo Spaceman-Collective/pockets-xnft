@@ -10,7 +10,7 @@ export const DashboardMenu = () => {
       <Button
         bg={colors.brand.primary}
         color={
-          router.pathname === "/"
+          router.pathname === "/wallet"
             ? colors.brand.quaternary
             : colors.brand.secondary
         }
