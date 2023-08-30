@@ -8,7 +8,9 @@ export const ResourceContainer: FC<{
   isDisabled?: boolean;
   resources?: { name: string; balance: string; amount: string | number }[];
   type: "resources" | "units";
-}> = ({ resources, isDisabled, type }) => {
+  rareDrop?: any;
+  stationLevel?: number;
+}> = ({ resources, isDisabled, type, rareDrop, stationLevel }) => {
   return (
     <Grid
       borderRadius="1rem"
@@ -58,6 +60,7 @@ export const ResourceContainer: FC<{
                   alt="resource"
                   src={getLocalImage({ type, name: resource.name })}
                 />
+
                 <Text
                   position="absolute"
                   bottom="0"
@@ -75,6 +78,15 @@ export const ResourceContainer: FC<{
             </Tip>
           </Box>
         ))}
+
+        {rareDrop && stationLevel && (
+          <Box bg="green.700" p="2rem" borderRadius="1rem">
+            <Text color="brand.secondary">
+              Has a {15 * (stationLevel - 1)}% chance of dropping{" "}
+              <strong>{rareDrop}</strong>
+            </Text>
+          </Box>
+        )}
       </Grid>
     </Grid>
   );

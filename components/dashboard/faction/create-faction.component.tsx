@@ -32,6 +32,7 @@ import { Label, Value } from "./tabs/tab.styles";
 import toast from "react-hot-toast";
 import styled from "@emotion/styled";
 import { formatBalance } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const CreateFaction: FC<{
   fire: () => void;
@@ -120,7 +121,9 @@ export const CreateFaction: FC<{
     chakraOnClose();
   };
 
+  const queryClient = useQueryClient();
   const onSuccess = (data: any) => {
+    queryClient.refetchQueries({ queryKey: ["fetch-faction"] });
     setFactionStatus(true);
     toast.success("Faction created successfully!");
     fireConfetti();
@@ -142,8 +145,9 @@ export const CreateFaction: FC<{
     const bonkInWallet = await getBonkBalance({ walletAddress, connection });
     if (bonkInWallet < requiredBONK / BigInt(1e5)) {
       throw alert(
-        `You have insufficient BONK in your wallet. Please add more BONK and try again! Required amount: ${requiredBONK / BigInt(1e5)
-        } Current balance: ${bonkInWallet}`
+        `You have insufficient BONK in your wallet. Please add more BONK and try again! Required amount: ${
+          requiredBONK / BigInt(1e5)
+        } Current balance: ${bonkInWallet}`,
       );
     }
 
@@ -157,6 +161,10 @@ export const CreateFaction: FC<{
       decimals: SPL_TOKENS["bonk"].decimals,
     });
 
+    if (!transferIx) {
+      toast.error("Unable to build Transfer Ix");
+      return;
+    }
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
       connection,
@@ -167,13 +175,15 @@ export const CreateFaction: FC<{
     if (typeof encodedSignedTx == "string") {
       mutate(
         { signedTx: encodedSignedTx as string, factionData: faction },
-        { onSuccess }
+        { onSuccess },
       );
     } else {
       console.error("No Tx, encoded tx: ", encodedSignedTx);
       return;
     }
   };
+
+  const displayBonk = requiredBONK / BigInt(1e5);
   return (
     <Box
       display="flex"
@@ -219,7 +229,7 @@ export const CreateFaction: FC<{
                   <Label>COST:</Label>
                   <Value>
                     {isLoading && <Spinner />}
-                    {`${requiredBonk!.toString()} BONK`}
+                    {`${displayBonk!.toString()} BONK`}
                   </Value>
                 </HStack>
               </Flex>
@@ -245,14 +255,13 @@ export const CreateFaction: FC<{
               </Box>
               <Flex mb="2rem" flexDirection="row" align="end">
                 <Image
-                    src={faction.image}
-                    alt="Image Preview"
-                    boxSize="100px"
-                    objectFit="cover"
-                    borderRadius="4"
-
-                    fallbackSrc="https://via.placeholder.com/100"
-                  />
+                  src={faction.image}
+                  alt="Image Preview"
+                  boxSize="100px"
+                  objectFit="cover"
+                  borderRadius="4"
+                  fallbackSrc="https://picsum.photos/200"
+                />
                 <Input
                   type="text"
                   placeholder="Image URL"
@@ -272,7 +281,6 @@ export const CreateFaction: FC<{
                 {inputErrors.image && (
                   <Text color="red.500">{inputErrors.image}</Text>
                 )}
-
               </Flex>
 
               <Box mb="2rem">

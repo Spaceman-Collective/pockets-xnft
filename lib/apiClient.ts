@@ -1,6 +1,5 @@
-import { FactionScore } from "@/components/leaderboard"
-import type { Character, Faction, NFT, Station } from "@/types/server"
 import { Proposal } from "@/types/server/Proposal"
+import type { NFT, Character, Faction, Blueprint } from "@/types/server"
 import fetch from "axios"
 const API_BASE_URL = "https://api.pockets.gg"
 
@@ -629,6 +628,7 @@ export const fetchCitizen = async (mint: string) => {
 				mint,
 			},
 		})
+		console.log("fetched citizen: ", data)
 		return data
 	} catch (err) {
 		console.error(err)
@@ -732,7 +732,7 @@ export const processProposal = async (proposalId: string) => {
 
 type CompleteConstructionResponse = {
 	faction: Faction
-	station: Station
+	station: Blueprint
 }
 
 export const completeConstruction = async ({

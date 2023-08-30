@@ -13,12 +13,10 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
-import { TransactionInstruction } from "@solana/web3.js";
 import { FC, useCallback, useEffect, useState } from "react";
 import { BN } from "@coral-xyz/anchor";
 import { toast } from "react-hot-toast";
 import { colors } from "@/styles/defaultTheme";
-import Link from "next/link";
 import { useRfAllocate } from "@/hooks/useRf";
 import { Character } from "@/types/server";
 import { useQueryClient } from "@tanstack/react-query";
@@ -69,7 +67,6 @@ export const ModalRfProspect: FC<{
   const queryClient = useQueryClient();
 
   const [jackpot, setJackpot] = useState<boolean>(false);
-  const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [rfAccount, setRfAccount] = useState<RFAccount>();
   const [signedArr, setSignedArr] = useState<string[]>();
   const [prospectLoading, setProspectLoading] = useState<boolean>(false);
@@ -83,23 +80,43 @@ export const ModalRfProspect: FC<{
       setDiscoverableData(refetchRFAllocationData.data);
 
       const account = await getRFAccount(connection, rf?.id);
-      if (account?.initialClaimant && account.initialClaimant.toString() === characterMint) {
+      if (
+        account?.initialClaimant &&
+        account.initialClaimant.toString() === characterMint
+      ) {
         setJackpot(true);
-        console.log('initial claimant: ',  account.initialClaimant.toString())
         mutate({ charMint: account.initialClaimant.toString() });
+        toast.success("You hit a winner!");
+        fireConfetti();
+        queryClient.refetchQueries({ queryKey: ["rf-allocation"] });
       }
       setRfAccount(account as RFAccount);
     } catch (err) {
       console.error(err);
     }
-  }, [rf, refetchRFAllocation, setDiscoverableData, getRFAccount, connection, characterMint, mutate]);
+  }, [
+    rf,
+    refetchRFAllocation,
+    setDiscoverableData,
+    getRFAccount,
+    connection,
+    characterMint,
+    mutate,
+  ]);
 
   useEffect(() => {
     if (!rfAccount) {
       refreshRFAccount();
     }
     refetchRFAllocation().then((data: any) => setDiscoverableData(data.data));
-  }, [rf, connection, refreshRFAccount, refetchRFAllocation, setDiscoverableData, rfAccount]);
+  }, [
+    rf,
+    connection,
+    refreshRFAccount,
+    refetchRFAllocation,
+    setDiscoverableData,
+    rfAccount,
+  ]);
 
   const post = async () => {
     if (!characterMint || !factionId || !rf?.id || !walletAddress) {
@@ -110,14 +127,16 @@ export const ModalRfProspect: FC<{
     try {
       setProspectLoading(true);
       const allTxs = await Promise.all(
-        Array(numProspectTickets).fill(0).map(() =>
-          buildProspectIx({
-            walletAddress,
-            characterMint,
-            factionId,
-            rfId: rf?.id,
-          })
-        )
+        Array(numProspectTickets)
+          .fill(0)
+          .map(() =>
+            buildProspectIx({
+              walletAddress,
+              characterMint,
+              factionId,
+              rfId: rf?.id,
+            }),
+          ),
       );
 
       const sendTransactionsInChunks = async (transactions: any[]) => {
@@ -128,7 +147,7 @@ export const ModalRfProspect: FC<{
             connection,
             txSlice,
             walletAddress,
-            signAllTransactions
+            signAllTransactions,
           );
           if (sigs) {
             sigArr.push(...sigs);
@@ -147,7 +166,7 @@ export const ModalRfProspect: FC<{
       await refreshRFAccount();
       queryClient.refetchQueries({ queryKey: ["rf-allocation"] });
       toast.custom(
-        "Successfully sent prospect TXs, but seems like none of them were winners"
+        "Successfully sent prospect TXs, but seems like none of them were winners",
       );
       setProspectLoading(false);
     }
@@ -155,12 +174,22 @@ export const ModalRfProspect: FC<{
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent bg="blacks.500" p="2rem" borderRadius="1rem" minW="40vw" minH="40vh">
+      <ModalContent
+        bg="blacks.500"
+        p="2rem"
+        borderRadius="1rem"
+        minW="40vw"
+        minH="40vh"
+      >
         <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">
           Prospect Resource Field
         </ModalHeader>
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
-        <ModalBody display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
+        <ModalBody
+          display={"flex"}
+          flexDirection={"column"}
+          justifyContent={"space-between"}
+        >
           <Text>
             Take a chance to claim this resource field for your faction. Even if
             you fail, you increase chance the next transaction will successfully
@@ -176,11 +205,17 @@ export const ModalRfProspect: FC<{
           <Text>RF ID: {rfAccount?.id}</Text>
           <Text>Times Developed: {rfAccount?.timesDeveloped.toString()}</Text>
           {jackpot ? (
-            <VStack gap={4}>
-              <Text textAlign={"center"}>
-                Congrats, anon! You have claimed the resource field for your
-                faction! This field has been added to your factions resource
-                fields.
+            <VStack
+              gap={4}
+              bg="green.700"
+              fontWeight={700}
+              p="1.5rem"
+              borderRadius="1rem"
+            >
+              <Text>
+                Congrats, anon! <br />
+                You have claimed the resource field for your faction! This field
+                has been added to your factions resource fields.
               </Text>
             </VStack>
           ) : (
@@ -221,27 +256,7 @@ export const ModalRfProspect: FC<{
                   </Button>
                 ))}
               </Flex>
-  
-              <Flex w="100%" gap={3}>
-                <Text pb="4" pt="8">
-                  Your Txs:
-                </Text>
-                {signedArr
-                  ?.filter((val, index) => index < 4)
-                  .map((sig, index) => (
-                    <Link
-                      key={`sig-${index}`}
-                      href={`https://solscan.io/tx/${sig}`}
-                      target="_blank"
-                    >
-                      <StyledText>
-                        {sig.slice(0, 4)}...
-                        {sig.slice(sig.length - 4, sig.length)}
-                      </StyledText>
-                    </Link>
-                  ))}
-              </Flex>
-  
+
               <Button
                 isLoading={prospectLoading}
                 isDisabled={jackpot}
@@ -256,7 +271,6 @@ export const ModalRfProspect: FC<{
       </ModalContent>
     </Modal>
   );
-  
 };
 
 const StyledInput = styled(Input)`
@@ -267,10 +281,4 @@ const StyledInput = styled(Input)`
   padding: 1rem 2rem;
   font-weight: 500;
   letter-spacing: 1px;
-`;
-
-const StyledText = styled(Text)`
-  :hover {
-    color: ${colors.brand.tertiary};
-  }
 `;

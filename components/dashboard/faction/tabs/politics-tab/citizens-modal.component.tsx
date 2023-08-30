@@ -49,9 +49,10 @@ export const CitizenModal: FC<{
                 borderRadius="1rem"
                 filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
               >
-                {citizens
-                  .map((e) => Object.values(e.skills).reduce((a, b) => a + b))
-                  .reduce((a, b) => a + b)}
+                {citizens?.length > 0 &&
+                  citizens
+                    .map((e) => Object.values(e.skills).reduce((a, b) => a + b))
+                    .reduce((a, b) => a + b)}
               </Text>
             </HStack>
           </Box>

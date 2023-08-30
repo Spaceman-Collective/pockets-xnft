@@ -49,11 +49,10 @@ export const ConsumeSkillModal: FC<{
           <Text fontSize="4rem" textTransform="uppercase" fontWeight={700}>
             {skill}
           </Text>
-          <Text fontFamily="header">
+          <Text fontFamily="header" mb="2rem">
             Upgrade your {skill} by consuming resources. The more rare the
-            resource, the more XP it will yield.
-            <br />
-            Consuming the resource burns it.
+            resource, the more XP it will yield. Consuming the resource burns
+            it.
           </Text>
           <Flex direction="column" gap="1rem" p="1rem" w="100%">
             {relevantResources.map((resource) => (
@@ -63,7 +62,7 @@ export const ConsumeSkillModal: FC<{
                 isLoading={walletAssetsIsLoading || isFetching}
                 resource={resource}
                 resourceInWallet={walletAssets?.resources.find(
-                  (asset) => asset.name === resource.name
+                  (asset) => asset.name === resource.name,
                 )}
               />
             ))}
@@ -86,7 +85,7 @@ const ConsumeItemContainer: FC<{
   };
 }> = ({ resource, resourceInWallet, isLoading, skill }) => {
   const extraSkillUp = resource.skills.filter(
-    (e) => e.toLowerCase() !== skill.toLowerCase()
+    (e) => e.toLowerCase() !== skill.toLowerCase(),
   );
 
   const queryClient = useQueryClient();
@@ -123,6 +122,10 @@ const ConsumeItemContainer: FC<{
       decimals: 0,
     });
 
+    if (!burnIx) {
+      toast.error("failed to build burn ix");
+      return;
+    }
     try {
       const encodedTx = await encodeTransaction({
         walletAddress: walletAddress as string,
@@ -143,11 +146,19 @@ const ConsumeItemContainer: FC<{
             queryClient.refetchQueries({
               queryKey: ["assets"],
             });
-            toast.success("Successfully consumed");
+            const xpGained =
+              //@ts-ignore
+              RESOURCE_XP_GAIN?.[resource.tier] * amountToConsume;
+            toast.success(
+              `Successfully consumed\n${amountToConsume}x ${resource.name}\nGained ${xpGained}xp`,
+              {
+                duration: 5000,
+              },
+            );
           },
           onError: (e) =>
             toast.error("Oops! Failed to consume: " + JSON.stringify(e)),
-        }
+        },
       );
     } catch (err) {
       toast.error("Oops! Failed to consume resource: " + err);

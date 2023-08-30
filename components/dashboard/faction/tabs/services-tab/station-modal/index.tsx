@@ -44,7 +44,6 @@ export const ModalStation: FC<{
   onClose: () => void;
 }> = ({ station, isOpen, onClose }) => {
   const {
-    buildTransferIx,
     buildMemoIx,
     encodeTransaction,
     walletAddress,
@@ -119,20 +118,30 @@ export const ModalStation: FC<{
       toast.error(`You don't have enough resources`);
       return;
     }
-    await startStation({
-      connection,
-      walletAddress,
-      selectedCharacter,
-      station,
-      stationBlueprint,
-      signTransaction,
-      encodeTransaction,
-      buildMemoIx,
-      buildBurnIx,
-      mutateStartStation: mutate,
-      startCountdown,
-      queryClient,
-    });
+    if (buildBurnIx === undefined || !buildBurnIx) {
+      toast.error("Unable to build burn ix");
+      return;
+    }
+
+    try {
+      await startStation({
+        connection,
+        walletAddress,
+        selectedCharacter,
+        station,
+        stationBlueprint,
+        signTransaction,
+        encodeTransaction,
+        buildMemoIx,
+        //@ts-ignore no idea why this says it can still be undefined
+        buildBurnIx,
+        mutateStartStation: mutate,
+        startCountdown,
+        queryClient,
+      });
+    } catch (err) {
+      toast.error("Failed to start the station: " + JSON.stringify(err));
+    }
   };
 
   const claimStationReward = async () => {
@@ -169,6 +178,7 @@ export const ModalStation: FC<{
             image={image ?? ""}
             name={station?.blueprint}
             desc={getBlueprint(station?.blueprint ?? "")?.description}
+            level={station?.level}
           />
           <Grid templateColumns="repeat(3, 1fr)" mt="4rem">
             <VStack gap="2rem">
@@ -258,6 +268,8 @@ export const ModalStation: FC<{
                     : "resources"
                 }
                 isDisabled={progress !== 100}
+                rareDrop={stationBlueprint?.rareDrop}
+                stationLevel={station?.level}
                 resources={[
                   {
                     name:
@@ -288,10 +300,12 @@ const ModalHeader = ({
   image,
   name,
   desc,
+  level,
 }: {
   image: string;
   name?: string;
   desc?: string;
+  level?: number;
 }) => {
   return (
     <Flex gap="1rem">
@@ -308,6 +322,9 @@ const ModalHeader = ({
         </Text>
         <Text letterSpacing="0.5px" noOfLines={4} textOverflow="ellipsis">
           {desc}
+        </Text>
+        <Text>
+          Station Level: <strong>{level}</strong>
         </Text>
       </VStack>
     </Flex>

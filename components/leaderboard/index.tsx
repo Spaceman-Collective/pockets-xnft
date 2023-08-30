@@ -7,6 +7,8 @@ import { Label } from "../dashboard/personal/personal.styled";
 import { SortButton } from "./sort-button.component";
 import { useEffect, useState } from "react";
 import { Faction } from "@/types/server";
+import { Tip } from "../tooltip";
+import { usePrizePool } from "@/hooks/useWalletAssets";
 
 export interface FactionScore {
   faction: Faction;
@@ -21,6 +23,7 @@ export interface FactionScore {
  */
 export const LeaderboardList = () => {
   //const handleFilter = (e: any) => console.info(e);
+  const { data: prizePool, isLoading: prizePoolIsLoading } = usePrizePool();
   const { data } = useGetLeaderboard();
   const [factions, setFactions] = useState<FactionScore[]>(
     data?.find((c) => c.condition === "knowledge")?.factions || [],
@@ -46,35 +49,47 @@ export const LeaderboardList = () => {
 
   return (
     <LeaderboardContainer>
-      <Flex justifyContent="space-between">
+      <Flex justifyContent="space-between" alignItems="center">
         <Title>LEADERBOARD</Title>
-        {/*<SortButton handleFilter={handleFilter} />*/}
+        <Tip label="TODO: DEV">
+          <Text fontSize={"2rem"} fontWeight={700} fontFamily="heading">
+            BONK Prize Pool: {prizePool}
+          </Text>
+        </Tip>
       </Flex>
 
       <Grid templateColumns="2fr 3fr" display={{ base: "none", sm: "grid" }}>
         <Spacer />
         <Flex justifyContent="space-between" my="1.5rem" opacity="0.5">
-          <Label
-            onClick={() => {
-              selectTab("domination");
-            }}
-          >
-            Domination
-          </Label>
-          <Label
-            onClick={() => {
-              selectTab("wealth");
-            }}
-          >
-            Wealth
-          </Label>
-          <Label
-            onClick={() => {
-              selectTab("knowledge");
-            }}
-          >
-            Knowledge
-          </Label>
+          <Tip label={`TODO: DEV`} placement="top">
+            <Label
+              onClick={() => {
+                selectTab("domination");
+              }}
+            >
+              Domination
+            </Label>
+          </Tip>
+
+          <Tip label={`TODO: DEV`} placement="top">
+            <Label
+              onClick={() => {
+                selectTab("wealth");
+              }}
+            >
+              Wealth
+            </Label>
+          </Tip>
+
+          <Tip label={`TODO: DEV`} placement="top">
+            <Label
+              onClick={() => {
+                selectTab("knowledge");
+              }}
+            >
+              Knowledge
+            </Label>
+          </Tip>
         </Flex>
       </Grid>
       <VStack align="start" spacing={5} overflowY="auto" h="100%" w="100%">

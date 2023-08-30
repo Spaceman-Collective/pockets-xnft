@@ -3,9 +3,9 @@ import { getCitizenPDA, getCitizenAccount } from "@/lib/solanaClient";
 import { Connection, PublicKey } from "@solana/web3.js";
 import toast from "react-hot-toast";
 
-type CitizenAccountInfo = {
-  delegatedVotingPower: string; // Assuming BN is serializable as string for React state
-  faction: string; // PublicKey serialized as a string
+export type CitizenAccountInfo = {
+  delegatedVotingPower: string;
+  faction: string;
   grantedVotingPower: string;
   maxPledgedVotingPower: string;
   mint: string;
@@ -14,20 +14,19 @@ type CitizenAccountInfo = {
 
 export const useCitizen = (
   mint: string,
-  connection: Connection
+  connection: Connection,
 ): { data: CitizenAccountInfo; refetch: () => void; isLoading: boolean } => {
-
   const defaultQueryResult: CitizenAccountInfo = {
     delegatedVotingPower: "0",
     faction: "",
     grantedVotingPower: "0",
     maxPledgedVotingPower: "0",
     mint: "",
-    totalVotingPower: "0"
+    totalVotingPower: "0",
   };
 
   const queryResult = useQuery<CitizenAccountInfo, unknown>(
-    ['citizen', mint],
+    ["citizen", mint],
     async (): Promise<CitizenAccountInfo> => {
       if (!mint) {
         return defaultQueryResult;
@@ -35,12 +34,11 @@ export const useCitizen = (
 
       const characterMint = new PublicKey(mint);
       const citizenPDA = getCitizenPDA(characterMint);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const citizenAccount = await getCitizenAccount(connection, citizenPDA);
 
       if (!citizenAccount) {
-        console.error('Failed to fetch citizen');
+        console.error("Failed to fetch citizen");
         return defaultQueryResult;
       }
 
@@ -50,14 +48,14 @@ export const useCitizen = (
         grantedVotingPower: citizenAccount.grantedVotingPower.toString(),
         maxPledgedVotingPower: citizenAccount.maxPledgedVotingPower.toString(),
         mint: citizenAccount.mint.toString(),
-        totalVotingPower: citizenAccount.totalVotingPower.toString()
+        totalVotingPower: citizenAccount.totalVotingPower.toString(),
       };
-    }
+    },
   );
 
   return {
     data: queryResult.data || defaultQueryResult,
     refetch: queryResult.refetch,
-    isLoading: queryResult.isLoading
+    isLoading: queryResult.isLoading,
   };
 };

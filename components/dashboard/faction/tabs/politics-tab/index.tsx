@@ -50,7 +50,7 @@ import { useProposalVotesByCitizen } from "@/hooks/useProposalVotesByCitizen";
 import { useFaction } from "@/hooks/useFaction";
 import { decode } from "bs58";
 import { TransactionMessage } from "@solana/web3.js";
-import { useCitizen } from "@/hooks/useCitizen";
+import { useCitizen, CitizenAccountInfo } from "@/hooks/useCitizen";
 import { LeaveFactionModal } from "../../leave-faction.component";
 import toast from "react-hot-toast";
 import { useProcessProposal } from "@/hooks/useProcessProposal";
@@ -90,12 +90,12 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   } = useFetchProposalsByFaction(factionId, 0, 50);
   const {
     data: citizen,
-    refetch,
+    refetch: refetchCitizen,
     isLoading: isCitizenLoading,
   } = useCitizen(currentCharacter?.mint, connection);
   const { data: vT, isLoading: isThresholdLoading } = useVoteThreshold(
     currentCharacter,
-    connection
+    connection,
   );
   const { data: votesData } = useProposalVotesAll(proposalIds);
   useEffect(() => {
@@ -103,10 +103,10 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
       setProposalIds(
         allProposals
           .map((proposal: Proposal) => proposal.id)
-          .filter(Boolean) as string[]
+          .filter(Boolean) as string[],
       );
     }
-  }, [allProposals, votesData]);
+  }, [allProposals, allProposalsIsLoading, votesData]);
 
   useEffect(() => {
     if (votesData) {
@@ -127,18 +127,6 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   useEffect(() => {
     setFactionStatus(!!currentCharacter?.faction);
   }, [currentCharacter, allProposals, setFactionStatus]);
-
-  const getVotingPower = async () => {
-    // if (vpA) {
-    //   setVotingPower(vpA.votingPower.toString());
-    // } else {
-    //   setVotingPower("0");
-    // }
-  };
-
-  useEffect(() => {
-    getVotingPower().then(() => {});
-  });
 
   const sortedProposals = allProposals?.proposals?.slice().sort((a, b) => {
     return new Date(b.created).getTime() - new Date(a.created).getTime();
@@ -181,14 +169,14 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
             currentProposalId!,
             votingAmt,
             currentCharacter?.faction?.id!,
-            isIncrement
+            isIncrement,
           ),
         ],
       });
 
       if (typeof encodedSignedTx === "string") {
         const sig = await connection.sendRawTransaction(
-          decode(encodedSignedTx)
+          decode(encodedSignedTx),
         );
         toast.success("Update vote successful!");
       }
@@ -207,7 +195,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
       return;
     }
     const voteAmounts = await Promise.all(
-      proposalIds.map(fetchVotesForProposal)
+      proposalIds.map(fetchVotesForProposal),
     );
 
     for (let i = 0; i < proposalIds.length; i++) {
@@ -301,7 +289,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
           <Label color={colors.brand.tertiary} pb="0.25rem">
             Voting Power:
           </Label>
-          {citizen ? (
+          {!isCitizenLoading ? (
             <>
               <Value>
                 {citizen?.maxPledgedVotingPower}/{citizen?.totalVotingPower}
@@ -317,7 +305,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
               </ValueCalculation>
             </>
           ) : (
-            <Spinner size="md" color="white" />
+            <Spinner size="md" color="white" mb="0.5rem" />
           )}
         </HStack>
       </Flex>
@@ -442,42 +430,13 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
   const [inputError, setInputError] = useState<string | null>(null);
 
   const { walletAddress, signTransaction, encodeTransaction } = useSolana();
-  const queryClient = useQueryClient();
 
-  const { data, refetch, isLoading } = useProposalVoteInfo(
-    proposalId!,
-    connection!
-  );
+  const {
+    data,
+    refetch: refetchProposalVoteInfo,
+    isLoading,
+  } = useProposalVoteInfo(proposalId!, connection!);
   const { voteAccountExists, voteAmount } = data;
-
-  const handleRefetch = () => {
-    queryClient.invalidateQueries([
-      "proposalVotes",
-      proposalId,
-      currentCharacter?.mint,
-    ]);
-  };
-
-  useEffect(() => {}, [voteThreshold]);
-
-  // const getProposalOnChainInfo = async () => {
-  //   const pA = await getProposalAccount(connection, proposalId!);
-
-  //   if (pA) {
-  //     console.log('proposalAccount: ', pA)
-  //     // setVoteAmount(vA.voteAmt.toString());
-  //   } else {
-  //     setVoteAmount("0");
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   // if (proposalAccount == "") {
-  //     getProposalOnChainInfo().then(() => {
-  //       // console.log("proposal status: ", proposalAccount.status);
-  //     });
-  //   //}
-  // });
 
   const validateInput = (): boolean => {
     const isValid = !!localVote.trim() && !isNaN(parseInt(localVote));
@@ -499,14 +458,14 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             new PublicKey(currentCharacter?.mint!),
             proposalId!,
             votingAmt,
-            currentCharacter?.faction?.id!
+            currentCharacter?.faction?.id!,
           ),
         ],
       });
 
       if (typeof encodedSignedTx === "string") {
         const sig = await connection.sendRawTransaction(
-          decode(encodedSignedTx)
+          decode(encodedSignedTx),
         );
         toast.success("Vote successful!");
       } else {
@@ -514,7 +473,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
       }
       setLocalVote("");
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      refetch();
+      refetchProposalVoteInfo();
 
       setIsVoteInProgress(false);
     } catch (e) {
@@ -546,14 +505,14 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             proposalId!,
             votingAmt,
             currentCharacter?.faction?.id!,
-            isIncrement
+            isIncrement,
           ),
         ],
       });
 
       if (typeof encodedSignedTx === "string") {
         const sig = await connection.sendRawTransaction(
-          decode(encodedSignedTx)
+          decode(encodedSignedTx),
         );
         toast.success("Update vote successful!");
       }
@@ -561,7 +520,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
       setLocalVote("");
 
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      await refetch();
+      refetchProposalVoteInfo();
 
       setIsVoteInProgress(false);
     } catch (e) {
@@ -572,7 +531,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
   const processProposalMutation = useProcessProposal(
     setIsLoading,
-    proposal?.id
+    proposal?.id,
   );
 
   return (
@@ -590,13 +549,9 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             <Label color={colors.brand.tertiary} pb="0.4rem">
               votes:
             </Label>
+            {voteAmount ? voteAmount : <Spinner size="md" color="white" />}/
             <ProposalTitle>
-              {voteAmount ? voteAmount : <Spinner size="md" color="white" />}/
-              {voteThreshold ? (
-                voteThreshold
-              ) : (
-                <Spinner size="md" color="white" />
-              )}
+              {voteThreshold ? voteThreshold : null}
             </ProposalTitle>
           </HStack>
         </Flex>
