@@ -7,9 +7,9 @@ export interface Faction {
   external_link: string;
   description: string;
   townhallLevel: number;
-  lastLooted: string;
   construction: {
-    finishedAt: string | undefined;
+    started: string | undefined;
+    finished: string | undefined;
     // if id already exists, then upgrade, if it doesn't, then it's a new construction
     stationId?: string;
     blueprint: string | undefined;

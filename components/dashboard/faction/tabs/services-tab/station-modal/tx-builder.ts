@@ -75,7 +75,7 @@ export const startStationProcess = async ({
       walletAddress,
       connection,
       signTransaction,
-      txInstructions: [ix, bonkIx, ...burnIxs],
+      txInstructions: [ix, ...bonkIx, ...burnIxs],
     });
 
     if (encodedTx instanceof Error || encodedTx === undefined)
@@ -94,7 +94,7 @@ export const startStationProcess = async ({
         onError: (e: any) => {
           toast.error("Ooops! Did not start station: \n\n" + e);
         },
-      }
+      },
     );
   } catch (err) {
     toast.error("Oops! That didn't work: \n\n" + JSON.stringify(err));

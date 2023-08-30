@@ -41,26 +41,28 @@ import { useFaction } from "@/hooks/useFaction";
 import { Value } from "../tabs/tab.styles";
 import { useQueryClient } from "@tanstack/react-query";
 
-type FactionData = {
-  citizens: Character[];
-  faction: Faction;
-  resources: {
-      name: string;
-      value: string;
-  }[];
-  stations: {
-      blueprint: string;
-      faction: string;
-      id: string;
-      level: number;
-  }[];
-} | undefined
+type FactionData =
+  | {
+      citizens: Character[];
+      faction: Faction;
+      resources: {
+        name: string;
+        value: string;
+      }[];
+      stations: {
+        blueprint: string;
+        faction: string;
+        id: string;
+        level: number;
+      }[];
+    }
+  | undefined;
 
 export const CreateProposal: React.FC<{
   factionData: FactionData;
   currentCharacter?: Character;
   fire: () => void;
-}> = ({ currentCharacter, fire: fireConfetti, factionData,  }) => {
+}> = ({ currentCharacter, fire: fireConfetti, factionData }) => {
   const { mutate, isLoading } = useCreateProposal();
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
   const {
@@ -204,7 +206,6 @@ export const CreateProposal: React.FC<{
                       className="customSelect"
                       placeholder="Select a blueprint name"
                       onChange={(e) => {
-                        console.log(e.target.value);
                         setProposal({
                           type: "BUILD",
                           blueprintName: e.target.value,
@@ -236,7 +237,6 @@ export const CreateProposal: React.FC<{
                       fontWeight="500"
                       placeholder="Select a station to upgrade"
                       onChange={(e) => {
-                        console.log(e.target.value);
                         setProposal({
                           type: "UPGRADE",
                           stationId: e.target.value,
@@ -265,7 +265,6 @@ export const CreateProposal: React.FC<{
                         className="customSelect"
                         placeholder="Select a citizen"
                         onChange={(e) => {
-                          console.log(e.target.value);
                           setProposal({
                             type: "WITHDRAW",
                             citizen: e.target.value,
@@ -287,7 +286,6 @@ export const CreateProposal: React.FC<{
                         className="customSelect"
                         placeholder="Select a resource"
                         onChange={(e) => {
-                          console.log(e.target.value);
                           setProposal((prevState: { resources: any }) => {
                             const newResources = prevState.resources
                               ? [...prevState.resources]
@@ -337,7 +335,6 @@ export const CreateProposal: React.FC<{
                         className="customInput"
                         placeholder="Enter amount of BONK"
                         onChange={(e) => {
-                          console.log(e.target.value);
                           setProposal({
                             ...proposal,
                             bonk: e.target.value,
@@ -355,7 +352,6 @@ export const CreateProposal: React.FC<{
                       className="customInput"
                       placeholder="Enter new shares to mint"
                       onChange={(e) => {
-                        console.log(e.target.value);
                         setProposal({
                           type: "MINT",
                           newSharesToMint: e.target.value,
@@ -469,7 +465,6 @@ export const CreateProposal: React.FC<{
                         className="customSelect"
                         placeholder="Select a resource"
                         onChange={(e) => {
-                          console.log(e.target.value);
                           setProposal((prevState: { resources: any }) => {
                             const newResources = prevState.resources
                               ? [...prevState.resources]

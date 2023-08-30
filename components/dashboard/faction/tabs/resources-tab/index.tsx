@@ -3,20 +3,16 @@ import {
   Flex,
   Grid,
   HStack,
-  Input,
   Text,
-  Image,
-  Skeleton,
   useDisclosure,
   Spinner,
 } from "@chakra-ui/react";
 import { Label, PanelContainer, Value } from "../tab.styles";
 import styled from "@emotion/styled";
 import { FC, useEffect, useState } from "react";
-import { useDebounce } from "@uidotdev/usehooks";
 import { Character } from "@/types/server";
 import { useFaction } from "@/hooks/useFaction";
-import { getLocalImage, timeout } from "@/lib/utils";
+import { timeout } from "@/lib/utils";
 import { TIP } from "@/components/tooltip/constants";
 import { Tip } from "@/components/tooltip";
 import { useResourceField } from "@/hooks/useResourceField";
@@ -30,6 +26,7 @@ import { ModalRfDiscover } from "./discover-modal.component";
 import { ModalRfProspect } from "./prospect-modal.component";
 import { ResourceGridContainer } from "../../resources-grid.component";
 import Confetti from "@/components/Confetti";
+import { useQueryClient } from "@tanstack/react-query";
 
 const spacing = "1rem";
 export const FactionTabResources: React.FC<{
@@ -38,6 +35,7 @@ export const FactionTabResources: React.FC<{
 }> = ({ currentCharacter }) => {
   const discoverDisclosure = useDisclosure();
   const prospectDisclosure = useDisclosure();
+  const queryClient = useQueryClient();
 
   const { data: factionData, isLoading: factionIsLoading } = useFaction({
     factionId: currentCharacter?.faction?.id ?? "",
@@ -62,11 +60,13 @@ export const FactionTabResources: React.FC<{
   const { data: discoverData, refetch: refetchRFAllocation } =
     useRfAllocation();
 
+  const [discoverableData, setDiscoverableData] = useState<any>(discoverData);
   useEffect(() => {
-    if (discoverData) {
-      console.log("dd: ", discoverData);
-    }
-  }, [discoverData]);
+    queryClient.refetchQueries({ queryKey: ["fetch-resource-field"] });
+  }, [discoverableData]);
+  useEffect(() => {
+    refetchRFAllocation().then((data) => setDiscoverableData(data.data));
+  }, [refetchRFAllocation]);
 
   return (
     <PanelContainer display="flex" flexDirection="column" gap="4rem">
@@ -77,15 +77,13 @@ export const FactionTabResources: React.FC<{
       <Box>
         <ResourceLabels
           onClick={() => {
-            if (discoverData?.isDiscoverable) {
+            if (discoverableData?.isDiscoverable) {
               discoverDisclosure.onOpen();
-              console.log("isDiscoverable 2: ", discoverData?.isDiscoverable);
             } else {
-              console.log("isDiscoverable 3: ", discoverData?.isDiscoverable);
               prospectDisclosure.onOpen();
             }
           }}
-          isDiscoverable={discoverData?.isDiscoverable}
+          discoverableData={discoverableData}
         />
         <Grid templateColumns="1fr 1fr" gap={spacing}>
           {rfData?.rfs.map((rf) => (
@@ -110,12 +108,15 @@ export const FactionTabResources: React.FC<{
         factionName={factionData?.faction?.name}
       />
       <ModalRfDiscover
-        refetchDiscoverData={refetchRFAllocation}
-        rf={discoverData}
+        refetchRFAllocation={refetchRFAllocation}
+        setDiscoverableData={setDiscoverableData}
+        rf={discoverableData}
         {...discoverDisclosure}
       />
       <ModalRfProspect
-        rf={discoverData}
+        setDiscoverableData={setDiscoverableData}
+        refetchRFAllocation={refetchRFAllocation}
+        rf={discoverableData}
         charMint={currentCharacter.mint}
         factionId={currentCharacter?.faction?.id}
         currentCharacter={currentCharacter}
@@ -142,19 +143,10 @@ const Header: React.FC<{
   );
 };
 
-const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
-  isDiscoverable,
+const ResourceLabels: FC<{ discoverableData?: any; onClick: () => void }> = ({
+  discoverableData,
   onClick,
 }) => {
-  const { data: discoverData, refetch: refetchRFAllocation } =
-    useRfAllocation();
-
-  useEffect(() => {
-    if (discoverData) {
-      console.log("isDiscoverable: ", isDiscoverable);
-    }
-  }, [discoverData, isDiscoverable]);
-
   return (
     <Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
       <Tip label={TIP.RESOURCE_FIELDS} placement="top">
@@ -162,13 +154,15 @@ const ResourceLabels: FC<{ isDiscoverable?: boolean; onClick: () => void }> = ({
       </Tip>
       <HStack gap="4rem" alignItems="end">
         {/* <MenuText color="brand.quaternary">harvest all</MenuText> */}
-        {isDiscoverable === undefined && <Spinner mb="0.75rem" mr="1rem" />}
-        {discoverData?.isDiscoverable === true && (
+        {discoverableData?.isDiscoverable === undefined && (
+          <Spinner mb="0.75rem" mr="1rem" />
+        )}
+        {discoverableData?.isDiscoverable === true && (
           <MenuText cursor="pointer" color="brand.tertiary" onClick={onClick}>
             discover
           </MenuText>
         )}
-        {discoverData?.isDiscoverable === false && (
+        {discoverableData?.isDiscoverable === false && (
           <MenuText cursor="pointer" color="brand.quaternary" onClick={onClick}>
             prospect
           </MenuText>

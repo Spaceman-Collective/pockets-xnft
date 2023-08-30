@@ -58,7 +58,7 @@ export const ModalStation: FC<{
   const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
 
   const timer = timersData?.stationTimers.find(
-    (e) => e.station === station?.id
+    (e) => e.station === station?.id,
   );
 
   const finishedDate = timer?.finished && +timer?.finished;
@@ -108,7 +108,17 @@ export const ModalStation: FC<{
     return stationInputs?.includes(e.name);
   });
 
-  const startStationProcess = async () =>
+  const hasEnoughResources = stationBlueprint?.inputs?.map(
+    (e) =>
+      resourcesInWallet?.find((walletItem) => walletItem.name === e?.resource)
+        ?.value,
+  );
+
+  const startStationProcess = async () => {
+    if (hasEnoughResources?.includes("0")) {
+      toast.error(`You don't have enough resources`);
+      return;
+    }
     await startStation({
       connection,
       walletAddress,
@@ -123,6 +133,7 @@ export const ModalStation: FC<{
       startCountdown,
       queryClient,
     });
+  };
 
   const claimStationReward = async () => {
     if (!selectedCharacter?.mint || !station?.id)
@@ -135,10 +146,10 @@ export const ModalStation: FC<{
           queryClient.refetchQueries({ queryKey: ["assets"] });
           queryClient.refetchQueries({ queryKey: ["wallet-assets"] });
           toast.success(
-            "You've claimed the reward from the " + station?.blueprint
+            "You've claimed the reward from the " + station?.blueprint,
           );
         },
-      }
+      },
     );
   };
 
@@ -259,7 +270,7 @@ export const ModalStation: FC<{
                         ?.filter(
                           (unit) =>
                             unit.name.toLowerCase() ===
-                            stationBlueprint?.unitOutput?.[0].toLowerCase()
+                            stationBlueprint?.unitOutput?.[0].toLowerCase(),
                         )
                         ?.length.toString() ?? "0",
                   },

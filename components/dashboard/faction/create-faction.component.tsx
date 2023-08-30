@@ -16,7 +16,7 @@ import {
   Flex,
   HStack,
   Spinner,
-  Link,
+  Image,
 } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useSolana } from "@/hooks/useSolana";
@@ -62,7 +62,7 @@ export const CreateFaction: FC<{
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
-  const [requiredBonk, setRequiredBonk] = useState<string>('0');
+  const [requiredBonk, setRequiredBonk] = useState<string>("0");
 
   const totalFactions = currentFactions?.total;
   const requiredBONK = FACTION_CREATION_MULTIPLIER * BigInt(totalFactions ?? 0);
@@ -72,7 +72,7 @@ export const CreateFaction: FC<{
       const wholeBalance = Math.floor(Number(requiredBONK));
       setRequiredBonk(formatBalance(wholeBalance));
     }
-  },[]);
+  }, []);
 
   const validateInputs = () => {
     let errors = {
@@ -142,8 +142,7 @@ export const CreateFaction: FC<{
     const bonkInWallet = await getBonkBalance({ walletAddress, connection });
     if (bonkInWallet < requiredBONK / BigInt(1e5)) {
       throw alert(
-        `You have insufficient BONK in your wallet. Please add more BONK and try again! Required amount: ${
-          requiredBONK / BigInt(1e5)
+        `You have insufficient BONK in your wallet. Please add more BONK and try again! Required amount: ${requiredBONK / BigInt(1e5)
         } Current balance: ${bonkInWallet}`
       );
     }
@@ -244,8 +243,16 @@ export const CreateFaction: FC<{
                   <Text color="red.500">{inputErrors.name}</Text>
                 )}
               </Box>
+              <Flex mb="2rem" flexDirection="row" align="end">
+                <Image
+                    src={faction.image}
+                    alt="Image Preview"
+                    boxSize="100px"
+                    objectFit="cover"
+                    borderRadius="4"
 
-              <Box mb="2rem">
+                    fallbackSrc="https://via.placeholder.com/100"
+                  />
                 <Input
                   type="text"
                   placeholder="Image URL"
@@ -259,12 +266,14 @@ export const CreateFaction: FC<{
                   borderRadius="4"
                   py="1rem"
                   px="2rem"
+                  ml="2rem"
                   isInvalid={!!inputErrors.image}
                 />
                 {inputErrors.image && (
                   <Text color="red.500">{inputErrors.image}</Text>
                 )}
-              </Box>
+
+              </Flex>
 
               <Box mb="2rem">
                 <Input
