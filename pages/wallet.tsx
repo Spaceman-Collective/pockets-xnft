@@ -45,15 +45,11 @@ export default function WalletPage() {
                 <DashboardMenu />
               </DashboardMenuContainer>
               <PersonalSection>
-                <CharacterList
-                  data={assets?.characters}
-                  isLoading={assetsIsLoading}
-                  selectedCharacter={selectedCharacter}
-                  setSelectedCharacter={setSelectedCharacter}
-                />
-                <SectionContainer>
-                  <WalletTabs />
-                </SectionContainer>
+                <Box m="0 auto">
+                  <SectionContainer>
+                    <WalletTabs />
+                  </SectionContainer>
+                </Box>
               </PersonalSection>
             </DashboardContainer>
           </>
