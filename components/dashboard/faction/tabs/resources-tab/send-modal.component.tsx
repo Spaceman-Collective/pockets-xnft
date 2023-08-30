@@ -68,6 +68,7 @@ export const ModalSendResource: FC<{
       decimals: 0,
     });
 
+    if (!resourceIx) return;
     try {
       await sendTransaction({
         connection,
