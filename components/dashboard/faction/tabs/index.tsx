@@ -23,6 +23,14 @@ export const FactionTabs: React.FC<{
       <PageTabs
         tabItems={[
           {
+            tabName: "Resources",
+            Component: FactionTabResources,
+            componentProps: {
+              currentCharacter: currentCharacter,
+              setFactionStatus: setFactionStatus,
+            },
+          },
+          {
             tabName: "Services",
             Component: FactionTabServices,
             componentProps: {
@@ -37,14 +45,6 @@ export const FactionTabs: React.FC<{
               currentCharacter: currentCharacter,
               setFactionStatus: setFactionStatus,
               openCitizenModal: citizenDisclosure.onOpen,
-            },
-          },
-          {
-            tabName: "Resources",
-            Component: FactionTabResources,
-            componentProps: {
-              currentCharacter: currentCharacter,
-              setFactionStatus: setFactionStatus,
             },
           },
         ]}

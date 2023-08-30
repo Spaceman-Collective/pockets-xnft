@@ -66,13 +66,14 @@ export const ModalRfProspect: FC<{
   } = useSolana();
 
   const { mutate } = useRfAllocate();
+  const queryClient = useQueryClient();
+
   const [jackpot, setJackpot] = useState<boolean>(false);
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [rfAccount, setRfAccount] = useState<RFAccount>();
   const [signedArr, setSignedArr] = useState<string[]>();
   const [prospectLoading, setProspectLoading] = useState<boolean>(false);
   const [numProspectTickets, setNumProspectTickets] = useState<number>(0);
-  const queryClient = useQueryClient();
 
   const refreshRFAccount = useCallback(async () => {
     if (!rf) return;
@@ -82,34 +83,23 @@ export const ModalRfProspect: FC<{
       setDiscoverableData(refetchRFAllocationData.data);
 
       const account = await getRFAccount(connection, rf?.id);
-      if (account?.initialClaimant) {
-        if (account.initialClaimant.toString() == characterMint) {
-          const hitJackpot =
-            account?.initialClaimant?.toString() === characterMint;
-          setJackpot(hitJackpot);
-        }
+      if (account?.initialClaimant && account.initialClaimant.toString() === characterMint) {
+        setJackpot(true);
+        console.log('initial claimant: ',  account.initialClaimant.toString())
         mutate({ charMint: account.initialClaimant.toString() });
       }
       setRfAccount(account as RFAccount);
     } catch (err) {
       console.error(err);
     }
-  }, [connection, getRFAccount, rf, characterMint]);
+  }, [rf, refetchRFAllocation, setDiscoverableData, getRFAccount, connection, characterMint, mutate]);
 
   useEffect(() => {
-    refreshRFAccount();
-  }, [rfAccount, refreshRFAccount]);
-
-  useEffect(() => {
-    refreshRFAccount();
+    if (!rfAccount) {
+      refreshRFAccount();
+    }
     refetchRFAllocation().then((data: any) => setDiscoverableData(data.data));
-  }, [
-    rf,
-    connection,
-    refreshRFAccount,
-    refetchRFAllocation,
-    setDiscoverableData,
-  ]);
+  }, [rf, connection, refreshRFAccount, refetchRFAllocation, setDiscoverableData, rfAccount]);
 
   const post = async () => {
     if (!characterMint || !factionId || !rf?.id || !walletAddress) {
@@ -119,108 +109,58 @@ export const ModalRfProspect: FC<{
 
     try {
       setProspectLoading(true);
-
-      let allTxs: TransactionInstruction[] = [];
-      for (let txIdx = 0; txIdx < numProspectTickets; txIdx++) {
-        let ix =
-          buildProspectIx &&
-          (await buildProspectIx({
+      const allTxs = await Promise.all(
+        Array(numProspectTickets).fill(0).map(() =>
+          buildProspectIx({
             walletAddress,
             characterMint,
             factionId,
             rfId: rf?.id,
-          }));
+          })
+        )
+      );
 
-        if (!ix || ix === undefined) return;
-
-        allTxs.push(ix);
-      }
-
-      let txIdx = 0;
-      let sigArr: string[] = [];
-      if (numProspectTickets > MAX_NUM_IX) {
-        let numTransactions = Math.floor(numProspectTickets / MAX_NUM_IX);
-        let remTransactions = Math.floor(numProspectTickets % MAX_NUM_IX);
-
-        for (txIdx = 0; txIdx < numTransactions; txIdx++) {
-          try {
-            let txSlice = allTxs.slice(
-              txIdx + (txIdx > 0 ? 1 : 0) * MAX_NUM_IX,
-              (txIdx + 1) * MAX_NUM_IX
-            );
-            let sigs = await sendAllTransactions(
-              connection,
-              txSlice,
-              walletAddress,
-              signAllTransactions
-            );
-            sigArr.push(...sigs!);
-          } catch (err) {
-            console.error(err);
-          }
-        }
-
-        if (remTransactions > 0) {
-          let remainderTxSlice = allTxs.slice(
-            txIdx * MAX_NUM_IX - (txIdx > 0 ? 1 : 0),
-            allTxs.length
-          );
-          let sigs = await sendAllTransactions(
+      const sendTransactionsInChunks = async (transactions: any[]) => {
+        let sigArr: string[] = [];
+        for (let i = 0; i < transactions.length; i += MAX_NUM_IX) {
+          const txSlice = transactions.slice(i, i + MAX_NUM_IX);
+          const sigs = await sendAllTransactions(
             connection,
-            remainderTxSlice,
+            txSlice,
             walletAddress,
             signAllTransactions
           );
-          sigArr.push(...sigs!);
+          if (sigs) {
+            sigArr.push(...sigs);
+          }
         }
-      } else {
-        let sigs = await sendAllTransactions(
-          connection,
-          allTxs,
-          walletAddress,
-          signAllTransactions
-        );
-        sigArr.push(...sigs!);
-      }
+        return sigArr;
+      };
 
+      const sigArr = await sendTransactionsInChunks(allTxs);
       setSignedArr(sigArr);
-      await new Promise((resolve) =>
-        setTimeout(resolve, 1000 * (signedArr ? signedArr?.length : 1))
-      );
+      await new Promise((resolve) => setTimeout(resolve, 1000 * sigArr.length));
     } catch (err) {
-      // Error could mean they got one
+      console.error(err);
+    } finally {
       await new Promise((resolve) => setTimeout(resolve, 15000));
       await refreshRFAccount();
       queryClient.refetchQueries({ queryKey: ["rf-allocation"] });
-      console.error(err);
-    } finally {
-      await refreshRFAccount();
       toast.custom(
         "Successfully sent prospect TXs, but seems like none of them were winners"
       );
       setProspectLoading(false);
     }
   };
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent
-        bg="blacks.500"
-        p="2rem"
-        borderRadius="1rem"
-        minW="40vw"
-        minH="40vh"
-      >
+      <ModalContent bg="blacks.500" p="2rem" borderRadius="1rem" minW="40vw" minH="40vh">
         <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">
           Prospect Resource Field
         </ModalHeader>
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
-        <ModalBody
-          display={"flex"}
-          flexDirection={"column"}
-          justifyContent={"space-between"}
-        >
+        <ModalBody display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
           <Text>
             Take a chance to claim this resource field for your faction. Even if
             you fail, you increase chance the next transaction will successfully
@@ -281,7 +221,7 @@ export const ModalRfProspect: FC<{
                   </Button>
                 ))}
               </Flex>
-
+  
               <Flex w="100%" gap={3}>
                 <Text pb="4" pt="8">
                   Your Txs:
@@ -301,7 +241,7 @@ export const ModalRfProspect: FC<{
                     </Link>
                   ))}
               </Flex>
-
+  
               <Button
                 isLoading={prospectLoading}
                 isDisabled={jackpot}
@@ -316,6 +256,7 @@ export const ModalRfProspect: FC<{
       </ModalContent>
     </Modal>
   );
+  
 };
 
 const StyledInput = styled(Input)`
