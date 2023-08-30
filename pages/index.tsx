@@ -12,7 +12,7 @@ export default function Home() {
   const { push } = useRouter();
   useEffect(() => {
     if (walletAddress) {
-      push("/wallet");
+      push("/character");
     }
   }, [walletAddress]);
 
