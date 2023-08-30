@@ -44,7 +44,6 @@ export const ModalStation: FC<{
   onClose: () => void;
 }> = ({ station, isOpen, onClose }) => {
   const {
-    buildTransferIx,
     buildMemoIx,
     encodeTransaction,
     walletAddress,
@@ -119,20 +118,30 @@ export const ModalStation: FC<{
       toast.error(`You don't have enough resources`);
       return;
     }
-    await startStation({
-      connection,
-      walletAddress,
-      selectedCharacter,
-      station,
-      stationBlueprint,
-      signTransaction,
-      encodeTransaction,
-      buildMemoIx,
-      buildBurnIx,
-      mutateStartStation: mutate,
-      startCountdown,
-      queryClient,
-    });
+    if (buildBurnIx === undefined || !buildBurnIx) {
+      toast.error("Unable to build burn ix");
+      return;
+    }
+
+    try {
+      await startStation({
+        connection,
+        walletAddress,
+        selectedCharacter,
+        station,
+        stationBlueprint,
+        signTransaction,
+        encodeTransaction,
+        buildMemoIx,
+        //@ts-ignore no idea why this says it can still be undefined
+        buildBurnIx,
+        mutateStartStation: mutate,
+        startCountdown,
+        queryClient,
+      });
+    } catch (err) {
+      toast.error("Failed to start the station: " + JSON.stringify(err));
+    }
   };
 
   const claimStationReward = async () => {

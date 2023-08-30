@@ -63,7 +63,7 @@ export const ConsumeSkillModal: FC<{
                 isLoading={walletAssetsIsLoading || isFetching}
                 resource={resource}
                 resourceInWallet={walletAssets?.resources.find(
-                  (asset) => asset.name === resource.name
+                  (asset) => asset.name === resource.name,
                 )}
               />
             ))}
@@ -86,7 +86,7 @@ const ConsumeItemContainer: FC<{
   };
 }> = ({ resource, resourceInWallet, isLoading, skill }) => {
   const extraSkillUp = resource.skills.filter(
-    (e) => e.toLowerCase() !== skill.toLowerCase()
+    (e) => e.toLowerCase() !== skill.toLowerCase(),
   );
 
   const queryClient = useQueryClient();
@@ -123,6 +123,10 @@ const ConsumeItemContainer: FC<{
       decimals: 0,
     });
 
+    if (!burnIx) {
+      toast.error("failed to build burn ix");
+      return;
+    }
     try {
       const encodedTx = await encodeTransaction({
         walletAddress: walletAddress as string,
@@ -147,7 +151,7 @@ const ConsumeItemContainer: FC<{
           },
           onError: (e) =>
             toast.error("Oops! Failed to consume: " + JSON.stringify(e)),
-        }
+        },
       );
     } catch (err) {
       toast.error("Oops! Failed to consume resource: " + err);

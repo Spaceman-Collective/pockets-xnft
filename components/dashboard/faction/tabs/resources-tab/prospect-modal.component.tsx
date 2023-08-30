@@ -11,16 +11,12 @@ import {
   Flex,
   Input,
   VStack,
-  Tag,
-  CheckboxIcon,
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
-import { TransactionInstruction } from "@solana/web3.js";
 import { FC, useCallback, useEffect, useState } from "react";
 import { BN } from "@coral-xyz/anchor";
 import { toast } from "react-hot-toast";
 import { colors } from "@/styles/defaultTheme";
-import Link from "next/link";
 import { useRfAllocate } from "@/hooks/useRf";
 import { Character } from "@/types/server";
 import { useQueryClient } from "@tanstack/react-query";
@@ -71,7 +67,6 @@ export const ModalRfProspect: FC<{
   const queryClient = useQueryClient();
 
   const [jackpot, setJackpot] = useState<boolean>(false);
-  const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [rfAccount, setRfAccount] = useState<RFAccount>();
   const [signedArr, setSignedArr] = useState<string[]>();
   const [prospectLoading, setProspectLoading] = useState<boolean>(false);
@@ -286,10 +281,4 @@ const StyledInput = styled(Input)`
   padding: 1rem 2rem;
   font-weight: 500;
   letter-spacing: 1px;
-`;
-
-const StyledText = styled(Text)`
-  :hover {
-    color: ${colors.brand.tertiary};
-  }
 `;

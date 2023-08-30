@@ -161,6 +161,10 @@ export const CreateFaction: FC<{
       decimals: SPL_TOKENS["bonk"].decimals,
     });
 
+    if (!transferIx) {
+      toast.error("Unable to build Transfer Ix");
+      return;
+    }
     const encodedSignedTx = await encodeTransaction({
       walletAddress,
       connection,

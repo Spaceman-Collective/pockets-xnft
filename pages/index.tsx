@@ -1,7 +1,6 @@
 import Head from "next/head";
 import { NavBar } from "@/components/nav";
-import styled from "@emotion/styled";
-import { Box, Grid } from "@chakra-ui/react";
+import { Grid } from "@chakra-ui/react";
 import { useSolana } from "@/hooks/useSolana";
 import { PleaseSignInContainer } from "@/components/no-wallet.component";
 import { useEffect } from "react";
@@ -31,9 +30,3 @@ export default function Home() {
     </>
   );
 }
-
-const PersonalSection = styled(Box)`
-  margin: 0 auto;
-  display: flex;
-  flex-direction: row;
-`;

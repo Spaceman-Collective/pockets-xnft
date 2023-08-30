@@ -68,13 +68,17 @@ export const startStationProcess = async ({
     });
   });
 
-  if (!burnIxs || burnIxs.length === 0 || burnIxs instanceof Error)
-    return toast.error("Ooops! No burnIx");
+  if (!burnIxs || burnIxs.length === 0 || burnIxs instanceof Error) {
+    toast.error("Ooops! No burnIx");
+    return;
+  }
+
   try {
     const encodedTx = await encodeTransaction({
       walletAddress,
       connection,
       signTransaction,
+      //@ts-ignore figure out the correct type for bonk, but this should be working
       txInstructions: [ix, ...bonkIx, ...burnIxs],
     });
 

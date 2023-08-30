@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Text, Button, Flex, Spinner } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
-import { MdLeaderboard, MdNotificationsActive } from "react-icons/md";
-import { AiFillGold } from "react-icons/ai";
+import { MdLeaderboard } from "react-icons/md";
 import { useAllFactions } from "@/hooks/useAllFactions";
 import styled from "@emotion/styled";
 import { useEffect, useState } from "react";
@@ -10,12 +9,9 @@ import { useSolana } from "@/hooks/useSolana";
 import { formatBalance } from "@/lib/utils";
 import { useRouter } from "next/router";
 import { Tip } from "../tooltip";
-import { SERVER_KEY } from "@/constants";
 import { usePrizePool } from "@/hooks/useWalletAssets";
 
 export const DashboardInfo = () => {
-  const { data: currentFs } = useAllFactions();
-  // const numOfFactions = currentFs?.total;
   const { walletAddress, connection, getBonkBalance } = useSolana();
   const [bonkBalance, setBonkBalance] = useState<string>();
   const router = useRouter();

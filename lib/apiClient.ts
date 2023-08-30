@@ -1,7 +1,5 @@
 import { Proposal } from "@/types/server/Proposal";
-import type { NFT, Character, Faction, Station } from "@/types/server";
-import { BN } from "@coral-xyz/anchor";
-import { QueryFunctionContext } from "@tanstack/react-query";
+import type { NFT, Character, Faction, Blueprint } from "@/types/server";
 import fetch from "axios";
 import { FactionScore } from "@/components/leaderboard";
 const API_BASE_URL = "https://api.pockets.gg";
@@ -597,10 +595,6 @@ export const fetchProposal = async (proposalId: string) => {
   }
 };
 
-interface VoteResponse {
-  vote: string;
-}
-
 export type FetchResponse = {
   proposals: Proposal[];
   skip: string;
@@ -704,7 +698,6 @@ export const fetchProposalVotesByCitizen = async (
   } catch (err) {
     console.error(err);
     throw new Error("Failed to fetch proposal votes");
-    throw new Error("Failed to fetch proposal votes");
   }
 };
 
@@ -755,7 +748,7 @@ export const processProposal = async (proposalId: string) => {
 
 type CompleteConstructionResponse = {
   faction: Faction;
-  station: Station;
+  station: Blueprint;
 };
 
 export const completeConstruction = async ({
