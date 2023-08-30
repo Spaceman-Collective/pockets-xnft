@@ -25,6 +25,7 @@ import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants";
 import { PocketsProgram } from "../lib/program/pockets_program";
 const pocketsIDL = require("../lib/program/pockets_program.json");
 import { Program, AnchorProvider, Wallet, BN } from "@coral-xyz/anchor";
+import { toast } from "react-hot-toast";
 type TxType = VersionedTransaction | Transaction;
 
 export const POCKETS_PROGRAM_PROGRAMID =
@@ -121,14 +122,17 @@ export const buildTransferIx = async ({
   amount: bigint;
   decimals: number;
 }) => {
+  if (!connection) return;
+  if (!walletAddress) return;
+
   let ixArray: TransactionInstruction[] = [];
   const senderATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(walletAddress as string)
+    new PublicKey(walletAddress as string),
   );
   const receipientATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(receipientAddress)
+    new PublicKey(receipientAddress),
   );
 
   const recipientAcc = await connection.getAccountInfo(receipientATA);
@@ -138,8 +142,8 @@ export const buildTransferIx = async ({
         new PublicKey(walletAddress),
         receipientATA,
         new PublicKey(receipientAddress),
-        new PublicKey(mint)
-      )
+        new PublicKey(mint),
+      ),
     );
   }
 
@@ -150,8 +154,8 @@ export const buildTransferIx = async ({
       receipientATA,
       new PublicKey(walletAddress as string),
       amount,
-      decimals
-    )
+      decimals,
+    ),
   );
   return ixArray;
 };
@@ -167,9 +171,13 @@ const buildBurnIx = ({
   amount: bigint;
   decimals: number;
 }) => {
+  if (!mint) {
+    toast.error("No mint available!");
+    return;
+  }
   const senderATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
-    new PublicKey(walletAddress as string)
+    new PublicKey(walletAddress as string),
   );
 
   const ix = createBurnCheckedInstruction(
@@ -177,7 +185,7 @@ const buildBurnIx = ({
     new PublicKey(mint),
     new PublicKey(walletAddress as string),
     amount,
-    decimals
+    decimals,
   );
   return ix;
 };
@@ -210,7 +218,7 @@ const encodeTransaction = async ({
     return Error("Tx Couldn't Serialize!");
   }
 
-  console.log("tx is: ", Buffer.from(tx.serialize()).toString("base64"));
+  console.info("Encoded TX: ", Buffer.from(tx.serialize()).toString("base64"));
 
   if (window?.xnft?.solana?.isXnft) {
     const signedTx = await window?.xnft?.solana?.signTransaction(tx);
@@ -259,7 +267,7 @@ const sendAllTransactions = async (
   connection: Connection,
   ixs: TransactionInstruction[],
   wallet: string,
-  signAllTransactions: any
+  signAllTransactions: any,
 ) => {
   if (!wallet || !ixs || !signAllTransactions) return;
 
@@ -305,7 +313,7 @@ const sendAllTransactions = async (
 async function getTokenAccountBalance(
   wallet: string,
   solanaConnection: Connection,
-  mint: string
+  mint: string,
 ) {
   const filters: any[] = [
     {
@@ -321,7 +329,7 @@ async function getTokenAccountBalance(
 
   const accounts = await solanaConnection?.getParsedProgramAccounts(
     new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), // TOKEN_PROGRAM_ID
-    { filters: filters }
+    { filters: filters },
   );
 
   // console.log(
@@ -359,7 +367,7 @@ const getBonkBalance = async ({
   const bonkBalance = await getTokenAccountBalance(
     walletAddress,
     connection,
-    SPL_TOKENS.bonk.mint
+    SPL_TOKENS.bonk.mint,
   );
 
   return bonkBalance;
@@ -380,13 +388,13 @@ const buildProspectIx = async ({
 
   const walletAta = getAssociatedTokenAddressSync(
     new PublicKey(characterMint),
-    new PublicKey(walletAddress)
+    new PublicKey(walletAddress),
   );
 
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
-    { connection: new Connection("https://api.mainnet-beta.solana.com") }
+    { connection: new Connection("https://api.mainnet-beta.solana.com") },
   );
 
   const ix = await POCKETS_PROGRAM.methods
@@ -407,7 +415,7 @@ const buildProspectIx = async ({
 function getCitizenPDA(characterMint: PublicKey): PublicKey {
   const [citizenPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("citizen"), Buffer.from(characterMint.toBuffer())],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
   );
   return citizenPDA;
 }
@@ -415,7 +423,7 @@ function getCitizenPDA(characterMint: PublicKey): PublicKey {
 function getFactionPDA(factionId: string): PublicKey {
   const [factionPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("faction"), Buffer.from(factionId)],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
   );
   return factionPDA;
 }
@@ -423,7 +431,7 @@ function getFactionPDA(factionId: string): PublicKey {
 function getRFPDA(rfId: string): PublicKey {
   const [rfPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("rf"), Buffer.from(rfId)],
-    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID),
   );
   // console.log('rfpda: ', rfPDA)
   return rfPDA;
@@ -433,11 +441,12 @@ async function getRFAccount(connection: Connection, rfId: string) {
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
-    { connection }
+    { connection },
   );
 
+  if (!rfId) return;
   return await POCKETS_PROGRAM.account.resourceField.fetch(
     getRFPDA(rfId),
-    "confirmed"
+    "confirmed",
   );
 }

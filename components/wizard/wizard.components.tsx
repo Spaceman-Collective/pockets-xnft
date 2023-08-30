@@ -5,7 +5,7 @@ import { Image100 as Img } from "./wizard.styled";
 export const Frame = ({
   img,
   select,
-  size = '100px'
+  size = "100px",
 }: {
   img: string;
   select?: () => void;
@@ -22,7 +22,14 @@ export const Frame = ({
       }}
       onClick={select}
     >
-      <Img width="200" height="100" style={{ height: size, width: size }} alt="nft" src={img} />
+      <Img
+        width="200"
+        height="100"
+        style={{ height: size, width: size }}
+        alt="nft"
+        src={img}
+        fallbackSrc="https://via.placeholder.com/100"
+      />
     </Box>
   );
 };

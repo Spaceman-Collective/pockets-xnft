@@ -10,7 +10,7 @@ export const DashboardMenu = () => {
       <Button
         bg={colors.brand.primary}
         color={
-          router.pathname === "/"
+          router.pathname === "/wallet"
             ? colors.brand.quaternary
             : colors.brand.secondary
         }
@@ -23,7 +23,7 @@ export const DashboardMenu = () => {
         flex="1"
         mr="1rem"
         minW="38rem"
-        onClick={() => router.push("/")}
+        onClick={() => router.push("/wallet")}
       >
         INVENTORY
       </Button>

@@ -1,5 +1,14 @@
 import Link from "next/link";
-import { Text, Button, Flex, Box, Grid, HStack } from "@chakra-ui/react";
+import {
+  Text,
+  Button,
+  Flex,
+  Box,
+  Grid,
+  HStack,
+  UnorderedList,
+  ListItem,
+} from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import type { Character, Faction } from "@/types/server";
 import { Frame } from "../wizard.components";
@@ -83,19 +92,39 @@ export const ReviewMint = ({
               ))}
           </SkillContainer>
         </Grid>
-        {/* <Flex gap="4rem">
-          <Value>ARMY</Value>
-          <HStack>
-            <Label>Equipped</Label>
-            <Value>123/456</Value>
-          </HStack>
-        </Flex>
-        <Grid templateColumns="repeat(auto-fill,minmax(100px,1fr))">
-          <TroopBox num={1} />
-          <TroopBox num={2} />
-          <TroopBox num={3} />
-          <TroopBox />
-        </Grid> */}
+      </Flex>
+      <Flex m="0 auto" fontSize="2rem" gap="5rem">
+        <Box>
+          <Text>
+            You are now ready to begin your adventure with{" "}
+            <strong>{data?.name}</strong>! Next you&apos;ll be able to:
+          </Text>
+          <UnorderedList pl="2rem" mt="1rem" mb="2rem">
+            <ListItem>Join a Faction</ListItem>
+            <ListItem>Harvest resources</ListItem>
+            <ListItem>Train your skills</ListItem>
+            <ListItem>Build your army</ListItem>
+            <ListItem>Go to battle!</ListItem>
+          </UnorderedList>
+        </Box>
+        <Box>
+          <Text>
+            Training your skills and racking up battle wins helps you boost your
+            faction&apos;s chances at victory in one of the three win
+            conditions!
+          </Text>
+          <UnorderedList pl="2rem" mt="1rem" mb="2rem">
+            <ListItem>
+              <strong>Domination:</strong> collectively won battles by faction
+            </ListItem>
+            <ListItem>
+              <strong>Knowledge:</strong> total skill levels of faction citizens
+            </ListItem>
+            <ListItem>
+              <strong>Wealth:</strong> total resources burned by your faction
+            </ListItem>
+          </UnorderedList>
+        </Box>
       </Flex>
       <Flex gap="2rem" mt="4rem">
         <Button
