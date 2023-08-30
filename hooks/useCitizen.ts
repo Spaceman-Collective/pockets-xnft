@@ -3,9 +3,9 @@ import { getCitizenPDA, getCitizenAccount } from "@/lib/solanaClient";
 import { Connection, PublicKey } from "@solana/web3.js";
 import toast from "react-hot-toast";
 
-type CitizenAccountInfo = {
-  delegatedVotingPower: string; // Assuming BN is serializable as string for React state
-  faction: string; // PublicKey serialized as a string
+export type CitizenAccountInfo = {
+  delegatedVotingPower: string; 
+  faction: string;
   grantedVotingPower: string;
   maxPledgedVotingPower: string;
   mint: string;
@@ -35,7 +35,6 @@ export const useCitizen = (
 
       const characterMint = new PublicKey(mint);
       const citizenPDA = getCitizenPDA(characterMint);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const citizenAccount = await getCitizenAccount(connection, citizenPDA);
 
