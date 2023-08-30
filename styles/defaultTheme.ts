@@ -42,6 +42,7 @@ const {
   NumberInput,
   Slider,
   Checkbox,
+  Tag,
 } = chakraTheme.components;
 
 export const defaultTheme = extendBaseTheme({
@@ -75,6 +76,7 @@ export const defaultTheme = extendBaseTheme({
     NumberInput,
     Slider,
     Checkbox,
+    Tag,
   },
   colors,
   fonts,

@@ -11,6 +11,8 @@ import {
   Flex,
   Input,
   VStack,
+  Tag,
+  CheckboxIcon,
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import { TransactionInstruction } from "@solana/web3.js";
@@ -91,6 +93,7 @@ export const ModalRfProspect: FC<{
         mutate({ charMint: account.initialClaimant.toString() });
         toast.success("You hit a winner!");
         fireConfetti();
+        queryClient.refetchQueries({ queryKey: ["rf-allocation"] });
       }
       setRfAccount(account as RFAccount);
     } catch (err) {
@@ -257,26 +260,6 @@ export const ModalRfProspect: FC<{
                     {ticket}
                   </Button>
                 ))}
-              </Flex>
-
-              <Flex w="100%" gap={3}>
-                <Text pb="4" pt="8">
-                  Your Txs:
-                </Text>
-                {signedArr
-                  ?.filter((val, index) => index < 4)
-                  .map((sig, index) => (
-                    <Link
-                      key={`sig-${index}`}
-                      href={`https://solscan.io/tx/${sig}`}
-                      target="_blank"
-                    >
-                      <StyledText>
-                        {sig.slice(0, 4)}...
-                        {sig.slice(sig.length - 4, sig.length)}
-                      </StyledText>
-                    </Link>
-                  ))}
               </Flex>
 
               <Button
