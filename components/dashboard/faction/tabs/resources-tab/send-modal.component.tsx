@@ -82,7 +82,7 @@ export const ModalSendResource: FC<{
               queryKey: ["wallet-assets", walletAddress],
             });
             queryClient.refetchQueries({
-              queryKey: ["fetch-faction", "hJ-NbOu059u1GfLF75OnB"],
+              queryKey: ["fetch-faction"],
             });
             toast.success("Sent to " + factionName);
           }, 1500),
