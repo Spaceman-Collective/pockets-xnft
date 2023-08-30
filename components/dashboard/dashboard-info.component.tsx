@@ -39,10 +39,9 @@ export const DashboardInfo = () => {
     <Flex justifyContent="space-between">
       <TextContainer>
         <Label>BONK:</Label>
-        <Value>
-          {isLoading && <Spinner />}
-          {bonkBalance}
-        </Value>
+
+        {isLoading && <Spinner />}
+        {!isLoading && prizePool && <Value>{bonkBalance}</Value>}
         <Link href="https://jup.ag/swap/SOL-Bonk" target="_blank">
           <Button
             variant="outline"
@@ -75,10 +74,9 @@ export const DashboardInfo = () => {
       {/* </Flex> */}
       <TextContainer>
         <Label>PRIZE POOL:</Label>
-        <Value>
-          {isLoading && <Spinner />}
-          {prizePool}
-        </Value>
+
+        {isLoading && <Spinner />}
+        {!isLoading && prizePool && <Value>{prizePool}</Value>}
       </TextContainer>
       <Flex gap="2rem">
         {/* <Tip label="Coming soon">
