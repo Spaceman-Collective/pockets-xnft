@@ -1,22 +1,13 @@
 import "@/styles/global.css";
-import { FC, useMemo } from "react";
 import type { AppProps } from "next/app";
 import { ChakraBaseProvider } from "@chakra-ui/react";
 import { defaultTheme } from "@/styles/defaultTheme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Montserrat, Roboto } from "next/font/google";
 import { Layout } from "@/components/layout";
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-
-import {
-  ConnectionProvider,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-// import { PhantomWalletAdapter, BackpackWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import { ContextProvider } from "@/contexts/ContextProvider";
 import { Toaster } from "react-hot-toast";
@@ -26,7 +17,6 @@ const headerFont = Roboto({ weight: ["400", "700"], subsets: ["latin"] });
 const bodyFont = Montserrat({ weight: ["400", "700"], subsets: ["latin"] });
 
 export default function App({ Component, pageProps }: AppProps) {
-
   return (
     <>
       <style jsx global>
@@ -49,7 +39,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 <Toaster />
               </main>
             </ChakraBaseProvider>
-              <ReactQueryDevtools initialIsOpen={false} />
+            <ReactQueryDevtools initialIsOpen={false} />
           </QueryClientProvider>
           {/* APP */}
         </WalletModalProvider>
