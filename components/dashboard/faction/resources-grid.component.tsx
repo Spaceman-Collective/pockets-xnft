@@ -39,24 +39,26 @@ export const ResourceGridContainer: FC<{
     <Box>
       <Flex justifyContent="space-between" alignItems="end" mb="1rem">
         <MenuTitle mb="1rem">{factionPubKey && "Faction "}Treasury</MenuTitle>
-        <Button
-          onClick={() => {
-            if (!factionPubKey) {
-              toast.error("No faction to copy");
-              return;
-            }
-            copy(factionPubKey);
-            toast.success(
-              <Text wordBreak="break-all">
-                Copied <br />
-                <strong>{factionPubKey}</strong> <br />
-                to clipboard!
-              </Text>,
-            );
-          }}
-        >
-          {factionPubKey ? abbreviatedFactionKey : ""}
-        </Button>
+        {factionPubKey && (
+          <Button
+            onClick={() => {
+              if (!factionPubKey) {
+                toast.error("No faction to copy");
+                return;
+              }
+              copy(factionPubKey);
+              toast.success(
+                <Text wordBreak="break-all">
+                  Copied <br />
+                  <strong>{factionPubKey}</strong> <br />
+                  to clipboard!
+                </Text>,
+              );
+            }}
+          >
+            {factionPubKey ? abbreviatedFactionKey : ""}
+          </Button>
+        )}
       </Flex>
       <Grid templateColumns="repeat(4,1fr)" gap="1rem">
         {isLoading &&

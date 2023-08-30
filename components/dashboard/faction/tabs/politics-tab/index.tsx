@@ -95,7 +95,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   } = useCitizen(currentCharacter?.mint, connection);
   const { data: vT, isLoading: isThresholdLoading } = useVoteThreshold(
     currentCharacter,
-    connection
+    connection,
   );
   const { data: votesData } = useProposalVotesAll(proposalIds);
   useEffect(() => {
@@ -103,7 +103,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
       setProposalIds(
         allProposals
           .map((proposal: Proposal) => proposal.id)
-          .filter(Boolean) as string[]
+          .filter(Boolean) as string[],
       );
     }
   }, [allProposals, allProposalsIsLoading, votesData]);
@@ -169,14 +169,14 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
             currentProposalId!,
             votingAmt,
             currentCharacter?.faction?.id!,
-            isIncrement
+            isIncrement,
           ),
         ],
       });
 
       if (typeof encodedSignedTx === "string") {
         const sig = await connection.sendRawTransaction(
-          decode(encodedSignedTx)
+          decode(encodedSignedTx),
         );
         toast.success("Update vote successful!");
       }
@@ -195,7 +195,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
       return;
     }
     const voteAmounts = await Promise.all(
-      proposalIds.map(fetchVotesForProposal)
+      proposalIds.map(fetchVotesForProposal),
     );
 
     for (let i = 0; i < proposalIds.length; i++) {
@@ -305,7 +305,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
               </ValueCalculation>
             </>
           ) : (
-            <Spinner size="md" color="white" mb="0.5rem"/>
+            <Spinner size="md" color="white" mb="0.5rem" />
           )}
         </HStack>
       </Flex>
@@ -431,10 +431,11 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
   const { walletAddress, signTransaction, encodeTransaction } = useSolana();
 
-  const { data, refetch: refetchProposalVoteInfo, isLoading } = useProposalVoteInfo(
-    proposalId!,
-    connection!
-  );
+  const {
+    data,
+    refetch: refetchProposalVoteInfo,
+    isLoading,
+  } = useProposalVoteInfo(proposalId!, connection!);
   const { voteAccountExists, voteAmount } = data;
 
   const validateInput = (): boolean => {
@@ -457,14 +458,14 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             new PublicKey(currentCharacter?.mint!),
             proposalId!,
             votingAmt,
-            currentCharacter?.faction?.id!
+            currentCharacter?.faction?.id!,
           ),
         ],
       });
 
       if (typeof encodedSignedTx === "string") {
         const sig = await connection.sendRawTransaction(
-          decode(encodedSignedTx)
+          decode(encodedSignedTx),
         );
         toast.success("Vote successful!");
       } else {
@@ -504,14 +505,14 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             proposalId!,
             votingAmt,
             currentCharacter?.faction?.id!,
-            isIncrement
+            isIncrement,
           ),
         ],
       });
 
       if (typeof encodedSignedTx === "string") {
         const sig = await connection.sendRawTransaction(
-          decode(encodedSignedTx)
+          decode(encodedSignedTx),
         );
         toast.success("Update vote successful!");
       }
@@ -530,7 +531,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
   const processProposalMutation = useProcessProposal(
     setIsLoading,
-    proposal?.id
+    proposal?.id,
   );
 
   return (
@@ -548,13 +549,9 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             <Label color={colors.brand.tertiary} pb="0.4rem">
               votes:
             </Label>
+            {voteAmount ? voteAmount : <Spinner size="md" color="white" />}/
             <ProposalTitle>
-              {voteAmount ? voteAmount : <Spinner size="md" color="white" />}/
-              {voteThreshold ? (
-                voteThreshold
-              ) : (
-                <Spinner size="md" color="white" />
-              )}
+              {voteThreshold ? voteThreshold : null}
             </ProposalTitle>
           </HStack>
         </Flex>

@@ -97,6 +97,12 @@ export const RESOURCES: ResourceConstantType[] = [
     mint: "2575ipDoQC2NJAAed6fhWoh6jnrde8xv6rMLc3ExZPaf",
   },
   {
+    name: "Medicines",
+    tier: "uncommon",
+    skills: ["Healing"],
+    mint: "HUYJSYEwJTADbK6uVGbJ1Z88pVVLE2gzeZ7oUDD1eitH",
+  },
+  {
     name: "Trade Goods",
     tier: "uncommon",
     skills: ["Manufacturing"],

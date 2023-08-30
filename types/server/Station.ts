@@ -1,3 +1,8 @@
+export const getBlueprint = (stationName: string) =>
+  BLUEPRINTS.find(
+    (print) => print.name.toLowerCase() === stationName.toLowerCase(),
+  );
+
 // Townhall
 export const TOWNHALL = {
   upgradeTimeMuliplier: 1000 * 60 * 60, // 1hr * level, level 10 would take 10 hours
@@ -22,10 +27,6 @@ export interface Blueprint {
   rareDrop?: string;
 }
 
-export const getBlueprint = (stationName: string) =>
-  BLUEPRINTS.find(
-    (print) => print.name.toLowerCase() === stationName.toLowerCase(),
-  );
 export const COMBAT_BLUEPRINTS: Blueprint[] = [
   {
     name: "Tavern",
@@ -277,17 +278,17 @@ export const RESOURCE_BLUEPRINTS: Blueprint[] = [
       [{ resource: "Bandages", amount: 6 }],
       [
         { resource: "Bandages", amount: 8 },
-        { resource: "Medicine", amount: 8 },
+        { resource: "Medicines", amount: 8 },
       ],
       [
         { resource: "Bandages", amount: 16 },
-        { resource: "Medicine", amount: 16 },
+        { resource: "Medicines", amount: 16 },
         { resource: "Poison", amount: 8 },
       ],
     ],
     inputs: [{ resource: "Bandages", amount: 2 }],
     timeRequired: 1000 * 60 * 10, // 10 min
-    resourceOutput: ["Medicine"],
+    resourceOutput: ["Medicines"],
     rareDrop: "Poison",
   },
   {
@@ -376,7 +377,7 @@ export const RESOURCE_BLUEPRINTS: Blueprint[] = [
     upgradeResources: [
       [
         { resource: "Mushrooms", amount: 6 },
-        { resource: "Medicine", amount: 6 },
+        { resource: "Medicines", amount: 6 },
       ],
       [
         { resource: "Circuits", amount: 8 },
@@ -393,7 +394,7 @@ export const RESOURCE_BLUEPRINTS: Blueprint[] = [
     ],
     inputs: [
       { resource: "Mushrooms", amount: 4 },
-      { resource: "Medicine", amount: 4 },
+      { resource: "Medicines", amount: 4 },
     ],
     timeRequired: 1000 * 60 * 20, // 20 min
     resourceOutput: ["Psychedelics"],
@@ -435,10 +436,3 @@ export const BLUEPRINTS: Blueprint[] = [
   ...COMBAT_BLUEPRINTS,
   ...RESOURCE_BLUEPRINTS,
 ];
-
-export interface Station {
-  id: string;
-  faction: string;
-  blueprint: string;
-  level: number;
-}

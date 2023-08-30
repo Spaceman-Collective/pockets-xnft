@@ -25,6 +25,7 @@ import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants";
 import { PocketsProgram } from "../lib/program/pockets_program";
 const pocketsIDL = require("../lib/program/pockets_program.json");
 import { Program, AnchorProvider, Wallet, BN } from "@coral-xyz/anchor";
+import { toast } from "react-hot-toast";
 type TxType = VersionedTransaction | Transaction;
 
 export const POCKETS_PROGRAM_PROGRAMID =
@@ -170,6 +171,10 @@ const buildBurnIx = ({
   amount: bigint;
   decimals: number;
 }) => {
+  if (!mint) {
+    toast.error("No mint available!");
+    return;
+  }
   const senderATA = getAssociatedTokenAddressSync(
     new PublicKey(mint),
     new PublicKey(walletAddress as string),
