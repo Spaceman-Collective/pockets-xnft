@@ -21,7 +21,7 @@ import { colors } from "@/styles/defaultTheme";
 import Link from "next/link";
 import { useRfAllocate } from "@/hooks/useRf";
 import { Character } from "@/types/server";
-import { timeout } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 const tickets = [1, 5, 10, 25];
 const MAX_NUM_IX = 20;
@@ -41,18 +41,20 @@ export const ModalRfProspect: FC<{
   rf?: { rfCount: number; id: string };
   charMint?: string;
   factionId?: string;
-  refetchRF?: any;
   currentCharacter: Character;
   fire: () => void;
+  setDiscoverableData: Function;
+  refetchRFAllocation: Function;
 }> = ({
   isOpen,
   onClose,
   rf,
   charMint: characterMint,
   factionId,
-  refetchRF,
   currentCharacter,
   fire: fireConfetti,
+  setDiscoverableData,
+  refetchRFAllocation,
 }) => {
   const {
     walletAddress,
@@ -64,6 +66,8 @@ export const ModalRfProspect: FC<{
   } = useSolana();
 
   const { mutate } = useRfAllocate();
+  const queryClient = useQueryClient();
+
   const [jackpot, setJackpot] = useState<boolean>(false);
   const [claimLoading, setClaimLoading] = useState<boolean>(false);
   const [rfAccount, setRfAccount] = useState<RFAccount>();
@@ -72,50 +76,30 @@ export const ModalRfProspect: FC<{
   const [numProspectTickets, setNumProspectTickets] = useState<number>(0);
 
   const refreshRFAccount = useCallback(async () => {
-    if (!rf?.id) return console.error("NO  ACCOUNT ID", rf);
+    if (!rf) return;
 
     try {
+      const refetchRFAllocationData = await refetchRFAllocation();
+      setDiscoverableData(refetchRFAllocationData.data);
+
       const account = await getRFAccount(connection, rf?.id);
-      console.log("rfa account: ", account);
-      if (rfAccount?.initialClaimant) {
-        console.log(
-          "RF Account already has a claimaint, posting to claim it for them."
-        );
-        mutate({ charMint: rfAccount.initialClaimant.toString() });
+      if (account?.initialClaimant && account.initialClaimant.toString() === characterMint) {
+        setJackpot(true);
+        console.log('initial claimant: ',  account.initialClaimant.toString())
+        mutate({ charMint: account.initialClaimant.toString() });
       }
       setRfAccount(account as RFAccount);
-      const hitJackpot =
-        account.isHarvestable &&
-        account?.initialClaimant?.toString() === characterMint;
-      setJackpot(hitJackpot);
     } catch (err) {
       console.error(err);
     }
-  }, [connection, getRFAccount, rf, characterMint]);
+  }, [rf, refetchRFAllocation, setDiscoverableData, getRFAccount, connection, characterMint, mutate]);
 
   useEffect(() => {
-    refreshRFAccount();
-  }, [refreshRFAccount]);
-
-  useEffect(() => {
-    refreshRFAccount();
-  }, [rf, connection, refreshRFAccount]);
-
-  const handleJackpot = async () => {
-    try {
-      setClaimLoading(true);
-      mutate({ signedTx: undefined, charMint: currentCharacter!.mint });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      /* For better UX - hold on a second before closing */
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("JACKPOT!!!! Resource Field Claimed");
-      setClaimLoading(false);
-      fireConfetti();
-      onClose();
+    if (!rfAccount) {
+      refreshRFAccount();
     }
-  };
+    refetchRFAllocation().then((data: any) => setDiscoverableData(data.data));
+  }, [rf, connection, refreshRFAccount, refetchRFAllocation, setDiscoverableData, rfAccount]);
 
   const post = async () => {
     if (!characterMint || !factionId || !rf?.id || !walletAddress) {
@@ -125,117 +109,79 @@ export const ModalRfProspect: FC<{
 
     try {
       setProspectLoading(true);
-
-      let allTxs: TransactionInstruction[] = [];
-      for (let txIdx = 0; txIdx < numProspectTickets; txIdx++) {
-        let ix =
-          buildProspectIx &&
-          (await buildProspectIx({
+      const allTxs = await Promise.all(
+        Array(numProspectTickets).fill(0).map(() =>
+          buildProspectIx({
             walletAddress,
             characterMint,
             factionId,
             rfId: rf?.id,
-          }));
+          })
+        )
+      );
 
-        if (!ix || ix === undefined) return;
-
-        allTxs.push(ix);
-      }
-
-      let txIdx = 0;
-      let sigArr: string[] = [];
-      if (numProspectTickets > MAX_NUM_IX) {
-        let numTransactions = Math.floor(numProspectTickets / MAX_NUM_IX);
-        let remTransactions = Math.floor(numProspectTickets % MAX_NUM_IX);
-
-        for (txIdx = 0; txIdx < numTransactions; txIdx++) {
-          try {
-            let txSlice = allTxs.slice(
-              txIdx + (txIdx > 0 ? 1 : 0) * MAX_NUM_IX,
-              (txIdx + 1) * MAX_NUM_IX
-            );
-            let sigs = await sendAllTransactions(
-              connection,
-              txSlice,
-              walletAddress,
-              signAllTransactions
-            );
-            sigArr.push(...sigs!);
-          } catch (err) {
-            console.error(err);
-          }
-        }
-
-        if (remTransactions > 0) {
-          let remainderTxSlice = allTxs.slice(
-            txIdx * MAX_NUM_IX - (txIdx > 0 ? 1 : 0),
-            allTxs.length
-          );
-          let sigs = await sendAllTransactions(
+      const sendTransactionsInChunks = async (transactions: any[]) => {
+        let sigArr: string[] = [];
+        for (let i = 0; i < transactions.length; i += MAX_NUM_IX) {
+          const txSlice = transactions.slice(i, i + MAX_NUM_IX);
+          const sigs = await sendAllTransactions(
             connection,
-            remainderTxSlice,
+            txSlice,
             walletAddress,
             signAllTransactions
           );
-          sigArr.push(...sigs!);
+          if (sigs) {
+            sigArr.push(...sigs);
+          }
         }
-      } else {
-        let sigs = await sendAllTransactions(
-          connection,
-          allTxs,
-          walletAddress,
-          signAllTransactions
-        );
-        sigArr.push(...sigs!);
-      }
+        return sigArr;
+      };
 
-      //TODO: remove this log when building page
-      console.info("SUCCESSFUL SIGN with sigs", sigArr);
-      toast.success("Successfully sent prospect TXs");
-      /* TODO have some array of sigs to be set */
+      const sigArr = await sendTransactionsInChunks(allTxs);
       setSignedArr(sigArr);
+      await new Promise((resolve) => setTimeout(resolve, 1000 * sigArr.length));
     } catch (err) {
       console.error(err);
-      toast.error("Error prospecting Resource Field");
     } finally {
+      await new Promise((resolve) => setTimeout(resolve, 15000));
       await refreshRFAccount();
+      queryClient.refetchQueries({ queryKey: ["rf-allocation"] });
+      toast.custom(
+        "Successfully sent prospect TXs, but seems like none of them were winners"
+      );
       setProspectLoading(false);
     }
   };
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent
-        bg="blacks.500"
-        p="2rem"
-        borderRadius="1rem"
-        minW="40vw"
-        minH="40vh"
-      >
+      <ModalContent bg="blacks.500" p="2rem" borderRadius="1rem" minW="40vw" minH="40vh">
         <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">
           Prospect Resource Field
         </ModalHeader>
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
-        <ModalBody
-          display={"flex"}
-          flexDirection={"column"}
-          justifyContent={"space-between"}
-        >
+        <ModalBody display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
           <Text>
             Take a chance to claim this resource field for your faction. Even if
             you fail, you increase chance the next transaction will successfully
-            claim the resource field.
+            claim the resource field. CURRENTLY NOT SUPPORTED ON LEDGER.
           </Text>
+          <br></br>
+          <Text>
+            Every roll has a 1 in 1000 chance plus the times developed to land
+            on a winning transaction. If it doesnt win, it increments times
+            developed for the next transaction.
+          </Text>
+          <br></br>
+          <Text>RF ID: {rfAccount?.id}</Text>
+          <Text>Times Developed: {rfAccount?.timesDeveloped.toString()}</Text>
           {jackpot ? (
             <VStack gap={4}>
               <Text textAlign={"center"}>
                 Congrats, anon! You have claimed the resource field for your
-                faction!
+                faction! This field has been added to your factions resource
+                fields.
               </Text>
-              <Button isLoading={claimLoading} onClick={handleJackpot}>
-                Claim
-              </Button>
             </VStack>
           ) : (
             <VStack pt="28">
@@ -275,7 +221,7 @@ export const ModalRfProspect: FC<{
                   </Button>
                 ))}
               </Flex>
-
+  
               <Flex w="100%" gap={3}>
                 <Text pb="4" pt="8">
                   Your Txs:
@@ -295,7 +241,7 @@ export const ModalRfProspect: FC<{
                     </Link>
                   ))}
               </Flex>
-
+  
               <Button
                 isLoading={prospectLoading}
                 isDisabled={jackpot}
@@ -310,6 +256,7 @@ export const ModalRfProspect: FC<{
       </ModalContent>
     </Modal>
   );
+  
 };
 
 const StyledInput = styled(Input)`

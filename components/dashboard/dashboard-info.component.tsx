@@ -10,12 +10,14 @@ import { useSolana } from "@/hooks/useSolana";
 import { formatBalance } from "@/lib/utils";
 import { useRouter } from "next/router";
 import { Tip } from "../tooltip";
+import { SERVER_KEY } from "@/constants";
 
 export const DashboardInfo = () => {
   const { data: currentFs } = useAllFactions();
   // const numOfFactions = currentFs?.total;
   const { walletAddress, connection, getBonkBalance } = useSolana();
   const [bonkBalance, setBonkBalance] = useState<string>();
+  const [prizePool, setPrizePool] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
@@ -23,11 +25,23 @@ export const DashboardInfo = () => {
     (async () => {
       if (walletAddress && connection) {
         setIsLoading(true);
-        console.log('connection getbb: ', connection)
         let balance = await getBonkBalance({ walletAddress, connection });
         const wholeBalance = Math.floor(balance);
 
         setBonkBalance(formatBalance(wholeBalance));
+        setIsLoading(false);
+      }
+    })();
+  }, [walletAddress, connection]);
+
+  useEffect(() => {
+    (async () => {
+      if (walletAddress && connection) {
+        setIsLoading(true);
+        let balance = await getBonkBalance({ walletAddress: SERVER_KEY, connection });
+        const wholeBalance = Math.floor(balance);
+
+        setPrizePool(formatBalance(wholeBalance));
         setIsLoading(false);
       }
     })();
@@ -71,6 +85,13 @@ export const DashboardInfo = () => {
       {/*     <Value>{numOfPlayers}</Value> */}
       {/*   </TextContainer> */}
       {/* </Flex> */}
+      <TextContainer>
+        <Label>PRIZE POOL:</Label>
+        <Value>
+          {isLoading && <Spinner />}
+          {prizePool}
+        </Value>
+      </TextContainer>
       <Flex gap="2rem">
         {/* <Tip label="Coming soon">
           <IconButton
@@ -98,7 +119,7 @@ export const DashboardInfo = () => {
             />
           </IconButton>
         </Tip>
-{/* 
+        {/* 
         <Tip label="Coming soon">
           <IconButton
             onClick={() => {

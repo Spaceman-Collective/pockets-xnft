@@ -87,19 +87,6 @@ export const FactionBox: FC<FactionBoxProps> = ({
             borderRadius="0.5rem"
           />
           <Box>
-            <Text textTransform="uppercase" fontSize="1.25rem">
-              population{" "}
-              <span
-                style={{
-                  fontWeight: 700,
-                  fontSize: "2rem",
-                  marginLeft: "0.5rem",
-                }}
-              >
-                {/* TODO - shouldn't we have faction pop in `faction` */}
-                12
-              </span>
-            </Text>
             <Text textTransform="uppercase" fontSize="2.5rem" fontWeight={700}>
               {faction.name}
             </Text>

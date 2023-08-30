@@ -1,10 +1,10 @@
-import { Tip } from "@/components/tooltip"
-import { RESOURCES, RESOURCE_XP_GAIN } from "@/constants"
-import { useResourceConsume } from "@/hooks/useResource"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
-import { useSolana } from "@/hooks/useSolana"
-import { useAllWalletAssets } from "@/hooks/useWalletAssets"
-import { getLocalImage } from "@/lib/utils"
+import { Tip } from "@/components/tooltip";
+import { RESOURCES, RESOURCE_XP_GAIN } from "@/constants";
+import { useResourceConsume } from "@/hooks/useResource";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { useSolana } from "@/hooks/useSolana";
+import { useAllWalletAssets } from "@/hooks/useWalletAssets";
+import { getLocalImage } from "@/lib/utils";
 import {
   Flex,
   Image,
@@ -15,25 +15,25 @@ import {
   Spinner,
   Text,
   VStack,
-} from "@chakra-ui/react"
-import { useQueryClient } from "@tanstack/react-query"
-import { FC } from "react"
-import { toast } from "react-hot-toast"
-import { combatSkillKeys } from "../constants"
-import { ConsumeButton } from "./consume-button.component"
+} from "@chakra-ui/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { FC } from "react";
+import { toast } from "react-hot-toast";
+import { combatSkillKeys } from "../constants";
+import { ConsumeButton } from "./consume-button.component";
 
 export const ConsumeSkillModal: FC<{
-  isOpen: boolean
-  onClose: () => void
-  skill: string
+  isOpen: boolean;
+  onClose: () => void;
+  skill: string;
 }> = ({ isOpen, onClose, skill }) => {
-  const relevantResources = getRelevantResources(skill)
+  const relevantResources = getRelevantResources(skill);
 
   const {
     data: walletAssets,
     isLoading: walletAssetsIsLoading,
     isFetching,
-  } = useAllWalletAssets()
+  } = useAllWalletAssets();
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -71,25 +71,25 @@ export const ConsumeSkillModal: FC<{
         </ModalBody>
       </ModalContent>
     </Modal>
-  )
-}
+  );
+};
 
 const ConsumeItemContainer: FC<{
-  isLoading?: boolean
-  resourceInWallet?: any // items in the wallet
-  skill: string // selected modal
+  isLoading?: boolean;
+  resourceInWallet?: any; // items in the wallet
+  skill: string; // selected modal
   resource: {
-    mint: string
-    name: string
-    tier: string
-    skills: string[]
-  }
+    mint: string;
+    name: string;
+    tier: string;
+    skills: string[];
+  };
 }> = ({ resource, resourceInWallet, isLoading, skill }) => {
   const extraSkillUp = resource.skills.filter(
     (e) => e.toLowerCase() !== skill.toLowerCase()
-  )
+  );
 
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const {
     buildMemoIx,
@@ -98,15 +98,14 @@ const ConsumeItemContainer: FC<{
     connection,
     encodeTransaction,
     signTransaction,
-  } = useSolana()
-  const [selectedCharacter] = useSelectedCharacter()
+  } = useSolana();
+  const [selectedCharacter] = useSelectedCharacter();
 
   //TODO: DEV PUT CONSUME CODE IN HERE
   //will be called with the number from input box
 
-  const { mutate } = useResourceConsume()
+  const { mutate } = useResourceConsume();
   const postConsume = async (amountToConsume: number) => {
-    console.log({ amountToConsume, resource: resource.name })
     const memoIx = buildMemoIx({
       walletAddress: walletAddress as string,
       payload: {
@@ -115,19 +114,14 @@ const ConsumeItemContainer: FC<{
         resource: resource.name,
         amount: amountToConsume,
       },
-    })
+    });
 
     const burnIx = buildBurnIx({
       walletAddress: walletAddress as string,
       mint: RESOURCES.find((r) => r.name == resource.name)?.mint as string,
       amount: BigInt(amountToConsume),
       decimals: 0,
-    })
-
-    console.log(
-      "burnIx",
-      burnIx.keys.map((e) => e.pubkey.toString())
-    )
+    });
 
     try {
       const encodedTx = await encodeTransaction({
@@ -135,30 +129,30 @@ const ConsumeItemContainer: FC<{
         connection,
         signTransaction,
         txInstructions: [memoIx, burnIx],
-      })
+      });
 
       if (!encodedTx || encodedTx instanceof Error)
-        return toast.error("Oops! Failed to consume resource")
+        return toast.error("Oops! Failed to consume resource");
       mutate(
         { signedTx: encodedTx },
         {
           onSuccess: (e) => {
             queryClient.refetchQueries({
               queryKey: ["wallet-assets"],
-            })
+            });
             queryClient.refetchQueries({
               queryKey: ["assets"],
-            })
-            toast.success("Successfully consumed")
+            });
+            toast.success("Successfully consumed");
           },
           onError: (e) =>
             toast.error("Oops! Failed to consume: " + JSON.stringify(e)),
         }
-      )
+      );
     } catch (err) {
-      toast.error("Oops! Failed to consume resource: " + err)
+      toast.error("Oops! Failed to consume resource: " + err);
     }
-  }
+  };
 
   return (
     <Flex
@@ -247,12 +241,12 @@ const ConsumeItemContainer: FC<{
         />
       </VStack>
     </Flex>
-  )
-}
+  );
+};
 
 const getRelevantResources = (skill: string) =>
   RESOURCES.filter((resource) => {
-    const isCombat = combatSkillKeys.includes(skill.toLowerCase())
-    const resourceSkills = resource.skills.map((sk) => sk.toLowerCase())
-    return resourceSkills.includes(skill)
-  })
+    const isCombat = combatSkillKeys.includes(skill.toLowerCase());
+    const resourceSkills = resource.skills.map((sk) => sk.toLowerCase());
+    return resourceSkills.includes(skill);
+  });
