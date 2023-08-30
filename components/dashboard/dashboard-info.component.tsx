@@ -11,15 +11,16 @@ import { formatBalance } from "@/lib/utils";
 import { useRouter } from "next/router";
 import { Tip } from "../tooltip";
 import { SERVER_KEY } from "@/constants";
+import { usePrizePool } from "@/hooks/useWalletAssets";
 
 export const DashboardInfo = () => {
   const { data: currentFs } = useAllFactions();
   // const numOfFactions = currentFs?.total;
   const { walletAddress, connection, getBonkBalance } = useSolana();
   const [bonkBalance, setBonkBalance] = useState<string>();
-  const [prizePool, setPrizePool] = useState<string>();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
+
+  const { data: prizePool, isLoading, setIsLoading } = usePrizePool();
 
   useEffect(() => {
     (async () => {
@@ -29,19 +30,6 @@ export const DashboardInfo = () => {
         const wholeBalance = Math.floor(balance);
 
         setBonkBalance(formatBalance(wholeBalance));
-        setIsLoading(false);
-      }
-    })();
-  }, [walletAddress, connection]);
-
-  useEffect(() => {
-    (async () => {
-      if (walletAddress && connection) {
-        setIsLoading(true);
-        let balance = await getBonkBalance({ walletAddress: SERVER_KEY, connection });
-        const wholeBalance = Math.floor(balance);
-
-        setPrizePool(formatBalance(wholeBalance));
         setIsLoading(false);
       }
     })();

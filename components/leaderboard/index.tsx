@@ -49,7 +49,7 @@ export const LeaderboardList = () => {
     <LeaderboardContainer>
       <Flex justifyContent="space-between">
         <Title>LEADERBOARD</Title>
-        {/*<SortButton handleFilter={handleFilter} />*/}
+        <Title>LEADERBOARD</Title>
       </Flex>
 
       <Grid templateColumns="2fr 3fr" display={{ base: "none", sm: "grid" }}>
