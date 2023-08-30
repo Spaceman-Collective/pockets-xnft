@@ -32,6 +32,7 @@ import { Label, Value } from "./tabs/tab.styles";
 import toast from "react-hot-toast";
 import styled from "@emotion/styled";
 import { formatBalance } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const CreateFaction: FC<{
   fire: () => void;
@@ -120,7 +121,9 @@ export const CreateFaction: FC<{
     chakraOnClose();
   };
 
+  const queryClient = useQueryClient();
   const onSuccess = (data: any) => {
+    queryClient.refetchQueries({ queryKey: ["fetch-faction"] });
     setFactionStatus(true);
     toast.success("Faction created successfully!");
     fireConfetti();
