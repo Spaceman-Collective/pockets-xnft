@@ -7,6 +7,7 @@ import { Label } from "../dashboard/personal/personal.styled";
 import { SortButton } from "./sort-button.component";
 import { useEffect, useState } from "react";
 import { Faction } from "@/types/server";
+import { Tip } from "../tooltip";
 
 export interface FactionScore {
   faction: Faction;
@@ -54,27 +55,35 @@ export const LeaderboardList = () => {
       <Grid templateColumns="2fr 3fr" display={{ base: "none", sm: "grid" }}>
         <Spacer />
         <Flex justifyContent="space-between" my="1.5rem" opacity="0.5">
-          <Label
-            onClick={() => {
-              selectTab("domination");
-            }}
-          >
-            Domination
-          </Label>
-          <Label
-            onClick={() => {
-              selectTab("wealth");
-            }}
-          >
-            Wealth
-          </Label>
-          <Label
-            onClick={() => {
-              selectTab("knowledge");
-            }}
-          >
-            Knowledge
-          </Label>
+          <Tip label={`TODO: DEV`} placement="top">
+            <Label
+              onClick={() => {
+                selectTab("domination");
+              }}
+            >
+              Domination
+            </Label>
+          </Tip>
+
+          <Tip label={`TODO: DEV`} placement="top">
+            <Label
+              onClick={() => {
+                selectTab("wealth");
+              }}
+            >
+              Wealth
+            </Label>
+          </Tip>
+
+          <Tip label={`TODO: DEV`} placement="top">
+            <Label
+              onClick={() => {
+                selectTab("knowledge");
+              }}
+            >
+              Knowledge
+            </Label>
+          </Tip>
         </Flex>
       </Grid>
       <VStack align="start" spacing={5} overflowY="auto" h="100%" w="100%">
