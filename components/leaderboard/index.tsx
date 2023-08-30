@@ -49,9 +49,13 @@ export const LeaderboardList = () => {
 
   return (
     <LeaderboardContainer>
-      <Flex justifyContent="space-between">
+      <Flex justifyContent="space-between" alignItems="center">
         <Title>LEADERBOARD</Title>
-        <Title>{prizePool}</Title>
+        <Tip label="TODO: DEV">
+          <Text fontSize={"2rem"} fontWeight={700} fontFamily="heading">
+            BONK Prize Pool: {prizePool}
+          </Text>
+        </Tip>
       </Flex>
 
       <Grid templateColumns="2fr 3fr" display={{ base: "none", sm: "grid" }}>
