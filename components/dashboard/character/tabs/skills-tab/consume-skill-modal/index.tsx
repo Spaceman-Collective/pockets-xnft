@@ -146,7 +146,15 @@ const ConsumeItemContainer: FC<{
             queryClient.refetchQueries({
               queryKey: ["assets"],
             });
-            toast.success("Successfully consumed");
+            const xpGained =
+              //@ts-ignore
+              RESOURCE_XP_GAIN?.[resource.tier] * amountToConsume;
+            toast.success(
+              `Successfully consumed\n${amountToConsume}x ${resource.name}\nGained ${xpGained}xp`,
+              {
+                duration: 5000,
+              },
+            );
           },
           onError: (e) =>
             toast.error("Oops! Failed to consume: " + JSON.stringify(e)),
