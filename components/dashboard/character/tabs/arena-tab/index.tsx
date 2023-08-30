@@ -3,7 +3,7 @@ import { useFaction } from "@/hooks/useFaction"
 import { Character, Faction } from "@/types/server"
 import { BellIcon, SearchIcon } from "@chakra-ui/icons"
 import { Box, Flex, Input, Select, Spacer, Text } from "@chakra-ui/react"
-import React, { FC, FormEvent, useState } from "react"
+import React, { FC, FormEvent, useEffect, useState } from "react"
 import { combatSkillKeys } from "../../constants"
 import { CitizenEquipment } from "../citizen-equipment.component"
 
@@ -14,10 +14,12 @@ export const ArenaTab: FC<{
 	const [factionId, setFactionId] = useState<string>("")
 	const [factionSelected, setFactionSelected] = useState<boolean>(false)
 	const [search, setSearch] = useState<string>("")
-	// Remove user's faction from the list of all factions
-	const allFactionsExceptUser = allFactions.filter(
-		(faction) => faction.id !== currentCharacter?.faction?.id ?? "",
-	)
+
+	useEffect(() => {
+		setFactionId("")
+		setFactionSelected(false)
+		setSearch("")
+	}, [currentCharacter])
 
 	const { data: factionData, isLoading: factionIsLoading } = useFaction({
 		factionId,
@@ -62,14 +64,25 @@ export const ArenaTab: FC<{
 				letterSpacing="0"
 				borderRight="2.1rem solid transparent"
 			>
-				<option defaultChecked value="default" disabled selected>
-					SELECT A FACTION
+				<option
+					defaultChecked
+					value="default"
+					disabled
+					selected={!factionSelected}
+				>
+					SELECT A FACTION TO BATTLE
 				</option>
-				{allFactionsExceptUser.map((faction) => (
-					<option key={faction.id} value={faction.id}>
-						{faction.name}
-					</option>
-				))}
+				{allFactions.map((faction) =>
+					faction.id !== currentCharacter?.faction?.id ? (
+						<option
+							key={faction.id}
+							value={faction.id}
+							selected={factionId === faction.id && factionSelected}
+						>
+							{faction.name}
+						</option>
+					) : null,
+				)}
 			</Select>
 			<SearchBar
 				disabled={!factionSelected}
@@ -88,7 +101,7 @@ export const ArenaTab: FC<{
 					: filteredCitizens?.map((citizen) => (
 							<CitizenEquipment
 								key={citizen.mint}
-								enabled={true}
+								enabled={!!citizen.army.length}
 								opponent={true}
 								citizen={citizen}
 							/>
@@ -100,7 +113,10 @@ export const ArenaTab: FC<{
 						lineHeight="1.75rem"
 						fontWeight="600"
 						color="brand.tertiary"
+						opacity="0.5"
 						textAlign="center"
+						pt="2rem"
+						textTransform="uppercase"
 					>
 						No Opponents Found
 					</Text>
