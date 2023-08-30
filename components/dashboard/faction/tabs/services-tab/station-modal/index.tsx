@@ -183,7 +183,7 @@ export const ModalStation: FC<{
       return;
     }
 
-    const speedUpTime = 5 * 1000;
+    const speedUpTime = 30 * 1000;
     const memoIx = buildMemoIx({
       walletAddress,
       payload: {
@@ -222,7 +222,6 @@ export const ModalStation: FC<{
         {
           onSuccess: (_) => {
             toast.success("Successfully speed up timer!");
-
             queryClient.refetchQueries({ queryKey: ["char-timers"] });
           },
         },
@@ -288,7 +287,11 @@ export const ModalStation: FC<{
             >
               {timer && (
                 <Tip label="Coming soon! Will be able to speed up with BONK">
-                  <Button onClick={speedUpWithBonk} mb="2rem" isDisabled={true}>
+                  <Button
+                    onClick={speedUpWithBonk}
+                    mb="2rem"
+                    isDisabled={!timer && !isClaimable}
+                  >
                     <FaClock style={{ marginRight: "0.5rem" }} /> SPEED UP
                   </Button>
                 </Tip>
