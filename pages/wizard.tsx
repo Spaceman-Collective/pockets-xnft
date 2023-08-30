@@ -67,10 +67,8 @@ export default function Wizard() {
       <Grid placeItems="center" minH="50vh">
         {walletAddress ? (
           <WizardContainer>
-            {wizardStep === 0 && <Collection next={next} />}
             {wizardStep === 1 && (
               <NFT
-                back={back}
                 next={next}
                 data={allAssetData}
                 isLoading={allAssetDataIsLoading}

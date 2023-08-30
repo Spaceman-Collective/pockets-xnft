@@ -9,20 +9,12 @@ import { Tip } from "../tooltip";
 import Head from "next/head";
 
 export const SelectNFT: FC<{
-  back: () => void;
   next: () => void;
   data?: { nfts?: NFT[]; characters?: any[] };
   isLoading?: boolean;
   select: (mint: string) => void;
   setReview: (char: Character) => void;
-}> = ({
-  next: nextStep,
-  back: backStep,
-  data,
-  isLoading,
-  select,
-  setReview,
-}) => {
+}> = ({ next: nextStep, data, isLoading, select, setReview }) => {
   const arrayOfMintedChars = data?.characters?.map((record) => record.mint);
 
   return (
@@ -102,9 +94,6 @@ export const SelectNFT: FC<{
         </Grid>
       </Box>
       <Flex gap="2rem">
-        <Button variant="outline" w="100%" alignSelf="end" onClick={backStep}>
-          Back
-        </Button>
         <Button w="100%" alignSelf="end" isDisabled>
           Select an NFT
         </Button>
