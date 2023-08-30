@@ -36,7 +36,7 @@ export const ResourceGridContainer: FC<{
   return (
     <Box>
       <Flex justifyContent="space-between" alignItems="end" mb="1rem">
-        <MenuTitle mb="1rem">Treasury</MenuTitle>
+        <MenuTitle mb="1rem">{factionPubKey && "Faction "}Treasury</MenuTitle>
         <Input
           bg="blacks.500"
           outline="none"

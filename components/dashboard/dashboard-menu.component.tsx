@@ -23,7 +23,7 @@ export const DashboardMenu = () => {
         flex="1"
         mr="1rem"
         minW="38rem"
-        onClick={() => router.push("/")}
+        onClick={() => router.push("/wallet")}
       >
         INVENTORY
       </Button>
