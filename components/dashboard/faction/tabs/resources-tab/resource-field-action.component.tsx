@@ -1,23 +1,33 @@
 import styled from "@emotion/styled";
 import {
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
   HStack,
   Flex,
   Image,
   Button,
   IconButton,
   VStack,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from "@chakra-ui/react";
 import { Tip } from "@/components/tooltip";
 import { getLocalImage, timeAgo } from "@/lib/utils";
 import { Label, Value } from "../tab.styles";
 import { colors } from "@/styles/defaultTheme";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import { useCountdown } from "usehooks-ts";
 import { useRfHarvest } from "@/hooks/useRf";
 import { useSolana } from "@/hooks/useSolana";
 import { toast } from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaClock } from "react-icons/fa";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { BONK_COST_PER_MS_WIPED, BONK_MINT, SERVER_KEY } from "@/constants";
+import { useSpeedUpTimer } from "@/hooks/useCharTimers";
 
 export const ResourceFieldAction: FC<{
   charMint?: string;
@@ -37,14 +47,19 @@ export const ResourceFieldAction: FC<{
   const isFuture = remainingTime > 0;
   const isHarvestable = !isFuture || timer === undefined;
 
+  const [selectedCharacter, _] = useSelectedCharacter();
+  const [input, setInput] = useState<number>(0);
+
   const {
     buildMemoIx,
+    buildTransferIx,
     encodeTransaction,
     walletAddress,
     connection,
     signTransaction,
   } = useSolana();
   const { mutate } = useRfHarvest();
+  const { mutate: speedUp, isLoading: speedUpIsLoading } = useSpeedUpTimer();
   const queryClient = useQueryClient();
 
   const [count, { startCountdown, stopCountdown, resetCountdown }] =
@@ -114,6 +129,67 @@ export const ResourceFieldAction: FC<{
     );
   };
 
+  const speedUpWithBonk = async () => {
+    //todo
+    if (!walletAddress) {
+      toast.error("No wallet connected");
+      return;
+    }
+    if (selectedCharacter?.mint === undefined) {
+      toast.error("No selected character");
+      return;
+    }
+
+    const speedUpTime = input * 1000;
+    const memoIx = buildMemoIx({
+      walletAddress,
+      payload: {
+        mint: selectedCharacter?.mint,
+        timestamp: Date.now().toString(),
+        type: "RF",
+        timerId: timer?.id,
+        msSpedUp: speedUpTime,
+      },
+    });
+
+    try {
+      const bonkIxs = await buildTransferIx({
+        walletAddress,
+        connection,
+        mint: BONK_MINT.toString(),
+        receipientAddress: SERVER_KEY,
+        amount: BigInt(speedUpTime) * BONK_COST_PER_MS_WIPED,
+        decimals: 5,
+      });
+
+      const encodedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        //@ts-ignore
+        txInstructions: [memoIx, ...bonkIxs],
+      });
+
+      if (encodedTx instanceof Error) {
+        toast.error("Unable to build tx to speed up bonk");
+        throw Error("Unable to build tx to speed up bonk");
+      }
+      speedUp(
+        { signedTx: encodedTx },
+        {
+          onSuccess: (_) => {
+            toast.success("Successfully speed up timer!");
+            queryClient.refetchQueries({ queryKey: ["char-timers"] });
+          },
+        },
+      );
+    } catch (err) {
+      console.error("Failed to speed up with bonk", JSON.stringify(err));
+    }
+
+    // fin
+  };
+
   return (
     <ResourceActionContainer key={rf.id}>
       <HStack>
@@ -147,14 +223,44 @@ export const ResourceFieldAction: FC<{
         )}
         {!isHarvestable && (
           <Tip label="Coming soon! Speed up with BONK">
-            <IconButton
-              icon={<FaClock />}
-              aria-label="Speed up"
-              bg={colors.blacks[400]}
-              w="3rem" // Adjust the width as needed
-              h="3rem" // Adjust the height as needed
-              isDisabled={true}
-            />
+            <Popover>
+              <PopoverTrigger>
+                <IconButton
+                  icon={<FaClock />}
+                  aria-label="Speed up"
+                  bg={colors.blacks[400]}
+                  w="3rem" // Adjust the width as needed
+                  h="3rem" // Adjust the height as needed
+                  // isDisabled={true}
+                />
+              </PopoverTrigger>
+              <PopoverContent>
+                <Slider
+                  focusThumbOnChange={false}
+                  value={input}
+                  onChange={setInput}
+                  min={0}
+                  max={count}
+                  maxW="80%"
+                  m="1rem auto"
+                  transition="all 0.25 ease-in-out"
+                >
+                  <SliderTrack>
+                    <SliderFilledTrack bg="brand.secondary" />
+                  </SliderTrack>
+                  <SliderThumb
+                    fontWeight={700}
+                    fontSize="1rem"
+                    w="10rem"
+                    h="3rem"
+                    bg="blacks.700"
+                  >
+                    {timeAgo(input)}
+                  </SliderThumb>
+                </Slider>
+                <Button onClick={speedUpWithBonk}>Speed UP</Button>
+              </PopoverContent>
+            </Popover>
           </Tip>
         )}
       </HStack>
