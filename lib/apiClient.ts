@@ -186,6 +186,29 @@ export const postFactionStationClaim = async ({
   }
 };
 
+export const postSpeedUpWithBonk = async ({
+  signedTx,
+}: {
+  signedTx: string;
+}): Promise<any> => {
+  const URL = API_BASE_URL + "/character/timers/speedup";
+
+  try {
+    const response = await fetch.post<any>(URL, { signedTx });
+
+    if (response.status === 200) {
+      const data = await response.data;
+      return data;
+    } else {
+      console.error("Server Error while speeding up with bonk:", response);
+      throw new Error("Server Error while speeding up with bonk:");
+    }
+  } catch (error) {
+    console.error("Network Error while speeding up with bonk:", error);
+    throw error;
+  }
+};
+
 type FetchFactionsType = {
   factions: Faction[];
   total: number;

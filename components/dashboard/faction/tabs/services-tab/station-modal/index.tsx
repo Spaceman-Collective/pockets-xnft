@@ -17,9 +17,9 @@ import {
 import { FC, useEffect } from "react";
 import { useCountdown } from "usehooks-ts";
 import { toast } from "react-hot-toast";
-import { useCharTimers } from "@/hooks/useCharTimers";
+import { useCharTimers, useSpeedUpTimer } from "@/hooks/useCharTimers";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
-import { useSolana } from "@/hooks/useSolana";
+import { buildTransferIx, useSolana } from "@/hooks/useSolana";
 import {
   useFactionStationClaim,
   useFactionStationStart,
@@ -32,7 +32,12 @@ import { startStationProcess as startStation } from "./tx-builder";
 import { Tip } from "@/components/tooltip";
 import { getLocalImage, timeAgo } from "@/lib/utils";
 import { getBlueprint } from "@/types/server";
-import { STATION_USE_COST_PER_LEVEL } from "@/constants";
+import {
+  BONK_COST_PER_MS_WIPED,
+  BONK_MINT,
+  SERVER_KEY,
+  STATION_USE_COST_PER_LEVEL,
+} from "@/constants";
 
 export const ModalStation: FC<{
   station?: {
@@ -95,6 +100,7 @@ export const ModalStation: FC<{
 
   const queryClient = useQueryClient();
   const { mutate } = useFactionStationStart();
+  const { mutate: speedUp, isLoading: speedUpIsLoading } = useSpeedUpTimer();
   const { mutate: claim, isLoading } = useFactionStationClaim();
 
   const stationBlueprint = station && getBlueprint(station?.blueprint);
@@ -166,6 +172,68 @@ export const ModalStation: FC<{
     );
   };
 
+  const speedUpWithBonk = async () => {
+    //todo
+    if (!walletAddress) {
+      toast.error("No wallet connected");
+      return;
+    }
+    if (selectedCharacter?.mint === undefined) {
+      toast.error("No selected character");
+      return;
+    }
+
+    const speedUpTime = 5 * 1000;
+    const memoIx = buildMemoIx({
+      walletAddress,
+      payload: {
+        mint: selectedCharacter?.mint,
+        timestamp: Date.now().toString(),
+        type: "STATION",
+        timerId: timer?.id,
+        msSpedUp: speedUpTime,
+      },
+    });
+
+    try {
+      const bonkIxs = await buildTransferIx({
+        walletAddress,
+        connection,
+        mint: BONK_MINT.toString(),
+        receipientAddress: SERVER_KEY,
+        amount: BigInt(speedUpTime) * BONK_COST_PER_MS_WIPED,
+        decimals: 5,
+      });
+
+      const encodedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        //@ts-ignore
+        txInstructions: [memoIx, ...bonkIxs],
+      });
+
+      if (encodedTx instanceof Error) {
+        toast.error("Unable to build tx to speed up bonk");
+        throw Error("Unable to build tx to speed up bonk");
+      }
+      speedUp(
+        { signedTx: encodedTx },
+        {
+          onSuccess: (_) => {
+            toast.success("Successfully speed up timer!");
+
+            queryClient.refetchQueries({ queryKey: ["char-timers"] });
+          },
+        },
+      );
+    } catch (err) {
+      console.error("Failed to speed up with bonk", JSON.stringify(err));
+    }
+
+    // fin
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -220,7 +288,7 @@ export const ModalStation: FC<{
             >
               {timer && (
                 <Tip label="Coming soon! Will be able to speed up with BONK">
-                  <Button onClick={() => {}} mb="2rem" isDisabled={true}>
+                  <Button onClick={speedUpWithBonk} mb="2rem" isDisabled={true}>
                     <FaClock style={{ marginRight: "0.5rem" }} /> SPEED UP
                   </Button>
                 </Tip>
