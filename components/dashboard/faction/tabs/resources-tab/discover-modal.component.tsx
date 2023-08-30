@@ -98,10 +98,10 @@ export const ModalRfDiscover: FC<{
         p="2rem"
         borderRadius="1rem"
         minW="40vw"
-        minH="30vh"
+        minH="25vh"
       >
         <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">
-          Discover a new Resource Field
+          Discover Resource Field
         </ModalHeader>
         <ModalCloseButton display={{ base: "inline", md: "none" }} />
         <ModalBody display={"flex"} flexDirection={"column"} gap="2rem">
@@ -109,7 +109,9 @@ export const ModalRfDiscover: FC<{
             Resource Fields, when controlled by a faction, allow that faction’s
             citizens to harvest it every so often for it’s yield.
           </Text>
-          <Text>There are currently {rf?.rfCount} fields.</Text>
+          <Text>
+            There are currently {rf?.rfCount} already discovered fields.
+          </Text>
           <HStack>
             <Text>BONK for next Resource Field:</Text>
             <Text>{formatBalance(Number(bonkForNextField))}</Text>
