@@ -1,29 +1,20 @@
-import Head from "next/head"
-import { NavBar } from "@/components/nav"
-import styled from "@emotion/styled"
-import { Box, Grid } from "@chakra-ui/react"
-import { useSolana } from "@/hooks/useSolana"
-import {
-  DashboardMenuContainer,
-  DashboardInfoContainer,
-  DashboardContainer,
-  SectionContainer,
-} from "@/components/layout/containers.styled"
-import {
-  DashboardInfo,
-  DashboardMenu,
-  CharacterList,
-} from "@/components/dashboard"
-import { useAssets } from "@/hooks/useCharacters"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
-import { WalletTabs } from "@/components/dashboard/wallet-page"
-import { PleaseSignInContainer } from "@/components/no-wallet.component"
+import Head from "next/head";
+import { NavBar } from "@/components/nav";
+import styled from "@emotion/styled";
+import { Box, Grid } from "@chakra-ui/react";
+import { useSolana } from "@/hooks/useSolana";
+import { PleaseSignInContainer } from "@/components/no-wallet.component";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function Home() {
-  const { walletAddress } = useSolana()
-  const { data: assets, isLoading: assetsIsLoading } = useAssets() // chars/nfts
-
-  const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter()
+  const { walletAddress } = useSolana();
+  const { push } = useRouter();
+  useEffect(() => {
+    if (walletAddress) {
+      push("/wallet");
+    }
+  }, [walletAddress]);
 
   return (
     <>
@@ -35,38 +26,14 @@ export default function Home() {
       </Head>
       <NavBar />
       <Grid placeItems="center" minH="50vh">
-        {walletAddress ? (
-          <>
-            <DashboardContainer>
-              <DashboardInfoContainer>
-                <DashboardInfo />
-              </DashboardInfoContainer>
-              <DashboardMenuContainer>
-                <DashboardMenu />
-              </DashboardMenuContainer>
-              <PersonalSection>
-                <CharacterList
-                  data={assets?.characters}
-                  isLoading={assetsIsLoading}
-                  selectedCharacter={selectedCharacter}
-                  setSelectedCharacter={setSelectedCharacter}
-                />
-                <SectionContainer>
-                  <WalletTabs />
-                </SectionContainer>
-              </PersonalSection>
-            </DashboardContainer>
-          </>
-        ) : (
-          <PleaseSignInContainer />
-        )}
+        <PleaseSignInContainer />
       </Grid>
     </>
-  )
+  );
 }
 
 const PersonalSection = styled(Box)`
   margin: 0 auto;
   display: flex;
   flex-direction: row;
-`
+`;
