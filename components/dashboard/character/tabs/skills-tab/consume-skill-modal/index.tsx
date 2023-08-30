@@ -51,9 +51,8 @@ export const ConsumeSkillModal: FC<{
           </Text>
           <Text fontFamily="header">
             Upgrade your {skill} by consuming resources. The more rare the
-            resource, the more XP it will yield.
-            <br />
-            Consuming the resource burns it.
+            resource, the more XP it will yield. Consuming the resource burns
+            it.
           </Text>
           <Flex direction="column" gap="1rem" p="1rem" w="100%">
             {relevantResources.map((resource) => (
