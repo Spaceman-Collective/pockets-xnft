@@ -138,7 +138,7 @@ export const COMBAT_BLUEPRINTS: Blueprint[] = [
       { resource: "Stone", amount: 6 },
     ],
     timeRequired: 1000 * 60 * 20, // 20 min
-    unitOutput: ["Gunner"],
+    unitOutput: ["Ranger"],
   },
   {
     name: "Asylum",
