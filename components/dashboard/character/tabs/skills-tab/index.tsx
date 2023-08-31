@@ -9,17 +9,20 @@ import {
 	Grid,
 	HStack,
 	Img,
+	ListItem,
 	Text,
+	UnorderedList,
 } from "@chakra-ui/react"
 import styled from "@emotion/styled"
 import Link from "next/link"
 import { FC, ReactNode } from "react"
 import { PageTabsEmptyState as EmptyState } from "@/components/nav"
 import { PanelContainer } from "@/components/layout"
-import { combatSkillKeys } from "../../constants"
+import { combatSkillKeys } from "./constants"
+import { Tip } from "../../../../tooltip"
 
 export const SkillsTab: React.FC<{
-	currentCharacter: Character
+	currentCharacter?: Character
 	selectSkill: (skill: string) => void
 }> = ({ currentCharacter, selectSkill }) => {
 	const experienceKeys = Object.keys(currentCharacter.experience) as Array<
@@ -75,6 +78,38 @@ export const SkillsTab: React.FC<{
 							))}
 					</SkillContainer>
 				</Grid>
+				<br></br>
+				<Flex m="0 auto" fontSize="1rem" gap="2rem">
+					<Box>
+						<Text>Confused on what to do next? Try:</Text>
+						<UnorderedList pl="1rem" mt="1rem" mb="2rem">
+							<ListItem>Join a Faction</ListItem>
+							<ListItem>Harvest resources</ListItem>
+							<ListItem>Train your skills</ListItem>
+							<ListItem>Build your army</ListItem>
+							<ListItem>Go to battle!</ListItem>
+						</UnorderedList>
+					</Box>
+					<Box>
+						<Text>
+							Training your skills and racking up battle wins helps you boost
+							your faction&apos;s chances at victory in one of the three win
+							conditions!
+						</Text>
+						<UnorderedList pl="1rem" mt="0.5rem" mb="1rem">
+							<ListItem>
+								<strong>Domination:</strong> collectively won battles by faction
+							</ListItem>
+							<ListItem>
+								<strong>Knowledge:</strong> total skill levels of faction
+								citizens
+							</ListItem>
+							<ListItem>
+								<strong>Wealth:</strong> total resources burned by your faction
+							</ListItem>
+						</UnorderedList>
+					</Box>
+				</Flex>
 			</Fade>
 			{/* <Flex gap="4rem"> */}
 			{/*   <Value>ARMY</Value> */}

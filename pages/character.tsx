@@ -1,35 +1,34 @@
+import Head from "next/head"
+import styled from "@emotion/styled"
+import { NavBar } from "@/components/nav"
 import {
-	CharacterList,
 	DashboardInfo,
 	DashboardMenu,
+	CharacterList,
 } from "@/components/dashboard"
-import { CharacterTabs } from "@/components/dashboard/character/tabs"
-import { ConsumeSkillModal } from "@/components/dashboard/character/tabs/skills-tab/consume-skill-modal"
-import { FactionModal } from "@/components/dashboard/faction/join-faction-modal"
+import { useAssets } from "@/hooks/useCharacters"
 import {
-	DashboardContainer,
-	DashboardInfoContainer,
 	DashboardMenuContainer,
+	DashboardInfoContainer,
+	DashboardContainer,
 	SectionContainer,
 } from "@/components/layout/containers.styled"
-import { NavBar } from "@/components/nav"
-import { PleaseSignInContainer } from "@/components/no-wallet.component"
-import { useAllFactions } from "@/hooks/useAllFactions"
-import { useAssets } from "@/hooks/useCharacters"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
+import { Box, Grid, useDisclosure } from "@chakra-ui/react"
 import { useSolana } from "@/hooks/useSolana"
-import { Character } from "@/types/server"
-import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react"
-import styled from "@emotion/styled"
-import Head from "next/head"
+import { FactionModal } from "@/components/dashboard/faction/join-faction-modal"
 import { useEffect, useState } from "react"
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
+import { ConsumeSkillModal } from "@/components/dashboard/character/tabs/skills-tab/consume-skill-modal"
+import { PleaseSignInContainer } from "@/components/no-wallet.component"
+import { CharacterTabs } from "@/components/dashboard/character/tabs"
+import { useAllFactions } from "@/hooks/useAllFactions"
 
 export default function CharacterPage() {
 	const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets()
 	const { walletAddress } = useSolana()
 	const joinFactionDisclosure = useDisclosure()
 	const consumeResourceDisclosure = useDisclosure()
-	const [_, setIsInFaction] = useState(false)
+	const [isInFaction, setIsInFaction] = useState(false)
 	const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter()
 	const [selectedSkill, setSelectedSkill] = useState<string>("")
 	const { data: factionData } = useAllFactions()
@@ -47,7 +46,7 @@ export default function CharacterPage() {
 	return (
 		<>
 			<Head>
-				<title>Pockets.gg</title>
+				<title>Pockets</title>
 				<meta name="description" content="Idle-RPG with your NFTs" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<link rel="icon" href="/favicon.ico" />

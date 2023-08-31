@@ -26,7 +26,7 @@ export const LeaderboardList = () => {
   const { data: prizePool, isLoading: prizePoolIsLoading } = usePrizePool();
   const { data } = useGetLeaderboard();
   const [factions, setFactions] = useState<FactionScore[]>(
-    data?.find((c) => c.condition === "knowledge")?.factions || [],
+    data?.find((c) => c.condition === "knowledge")?.factions || []
   );
 
   useEffect(() => {
@@ -36,11 +36,11 @@ export const LeaderboardList = () => {
   const selectTab = (tab: string) => {
     if (tab == "domination") {
       setFactions(
-        data?.find((c) => c.condition == "domination")?.factions || [],
+        data?.find((c) => c.condition == "domination")?.factions || []
       );
     } else if (tab == "knowledge") {
       setFactions(
-        data?.find((c) => c.condition == "knowledge")?.factions || [],
+        data?.find((c) => c.condition == "knowledge")?.factions || []
       );
     } else if (tab == "wealth") {
       setFactions(data?.find((c) => c.condition == "wealth")?.factions || []);
@@ -51,7 +51,7 @@ export const LeaderboardList = () => {
     <LeaderboardContainer>
       <Flex justifyContent="space-between" alignItems="center">
         <Title>LEADERBOARD</Title>
-        <Tip label="TODO: DEV">
+        <Tip label="For a chance to win this prize, join and participate in a faction!">
           <Text fontSize={"2rem"} fontWeight={700} fontFamily="heading">
             BONK Prize Pool: {prizePool}
           </Text>
@@ -61,7 +61,10 @@ export const LeaderboardList = () => {
       <Grid templateColumns="2fr 3fr" display={{ base: "none", sm: "grid" }}>
         <Spacer />
         <Flex justifyContent="space-between" my="1.5rem" opacity="0.5">
-          <Tip label={`TODO: DEV`} placement="top">
+          <Tip
+            label={`Domination is how many battles a faction's citizens have collectively won together.`}
+            placement="top"
+          >
             <Label
               onClick={() => {
                 selectTab("domination");
@@ -71,7 +74,10 @@ export const LeaderboardList = () => {
             </Label>
           </Tip>
 
-          <Tip label={`TODO: DEV`} placement="top">
+          <Tip
+            label={`Wealth is how many resources a faction has burned.`}
+            placement="top"
+          >
             <Label
               onClick={() => {
                 selectTab("wealth");
@@ -81,7 +87,10 @@ export const LeaderboardList = () => {
             </Label>
           </Tip>
 
-          <Tip label={`TODO: DEV`} placement="top">
+          <Tip
+            label={`Knowledge is the total skill level of all the faction's citizens added together.`}
+            placement="top"
+          >
             <Label
               onClick={() => {
                 selectTab("knowledge");

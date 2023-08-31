@@ -8,19 +8,27 @@ export const useProcessProposal = (
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   proposalId?: string
 ) => {
-  setIsLoading(true);
-  const queryClient = useQueryClient(); // <-- Get access to the query client
+  const queryClient = useQueryClient();
+
   const mutation = useMutation(() => processProposalRequest(proposalId!), {
+    onMutate: () => {
+      setIsLoading(true);
+    },
     onSuccess: (data) => {
+      queryClient.refetchQueries(["proposalVotes", proposalId]);
+      queryClient.refetchQueries(["proposalInfo", proposalId]);
+      queryClient.refetchQueries({ queryKey: ["citizen"] });
+      queryClient
+        .refetchQueries({ queryKey: ["fetch-proposals-by-faction"] });
       toast.success("Proposal processed successfully!");
-      // Trigger a refetch for the relevant query
-      queryClient.invalidateQueries(["proposalVotes", proposalId]);
+      setIsLoading(false);
     },
     onError: (error) => {
-      console.error("Error processing the proposal:", error);
       toast.error("Failed to process the proposal!");
+      console.error("Error processing the proposal:", error);
+      setIsLoading(false);
     },
   });
-  setIsLoading(false);
+
   return mutation;
 };

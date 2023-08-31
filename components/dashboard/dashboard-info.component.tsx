@@ -68,12 +68,14 @@ export const DashboardInfo = () => {
       {/*     <Value>{numOfPlayers}</Value> */}
       {/*   </TextContainer> */}
       {/* </Flex> */}
-      <TextContainer>
-        <Label>PRIZE POOL:</Label>
+      <Tip label="The total BONK in the server wallet. 60% of this is reserved for three prize categories.">
+        <TextContainer>
+          <Label>PRIZE POOL:</Label>
 
-        {isLoading && <Spinner />}
-        {!isLoading && prizePool && <Value>{prizePool}</Value>}
-      </TextContainer>
+          {isLoading && <Spinner />}
+          {!isLoading && prizePool && <Value>{prizePool}</Value>}
+        </TextContainer>
+      </Tip>
       <Flex gap="2rem">
         {/* <Tip label="Coming soon">
           <IconButton

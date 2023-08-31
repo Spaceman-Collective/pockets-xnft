@@ -8,6 +8,14 @@ const pocketsIDL = require("./program/pockets_program.json");
 
 const POCKETS_PROGRAM_PROGRAMID =
   "GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ";
+   
+export function getProposalPDA(proposalId: string): PublicKey {
+  const [proposalPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("proposal"), Buffer.from(proposalId)],
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+  );
+  return proposalPDA;
+}
 
 export async function getProposalAccount(
   connection: Connection,
@@ -23,13 +31,13 @@ export async function getProposalAccount(
 
   const proposalAccount = await POCKETS_PROGRAM.account.proposal.fetch(
     proposalPDA,
-    "confirmed"
+    "finalized"
   );
 
   return proposalAccount;
 }
 
-export function getProposalPDA(proposalId: string): PublicKey {
+export function getMultipleProposalPDA(proposalId: string): PublicKey {
   const [proposalPDA] = PublicKey.findProgramAddressSync(
     [Buffer.from("proposal"), Buffer.from(proposalId)],
     new PublicKey(POCKETS_PROGRAM_PROGRAMID)
@@ -43,6 +51,14 @@ export function getCitizenPDA(characterMint: PublicKey): PublicKey {
     new PublicKey(POCKETS_PROGRAM_PROGRAMID)
   );
   return citizenPDA;
+}
+
+export function getMultipleCitizenPDAS(proposalId: string): PublicKey {
+  const [proposalPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from("proposal"), Buffer.from(proposalId)],
+    new PublicKey(POCKETS_PROGRAM_PROGRAMID)
+  );
+  return proposalPDA;
 }
 
 export async function getCitizenAccount(
@@ -60,7 +76,6 @@ export async function getCitizenAccount(
     "confirmed"
   );
 }
-
 
 export function getVotePDA(
   citizen: PublicKey,
@@ -92,14 +107,20 @@ export async function getVoteAccount(
   return result;
 }
 
-// export async function getMultipleVoteAccounts(connection: Connection, votePDAAddresses: PublicKey[]) {
-//   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
-//     pocketsIDL,
-//     POCKETS_PROGRAM_PROGRAMID,
-//     { connection },
-//   );
-//   return await POCKETS_PROGRAM.account.proposalVote.fetchMultiple(votePDAAddresses, 'confirmed');
-// }
+export async function getMultipleVoteAccounts(
+  connection: Connection,
+  votePDAAddresses: PublicKey[]
+) {
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    { connection }
+  );
+  return await POCKETS_PROGRAM.account.proposalVote.fetchMultiple(
+    votePDAAddresses,
+    "finalized"
+  );
+}
 
 export function getFactionPDA(factionId: string): PublicKey {
   const [factionPDA] = PublicKey.findProgramAddressSync(

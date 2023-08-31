@@ -24,16 +24,6 @@ export const LeaderboardItem: FC<{
       templateColumns={{ base: "1fr", sm: "2fr 3fr" }}
     >
       <Flex alignItems="center" gap="2rem" mr="2rem">
-        <Tip label={"Townhall Level"}>
-          <Value
-            bg="blacks.400"
-            p="1rem 2rem"
-            borderRadius="2rem"
-            userSelect="none"
-          >
-            {rank}
-          </Value>
-        </Tip>
         <Image
           src={imageUrl}
           alt={name}

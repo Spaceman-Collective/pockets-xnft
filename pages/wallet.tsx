@@ -28,7 +28,7 @@ export default function WalletPage() {
   return (
     <>
       <Head>
-        <title>Pockets.gg</title>
+        <title>Pockets</title>
         <meta name="description" content="Idle-RPG with your NFTs" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />

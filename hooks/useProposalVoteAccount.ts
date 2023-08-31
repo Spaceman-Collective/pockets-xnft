@@ -36,8 +36,6 @@ export const useProposalVoteAccount = (proposalId: string | undefined): boolean 
       const vA = await getVoteAccount(connection, votePDA);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      queryClient.invalidateQueries(['proposalVotes', proposalId, selectedCharacter?.mint]);
-
       return !!vA;
     }
   );

@@ -1,19 +1,19 @@
-import Head from "next/head"
-import { NavBar } from "@/components/nav"
-import { Grid } from "@chakra-ui/react"
+import Head from "next/head";
+import { NavBar } from "@/components/nav";
+import { Grid } from "@chakra-ui/react";
 import {
   DashboardContainer,
   DashboardInfoContainer,
   DashboardMenuContainer,
-} from "@/components/layout/containers.styled"
-import { DashboardInfo, DashboardMenu } from "@/components/dashboard"
-import { LeaderboardList } from "@/components/leaderboard"
+} from "@/components/layout/containers.styled";
+import { DashboardInfo, DashboardMenu } from "@/components/dashboard";
+import { LeaderboardList } from "@/components/leaderboard";
 
 export default function Leaderboard() {
   return (
     <>
       <Head>
-        <title>Pockets.gg</title>
+        <title>Pockets</title>
         <meta name="description" content="Idle-RPG with your NFTs" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -31,5 +31,5 @@ export default function Leaderboard() {
         </DashboardContainer>
       </Grid>
     </>
-  )
+  );
 }

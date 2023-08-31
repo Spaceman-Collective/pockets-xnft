@@ -1,6 +1,6 @@
 export const getBlueprint = (stationName: string) =>
   BLUEPRINTS.find(
-    (print) => print.name.toLowerCase() === stationName.toLowerCase(),
+    (print) => print.name.toLowerCase() === stationName.toLowerCase()
   );
 
 // Townhall
@@ -138,7 +138,7 @@ export const COMBAT_BLUEPRINTS: Blueprint[] = [
       { resource: "Stone", amount: 6 },
     ],
     timeRequired: 1000 * 60 * 20, // 20 min
-    unitOutput: ["Gunner"],
+    unitOutput: ["Ranger"],
   },
   {
     name: "Asylum",
@@ -166,7 +166,7 @@ export const COMBAT_BLUEPRINTS: Blueprint[] = [
       { resource: "Flowers", amount: 6 },
     ],
     timeRequired: 1000 * 60 * 20, // 20 min
-    unitOutput: ["Mindbreakers"],
+    unitOutput: ["Mindbreaker"],
   },
   {
     name: "Sanctum",
@@ -194,7 +194,7 @@ export const COMBAT_BLUEPRINTS: Blueprint[] = [
       { resource: "Flowers", amount: 6 },
     ],
     timeRequired: 1000 * 60 * 20, // 20 min
-    unitOutput: ["Mindbreakers"],
+    unitOutput: ["Wizard"],
   },
 ];
 
