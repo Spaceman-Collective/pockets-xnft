@@ -28,7 +28,7 @@ export default function CharacterPage() {
 	const { walletAddress } = useSolana()
 	const joinFactionDisclosure = useDisclosure()
 	const consumeResourceDisclosure = useDisclosure()
-	const [isInFaction, setIsInFaction] = useState(false)
+	const [_, setIsInFaction] = useState(false)
 	const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter()
 	const [selectedSkill, setSelectedSkill] = useState<string>("")
 	const { data: factionData } = useAllFactions()
