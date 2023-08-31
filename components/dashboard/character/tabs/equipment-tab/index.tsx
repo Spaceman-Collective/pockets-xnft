@@ -1,4 +1,4 @@
-import { FC } from "react"
+import { FC, useState } from "react"
 
 import { PanelContainer } from "@/components/layout"
 import { useAllWalletAssets } from "@/hooks/useWalletAssets"
@@ -9,7 +9,7 @@ import { Box, Button, Flex, Text } from "@chakra-ui/react"
 import { toast } from "react-hot-toast"
 
 import { buildTransferIx, useSolana } from "@/hooks/useSolana"
-import { CitizenEquipment } from "../citizen-equipment.component"
+import { CharacterEquipment } from "../character-equipment.component"
 import {
 	useUnitConfirmEquip,
 	useUnitDequip,
@@ -22,9 +22,10 @@ import { Transaction } from "@solana/web3.js"
 export const EquipmentTab: FC<{
 	currentCharacter: Character
 }> = ({ currentCharacter }) => {
+	const [selectedCharacter, _] = useState<Character>(currentCharacter)
+
 	const { mutate: requestMutate } = useUnitRequestEquip()
 	const { mutate: confirmMutate } = useUnitConfirmEquip()
-	const { mutate: dequipMutate } = useUnitDequip()
 	const { signTransaction } = useSolana()
 	const { data: walletAssets, isLoading: walletAssetsIsLoading } =
 		useAllWalletAssets()
@@ -91,7 +92,7 @@ export const EquipmentTab: FC<{
 						color: colors.red[700],
 					}}
 				>
-					<RepeatIcon height="1.5rem" aspectRatio="1" />
+					{/* <RepeatIcon height="1.5rem" aspectRatio="1" />
 
 					<Text
 						fontSize="1.25rem"
@@ -100,11 +101,11 @@ export const EquipmentTab: FC<{
 						paddingLeft="0.25rem"
 					>
 						UNEQUIP ALL
-					</Text>
+					</Text> */}
 				</Flex>
 			</Flex>
 			<Box>
-				<CitizenEquipment enabled={true} citizen={currentCharacter} />
+				<CharacterEquipment enabled={true} citizen={currentCharacter} />
 			</Box>
 			<Box bgColor="blacks.600" p="2rem" borderRadius="0.5rem">
 				<Text

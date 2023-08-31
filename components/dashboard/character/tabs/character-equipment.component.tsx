@@ -11,8 +11,11 @@ import {
 } from "@chakra-ui/react"
 import React, { FC } from "react"
 import { combatSkillKeys } from "../constants"
+import { useUnitDequip } from "@/hooks/useUnit"
+import toast from "react-hot-toast"
+import { useSolana } from "@/hooks/useSolana"
 
-export const CitizenEquipment: FC<{
+export const CharacterEquipment: FC<{
 	enabled: boolean
 	opponent?: boolean
 	citizen: Character
@@ -23,7 +26,51 @@ export const CitizenEquipment: FC<{
 		0,
 	)
 
-	const hasUnits = citizen.army.length
+	const { mutate } = useUnitDequip()
+
+	const {
+		buildMemoIx,
+		walletAddress,
+		encodeTransaction,
+		connection,
+		signTransaction,
+	} = useSolana()
+
+	const handleDequip = async (assetId: string) => {
+		const payload = {
+			mint: citizen.mint,
+			assetId,
+		}
+
+		const txInstructions = [
+			buildMemoIx({ walletAddress: walletAddress || "", payload }),
+		]
+
+		let encodedTx
+
+		try {
+			encodedTx = await encodeTransaction({
+				walletAddress,
+				connection,
+				signTransaction,
+				txInstructions,
+			})
+		} catch (e) {
+			encodedTx = ""
+			toast.error(JSON.stringify(e))
+		}
+
+		if (!encodedTx || typeof encodedTx !== "string") {
+			return toast.error("no encoded tx")
+		}
+
+		mutate(encodedTx, {
+			onSuccess: () => toast.success("Unit dequipped"),
+			onError: (e) => toast.error(JSON.stringify(e)),
+		})
+
+		console.log("DEQUIP UNIT", assetId)
+	}
 
 	return (
 		<Flex
@@ -34,7 +81,7 @@ export const CitizenEquipment: FC<{
 			_notLast={{ marginBottom: "2rem" }}
 			pos="relative"
 		>
-			{hasUnits || !opponent ? null : (
+			{citizen.army.length || !opponent ? null : (
 				<Text
 					fontSize="2rem"
 					fontWeight="700"
@@ -51,7 +98,7 @@ export const CitizenEquipment: FC<{
 					NO UNITS EQUIPPED
 				</Text>
 			)}
-			<Flex w="100%" opacity={hasUnits || !opponent ? 1 : 0.25}>
+			<Flex w="100%" opacity={citizen.army.length || !opponent ? 1 : 0.25}>
 				<Flex
 					flex="0 0 auto"
 					bgColor="brand.tertiary"
@@ -100,6 +147,8 @@ export const CitizenEquipment: FC<{
 						<Grid templateColumns="repeat(8, 0fr)" gap="1rem">
 							{citizen.army.map((unit) => (
 								<GridItem
+									cursor="pointer"
+									onClick={() => handleDequip(unit.assetId)}
 									key={unit.assetId}
 									bgColor="blacks.400"
 									minH="3.5rem"
