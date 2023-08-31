@@ -216,12 +216,12 @@ export const CreateProposal: React.FC<{
                           {blueprint.name} / Cost:{" "}
                           {blueprint.upgradeResources[0].map(
                             (resource, resourceIndex) => (
-                              <span key={resourceIndex}>
+                              <Text key={resourceIndex}>
                                 {resource.resource} x{resource.amount}
                                 {resourceIndex !==
                                   blueprint.upgradeResources[0].length - 1 &&
                                   ", "}
-                              </span>
+                              </Text>
                             )
                           )}
                         </option>
