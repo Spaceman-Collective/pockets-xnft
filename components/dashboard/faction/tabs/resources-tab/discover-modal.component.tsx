@@ -124,7 +124,15 @@ export const ModalRfDiscover: FC<{
         <ModalBody display={"flex"} flexDirection={"column"} gap="2rem">
           <Text>
             Resource Fields, when controlled by a faction, allow that faction’s
-            citizens to harvest it every so often for it’s yield.
+            citizens to harvest it every so often for it’s yield. New resource
+            fields incrementaly cost more the more fields that have been
+            discovered in the game total!
+          </Text>
+          <Text>
+            After a field is discovered, any number of players can try
+            prospecting it to claim it for their faction, not just the person
+            that discovered it. Whoever is lucky enough to prospect the field
+            successfully will claim it for their faction.
           </Text>
           <Text>
             There are currently {rf?.rfCount} already discovered fields.

@@ -135,8 +135,8 @@ export const ModalRfProspect: FC<{
               characterMint,
               factionId,
               rfId: rf?.id,
-            }),
-          ),
+            })
+          )
       );
 
       const sendTransactionsInChunks = async (transactions: any[]) => {
@@ -147,7 +147,7 @@ export const ModalRfProspect: FC<{
             connection,
             txSlice,
             walletAddress,
-            signAllTransactions,
+            signAllTransactions
           );
           if (sigs) {
             sigArr.push(...sigs);
@@ -166,7 +166,7 @@ export const ModalRfProspect: FC<{
       await refreshRFAccount();
       queryClient.refetchQueries({ queryKey: ["rf-allocation"] });
       toast.custom(
-        "Successfully sent prospect TXs, but seems like none of them were winners",
+        "Successfully sent prospect TXs, but seems like none of them were winners"
       );
       setProspectLoading(false);
     }
@@ -196,12 +196,6 @@ export const ModalRfProspect: FC<{
             claim the resource field. CURRENTLY NOT SUPPORTED ON LEDGER.
           </Text>
           <br></br>
-          <Text>
-            Every roll has a 1 in 1000 chance plus the times developed to land
-            on a winning transaction. If it doesnt win, it increments times
-            developed for the next transaction.
-          </Text>
-          <br></br>
           <Text>RF ID: {rfAccount?.id}</Text>
           <Text>Times Developed: {rfAccount?.timesDeveloped.toString()}</Text>
           {jackpot ? (
@@ -220,7 +214,7 @@ export const ModalRfProspect: FC<{
             </VStack>
           ) : (
             <VStack pt="28">
-              <Text>How many transactions do you want to try?</Text>
+              <Text>How many times do you want to prospect?</Text>
               <Flex gap={"6"} justifyContent={"center"} my="2rem">
                 <Button
                   w="24"
