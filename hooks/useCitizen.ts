@@ -34,6 +34,7 @@ export const useCitizen = (
       }
 
       const characterMint = new PublicKey(mint);
+
       const citizenPDA = getCitizenPDA(characterMint);
 
       const citizenAccount = await getCitizenAccount(connection, citizenPDA);

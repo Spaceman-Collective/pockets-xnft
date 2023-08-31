@@ -27,9 +27,11 @@ export const useProposalVoteInfo = (
 
   const defaultQueryResult: ProposalVoteInfo = {
     voteAccountExists: false,
-    totalVoteAmount: "NA",
-    personalVoteAmount: "NA",
+    totalVoteAmount: "0",
+    personalVoteAmount: "0",
   };
+
+  const queryClient = useQueryClient();
 
   const queryResult = useQuery<ProposalVoteInfo, unknown>(
     ["proposalInfo", proposalId, selectedCharacter?.mint],
@@ -39,21 +41,31 @@ export const useProposalVoteInfo = (
       }
 
       const propPDA = getProposalPDA(proposalId);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       const citiPDA = getCitizenPDA(new PublicKey(selectedCharacter?.mint));
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       const votePDA = getVotePDA(citiPDA, propPDA);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const pA = await getProposalAccount(connection, proposalId);
-      console.log('pA: ', pA)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const vA = await getVoteAccount(connection, votePDA);
-      console.log('vA: ', vA)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      if (!vA) {
+        console.log('vA is null!');
+        console.log('vA: ', vA)
+        return {
+          voteAccountExists: false,
+          totalVoteAmount: "0",
+          personalVoteAmount: "NA",
+        };
+      }
+
+      const pA = await getProposalAccount(connection, proposalId);
+      if (!pA) {
+        console.log('pA is null!');
+        console.log('pA: ', pA)
+        return {
+          voteAccountExists: false,
+          totalVoteAmount: "NA",
+          personalVoteAmount: "0",
+        };
+      }
 
       return {
         voteAccountExists: !!vA,

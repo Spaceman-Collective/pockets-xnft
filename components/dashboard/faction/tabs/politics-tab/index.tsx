@@ -51,7 +51,6 @@ import { useProcessProposal } from "@/hooks/useProcessProposal";
 import { useProposalVoteInfo } from "@/hooks/useProposalVoteInfo";
 import { useVoteThreshold } from "@/hooks/useVoteThreshold";
 import { useProposalVotesAll } from "@/hooks/useProposalVotesAll";
-import { useProposalVoteAccount } from "@/hooks/useProposalVoteAccount";
 import { useQueryClient } from "@tanstack/react-query";
 import { ToolTip } from "@/styles/brand-components";
 
@@ -93,6 +92,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     connection
   );
   const { data: votesData } = useProposalVotesAll(proposalIds);
+
   useEffect(() => {
     if (Array.isArray(allProposals) && !allProposalsIsLoading) {
       console.log("all proposals is: ", allProposals);
@@ -130,11 +130,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 
   const fetchVotesForProposal = async (proposalId: string) => {
     const propPDA = getProposalPDA(proposalId);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     const citiPDA = getCitizenPDA(new PublicKey(currentCharacter?.mint!));
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     const votePDA = getVotePDA(citiPDA, propPDA);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -208,7 +204,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     setIsLoading(false);
   };
 
-  useEffect(() => {}, [factionData, currentCharacter?.faction]);
+  useEffect(() => { }, [factionData, currentCharacter?.faction]);
 
   const renderContent = () => {
     if (isLoading || allProposalsIsLoading || isError) {
@@ -299,10 +295,9 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
               >
                 ({citizen?.grantedVotingPower.toString()}
                 {" + "}
-                {citizen?.delegatedVotingPower.toString() }
+                {citizen?.delegatedVotingPower.toString()}
                 {" - "}
-                {citizen?.maxPledgedVotingPower.toString()}
-                )
+                {citizen?.maxPledgedVotingPower.toString()})
               </ValueCalculation>
             </>
           ) : (
@@ -432,7 +427,10 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
   const { walletAddress, signTransaction, encodeTransaction } = useSolana();
 
-  const { data, isLoading } = useProposalVoteInfo(proposalId!, connection!);
+  const { data, isLoading: proposalVoteInfoIsLoading } = useProposalVoteInfo(
+    proposalId!,
+    connection!
+  );
   const { voteAccountExists, totalVoteAmount, personalVoteAmount } = data;
 
   useEffect(() => {
@@ -478,13 +476,19 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         toast.error("Vote failed!");
       }
       setLocalVote("");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      queryClient.refetchQueries({ queryKey: ["proposalInfo", proposalId] });
-      queryClient.refetchQueries({
-        queryKey: ["citizen", currentCharacter?.mint!],
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
+      // queryClient.refetchQueries(["proposalInfo"]);
+      // queryClient.refetchQueries(["citizen", currentCharacter?.mint]).then(() => {
+      //   setIsVoteInProgress(false);
+      // });
+      await new Promise((resolve) => setTimeout(resolve, 15000));
+
+      queryClient.refetchQueries(["proposalInfo", proposalId]).then(() => {
+        queryClient.refetchQueries({ queryKey: ["citizen"] }).then(() => {
+          setIsVoteInProgress(false);
+        })
       });
 
-      setIsVoteInProgress(false);
     } catch (e) {
       console.log("Vote failed: ", e);
       toast.error("Vote failed");
@@ -527,14 +531,18 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
       }
 
       setLocalVote("");
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
+      // queryClient.refetchQueries(["proposalInfo"]);
+      // queryClient.refetchQueries(["citizen", currentCharacter?.mint]).then(() => {
+      //   setIsVoteInProgress(false);
+      // });
+      await new Promise((resolve) => setTimeout(resolve, 15000));
 
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      queryClient.refetchQueries({ queryKey: ["proposalInfo", proposalId] });
-      queryClient
-        .refetchQueries({ queryKey: ["citizen", currentCharacter?.mint!] })
-        .then(() => {
+      queryClient.refetchQueries(["proposalInfo", proposalId]).then(() => {
+        queryClient.refetchQueries({ queryKey: ["citizen"] }).then(() => {
           setIsVoteInProgress(false);
-        });
+        })
+      });
     } catch (e) {
       console.log("Update failed: ", e);
       setIsVoteInProgress(false);
@@ -563,12 +571,14 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             </Label>
 
             <VoteFlex>
-              {totalVoteAmount ? (
+              {personalVoteAmount &&
+                !proposalVoteInfoIsLoading &&
+                !isVoteInProgress ? (
                 <Tooltip
                   label={`Your vote amount: ${personalVoteAmount}`}
                   aria-label="A tooltip"
                 >
-                  <span>{totalVoteAmount}</span>
+                  {totalVoteAmount}
                 </Tooltip>
               ) : (
                 <Spinner size="md" color="white" />
@@ -591,7 +601,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         </HStack>
 
         <Flex width="100%">
-          {isVoteInProgress || isLoading ? (
+          {isVoteInProgress || proposalVoteInfoIsLoading ? (
             <HStack gap={spacing}>
               <Spinner size="md" color="white" />
               <LoadingText style={{ marginTop: "0px" }}>LOADING...</LoadingText>
@@ -621,18 +631,18 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                       processProposalMutation.mutate();
                     } else if (validateInput() && voteAccountExists) {
                       updateVote(parseInt(localVote));
-                    } else {
+                    } else if (validateInput()) {
                       handleVote(parseInt(localVote));
                     }
                   }}
                   disabled={isVoteInProgress}
                 >
                   {voteAccountExists &&
-                  Number(totalVoteAmount) >= Number(voteThreshold)
+                    Number(totalVoteAmount) >= Number(voteThreshold)
                     ? "process"
                     : voteAccountExists
-                    ? "add votes"
-                    : "vote"}
+                      ? "add votes"
+                      : "vote"}
                 </Button>
               </Flex>
               {inputError && <Text color="red.500">{inputError}</Text>}

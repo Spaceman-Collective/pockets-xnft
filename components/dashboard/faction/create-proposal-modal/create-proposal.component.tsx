@@ -103,7 +103,6 @@ export const CreateProposal: React.FC<{
   const onSuccess = (data: any) => {
     queryClient.refetchQueries({ queryKey: ["fetch-proposals-by-faction"] });
     fireConfetti();
-    refetch();
     toast.success("Proposal created!");
     onClose();
   };
