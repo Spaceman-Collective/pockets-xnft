@@ -58,11 +58,9 @@ export const LeaveFactionModal: React.FC<{
 
   const handleLeaveFaction = async () => {
     // const factionId = data?.faction?.id;
-    const factionId = data?.faction;
     const payload = {
       mint: character.mint,
       timestamp: Date.now().toString(),
-      factionId,
     };
 
     const computeIx = ComputeBudgetProgram.setComputeUnitLimit({
