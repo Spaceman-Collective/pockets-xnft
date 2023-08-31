@@ -8,25 +8,27 @@ import {
   getCitizenPDA,
   getVotePDA,
   getVoteAccount,
+  getProposalAccount,
 } from "@/lib/solanaClient";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { useSelectedCharacter } from "./useSelectedCharacter";
 
 type ProposalVoteInfo = {
   voteAccountExists: boolean;
-  voteAmount: string;
+  totalVoteAmount: string;
+  personalVoteAmount: string;
 };
 
 export const useProposalVoteInfo = (
   proposalId: string | undefined,
   connection: Connection
-): { data: ProposalVoteInfo; refetch: () => void; isLoading: boolean } => {
+): { data: ProposalVoteInfo; isLoading: boolean } => {
   const [selectedCharacter] = useSelectedCharacter();
-  const queryClient = useQueryClient();
 
   const defaultQueryResult: ProposalVoteInfo = {
     voteAccountExists: false,
-    voteAmount: "NA",
+    totalVoteAmount: "NA",
+    personalVoteAmount: "NA",
   };
 
   const queryResult = useQuery<ProposalVoteInfo, unknown>(
@@ -45,24 +47,23 @@ export const useProposalVoteInfo = (
       const votePDA = getVotePDA(citiPDA, propPDA);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const vA = await getVoteAccount(connection, votePDA);
+      const pA = await getProposalAccount(connection, proposalId);
+      console.log('pA: ', pA)
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      queryClient.invalidateQueries([
-        "proposalInfo",
-        proposalId,
-        selectedCharacter?.mint,
-      ]);
+      const vA = await getVoteAccount(connection, votePDA);
+      console.log('vA: ', vA)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       return {
         voteAccountExists: !!vA,
-        voteAmount: vA ? vA!.voteAmt.toString() : "NA",
+        totalVoteAmount: pA ? pA!.voteAmt.toString() : "0",
+        personalVoteAmount: vA ? vA!.voteAmt.toString() : "0",
       };
     }
   );
   return {
     data: queryResult.data || defaultQueryResult,
-    refetch: queryResult.refetch,
     isLoading: queryResult.isLoading,
   };
 };
