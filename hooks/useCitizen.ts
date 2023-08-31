@@ -14,8 +14,9 @@ export type CitizenAccountInfo = {
 
 export const useCitizen = (
   mint: string,
-  connection: Connection,
-): { data: CitizenAccountInfo; refetch: () => void; isLoading: boolean } => {
+  connection: Connection
+): { data: CitizenAccountInfo; isLoading: boolean } => {
+
   const defaultQueryResult: CitizenAccountInfo = {
     delegatedVotingPower: "0",
     faction: "",
@@ -33,6 +34,7 @@ export const useCitizen = (
       }
 
       const characterMint = new PublicKey(mint);
+
       const citizenPDA = getCitizenPDA(characterMint);
 
       const citizenAccount = await getCitizenAccount(connection, citizenPDA);
@@ -55,7 +57,6 @@ export const useCitizen = (
 
   return {
     data: queryResult.data || defaultQueryResult,
-    refetch: queryResult.refetch,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isLoading
   };
 };

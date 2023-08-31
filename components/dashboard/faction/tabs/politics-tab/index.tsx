@@ -4,16 +4,9 @@ import {
   Flex,
   HStack,
   Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
+  Tooltip,
   Spinner,
   Text,
-  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { css } from "@emotion/react";
@@ -38,6 +31,7 @@ import {
   getCitizenPDA,
   getFactionAccount,
   getFactionPDA,
+  getProposalAccount,
   getProposalPDA,
   getVoteAccount,
   getVotePDA,
@@ -57,8 +51,8 @@ import { useProcessProposal } from "@/hooks/useProcessProposal";
 import { useProposalVoteInfo } from "@/hooks/useProposalVoteInfo";
 import { useVoteThreshold } from "@/hooks/useVoteThreshold";
 import { useProposalVotesAll } from "@/hooks/useProposalVotesAll";
-import { useProposalVoteAccount } from "@/hooks/useProposalVoteAccount";
 import { useQueryClient } from "@tanstack/react-query";
+import { ToolTip } from "@/styles/brand-components";
 
 const spacing = "1rem";
 type FactionTabPoliticsProps = {
@@ -75,31 +69,33 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
   openCitizenModal,
 }) => {
   const factionId = currentCharacter?.faction?.id ?? "";
-  const { data: factionData } = useFaction({ factionId });
   const [isLoading, setIsLoading] = useState(false);
   const [voteThreshold, setVoteThreshold] = useState<string>("");
   const [votingPower, setVotingPower] = useState<string>("");
+  const [proposalIds, setProposalIds] = useState<string[]>();
+
+  const { data: factionData } = useFaction({ factionId });
   const { connection, walletAddress, signTransaction, encodeTransaction } =
     useSolana();
-  const [proposalIds, setProposalIds] = useState<string[]>();
 
   const {
     data: allProposals,
     isLoading: allProposalsIsLoading,
     isError,
   } = useFetchProposalsByFaction(factionId, 0, 50);
-  const {
-    data: citizen,
-    refetch: refetchCitizen,
-    isLoading: isCitizenLoading,
-  } = useCitizen(currentCharacter?.mint, connection);
+  const { data: citizen, isLoading: isCitizenLoading } = useCitizen(
+    currentCharacter?.mint,
+    connection
+  );
   const { data: vT, isLoading: isThresholdLoading } = useVoteThreshold(
     currentCharacter,
     connection,
   );
   const { data: votesData } = useProposalVotesAll(proposalIds);
+
   useEffect(() => {
     if (Array.isArray(allProposals) && !allProposalsIsLoading) {
+      console.log("all proposals is: ", allProposals);
       setProposalIds(
         allProposals
           .map((proposal: Proposal) => proposal.id)
@@ -134,15 +130,12 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 
   const fetchVotesForProposal = async (proposalId: string) => {
     const propPDA = getProposalPDA(proposalId);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     const citiPDA = getCitizenPDA(new PublicKey(currentCharacter?.mint!));
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
     const votePDA = getVotePDA(citiPDA, propPDA);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const vA = await getVoteAccount(connection, votePDA);
+    console.log("proposalVotes voteAccount: ", vA);
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     return vA ? parseInt(vA.voteAmt.toString(), 10) : 0;
@@ -211,7 +204,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
     setIsLoading(false);
   };
 
-  useEffect(() => {}, [factionData, currentCharacter?.faction]);
+  useEffect(() => { }, [factionData, currentCharacter?.faction]);
 
   const renderContent = () => {
     if (isLoading || allProposalsIsLoading || isError) {
@@ -292,7 +285,8 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
           {!isCitizenLoading ? (
             <>
               <Value>
-                {citizen?.maxPledgedVotingPower}/{citizen?.totalVotingPower}
+                {Number(citizen?.totalVotingPower) -
+                  Number(citizen?.maxPledgedVotingPower)}
               </Value>
               <ValueCalculation
                 color={colors.brand.tertiary}
@@ -301,11 +295,13 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
               >
                 ({citizen?.grantedVotingPower.toString()}
                 {" + "}
-                {citizen?.delegatedVotingPower.toString()})
+                {citizen?.delegatedVotingPower.toString()}
+                {" - "}
+                {citizen?.maxPledgedVotingPower.toString()})
               </ValueCalculation>
             </>
           ) : (
-            <Spinner size="md" color="white" mb="0.5rem" />
+            <Spinner size="md" color="white" mb="0.5rem"  />
           )}
         </HStack>
       </Flex>
@@ -431,18 +427,26 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
   const { walletAddress, signTransaction, encodeTransaction } = useSolana();
 
-  const {
-    data,
-    refetch: refetchProposalVoteInfo,
-    isLoading,
-  } = useProposalVoteInfo(proposalId!, connection!);
-  const { voteAccountExists, voteAmount } = data;
+  const { data, isLoading: proposalVoteInfoIsLoading } = useProposalVoteInfo(
+    proposalId!,
+    connection!
+  );
+  const { voteAccountExists, totalVoteAmount, personalVoteAmount } = data;
+
+  useEffect(() => {
+    if (voteAccountExists) {
+      console.log("tVA: ", totalVoteAmount);
+      console.log("pVA: ", personalVoteAmount);
+    }
+  }, [personalVoteAmount, totalVoteAmount, voteAccountExists]);
 
   const validateInput = (): boolean => {
     const isValid = !!localVote.trim() && !isNaN(parseInt(localVote));
     setInputError(isValid ? null : "Invalid vote input");
     return isValid;
   };
+
+  const queryClient = useQueryClient();
 
   const handleVote = async (votingAmt: number) => {
     setIsVoteInProgress(true);
@@ -472,10 +476,19 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         toast.error("Vote failed!");
       }
       setLocalVote("");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      refetchProposalVoteInfo();
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
+      // queryClient.refetchQueries(["proposalInfo"]);
+      // queryClient.refetchQueries(["citizen", currentCharacter?.mint]).then(() => {
+      //   setIsVoteInProgress(false);
+      // });
+      await new Promise((resolve) => setTimeout(resolve, 15000));
 
-      setIsVoteInProgress(false);
+      queryClient.refetchQueries(["proposalInfo", proposalId]).then(() => {
+        queryClient.refetchQueries({ queryKey: ["citizen"] }).then(() => {
+          setIsVoteInProgress(false);
+        })
+      });
+
     } catch (e) {
       console.log("Vote failed: ", e);
       toast.error("Vote failed");
@@ -518,11 +531,18 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
       }
 
       setLocalVote("");
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
+      // queryClient.refetchQueries(["proposalInfo"]);
+      // queryClient.refetchQueries(["citizen", currentCharacter?.mint]).then(() => {
+      //   setIsVoteInProgress(false);
+      // });
+      await new Promise((resolve) => setTimeout(resolve, 15000));
 
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      refetchProposalVoteInfo();
-
-      setIsVoteInProgress(false);
+      queryClient.refetchQueries(["proposalInfo", proposalId]).then(() => {
+        queryClient.refetchQueries({ queryKey: ["citizen"] }).then(() => {
+          setIsVoteInProgress(false);
+        })
+      });
     } catch (e) {
       console.log("Update failed: ", e);
       setIsVoteInProgress(false);
@@ -549,10 +569,27 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
             <Label color={colors.brand.tertiary} pb="0.4rem">
               votes:
             </Label>
-            {voteAmount ? voteAmount : <Spinner size="md" color="white" />}/
-            <ProposalTitle>
-              {voteThreshold ? voteThreshold : null}
-            </ProposalTitle>
+
+            <VoteFlex>
+              {personalVoteAmount &&
+                !proposalVoteInfoIsLoading &&
+                !isVoteInProgress ? (
+                <Tooltip
+                  label={`Your vote amount: ${personalVoteAmount}`}
+                  aria-label="A tooltip"
+                >
+                  {totalVoteAmount}
+                </Tooltip>
+              ) : (
+                <Spinner size="md" color="white" />
+              )}
+              /
+              {voteThreshold ? (
+                voteThreshold
+              ) : (
+                <Spinner size="md" color="white" />
+              )}
+            </VoteFlex>
           </HStack>
         </Flex>
 
@@ -564,7 +601,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
         </HStack>
 
         <Flex width="100%">
-          {isVoteInProgress || isLoading ? (
+          {isVoteInProgress || proposalVoteInfoIsLoading ? (
             <HStack gap={spacing}>
               <Spinner size="md" color="white" />
               <LoadingText style={{ marginTop: "0px" }}>LOADING...</LoadingText>
@@ -579,7 +616,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                   isInvalid={!!inputError}
                   disabled={
                     isVoteInProgress ||
-                    Number(voteAmount) >= Number(voteThreshold)
+                    Number(totalVoteAmount) >= Number(voteThreshold)
                   }
                 />
                 <Button
@@ -589,23 +626,23 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
                   onClick={() => {
                     if (
                       voteAccountExists &&
-                      Number(voteAmount) >= Number(voteThreshold)
+                      Number(totalVoteAmount) >= Number(voteThreshold)
                     ) {
                       processProposalMutation.mutate();
                     } else if (validateInput() && voteAccountExists) {
                       updateVote(parseInt(localVote));
-                    } else {
+                    } else if (validateInput()) {
                       handleVote(parseInt(localVote));
                     }
                   }}
                   disabled={isVoteInProgress}
                 >
                   {voteAccountExists &&
-                  Number(voteAmount) >= Number(voteThreshold)
+                    Number(totalVoteAmount) >= Number(voteThreshold)
                     ? "process"
                     : voteAccountExists
-                    ? "add votes"
-                    : "vote"}
+                      ? "add votes"
+                      : "vote"}
                 </Button>
               </Flex>
               {inputError && <Text color="red.500">{inputError}</Text>}
@@ -662,6 +699,14 @@ const ProposalTitle = styled(Text)`
   font-weight: 800;
   font-spacing: 3px;
 `;
+
+const VoteFlex = styled(Flex)`
+  text-transform: uppercase;
+  font-size: 2.25rem;
+  font-weight: 800;
+  font-spacing: 3px;
+`;
+
 const ProposalAction = styled(Flex)`
   background-color: ${colors.blacks[500]};
   width: 100%;

@@ -8,26 +8,30 @@ import {
   getCitizenPDA,
   getVotePDA,
   getVoteAccount,
+  getProposalAccount,
 } from "@/lib/solanaClient";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { useSelectedCharacter } from "./useSelectedCharacter";
 
 type ProposalVoteInfo = {
   voteAccountExists: boolean;
-  voteAmount: string;
+  totalVoteAmount: string;
+  personalVoteAmount: string;
 };
 
 export const useProposalVoteInfo = (
   proposalId: string | undefined,
   connection: Connection
-): { data: ProposalVoteInfo; refetch: () => void; isLoading: boolean } => {
+): { data: ProposalVoteInfo; isLoading: boolean } => {
   const [selectedCharacter] = useSelectedCharacter();
-  const queryClient = useQueryClient();
 
   const defaultQueryResult: ProposalVoteInfo = {
     voteAccountExists: false,
-    voteAmount: "NA",
+    totalVoteAmount: "0",
+    personalVoteAmount: "0",
   };
+
+  const queryClient = useQueryClient();
 
   const queryResult = useQuery<ProposalVoteInfo, unknown>(
     ["proposalInfo", proposalId, selectedCharacter?.mint],
@@ -37,32 +41,41 @@ export const useProposalVoteInfo = (
       }
 
       const propPDA = getProposalPDA(proposalId);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       const citiPDA = getCitizenPDA(new PublicKey(selectedCharacter?.mint));
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       const votePDA = getVotePDA(citiPDA, propPDA);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const vA = await getVoteAccount(connection, votePDA);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      queryClient.invalidateQueries([
-        "proposalInfo",
-        proposalId,
-        selectedCharacter?.mint,
-      ]);
+      if (!vA) {
+        console.log('vA is null!');
+        console.log('vA: ', vA)
+        return {
+          voteAccountExists: false,
+          totalVoteAmount: "0",
+          personalVoteAmount: "NA",
+        };
+      }
+
+      const pA = await getProposalAccount(connection, proposalId);
+      if (!pA) {
+        console.log('pA is null!');
+        console.log('pA: ', pA)
+        return {
+          voteAccountExists: false,
+          totalVoteAmount: "NA",
+          personalVoteAmount: "0",
+        };
+      }
 
       return {
         voteAccountExists: !!vA,
-        voteAmount: vA ? vA!.voteAmt.toString() : "NA",
+        totalVoteAmount: pA ? pA!.voteAmt.toString() : "0",
+        personalVoteAmount: vA ? vA!.voteAmt.toString() : "0",
       };
     }
   );
   return {
     data: queryResult.data || defaultQueryResult,
-    refetch: queryResult.refetch,
     isLoading: queryResult.isLoading,
   };
 };

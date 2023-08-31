@@ -31,7 +31,7 @@ export const useProposalVotesAll = (proposalIds: string[] | undefined) => {
   };
 
   const queryResults = useQuery(
-    ['proposalVotes', proposalIds, selectedCharacter?.mint],
+    ['proposalVotesAll', proposalIds, selectedCharacter?.mint],
     async () => {
       if (!proposalIds || proposalIds.length === 0) {
         return defaultQueryResult;
