@@ -43,6 +43,7 @@ const {
 	Slider,
 	Checkbox,
 	Tag,
+	Popover,
 } = chakraTheme.components
 
 export const defaultTheme = extendBaseTheme({
@@ -77,6 +78,7 @@ export const defaultTheme = extendBaseTheme({
 		Slider,
 		Checkbox,
 		Tag,
+		Popover,
 	},
 	colors,
 	fonts,

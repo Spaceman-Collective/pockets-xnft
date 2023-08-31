@@ -139,7 +139,7 @@ const ConsumeItemContainer: FC<{
       mutate(
         { signedTx: encodedTx },
         {
-          onSuccess: (e) => {
+          onSuccess: (_) => {
             queryClient.refetchQueries({
               queryKey: ["wallet-assets"],
             });

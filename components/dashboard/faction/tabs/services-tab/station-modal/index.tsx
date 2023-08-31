@@ -1,4 +1,8 @@
 import {
+  Slider,
+  SliderFilledTrack,
+  SliderThumb,
+  SliderTrack,
   Text,
   Modal,
   ModalOverlay,
@@ -13,13 +17,14 @@ import {
   Button,
   HStack,
   Spinner,
+  Box,
 } from "@chakra-ui/react";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import { useCountdown } from "usehooks-ts";
 import { toast } from "react-hot-toast";
-import { useCharTimers } from "@/hooks/useCharTimers";
+import { useCharTimers, useSpeedUpTimer } from "@/hooks/useCharTimers";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
-import { useSolana } from "@/hooks/useSolana";
+import { buildTransferIx, useSolana } from "@/hooks/useSolana";
 import {
   useFactionStationClaim,
   useFactionStationStart,
@@ -32,6 +37,12 @@ import { startStationProcess as startStation } from "./tx-builder";
 import { Tip } from "@/components/tooltip";
 import { getLocalImage, timeAgo } from "@/lib/utils";
 import { getBlueprint } from "@/types/server";
+import {
+  BONK_COST_PER_MS_WIPED,
+  BONK_MINT,
+  SERVER_KEY,
+  STATION_USE_COST_PER_LEVEL,
+} from "@/constants";
 
 export const ModalStation: FC<{
   station?: {
@@ -55,6 +66,11 @@ export const ModalStation: FC<{
   const [selectedCharacter, _] = useSelectedCharacter();
   const { data: walletAssets } = useAllWalletAssets();
   const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint });
+
+  const [input, setInput] = useState<number>(0);
+  const [onHover, setOnHover] = useState<boolean>(false);
+  const over = () => setOnHover(true);
+  const out = () => setOnHover(false);
 
   const timer = timersData?.stationTimers.find(
     (e) => e.station === station?.id,
@@ -94,6 +110,7 @@ export const ModalStation: FC<{
 
   const queryClient = useQueryClient();
   const { mutate } = useFactionStationStart();
+  const { mutate: speedUp, isLoading: speedUpIsLoading } = useSpeedUpTimer();
   const { mutate: claim, isLoading } = useFactionStationClaim();
 
   const stationBlueprint = station && getBlueprint(station?.blueprint);
@@ -150,16 +167,80 @@ export const ModalStation: FC<{
     claim(
       { mint: selectedCharacter?.mint, stationId: station.id },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
           queryClient.refetchQueries({ queryKey: ["char-timers"] });
           queryClient.refetchQueries({ queryKey: ["assets"] });
           queryClient.refetchQueries({ queryKey: ["wallet-assets"] });
+          console.log({ response });
           toast.success(
-            "You've claimed the reward from the " + station?.blueprint,
+            "You've claimed the reward from the " +
+              station?.blueprint +
+              "\nCheck inventory for new items.",
           );
         },
       },
     );
+  };
+
+  const speedUpWithBonk = async () => {
+    //todo
+    if (!walletAddress) {
+      toast.error("No wallet connected");
+      return;
+    }
+    if (selectedCharacter?.mint === undefined) {
+      toast.error("No selected character");
+      return;
+    }
+
+    const speedUpTime = input * 1000;
+    const memoIx = buildMemoIx({
+      walletAddress,
+      payload: {
+        mint: selectedCharacter?.mint,
+        timestamp: Date.now().toString(),
+        type: "STATION",
+        timerId: timer?.id,
+        msSpedUp: speedUpTime,
+      },
+    });
+
+    try {
+      const bonkIxs = await buildTransferIx({
+        walletAddress,
+        connection,
+        mint: BONK_MINT.toString(),
+        receipientAddress: SERVER_KEY,
+        amount: BigInt(speedUpTime) * BONK_COST_PER_MS_WIPED,
+        decimals: 5,
+      });
+
+      const encodedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        //@ts-ignore
+        txInstructions: [memoIx, ...bonkIxs],
+      });
+
+      if (encodedTx instanceof Error) {
+        toast.error("Unable to build tx to speed up bonk");
+        throw Error("Unable to build tx to speed up bonk");
+      }
+      speedUp(
+        { signedTx: encodedTx },
+        {
+          onSuccess: (_) => {
+            toast.success("Successfully speed up timer!");
+            queryClient.refetchQueries({ queryKey: ["char-timers"] });
+          },
+        },
+      );
+    } catch (err) {
+      console.error("Failed to speed up with bonk", JSON.stringify(err));
+    }
+
+    // fin
   };
 
   return (
@@ -213,13 +294,39 @@ export const ModalStation: FC<{
               justifyContent="center"
               alignItems="center"
               mt="4rem"
+              onMouseOver={over}
+              onMouseOut={out}
             >
-              {timer && (
-                <Tip label="Coming soon! Will be able to speed up with BONK">
-                  <Button onClick={() => {}} mb="2rem" isDisabled={true}>
+              {timer && !isClaimable && (
+                <>
+                  <Slider
+                    focusThumbOnChange={false}
+                    value={input}
+                    onChange={setInput}
+                    min={0}
+                    max={count}
+                    maxW="80%"
+                    m="1rem auto"
+                    transition="all 0.25 ease-in-out"
+                    opacity={onHover ? 1 : 0}
+                  >
+                    <SliderTrack>
+                      <SliderFilledTrack bg="brand.secondary" />
+                    </SliderTrack>
+                    <SliderThumb
+                      fontWeight={700}
+                      fontSize="1rem"
+                      w="10rem"
+                      h="3rem"
+                      bg="blacks.700"
+                    >
+                      {timeAgo(input)}
+                    </SliderThumb>
+                  </Slider>
+                  <Button onClick={speedUpWithBonk} mb="2rem">
                     <FaClock style={{ marginRight: "0.5rem" }} /> SPEED UP
                   </Button>
-                </Tip>
+                </>
               )}
               {timer && (
                 <Progress
@@ -307,6 +414,8 @@ const ModalHeader = ({
   desc?: string;
   level?: number;
 }) => {
+  const stationCost =
+    (STATION_USE_COST_PER_LEVEL * BigInt(level ?? 0)) / BigInt(1e5);
   return (
     <Flex gap="1rem">
       <Image src={image} alt="station" w="15rem" borderRadius="1rem" />
@@ -325,6 +434,10 @@ const ModalHeader = ({
         </Text>
         <Text>
           Station Level: <strong>{level}</strong>
+        </Text>
+        <Text>
+          Station cost to use:{" "}
+          <strong>{(stationCost / BigInt(1000)).toString()}K BONK</strong>
         </Text>
       </VStack>
     </Flex>

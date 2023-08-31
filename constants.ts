@@ -7,6 +7,7 @@ export const SERVER_KEY = "pockmZEzU9m8bkgHMtA3bmHASDFKv8N3kwkEbvQdd9K";
 export const FACTION_CREATION_MULTIPLIER = BigInt(10_00000); // ~ $0.3-0.5 * # of factions already created // 100th Faction could cost ~$50
 export const RESOURCE_FIELD_CREATION_MULTIPLIER = BigInt(50000_00000); // ~0.15-0.20c * # of resource fields // 100th will cost around $25
 export const BONK_PER_MS_WIPED = 10; // wipe 1 ms for every 100 bonk they send in 1s = 100K Bonk, 1hr = 36M Bonk (~$12)
+export const BONK_COST_PER_MS_WIPED = BigInt(100_00000); // wipe 1 ms for every 100 bonk they send in 1s = 100K Bonk, 1hr = 36M Bonk (~$12)
 export const BONK_MINT = new PublicKey(
   "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
 );
