@@ -412,6 +412,9 @@ export const fetchCharTimers = async ({
     rf: string;
   }[];
 }> => {
+  if (!mint) {
+    throw Error("No mint");
+  }
   const URL = API_BASE_URL + "/character/timers";
   const errorMsg = "Server Error while character timers";
 
