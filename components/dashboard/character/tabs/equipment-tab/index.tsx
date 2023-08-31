@@ -5,29 +5,56 @@ import { useAllWalletAssets } from "@/hooks/useWalletAssets"
 import { colors } from "@/styles/defaultTheme"
 import { Character, NFT } from "@/types/server"
 import { AddIcon, RepeatIcon } from "@chakra-ui/icons"
-import { Box, Button, Flex, Text, space } from "@chakra-ui/react"
+import { Box, Button, Flex, Text } from "@chakra-ui/react"
+import { toast } from "react-hot-toast"
 
+import { buildTransferIx, useSolana } from "@/hooks/useSolana"
 import { CitizenEquipment } from "../citizen-equipment.component"
-import { useSolana } from "@/hooks/useSolana"
+import {
+	useUnitConfirmEquip,
+	useUnitDequip,
+	useUnitRequestEquip,
+} from "@/hooks/useUnit"
+import { SERVER_KEY, SPL_TOKENS } from "@/constants"
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes"
+import { Transaction } from "@solana/web3.js"
 
 export const EquipmentTab: FC<{
 	currentCharacter: Character
 }> = ({ currentCharacter }) => {
+	const { mutate: requestMutate } = useUnitRequestEquip()
+	const { mutate: confirmMutate } = useUnitConfirmEquip()
+	const { mutate: dequipMutate } = useUnitDequip()
+	const { signTransaction } = useSolana()
 	const { data: walletAssets, isLoading: walletAssetsIsLoading } =
 		useAllWalletAssets()
-	const {
-		buildMemoIx,
-		encodeTransaction,
-		walletAddress,
-		connection,
-		signTransaction,
-	} = useSolana()
 
-	console.log(walletAssets)
-	console.log(currentCharacter.mint)
+	const handleEquipUnit = async (unit: NFT) => {
+		console.log("EQUIP UNIT", unit)
+		const payload = {
+			mint: currentCharacter.mint, // Character Mint
+			unit: unit.mint, // NFT address
+		}
 
-	const handleEquipUnit = (unit: NFT) => {
-		console.log(unit)
+		console.log("[REQUEST EQUIP] PAYLOAD", payload)
+
+		requestMutate(payload, {
+			onSuccess: async (data: { encodedTx: string }) => {
+				const { encodedTx } = data
+				console.log("[REQUEST EQUIP] SUCCESS; ENCODED TX", encodedTx)
+				const decodedTx = Transaction.from(bs58.decode(encodedTx))
+				console.log("[REQUEST EQUIP] DECODED TX", decodedTx)
+				const signedTx = await signTransaction(decodedTx)
+				console.log("[REQUEST EQUIP] SIGNED TX", signedTx)
+				const encodedReturnTx = bs58.encode(signedTx.serialize())
+				console.log("[REQUEST EQUIP] ENCODED RETURN TX", encodedReturnTx)
+				confirmMutate(encodedReturnTx, {
+					onSuccess: async () => toast.success("Unit equip request confirmed"),
+					onError: (e) => toast.error(JSON.stringify(e)),
+				})
+			},
+			onError: (e) => toast.error(JSON.stringify(e)),
+		})
 	}
 
 	return (
