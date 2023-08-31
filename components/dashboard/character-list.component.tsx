@@ -35,7 +35,10 @@ export const CharacterList: FC<Props> = ({
 
   return (
     <CharacterListContainer>
-      <Tip label="TODO: DEV" placement="top">
+      <Tip
+        label="Start by creating a character from one of your NFTs here!"
+        placement="top"
+      >
         <Button
           variant="solid"
           border="2px solid"

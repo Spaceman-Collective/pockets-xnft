@@ -89,11 +89,11 @@ export const ModalRfDiscover: FC<{
               fire();
               toast.success("Successfully allocated Resource Field");
               refetchRFAllocation().then((data: any) =>
-                setDiscoverableData(data.data),
+                setDiscoverableData(data.data)
               );
               openProspect();
             },
-          },
+          }
         );
       } else {
         throw Error("failed tx");
@@ -107,7 +107,6 @@ export const ModalRfDiscover: FC<{
     }
   };
 
-  // TODO: DEV update the below with tooltips
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />

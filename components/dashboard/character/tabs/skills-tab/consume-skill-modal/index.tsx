@@ -62,7 +62,7 @@ export const ConsumeSkillModal: FC<{
                 isLoading={walletAssetsIsLoading || isFetching}
                 resource={resource}
                 resourceInWallet={walletAssets?.resources.find(
-                  (asset) => asset.name === resource.name,
+                  (asset) => asset.name === resource.name
                 )}
               />
             ))}
@@ -85,7 +85,7 @@ const ConsumeItemContainer: FC<{
   };
 }> = ({ resource, resourceInWallet, isLoading, skill }) => {
   const extraSkillUp = resource.skills.filter(
-    (e) => e.toLowerCase() !== skill.toLowerCase(),
+    (e) => e.toLowerCase() !== skill.toLowerCase()
   );
 
   const queryClient = useQueryClient();
@@ -99,9 +99,6 @@ const ConsumeItemContainer: FC<{
     signTransaction,
   } = useSolana();
   const [selectedCharacter] = useSelectedCharacter();
-
-  //TODO: DEV PUT CONSUME CODE IN HERE
-  //will be called with the number from input box
 
   const { mutate } = useResourceConsume();
   const postConsume = async (amountToConsume: number) => {
@@ -153,12 +150,12 @@ const ConsumeItemContainer: FC<{
               `Successfully consumed\n${amountToConsume}x ${resource.name}\nGained ${xpGained}xp`,
               {
                 duration: 5000,
-              },
+              }
             );
           },
           onError: (e) =>
             toast.error("Oops! Failed to consume: " + JSON.stringify(e)),
-        },
+        }
       );
     } catch (err) {
       toast.error("Oops! Failed to consume resource: " + err);

@@ -137,10 +137,12 @@ const Header: React.FC<{
   return (
     <Flex justifyContent="space-between" alignItems="end">
       <Title verticalAlign="end">{factionName!}</Title>
-      <HStack alignItems="end">
-        <Label>Faction Tax Rate</Label>
-        <Value>{taxRate}%</Value>
-      </HStack>
+      <Tip label="Percentage that the faction takes of each harvest. Adjusted through Politics.">
+        <HStack alignItems="end">
+          <Label>Faction Tax Rate</Label>
+          <Value>{taxRate}%</Value>
+        </HStack>
+      </Tip>
     </Flex>
   );
 };
