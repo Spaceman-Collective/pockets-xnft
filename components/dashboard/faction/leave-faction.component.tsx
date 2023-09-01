@@ -12,6 +12,7 @@ import {
   ModalCloseButton,
   useDisclosure,
   Textarea,
+  Spinner,
 } from "@chakra-ui/react";
 import { colors } from "@/styles/defaultTheme";
 import { useLeaveFaction } from "@/hooks/useLeaveFaction";
@@ -21,6 +22,8 @@ import { Character } from "@/types/server";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ComputeBudgetProgram } from "@solana/web3.js";
+import toast from "react-hot-toast";
+import styled from "@emotion/styled";
 
 export const LeaveFactionModal: React.FC<{
   character: Character;
@@ -46,6 +49,7 @@ export const LeaveFactionModal: React.FC<{
   const onSuccess = (data: any) => {
     queryClient.refetchQueries({ queryKey: ["assets"] });
     setFactionStatus(false);
+    toast.success('Left faction!')
     onClose();
   };
 
@@ -150,23 +154,28 @@ export const LeaveFactionModal: React.FC<{
             >
               CANCEL
             </Button>
-            <Button
-              w="100%"
-              bg={colors.red[700]}
-              border="2px solid"
-              borderColor={colors.red[700]}
-              borderRadius="0.5rem"
+            <LeaveButton
               onClick={handleLeaveFaction}
               _hover={{
                 bg: "#ff4444",
                 borderColor: "#ff4444",
               }}
             >
-              LEAVE FACTION
-            </Button>
+              {isLoading ? <Spinner /> : "Leave Faction"}
+            </LeaveButton>
           </ModalFooter>
         </ModalContent>
       </Modal>
     </Box>
   );
 };
+
+const LeaveButton = styled(Button)`
+  background-color: ${colors.red[700]};
+  border: 2px solid ${colors.red[700]};
+  border-radius: 0.5rem;
+  width: 100%;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+`;
