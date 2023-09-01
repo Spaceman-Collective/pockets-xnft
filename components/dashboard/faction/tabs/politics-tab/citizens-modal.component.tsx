@@ -13,11 +13,19 @@ import {
   IconButton,
   Tooltip,
   Input,
-  Button,
+  VStack,
+  Spinner
 } from "@chakra-ui/react";
 import { FC, useState } from "react";
 import styled from "@emotion/styled";
-import { MdCheck, MdPersonAddAlt1, MdSend, MdRefresh } from "react-icons/md";
+import {
+  MdCheck,
+  MdPersonAddAlt1,
+  MdSend,
+  MdPersonRemoveAlt1,
+  MdGroup,
+} from "react-icons/md";
+import { GiHammerSickle } from "react-icons/gi";
 import { colors } from "@/styles/defaultTheme";
 import { Label, Value } from "../tab.styles";
 import { useQueryClient } from "@tanstack/react-query";
@@ -25,24 +33,40 @@ import toast from "react-hot-toast";
 import { PublicKey } from "@solana/web3.js";
 import { useSolana } from "@/hooks/useSolana";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
-import { delegateVotes, transferVotes } from "@/lib/solanaClient";
+import {
+  delegateVotes,
+  returnVoteDelegation,
+  transferVotes,
+} from "@/lib/solanaClient";
+import { useCitizen } from "@/hooks/useCitizen";
+import { useFaction } from "@/hooks/useFaction";
+import { useFactionVP } from "@/hooks/useFactionVP";
 
 export const CitizenModal: FC<{
   citizens: Character[];
   onClose: () => void;
   isOpen: boolean;
 }> = ({ citizens, onClose, isOpen }) => {
-  const [actionType, setActionType] = useState<"delegate" | "transfer" | null>(
-    null
-  );
+  const [actionType, setActionType] = useState<
+    "delegate" | "transfer" | "reclaim" | null
+  >(null);
   const [activeCitizen, setActiveCitizen] = useState<string | null>(null);
+
+
 
   const queryClient = useQueryClient();
   const [selectedCharacter] = useSelectedCharacter();
-  const { walletAddress } = useSolana();
+  const { walletAddress, connection } = useSolana();
+  const { data: currentCitizen, isLoading: isCitizenLoading } = useCitizen(
+    selectedCharacter?.mint ?? "",
+    connection
+  );
+  const { data: factionData } = useFactionVP(selectedCharacter?.faction?.id ?? "", connection);
 
-
-  const handleTransferVotes = async (voteAmt: number, voteCharacterRecepientMint: string) => {
+  const handleTransferVotes = async (
+    voteAmt: number,
+    voteCharacterRecepientMint: string
+  ) => {
     try {
       const voteTransferIx = await transferVotes(
         new PublicKey(walletAddress!),
@@ -52,14 +76,13 @@ export const CitizenModal: FC<{
       );
       await new Promise((resolve) => setTimeout(resolve, 1000));
       if (typeof voteTransferIx === "string") {
-        console.log('transfer ix: ' , voteTransferIx);
+        console.log("transfer ix: ", voteTransferIx);
         toast.success("Transfer vote successful!");
       } else {
-        console.log('error with transfer ix: ' , voteTransferIx);
+        console.log("error with transfer ix: ", voteTransferIx);
         toast.error("Transfer vote failed!");
       }
       await new Promise((resolve) => setTimeout(resolve, 15000));
-
     } catch (e) {
       console.log("Transfer vote failed: ", e);
       toast.error("Transfer vote failed");
@@ -69,7 +92,10 @@ export const CitizenModal: FC<{
     }
   };
 
-  const handleDelegateVotes = async (voteAmt: number, voteCharacterRecepientMint: string) => {
+  const handleDelegateVotes = async (
+    voteAmt: number,
+    voteCharacterRecepientMint: string
+  ) => {
     try {
       const voteTransferIx = await delegateVotes(
         new PublicKey(walletAddress!),
@@ -79,14 +105,13 @@ export const CitizenModal: FC<{
       );
       await new Promise((resolve) => setTimeout(resolve, 1000));
       if (typeof voteTransferIx === "string") {
-        console.log('Delegate ix: ' , voteTransferIx);
+        console.log("Delegate ix: ", voteTransferIx);
         toast.success("Delegate vote successful!");
       } else {
-        console.log('Error with delegate ix: ' , voteTransferIx);
+        console.log("Error with delegate ix: ", voteTransferIx);
         toast.error("Delegate vote failed!");
       }
       await new Promise((resolve) => setTimeout(resolve, 15000));
-
     } catch (e) {
       console.log("Delegate vote failed with error: ", e);
       toast.error("Delegate vote failed");
@@ -96,9 +121,33 @@ export const CitizenModal: FC<{
     }
   };
 
-  const handleReclaimDelegatedVotes = () => {
-    setActionType(null);
-    setActiveCitizen(null);
+  const handleReclaimDelegatedVotes = async (
+    voteAmt: number,
+    voteCharacterRecepientMint: string
+  ) => {
+    try {
+      const voteTransferIx = await returnVoteDelegation(
+        new PublicKey(walletAddress!),
+        new PublicKey(selectedCharacter?.mint!),
+        new PublicKey(voteCharacterRecepientMint),
+        voteAmt
+      );
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (typeof voteTransferIx === "string") {
+        console.log("Return delegate ix: ", voteTransferIx);
+        toast.success("Return delegate vote successful!");
+      } else {
+        console.log("Error with return delegate ix: ", voteTransferIx);
+        toast.error("Return delegate vote failed!");
+      }
+      await new Promise((resolve) => setTimeout(resolve, 15000));
+    } catch (e) {
+      console.log("Return delegate votes failed with error: ", e);
+      toast.error("Return delegate votes failed");
+    } finally {
+      setActionType(null);
+      setActiveCitizen(null);
+    }
   };
 
   return (
@@ -120,179 +169,256 @@ export const CitizenModal: FC<{
               <Text fontSize="3rem" fontWeight={800} letterSpacing="4px">
                 CITIZENS
               </Text>
+              <Tooltip label="Population" hasArrow>
+                <HStack pb="0.5rem">
+                  <MdGroup size="2.5rem" color={colors.brand.quaternary} />
+                  <CitizenValue ml="0.5rem">{citizens.length}</CitizenValue>
+                </HStack>
+              </Tooltip>
+              <Tooltip label="Total Skills" hasArrow>
+                <HStack pb="0.5rem">
+                  <GiHammerSickle size="2rem" color={colors.brand.quaternary} />
+                  <CitizenValue ml="0.5rem">
+                    {citizens?.length > 0 &&
+                      citizens
+                        .map((e) =>
+                          Object.values(e.skills).reduce((a, b) => a + b)
+                        )
+                        .reduce((a, b) => a + b)}
+                  </CitizenValue>
+                </HStack>
+              </Tooltip>
+
               <HStack pb="0.25rem">
-                <CitizenLabel fontSize="2rem"> POPULATION: </CitizenLabel>
-                <CitizenValue> {citizens.length}</CitizenValue>
-              </HStack>
-              <HStack pb="0.25rem">
-                <CitizenLabel>Total Skills: </CitizenLabel>
+                <CitizenLabel fontSize="2rem"> FACTION VP: </CitizenLabel>
                 <Text
                   fontSize="2rem"
                   fontWeight={700}
                   bg="brand.quaternary"
                   color="brand.primary"
                   w="fit-content"
-                  p="0rem 1.5rem"
-                  borderRadius="1rem"
+                  p="0rem 0.5rem"
+                  borderRadius="0.5rem"
                   filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
                 >
-                  {citizens?.length > 0 &&
-                    citizens
-                      .map((e) =>
-                        Object.values(e.skills).reduce((a, b) => a + b)
-                      )
-                      .reduce((a, b) => a + b)}
+                  {factionData.maxFactionVP}
                 </Text>
+              </HStack>
+
+              <HStack pb="0.25rem">
+                <CitizenLabel fontSize="2rem"> MY VP: </CitizenLabel>
+                {!isCitizenLoading ? (
+            <>
+              <Text
+                  fontSize="2rem"
+                  fontWeight={700}
+                  bg="brand.quaternary"
+                  color="brand.primary"
+                  w="fit-content"
+                  p="0rem 0.5rem"
+                  borderRadius="0.5rem"
+                  filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
+                >
+                {Number(currentCitizen?.totalVotingPower) -
+                  Number(currentCitizen?.maxPledgedVotingPower)}
+              </Text>
+            </>
+          ) : (
+            <Spinner size="md" color="white" mb="0.5rem"  />
+          )}
               </HStack>
             </HStack>
           </Box>
           <Grid
-            templateColumns="repeat(auto-fill, minmax(12rem, 1fr))"
+            templateColumns="repeat(auto-fill, minmax(23rem, 1fr))"
             gap="1rem"
           >
             {citizens.map((citizen) => (
-              <Flex direction="column" key={citizen.mint} position="relative">
-                <Frame img={citizen.image} />
-                <Tooltip label="Skills" hasArrow>
-                  <Text
-                    position="absolute"
-                    top="-0.5rem"
-                    left="-0.5rem"
-                    fontSize="1.75rem"
-                    fontWeight={700}
-                    bg="brand.quaternary"
-                    color="brand.primary"
-                    w="fit-content"
-                    p="0 1rem"
-                    borderRadius="0.5rem"
-                    filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
-                  >
-                    {Object.values(citizen.skills).reduce((a, b) => a + b)}
-                  </Text>
-                </Tooltip>
-
-                <Tooltip label="Reclaim Delegated Votes" hasArrow>
-                  <IconButton
-                    position="absolute"
-                    bottom="12rem"
-                    left="1rem"
-                    aria-label="Confirm"
-                    icon={<MdRefresh />}
-                    bg={colors.blacks[700]}
-                    borderRadius="0.5rem"
-                    color="white"
-                    p="0.5rem 0.5rem"
-                    _hover={{ bg: colors.blacks[700] }}
-                    onClick={() => handleReclaimDelegatedVotes()}
-                  />
-                </Tooltip>
-
-                <Tooltip label="Delegated Votes" hasArrow>
-                  <Text
-                    position="absolute"
-                    bottom="12rem"
-                    right="1.5rem"
-                    fontSize="1.75rem"
-                    fontWeight={700}
-                    bg={colors.blacks[700]}
-                    color="brand.secondary"
-                    w="fit-content"
-                    p="0 0.5rem"
-                    borderRadius="0.5rem"
-                    filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
-                  >
-                    {Object.values(citizen.skills).reduce((a, b) => a + b)}
-                  </Text>
-                </Tooltip>
-
+              <Flex direction="row" key={citizen.mint} position="relative">
+                <Box>
+                  <Frame img={citizen.image} />
+                  <Tooltip label="Citizen VP" hasArrow>
+                    <Text
+                      position="absolute"
+                      top="0.5rem"
+                      left="0.5rem"
+                      fontSize="1.75rem"
+                      fontWeight={700}
+                      bg="brand.quaternary"
+                      color="brand.primary"
+                      w="fit-content"
+                      p="0 1rem"
+                      borderRadius="0.5rem"
+                      filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
+                    >
+                      {Object.values(citizen.skills).reduce((a, b) => a + b)}
+                    </Text>
+                  </Tooltip>
+                  {/* <Tooltip label="Skills" hasArrow>
+                    <Text
+                      position="absolute"
+                      top="-0.5rem"
+                      left="10rem"
+                      fontSize="1.75rem"
+                      fontWeight={700}
+                      bg="brand.quaternary"
+                      color="brand.primary"
+                      w="fit-content"
+                      p="0 1rem"
+                      borderRadius="0.5rem"
+                      filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
+                    >
+                      {Object.values(citizen.skills).reduce((a, b) => a + b)}
+                    </Text>
+                  </Tooltip> */}
+                  <Tooltip label="Delegated VP" hasArrow>
+                    <Text
+                      position="absolute"
+                      bottom="1rem"
+                      left="0.5rem"
+                      fontSize="1.75rem"
+                      fontWeight={700}
+                      bg={colors.blacks[700]}
+                      color="brand.secondary"
+                      w="fit-content"
+                      p="0 1rem"
+                      borderRadius="0.5rem"
+                      filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
+                    >
+                      {Object.values(citizen.skills).reduce((a, b) => a + b)}
+                    </Text>
+                  </Tooltip>
+                  {/* <Tooltip label="Skills" hasArrow>
+                    <Text
+                      position="absolute"
+                      bottom="0rem"
+                      left="10rem"
+                      fontSize="1.75rem"
+                      fontWeight={700}
+                      bg="brand.quaternary"
+                      color="brand.primary"
+                      w="fit-content"
+                      p="0 1rem"
+                      borderRadius="0.5rem"
+                      filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
+                    >
+                      {Object.values(citizen.skills).reduce((a, b) => a + b)}
+                    </Text>
+                  </Tooltip> */}
+                </Box>
                 <Flex
                   direction="column"
+                  justifyContent="space-between"
                   position="relative"
-                  mt="1rem"
-                  mb="0.5rem"
+                  ml="2rem"
                 >
-                  <Text
-                    noOfLines={1}
-                    textOverflow="ellipsis"
-                    fontFamily="header"
-                    fontSize="1.75rem"
-                    letterSpacing="3px"
-                    fontWeight="100"
-                  >
-                    {citizen.name.split(" ")[0]}
-                  </Text>
-                  <Text
-                    noOfLines={1}
-                    textOverflow="ellipsis"
-                    fontFamily="header"
-                    letterSpacing="1px"
-                    fontWeight="800"
-                    fontSize="1.5rem"
-                    textTransform="uppercase"
-                  >
-                    {citizen.name.split(" ")[1]}
-                  </Text>
-                </Flex>
-
-                <Flex mt="1rem" justifyContent="space-between">
-                  {actionType && activeCitizen === citizen.mint ? (
-                    <Flex mr="0.5rem">
-                      <StyledInput
-                        placeholder="Amount"
-                        type="number"
-                        w="8rem"
-                      />
-                      <IconButton
-                        aria-label="Confirm"
-                        icon={<MdCheck />}
-                        bg={colors.brand.quaternary}
-                        borderRadius="0rem 0.5rem 0.5rem 0rem"
-                        color="white"
-                        p="0rem 1rem"
-                        h="4rem"
-                        _hover={{ bg: colors.blacks[700] }}
-                        onClick={() => {
-                          if (actionType == "delegate") {
-                            handleTransferVotes(1, citizen.mint);
-                          } else if (actionType == "transfer") {
-                            handleDelegateVotes(1, citizen.mint);
-                          }
-                        }}
-                      />
+                  <VStack align="start" gap="0" mb="1rem">
+                  <Flex align="center" m="0rem"  p="0rem">
+                      <Label fontSize="2rem"> SKILLS: </Label>
+                      <Value ml="0.5rem">
+                        {Object.values(citizen.skills).reduce((a, b) => a + b)}
+                      </Value>
                     </Flex>
-                  ) : (
-                    <>
-                      <Tooltip label="Delegate Votes" hasArrow>
+                    <Text
+                      noOfLines={1}
+                      textOverflow="ellipsis"
+                      fontFamily="header"
+                      fontSize="2rem"
+                      letterSpacing="2px"
+                      fontWeight="100"
+                      mt="0rem"
+                    >
+                      {citizen.name.split(" ")[0]}
+                    </Text>
+                    <Text
+                      noOfLines={1}
+                      textOverflow="ellipsis"
+                      fontFamily="header"
+                      letterSpacing="1px"
+                      fontWeight="800"
+                      fontSize="1.75rem"
+                      textTransform="uppercase"
+                    >
+                      {citizen.name.split(" ")[1]}
+                    </Text>
+
+                  </VStack>
+                  <Flex>
+                    {actionType && activeCitizen === citizen.mint ? (
+                      <Flex width="100%" mr="1rem">
+                        <StyledInput
+                          placeholder="Amount"
+                          type="number"
+                        />
                         <IconButton
-                          aria-label="Delegate Votes"
-                          icon={<MdPersonAddAlt1 />}
-                          bg={colors.blacks[700]}
+                          aria-label="Confirm"
+                          icon={<MdCheck />}
+                          bg={colors.brand.quaternary}
+                          borderRadius="0rem 0.5rem 0.5rem 0rem"
                           color="white"
-                          p="0rem 2rem"
+                          p="0rem 1rem"
                           h="4rem"
+                          _hover={{ bg: colors.blacks[700] }}
                           onClick={() => {
-                            setActionType("delegate");
-                            setActiveCitizen(citizen.mint);
+                            if (actionType == "delegate") {
+                              handleDelegateVotes(1, citizen.mint);
+                            } else if (actionType == "transfer") {
+                              handleTransferVotes(1, citizen.mint);
+                            } else if (actionType == "reclaim") {
+                              handleReclaimDelegatedVotes(1, citizen.mint);
+                            }
                           }}
                         />
-                      </Tooltip>
-                      <Tooltip label="Transfer Votes" hasArrow>
-                        <IconButton
-                          aria-label="Transfer Votes"
-                          icon={<MdSend />}
-                          bg={colors.blacks[700]}
-                          color="white"
-                          p="0rem 2rem"
-                          h="4rem"
-                          mr="0.5rem"
-                          onClick={() => {
-                            setActionType("transfer");
-                            setActiveCitizen(citizen.mint);
-                          }}
-                        />
-                      </Tooltip>
-                    </>
-                  )}
+                      </Flex>
+                    ) : (
+                      <Flex justifyContent="space-between" gap="1rem">
+                        <Tooltip label="Reclaim Delegated" hasArrow>
+                          <IconButton
+                            aria-label="Confirm"
+                            icon={<MdPersonRemoveAlt1 />}
+                            bg={colors.blacks[700]}
+                            borderRadius="0.5rem"
+                            color="white"
+                            p="0rem 2rem"
+                            _hover={{ bg: colors.blacks[700] }}
+                            h="4rem"
+                            onClick={() => {
+                              setActionType("reclaim");
+                              setActiveCitizen(citizen.mint);
+                            }}
+                          />
+                        </Tooltip>
+                        <Tooltip label="Delegate Votes" hasArrow>
+                          <IconButton
+                            aria-label="Delegate Votes"
+                            icon={<MdPersonAddAlt1 />}
+                            bg={colors.blacks[700]}
+                            color="white"
+                            p="0rem 2rem"
+                            h="4rem"
+                            onClick={() => {
+                              setActionType("delegate");
+                              setActiveCitizen(citizen.mint);
+                            }}
+                          />
+                        </Tooltip>
+                        <Tooltip label="Transfer Votes" hasArrow>
+                          <IconButton
+                            aria-label="Transfer Votes"
+                            icon={<MdSend />}
+                            bg={colors.blacks[700]}
+                            color="white"
+                            p="0rem 2rem"
+                            h="4rem"
+                            onClick={() => {
+                              setActionType("transfer");
+                              setActiveCitizen(citizen.mint);
+                            }}
+                          />
+                        </Tooltip>
+                      </Flex>
+                    )}
+                  </Flex>
                 </Flex>
               </Flex>
             ))}
@@ -318,7 +444,6 @@ export const CitizenValue = styled(Text)`
 const inputStyles = {
   backgroundColor: colors.blacks[600],
   height: "4rem",
-  width: "100%",
   borderRadius: "0.5rem 0rem 0rem 0.5rem",
   padding: "0.5rem 1rem",
   fontWeight: "500",
