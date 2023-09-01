@@ -11,14 +11,23 @@ export const Units: FC<{
 	units: NFT[]
 	handleEquipUnit: (unit: NFT) => void
 	loadingUnitEquip: boolean
-}> = ({ character, units, handleEquipUnit, loadingUnitEquip }) => {
-	const [skillFilter, setSkillFilter] = useState<string>("")
-
+	combatSkillLevels: { skill: string; level: number }[]
+	selectedSkill: string
+	setSelectedSkill: (skill: string) => void
+}> = ({
+	character,
+	units,
+	handleEquipUnit,
+	loadingUnitEquip,
+	combatSkillLevels,
+	selectedSkill,
+	setSelectedSkill,
+}) => {
 	const filteredUnits =
 		units.filter(
 			(unit) =>
 				String(unit.attributes.Skill).toLocaleUpperCase() ===
-					skillFilter.toUpperCase() || !skillFilter.length,
+					selectedSkill.toUpperCase() || !selectedSkill.length,
 		) || []
 	return (
 		<Box>
@@ -35,9 +44,9 @@ export const Units: FC<{
 						return (
 							<Flex
 								onClick={() =>
-									skillFilter === skill
-										? setSkillFilter("")
-										: setSkillFilter(skill)
+									selectedSkill === skill
+										? setSelectedSkill("")
+										: setSelectedSkill(skill)
 								}
 								m="0 0.5rem"
 								flexDir="row"
@@ -45,12 +54,12 @@ export const Units: FC<{
 								p="1.5rem"
 								flex="1 1 auto"
 								bg={
-									skillFilter === skill
+									selectedSkill === skill
 										? colors.brand.quaternary
 										: colors.blacks[500]
 								}
 								color={
-									skillFilter === skill
+									selectedSkill === skill
 										? colors.blacks[700]
 										: colors.brand.secondary
 								}
@@ -60,7 +69,7 @@ export const Units: FC<{
 								transition="all 0.1s ease"
 								_hover={{
 									bg:
-										skillFilter === skill
+										selectedSkill === skill
 											? colors.brand.quaternary
 											: colors.blacks[600],
 								}}
@@ -273,8 +282,8 @@ export const Units: FC<{
 						textTransform="uppercase"
 					>
 						<Text opacity="0.5">
-							{skillFilter.length
-								? `No ${skillFilter} units available`
+							{selectedSkill.length
+								? `No ${selectedSkill} units available`
 								: "No Units Available"}
 						</Text>
 					</Box>

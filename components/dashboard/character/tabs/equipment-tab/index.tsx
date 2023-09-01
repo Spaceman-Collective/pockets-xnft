@@ -10,7 +10,7 @@ import {
 	useUnitRequestEquip,
 } from "@/hooks/useUnit"
 import { useAllWalletAssets } from "@/hooks/useWalletAssets"
-import { Character, NFT } from "@/types/server"
+import { COMBAT_SKILLS, Character, NFT } from "@/types/server"
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes"
 import { Transaction } from "@solana/web3.js"
 import { useQueryClient } from "@tanstack/react-query"
@@ -23,10 +23,20 @@ export const EquipmentTab: FC<{ currentCharacter: Character }> = ({
 	currentCharacter,
 }) => {
 	if (!currentCharacter) return null
+
+	const combatSkillLevels = COMBAT_SKILLS.map((skill) => ({
+		skill,
+		level:
+			currentCharacter.skills[skill.charAt(0).toUpperCase() + skill.slice(1)],
+	}))
+
+	console.log(combatSkillLevels)
+
 	const queryClient = useQueryClient()
 
 	const [loadingUnitEquip, setLoadingUnitEquip] = useState<boolean>(false)
 	const [loadingUnitDequip, setLoadingUnitDequip] = useState<boolean>(false)
+	const [selectedSkill, setSelectedSkill] = useState<string>("")
 
 	const { mutate: requestUnitEquip } = useUnitRequestEquip()
 	const { mutate: confirmUnitEquip } = useUnitConfirmEquip()
@@ -45,7 +55,6 @@ export const EquipmentTab: FC<{ currentCharacter: Character }> = ({
 
 	const handleEquipUnit = async (unit: NFT) => {
 		setLoadingUnitEquip(true)
-		console.log("EQUIP UNIT", unit)
 		const payload = {
 			mint: currentCharacter.mint, // Character Mint
 			unit: unit.mint, // NFT address
@@ -113,8 +122,6 @@ export const EquipmentTab: FC<{ currentCharacter: Character }> = ({
 			},
 			onError: (e) => toast.error(JSON.stringify(e)),
 		})
-
-		console.log("DEQUIP UNIT", assetId)
 	}
 	return (
 		<PanelContainer
@@ -127,6 +134,8 @@ export const EquipmentTab: FC<{ currentCharacter: Character }> = ({
 			<CharacterEquipment
 				character={currentCharacter}
 				handleDequipUnit={handleDequipUnit}
+				combatSkillLevels={combatSkillLevels}
+				selectedSkill={selectedSkill}
 			/>
 			<Header title="Available Units" />
 			<Units
@@ -134,6 +143,9 @@ export const EquipmentTab: FC<{ currentCharacter: Character }> = ({
 				units={walletAssets?.units || []}
 				handleEquipUnit={handleEquipUnit}
 				loadingUnitEquip={loadingUnitEquip}
+				combatSkillLevels={combatSkillLevels}
+				selectedSkill={selectedSkill}
+				setSelectedSkill={setSelectedSkill}
 			/>
 		</PanelContainer>
 	)
