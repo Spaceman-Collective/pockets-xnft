@@ -18,6 +18,7 @@ import { CharacterEquipment } from "./CharacterEquipment"
 
 import { Header } from "./Header"
 import { Units } from "./Units"
+import { Text } from "@chakra-ui/react"
 
 export const EquipmentTab: FC<{ currentCharacter: Character }> = ({
 	currentCharacter,
@@ -129,6 +130,9 @@ export const EquipmentTab: FC<{ currentCharacter: Character }> = ({
 	return (
 		<PanelContainer display="flex" flexDirection="column" gap="2rem" width="100%">
 			<Header title="Current Loadout" />
+			<Text>
+				For each level in a given skill you can equip that many linked units.
+			</Text>
 			<CharacterEquipment
 				character={currentCharacter}
 				handleDequipUnit={handleDequipUnit}

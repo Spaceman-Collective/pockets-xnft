@@ -53,6 +53,7 @@ import { useVoteThreshold } from "@/hooks/useVoteThreshold"
 import { useProposalVotesAll } from "@/hooks/useProposalVotesAll"
 import { useQueryClient } from "@tanstack/react-query"
 import { ToolTip } from "@/styles/brand-components"
+import { Tip } from "@/components/tooltip"
 
 const spacing = "1rem"
 type FactionTabPoliticsProps = {
@@ -218,14 +219,16 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 				<Flex justifyContent="space-between" alignItems="end" mb={spacing} w="100%">
 					<MenuTitle>proposals</MenuTitle>
 					<Flex alignItems="end">
-						<Text
-							fontSize="1.5rem"
-							color="brand.secondary"
-							cursor="pointer"
-							onClick={reclaimProposalVotes}
-						>
-							RECLAIM PROPOSAL VOTES
-						</Text>
+						<Tip label="You'll need to unstake votes from voted on proposals to reuse them in other proposals.">
+							<Text
+								fontSize="1.5rem"
+								color="brand.secondary"
+								cursor="pointer"
+								onClick={reclaimProposalVotes}
+							>
+								Unstake Votes
+							</Text>
+						</Tip>
 					</Flex>
 					<Flex alignItems="end">
 						<CreateProposal
@@ -275,21 +278,25 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 					</Label>
 					{!isCitizenLoading ? (
 						<>
-							<Value>
-								{Number(citizen?.totalVotingPower) -
-									Number(citizen?.maxPledgedVotingPower)}
-							</Value>
-							<ValueCalculation
-								color={colors.brand.tertiary}
-								pl="0.25rem"
-								pb="0.25rem"
-							>
-								({citizen?.grantedVotingPower.toString()}
-								{" + "}
-								{citizen?.delegatedVotingPower.toString()}
-								{" - "}
-								{citizen?.maxPledgedVotingPower.toString()})
-							</ValueCalculation>
+							<Tip label="Current usable voting power">
+								<Value>
+									{Number(citizen?.totalVotingPower) -
+										Number(citizen?.maxPledgedVotingPower)}
+								</Value>
+							</Tip>
+							<Tip label="Granted Voting Power + Delegated Voting Power - Staked Voting Power">
+								<ValueCalculation
+									color={colors.brand.tertiary}
+									pl="0.25rem"
+									pb="0.25rem"
+								>
+									({citizen?.grantedVotingPower.toString()}
+									{" + "}
+									{citizen?.delegatedVotingPower.toString()}
+									{" - "}
+									{citizen?.maxPledgedVotingPower.toString()})
+								</ValueCalculation>
+							</Tip>
 						</>
 					) : (
 						<Spinner size="md" color="white" mb="0.5rem" />

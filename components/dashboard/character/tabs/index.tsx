@@ -21,14 +21,14 @@ export const CharacterTabs: React.FC<{
 						componentProps: { currentCharacter, selectSkill },
 					},
 					{
+						tabName: "Army",
+						Component: EquipmentTab,
+						componentProps: { currentCharacter },
+					},
+					{
 						tabName: "Arena",
 						Component: ArenaTab,
 						componentProps: { currentCharacter, allFactions },
-					},
-					{
-						tabName: "Equipment",
-						Component: EquipmentTab,
-						componentProps: { currentCharacter },
 					},
 				]}
 			/>
