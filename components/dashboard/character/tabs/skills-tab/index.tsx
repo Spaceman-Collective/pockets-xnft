@@ -356,12 +356,12 @@ const Label = styled(Text)`
 	text-transform: uppercase;
 	letter-spacing: 1px;
 	opacity: 0.5;
-	font-weight: 400;
+	font-weight: 700;
 	font-size: 1.25rem;
 `
 
 const Value = styled(Text)`
 	font-weight: 700;
-	font-size: 1.75rem;
+	font-size: 1.5rem;
 	text-transform: uppercase;
 `
