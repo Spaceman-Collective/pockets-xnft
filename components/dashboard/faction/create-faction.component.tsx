@@ -62,6 +62,7 @@ export const CreateFaction: FC<{
     description: "",
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [creatingFaction, setCreatingFaction] = useState<boolean>(false);
   const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter();
   const [requiredBonk, setRequiredBonk] = useState<string>("0");
 
@@ -125,12 +126,14 @@ export const CreateFaction: FC<{
   const onSuccess = (data: any) => {
     queryClient.refetchQueries({ queryKey: ["fetch-faction"] });
     setFactionStatus(true);
-    toast.success("Faction created successfully!");
+    setCreatingFaction(false);
     fireConfetti();
+    toast.success("Faction created successfully!");
     onClose();
   };
 
   const handleCreateFaction = async () => {
+    setCreatingFaction(true);
     if (!validateInputs()) {
       return;
     }
@@ -179,8 +182,11 @@ export const CreateFaction: FC<{
       );
     } else {
       console.error("No Tx, encoded tx: ", encodedSignedTx);
+      toast.error('Failed to create faction!');
+      setCreatingFaction(false);
       return;
     }
+
   };
 
   const displayBonk = requiredBONK / BigInt(1e5);
@@ -326,17 +332,31 @@ export const CreateFaction: FC<{
             </Box>
           </ModalBody>
           <ModalFooter>
-            <Button
-              w="100%"
-              bg={colors.brand.quaternary}
+            <CreateButton
               onClick={handleCreateFaction}
-              mb="1rem"
+              _hover={{
+                backgroundColor: colors.blacks[700],
+                border: `2px solid ${colors.blacks[700]}`,
+              }}
             >
-              Create
-            </Button>
+              {creatingFaction ? <Spinner /> : "Create Proposal"}
+            </CreateButton>
           </ModalFooter>
         </ModalContent>
       </Modal>
     </Box>
   );
 };
+
+
+const CreateButton = styled(Button)`
+  background-color: ${colors.brand.quaternary};
+  border: 2px solid ${colors.brand.quaternary};
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+`;
+
