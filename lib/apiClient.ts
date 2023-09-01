@@ -1,6 +1,7 @@
 import { Proposal } from "@/types/server/Proposal"
 import type { NFT, Character, Faction, Blueprint } from "@/types/server"
 import fetch from "axios"
+import { FactionScore } from "@/components/leaderboard"
 const API_BASE_URL = "https://api.pockets.gg"
 
 export const getLadImageURL = (ladNumber: number) =>
@@ -231,6 +232,25 @@ export const fetchFactions = async (): Promise<FetchFactionsType> => {
 		}
 	} catch (error) {
 		console.error("Network Error while fetching factions:", error)
+		throw error
+	}
+}
+
+export const fetchLeaderboard = async (): Promise<
+	{ condition: string; factions: FactionScore[] }[]
+> => {
+	const URL = API_BASE_URL + "/leaderboard"
+	try {
+		const response = await fetch.get<any>(URL)
+
+		if (response.status === 200) {
+			return await response.data
+		} else {
+			console.error("Server Error while fetching leaderboard:", response)
+			throw new Error("Server Error while fetching leaderboard")
+		}
+	} catch (error) {
+		console.error("Network Error while fetching leaderboard:", error)
 		throw error
 	}
 }
@@ -475,7 +495,7 @@ export const fetchRfAllocation = async (): Promise<{
 	}
 }
 
-type ResourceFieldPDA = String
+type ResourceFieldPDA = string
 
 export const postRfAllocate = async ({
 	signedTx,
@@ -484,13 +504,14 @@ export const postRfAllocate = async ({
 	signedTx?: string
 	charMint?: string
 }): Promise<ResourceFieldPDA> => {
-	console.log("charmint: ", charMint)
 	const URL = API_BASE_URL + "/rf/allocate"
 	const errorMsg = "Server Error while posting resource field allocation"
 	try {
 		let body = !!signedTx ? { signedTx } : { mint: charMint }
+		if ((!signedTx && !charMint) || charMint == "" || signedTx == "") {
+			return ""
+		}
 		const response = await fetch.post<any>(URL, body)
-
 		if (response.status === 200) {
 			const data = await response.data
 			return data.rfPDA as ResourceFieldPDA
@@ -499,6 +520,7 @@ export const postRfAllocate = async ({
 			throw new Error(errorMsg)
 		}
 	} catch (error) {
+		console.error("Request info: ", signedTx, charMint)
 		console.error("Network Error while allocating resources:", error)
 		throw error
 	}
@@ -599,10 +621,6 @@ export const fetchProposal = async (proposalId: string) => {
 	}
 }
 
-interface VoteResponse {
-	vote: string
-}
-
 export type FetchResponse = {
 	proposals: Proposal[]
 	skip: string
@@ -654,7 +672,6 @@ export const fetchCitizen = async (mint: string) => {
 				mint,
 			},
 		})
-		console.log("fetched citizen: ", data)
 		return data
 	} catch (err) {
 		console.error(err)
@@ -706,7 +723,6 @@ export const fetchProposalVotesByCitizen = async (
 		return data
 	} catch (err) {
 		console.error(err)
-		throw new Error("Failed to fetch proposal votes")
 		throw new Error("Failed to fetch proposal votes")
 	}
 }
