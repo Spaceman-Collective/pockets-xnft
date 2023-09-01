@@ -81,9 +81,7 @@ export const SkillsTab: React.FC<{
 				<br></br>
 				<Flex m="1 auto" fontSize="1.5rem" gap="2rem" fontWeight="600">
 					<Box flex="1" background="blacks.500" p="2rem" borderRadius="0.5rem">
-						<Text fontWeight="600">
-							Confused on what to do next? Try one of the following:
-						</Text>
+						<Text fontWeight="600">Confused on what to do next? Try:</Text>
 						<UnorderedList pl="0.5rem" mt="1rem" fontWeight="500">
 							<ListItem>Join a Faction</ListItem>
 							<ListItem>Harvest resources</ListItem>
