@@ -20,6 +20,12 @@ import styled from "@emotion/styled";
 import { MdCheck, MdPersonAddAlt1, MdSend, MdRefresh } from "react-icons/md";
 import { colors } from "@/styles/defaultTheme";
 import { Label, Value } from "../tab.styles";
+import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { PublicKey } from "@solana/web3.js";
+import { useSolana } from "@/hooks/useSolana";
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
+import { delegateVotes, transferVotes } from "@/lib/solanaClient";
 
 export const CitizenModal: FC<{
   citizens: Character[];
@@ -30,6 +36,70 @@ export const CitizenModal: FC<{
     null
   );
   const [activeCitizen, setActiveCitizen] = useState<string | null>(null);
+
+  const queryClient = useQueryClient();
+  const [selectedCharacter] = useSelectedCharacter();
+  const { walletAddress } = useSolana();
+
+
+  const handleTransferVotes = async (voteAmt: number, voteCharacterRecepientMint: string) => {
+    try {
+      const voteTransferIx = await transferVotes(
+        new PublicKey(walletAddress!),
+        new PublicKey(selectedCharacter?.mint!),
+        voteAmt,
+        new PublicKey(voteCharacterRecepientMint)
+      );
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (typeof voteTransferIx === "string") {
+        console.log('transfer ix: ' , voteTransferIx);
+        toast.success("Transfer vote successful!");
+      } else {
+        console.log('error with transfer ix: ' , voteTransferIx);
+        toast.error("Transfer vote failed!");
+      }
+      await new Promise((resolve) => setTimeout(resolve, 15000));
+
+    } catch (e) {
+      console.log("Transfer vote failed: ", e);
+      toast.error("Transfer vote failed");
+    } finally {
+      setActionType(null);
+      setActiveCitizen(null);
+    }
+  };
+
+  const handleDelegateVotes = async (voteAmt: number, voteCharacterRecepientMint: string) => {
+    try {
+      const voteTransferIx = await delegateVotes(
+        new PublicKey(walletAddress!),
+        new PublicKey(selectedCharacter?.mint!),
+        voteAmt,
+        new PublicKey(voteCharacterRecepientMint)
+      );
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (typeof voteTransferIx === "string") {
+        console.log('Delegate ix: ' , voteTransferIx);
+        toast.success("Delegate vote successful!");
+      } else {
+        console.log('Error with delegate ix: ' , voteTransferIx);
+        toast.error("Delegate vote failed!");
+      }
+      await new Promise((resolve) => setTimeout(resolve, 15000));
+
+    } catch (e) {
+      console.log("Delegate vote failed with error: ", e);
+      toast.error("Delegate vote failed");
+    } finally {
+      setActionType(null);
+      setActiveCitizen(null);
+    }
+  };
+
+  const handleReclaimDelegatedVotes = () => {
+    setActionType(null);
+    setActiveCitizen(null);
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -113,10 +183,7 @@ export const CitizenModal: FC<{
                     color="white"
                     p="0.5rem 0.5rem"
                     _hover={{ bg: colors.blacks[700] }}
-                    onClick={() => {
-                      setActionType(null);
-                      setActiveCitizen(null);
-                    }}
+                    onClick={() => handleReclaimDelegatedVotes()}
                   />
                 </Tooltip>
 
@@ -185,8 +252,11 @@ export const CitizenModal: FC<{
                         h="4rem"
                         _hover={{ bg: colors.blacks[700] }}
                         onClick={() => {
-                          setActionType(null);
-                          setActiveCitizen(null);
+                          if (actionType == "delegate") {
+                            handleTransferVotes(1, citizen.mint);
+                          } else if (actionType == "transfer") {
+                            handleDelegateVotes(1, citizen.mint);
+                          }
                         }}
                       />
                     </Flex>
