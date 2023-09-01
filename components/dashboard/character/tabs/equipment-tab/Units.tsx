@@ -43,6 +43,7 @@ export const Units: FC<{
 						const name = skill.charAt(0).toUpperCase() + skill.substring(1)
 						return (
 							<Flex
+								key={name}
 								onClick={() =>
 									selectedSkill === skill
 										? setSelectedSkill("")
