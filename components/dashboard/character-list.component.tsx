@@ -60,7 +60,7 @@ export const CharacterList: FC<Props> = ({
 							in={isLoading}
 							unmountOnExit={!isLoading}
 						>
-							<Skeleton h="10rem" w="100%" borderRadius="1rem" />
+							<Skeleton h="6rem" w="100%" borderRadius="0.5rem" />
 						</SlideFade>
 					))}
 				<SlideFade in={!!data}>
@@ -73,7 +73,13 @@ export const CharacterList: FC<Props> = ({
 							>
 								<Flex gap="1rem" alignItems="center">
 									<Box position="relative">
-										<Frame img={char.image} size="8rem" />
+										<Box
+											bgImage={char.image}
+											h="6rem"
+											w="6rem"
+											bgSize="cover"
+											borderRadius="0.5rem"
+										/>
 										<Tip
 											label={`Sum of ${
 												char.name.split(" ")[0]
@@ -84,13 +90,13 @@ export const CharacterList: FC<Props> = ({
 												fontSize="1.5rem"
 												fontWeight={700}
 												position="absolute"
-												top="-0.5rem"
-												left="-0.5rem"
+												top="-0.75rem"
+												left="-1rem"
 												bg="brand.quaternary"
 												color="brand.primary"
 												w="fit-content"
-												p="0 1rem"
-												borderRadius="1rem"
+												p="0 0.75rem"
+												borderRadius="2rem"
 												filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
 											>
 												{Object.values(char.skills).reduce((a, b) => a + b)}
@@ -98,15 +104,10 @@ export const CharacterList: FC<Props> = ({
 										</Tip>
 									</Box>
 									<Flex direction="column">
-										<Text fontSize="2.25rem" letterSpacing="1px">
+										<Text fontSize="2rem" fontWeight="500">
 											{char.name.split(" ")[0]}
 										</Text>
-										<Text
-											fontSize="1.75rem"
-											fontWeight={700}
-											letterSpacing="1px"
-											textTransform="uppercase"
-										>
+										<Text fontSize="1.75rem" fontWeight={700} textTransform="uppercase">
 											{char.name.split(" ")[1]}
 										</Text>
 									</Flex>
@@ -131,15 +132,18 @@ const CharacterFlex = styled(Flex)<{ selected?: boolean }>`
 	flex: auto 1 auto;
 	justify-content: space-between;
 	padding: 1rem;
-	border-radius: 1rem;
+	border-radius: 0.5rem;
 	cursor: pointer;
 	transition: background-color 0.3s;
-	margin-bottom: 1rem;
-	background-color: ${colors.blacks[500]};
+	margin-bottom: 2rem;
+	margin-top: 1rem;
+	background-color: ${colors.blacks[600]};
+	transition: all 0.1s ease;
 	border: 2px solid
 		${(props) => {
 			return props.selected ? colors.brand.secondary : colors.blacks[500]
 		}};
+	box-sizing: inset;
 `
 
 const CharFactionThumbnail: FC<{
@@ -171,10 +175,10 @@ const CharFactionThumbnail: FC<{
 }
 
 const FactionThumbnail = styled(Box)`
-	height: 4rem;
-	width: 4rem;
+	height: 3rem;
+	width: 3rem;
 	background-color: white;
-	border-radius: 1rem;
+	border-radius: 0.5rem;
 	background-size: cover;
 	background-position: center;
 `

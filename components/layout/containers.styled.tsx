@@ -37,7 +37,7 @@ export const DashboardMenuContainer = styled(Box)`
 
 export const CharacterListContainer = styled(Box)`
 	margin: 0rem 1rem 0rem 0rem;
-	padding: 3rem;
+	padding: 2rem;
 	width: 38rem;
 	height: 72rem;
 	border-radius: 0.5rem;
