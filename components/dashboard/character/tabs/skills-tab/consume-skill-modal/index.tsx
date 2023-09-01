@@ -50,9 +50,8 @@ export const ConsumeSkillModal: FC<{
 						{skill}
 					</Text>
 					<Text fontFamily="header" mb="2rem">
-						Upgrade your {skill} by consuming resources. The more rare the
-						resource, the more XP it will yield. Consuming the resource burns
-						it.
+						Upgrade your {skill} by consuming resources. The more rare the resource,
+						the more XP it will yield. Consuming the resource burns it.
 					</Text>
 					<Flex direction="column" gap="1rem" p="1rem" w="100%">
 						{relevantResources.map((resource) => (
@@ -197,8 +196,7 @@ const ConsumeItemContainer: FC<{
 				{extraSkillUp.length > 0 && (
 					<Tip
 						label={
-							"Comsuming will simulatneously gain xp in " +
-							extraSkillUp.join(" ")
+							"Comsuming will simulatneously gain xp in " + extraSkillUp.join(" ")
 						}
 					>
 						<Text

@@ -36,8 +36,7 @@ export const Units: FC<{
 				{Object.keys(IconSkill).map((skill, index) => {
 					if (
 						COMBAT_SKILLS.find(
-							(combatSkill) =>
-								combatSkill.toUpperCase() === skill.toUpperCase(),
+							(combatSkill) => combatSkill.toUpperCase() === skill.toUpperCase(),
 						)
 					) {
 						const Icon = Object.values(IconSkill)[index]
@@ -56,14 +55,10 @@ export const Units: FC<{
 								p="1.5rem"
 								flex="1 1 auto"
 								bg={
-									selectedSkill === skill
-										? colors.brand.quaternary
-										: colors.blacks[500]
+									selectedSkill === skill ? colors.brand.quaternary : colors.blacks[500]
 								}
 								color={
-									selectedSkill === skill
-										? colors.blacks[700]
-										: colors.brand.secondary
+									selectedSkill === skill ? colors.blacks[700] : colors.brand.secondary
 								}
 								_last={{ marginRight: 0 }}
 								_first={{ marginLeft: 0 }}
@@ -181,10 +176,7 @@ export const Units: FC<{
 											justifyContent="flex-end"
 										>
 											{Object.keys(IconSkill).map((skill, index) => {
-												if (
-													String(unit.skill).toUpperCase() ===
-													skill.toUpperCase()
-												) {
+												if (String(unit.skill).toUpperCase() === skill.toUpperCase()) {
 													const Icon = Object.values(IconSkill)[index]
 													return (
 														<Flex
@@ -193,9 +185,7 @@ export const Units: FC<{
 															bgColor="white.700"
 															borderRadius="0.5rem"
 														>
-															<Icon
-																style={{ color: "white", fontSize: "2.5rem" }}
-															/>{" "}
+															<Icon style={{ color: "white", fontSize: "2.5rem" }} />{" "}
 														</Flex>
 													)
 												}
@@ -242,9 +232,7 @@ export const Units: FC<{
 												lineHeight="1.5rem"
 												fontWeight="600"
 												onClick={
-													loadingUnitEquip
-														? () => {}
-														: () => handleEquipUnit(unitNFT)
+													loadingUnitEquip ? () => {} : () => handleEquipUnit(unitNFT)
 												}
 												opacity={loadingUnitEquip ? 0.5 : 1}
 												cursor={loadingUnitEquip ? "not-allowed" : "cursor"}

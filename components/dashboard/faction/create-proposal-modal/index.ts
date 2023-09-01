@@ -1,2 +1,1 @@
-export * from "./create-proposal.component";
-
+export * from "./create-proposal.component"

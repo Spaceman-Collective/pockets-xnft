@@ -92,17 +92,15 @@ export const SkillsTab: React.FC<{
 					</Box>
 					<Box>
 						<Text>
-							Training your skills and racking up battle wins helps you boost
-							your faction&apos;s chances at victory in one of the three win
-							conditions!
+							Training your skills and racking up battle wins helps you boost your
+							faction&apos;s chances at victory in one of the three win conditions!
 						</Text>
 						<UnorderedList pl="1rem" mt="0.5rem" mb="1rem">
 							<ListItem>
 								<strong>Domination:</strong> collectively won battles by faction
 							</ListItem>
 							<ListItem>
-								<strong>Knowledge:</strong> total skill levels of faction
-								citizens
+								<strong>Knowledge:</strong> total skill levels of faction citizens
 							</ListItem>
 							<ListItem>
 								<strong>Wealth:</strong> total resources burned by your faction

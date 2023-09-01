@@ -132,9 +132,9 @@ export const CharacterEquipment: FC<{
 							{character.army.length
 								? character.army.map((unit) => (
 										<Tip
-											label={`${unit.name}\n with bonus: ${Object.keys(
-												unit.bonus,
-											).join(", ")}`}
+											label={`${unit.name}\n with bonus: ${Object.keys(unit.bonus).join(
+												", ",
+											)}`}
 											placement="top"
 											key={unit.assetId}
 										>
@@ -252,8 +252,8 @@ export const CharacterEquipment: FC<{
 
 						<AlertDialogBody>
 							Are you sure you want to unequip {unequippingUnit?.name} from your
-							current loadout? Note: It takes around 30 seconds for the unit to
-							appear in the list of available units after unequipping.
+							current loadout? Note: It takes around 30 seconds for the unit to appear
+							in the list of available units after unequipping.
 						</AlertDialogBody>
 
 						<AlertDialogFooter mt="3rem">

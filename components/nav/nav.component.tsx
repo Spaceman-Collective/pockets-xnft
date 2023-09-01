@@ -8,20 +8,15 @@ import Web3Buttons from "./web3-buttons.component"
 // });
 
 export const NavBar = () => {
-  return (
-    <Flex
-      justifyContent="space-between"
-      alignItems="center"
-      my="2rem"
-      mx="5rem"
-    >
-      <Link href="/">
-        <Text fontWeight="400" letterSpacing="1px" fontSize="2.5rem">
-          POCKETS
-        </Text>
-      </Link>
-      {/* <LazyButtons /> */}
-      <Web3Buttons />
-    </Flex>
-  )
+	return (
+		<Flex justifyContent="space-between" alignItems="center" my="2rem" mx="5rem">
+			<Link href="/">
+				<Text fontWeight="400" letterSpacing="1px" fontSize="2.5rem">
+					POCKETS
+				</Text>
+			</Link>
+			{/* <LazyButtons /> */}
+			<Web3Buttons />
+		</Flex>
+	)
 }

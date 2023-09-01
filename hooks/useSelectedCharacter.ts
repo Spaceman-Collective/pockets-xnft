@@ -1,32 +1,32 @@
 import { Character } from "@/types/server"
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react"
 
-const storedCharKey='SELECTEDCHARACTER'
+const storedCharKey = "SELECTEDCHARACTER"
 
 export const useSelectedCharacter = (): [
-  Character | null | undefined,
-  (char?: Character | null) => void
+	Character | null | undefined,
+	(char?: Character | null) => void,
 ] => {
-  const [selectedCharacter, setSelectedCharacter] = useState<
-    Character | null | undefined
-  >(null)
+	const [selectedCharacter, setSelectedCharacter] = useState<
+		Character | null | undefined
+	>(null)
 
-  const setSelectedChar = useCallback((character?: Character | null) => {
-    if (character) {
-      sessionStorage.setItem(storedCharKey, JSON.stringify(character))
-    } else {
-      sessionStorage.removeItem(storedCharKey)
-    }
+	const setSelectedChar = useCallback((character?: Character | null) => {
+		if (character) {
+			sessionStorage.setItem(storedCharKey, JSON.stringify(character))
+		} else {
+			sessionStorage.removeItem(storedCharKey)
+		}
 
-    setSelectedCharacter(character)
-  }, [])
+		setSelectedCharacter(character)
+	}, [])
 
-  useEffect(() => {
-    const char = sessionStorage.getItem(storedCharKey)
-    if (char) {
-      setSelectedCharacter(JSON.parse(char))
-    }
-  }, [])
+	useEffect(() => {
+		const char = sessionStorage.getItem(storedCharKey)
+		if (char) {
+			setSelectedCharacter(JSON.parse(char))
+		}
+	}, [])
 
-  return [selectedCharacter, setSelectedChar]
+	return [selectedCharacter, setSelectedChar]
 }

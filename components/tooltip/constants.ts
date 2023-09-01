@@ -5,10 +5,10 @@
 // benefit: can refactor without renaming a bunch of variables
 
 const resource = {
-  RESOURCE_FIELDS:
-    "Initiate and complete work to extract resources from designated fields",
-};
+	RESOURCE_FIELDS:
+		"Initiate and complete work to extract resources from designated fields",
+}
 
 export const TIP = {
-  ...resource,
-};
+	...resource,
+}

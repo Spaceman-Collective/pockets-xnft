@@ -1,1 +1,1 @@
-export { CharGen as Mint } from "./character.component";
+export { CharGen as Mint } from "./character.component"

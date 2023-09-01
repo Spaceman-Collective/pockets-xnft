@@ -1,13 +1,13 @@
-import { fetchCharacters } from "@/lib/apiClient";
-import { useQuery } from "@tanstack/react-query";
-import { useSolana } from "./useSolana";
+import { fetchCharacters } from "@/lib/apiClient"
+import { useQuery } from "@tanstack/react-query"
+import { useSolana } from "./useSolana"
 
 export const useAssets = () => {
-  const { walletAddress } = useSolana();
+	const { walletAddress } = useSolana()
 
-  return useQuery(
-    ["assets"],
-    () => fetchCharacters({ walletAddress: walletAddress ?? "" }),
-    { enabled: walletAddress !== undefined }
-  );
-};
+	return useQuery(
+		["assets"],
+		() => fetchCharacters({ walletAddress: walletAddress ?? "" }),
+		{ enabled: walletAddress !== undefined },
+	)
+}

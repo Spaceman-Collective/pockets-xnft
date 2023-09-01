@@ -127,12 +127,7 @@ export const EquipmentTab: FC<{ currentCharacter: Character }> = ({
 		})
 	}
 	return (
-		<PanelContainer
-			display="flex"
-			flexDirection="column"
-			gap="2rem"
-			width="100%"
-		>
+		<PanelContainer display="flex" flexDirection="column" gap="2rem" width="100%">
 			<Header title="Current Loadout" />
 			<CharacterEquipment
 				character={currentCharacter}

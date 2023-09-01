@@ -58,17 +58,12 @@ export const WalletUnitPanel: FC<{ isLoading: boolean; units?: NFT[] }> = ({
 									)
 
 									if (!templateUnit) return
-									if (
-										!unit?.mint ||
-										!unit?.attributes?.Skill ||
-										!unit?.attributes?.Rank
-									)
+									if (!unit?.mint || !unit?.attributes?.Skill || !unit?.attributes?.Rank)
 										return
 
 									const count = units.filter(
 										(countUnit) =>
-											countUnit.name.toLowerCase() ===
-											templateUnit.name.toLowerCase(),
+											countUnit.name.toLowerCase() === templateUnit.name.toLowerCase(),
 									).length
 
 									const selectedUnit: Unit = {

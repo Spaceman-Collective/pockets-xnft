@@ -357,9 +357,7 @@ export const fetchAllAssets = async ({
 				"Server Error while fetching compressed assets for wallet:",
 				response,
 			)
-			throw new Error(
-				"Server Error while fetching compressed assets for wallet:",
-			)
+			throw new Error("Server Error while fetching compressed assets for wallet:")
 		}
 	} catch (error) {
 		console.error(
@@ -546,10 +544,7 @@ export const postConsumeResource = async ({
 			throw new Error("Server Error while consuming resources for character")
 		}
 	} catch (error) {
-		console.error(
-			"Network Error while consuming resources for character:",
-			error,
-		)
+		console.error("Network Error while consuming resources for character:", error)
 		throw error
 	}
 }

@@ -1,153 +1,149 @@
 import {
-  BONK_MINT,
-  RESOURCE_FIELD_CREATION_MULTIPLIER,
-  SERVER_KEY,
-} from "@/constants";
-import { useRfAllocate } from "@/hooks/useRf";
-import { useSolana } from "@/hooks/useSolana";
+	BONK_MINT,
+	RESOURCE_FIELD_CREATION_MULTIPLIER,
+	SERVER_KEY,
+} from "@/constants"
+import { useRfAllocate } from "@/hooks/useRf"
+import { useSolana } from "@/hooks/useSolana"
 import {
-  Text,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  HStack,
-  ModalHeader,
-  Flex,
-  Box,
-  ModalFooter,
-} from "@chakra-ui/react";
-import { FC, useState } from "react";
-import { formatBalance } from "@/lib/utils";
-import { toast } from "react-hot-toast";
+	Text,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalBody,
+	ModalCloseButton,
+	Button,
+	HStack,
+	ModalHeader,
+	Flex,
+	Box,
+	ModalFooter,
+} from "@chakra-ui/react"
+import { FC, useState } from "react"
+import { formatBalance } from "@/lib/utils"
+import { toast } from "react-hot-toast"
 
 export const ModalRfDiscover: FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  rf?: { rfCount: number };
-  setDiscoverableData: Function;
-  refetchRFAllocation: Function;
-  openProspect: () => void;
-  fire: () => void;
+	isOpen: boolean
+	onClose: () => void
+	rf?: { rfCount: number }
+	setDiscoverableData: Function
+	refetchRFAllocation: Function
+	openProspect: () => void
+	fire: () => void
 }> = ({
-  isOpen,
-  onClose,
-  rf,
-  setDiscoverableData,
-  refetchRFAllocation,
-  openProspect,
-  fire,
+	isOpen,
+	onClose,
+	rf,
+	setDiscoverableData,
+	refetchRFAllocation,
+	openProspect,
+	fire,
 }) => {
-  const { mutate } = useRfAllocate();
-  const {
-    walletAddress,
-    connection,
-    signTransaction,
-    buildTransferIx,
-    encodeTransaction,
-  } = useSolana();
+	const { mutate } = useRfAllocate()
+	const {
+		walletAddress,
+		connection,
+		signTransaction,
+		buildTransferIx,
+		encodeTransaction,
+	} = useSolana()
 
-  const [discoverLoading, setDiscoverLoading] = useState<boolean>(false);
+	const [discoverLoading, setDiscoverLoading] = useState<boolean>(false)
 
-  const rfCount = typeof rf?.rfCount === "number" ? rf?.rfCount : 0;
-  const bonkForNextField =
-    (BigInt(rfCount) * RESOURCE_FIELD_CREATION_MULTIPLIER) / BigInt(1e5);
+	const rfCount = typeof rf?.rfCount === "number" ? rf?.rfCount : 0
+	const bonkForNextField =
+		(BigInt(rfCount) * RESOURCE_FIELD_CREATION_MULTIPLIER) / BigInt(1e5)
 
-  const post = async () => {
-    try {
-      setDiscoverLoading(true);
-      let ix =
-        buildTransferIx &&
-        (await buildTransferIx({
-          walletAddress: walletAddress as string,
-          connection,
-          receipientAddress: SERVER_KEY,
-          mint: BONK_MINT.toString(),
-          decimals: 5,
-          amount: bonkForNextField * BigInt(1e5),
-        }));
+	const post = async () => {
+		try {
+			setDiscoverLoading(true)
+			let ix =
+				buildTransferIx &&
+				(await buildTransferIx({
+					walletAddress: walletAddress as string,
+					connection,
+					receipientAddress: SERVER_KEY,
+					mint: BONK_MINT.toString(),
+					decimals: 5,
+					amount: bonkForNextField * BigInt(1e5),
+				}))
 
-      if (!ix) return;
-      const encodedTx = await encodeTransaction({
-        txInstructions: [...ix],
-        walletAddress,
-        connection,
-        signTransaction,
-      });
+			if (!ix) return
+			const encodedTx = await encodeTransaction({
+				txInstructions: [...ix],
+				walletAddress,
+				connection,
+				signTransaction,
+			})
 
-      if (typeof encodedTx == "string") {
-        mutate(
-          {
-            signedTx: encodedTx,
-            charMint: undefined,
-          },
-          {
-            onSuccess: async () => {
-              await new Promise((resolve) => setTimeout(resolve, 1500)); //wait so the account gets initialized on the blockchain
-              fire();
-              toast.success("Successfully allocated Resource Field");
-              refetchRFAllocation().then((data: any) =>
-                setDiscoverableData(data.data)
-              );
-              openProspect();
-            },
-          }
-        );
-      } else {
-        throw Error("failed tx");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Error allocating Resource Field");
-    } finally {
-      setDiscoverLoading(false);
-      onClose();
-    }
-  };
+			if (typeof encodedTx == "string") {
+				mutate(
+					{
+						signedTx: encodedTx,
+						charMint: undefined,
+					},
+					{
+						onSuccess: async () => {
+							await new Promise((resolve) => setTimeout(resolve, 1500)) //wait so the account gets initialized on the blockchain
+							fire()
+							toast.success("Successfully allocated Resource Field")
+							refetchRFAllocation().then((data: any) => setDiscoverableData(data.data))
+							openProspect()
+						},
+					},
+				)
+			} else {
+				throw Error("failed tx")
+			}
+		} catch (error) {
+			console.error(error)
+			toast.error("Error allocating Resource Field")
+		} finally {
+			setDiscoverLoading(false)
+			onClose()
+		}
+	}
 
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent
-        bg="blacks.500"
-        p="2rem"
-        borderRadius="1rem"
-        minW="40vw"
-        minH="25vh"
-      >
-        <ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">
-          Discover Resource Field
-        </ModalHeader>
-        <ModalCloseButton display={{ base: "inline", md: "none" }} />
-        <ModalBody display={"flex"} flexDirection={"column"} gap="2rem">
-          <Text>
-            Resource Fields, when controlled by a faction, allow that faction’s
-            citizens to harvest it every so often for it’s yield. New resource
-            fields incrementaly cost more the more fields that have been
-            discovered in the game total!
-          </Text>
-          <Text>
-            After a field is discovered, any number of players can try
-            prospecting it to claim it for their faction, not just the person
-            that discovered it. Whoever is lucky enough to prospect the field
-            successfully will claim it for their faction.
-          </Text>
-          <Text>
-            There are currently {rf?.rfCount} already discovered fields.
-          </Text>
-          <HStack>
-            <Text>BONK for next Resource Field:</Text>
-            <Text>{formatBalance(Number(bonkForNextField))}</Text>
-          </HStack>
-        </ModalBody>
-        <ModalFooter>
-          <Button isLoading={discoverLoading} w="100%" onClick={post}>
-            Allocate
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-};
+	return (
+		<Modal isOpen={isOpen} onClose={onClose} isCentered>
+			<ModalOverlay />
+			<ModalContent
+				bg="blacks.500"
+				p="2rem"
+				borderRadius="1rem"
+				minW="40vw"
+				minH="25vh"
+			>
+				<ModalHeader fontSize="24px" fontWeight="bold" letterSpacing="3px">
+					Discover Resource Field
+				</ModalHeader>
+				<ModalCloseButton display={{ base: "inline", md: "none" }} />
+				<ModalBody display={"flex"} flexDirection={"column"} gap="2rem">
+					<Text>
+						Resource Fields, when controlled by a faction, allow that faction’s
+						citizens to harvest it every so often for it’s yield. New resource fields
+						incrementaly cost more the more fields that have been discovered in the
+						game total!
+					</Text>
+					<Text>
+						After a field is discovered, any number of players can try prospecting it
+						to claim it for their faction, not just the person that discovered it.
+						Whoever is lucky enough to prospect the field successfully will claim it
+						for their faction.
+					</Text>
+					<Text>There are currently {rf?.rfCount} already discovered fields.</Text>
+					<HStack>
+						<Text>BONK for next Resource Field:</Text>
+						<Text>{formatBalance(Number(bonkForNextField))}</Text>
+					</HStack>
+				</ModalBody>
+				<ModalFooter>
+					<Button isLoading={discoverLoading} w="100%" onClick={post}>
+						Allocate
+					</Button>
+				</ModalFooter>
+			</ModalContent>
+		</Modal>
+	)
+}

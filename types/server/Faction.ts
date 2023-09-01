@@ -1,19 +1,19 @@
 export interface Faction {
-  id: string;
-  pubkey: string;
-  creator: string;
-  name: string;
-  image: string;
-  external_link: string;
-  description: string;
-  townhallLevel: number;
-  construction: {
-    started: string | undefined;
-    finished: string | undefined;
-    // if id already exists, then upgrade, if it doesn't, then it's a new construction
-    stationId?: string;
-    blueprint: string | undefined;
-    stationNewLevel: number | undefined;
-  };
-  taxRate: number;
+	id: string
+	pubkey: string
+	creator: string
+	name: string
+	image: string
+	external_link: string
+	description: string
+	townhallLevel: number
+	construction: {
+		started: string | undefined
+		finished: string | undefined
+		// if id already exists, then upgrade, if it doesn't, then it's a new construction
+		stationId?: string
+		blueprint: string | undefined
+		stationNewLevel: number | undefined
+	}
+	taxRate: number
 }

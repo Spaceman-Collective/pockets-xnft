@@ -56,10 +56,7 @@ export const Personal = () => {
 						onChange={onSearch}
 					/>
 				</Flex>
-				<Grid
-					templateColumns="repeat(auto-fit, minmax(100px,1fr))"
-					gap={spacing}
-				>
+				<Grid templateColumns="repeat(auto-fit, minmax(100px,1fr))" gap={spacing}>
 					{Array.from({ length: 222 }).map((_, i) => (
 						<Flex
 							key={i}

@@ -64,12 +64,7 @@ export const ArenaTab: FC<{
 				letterSpacing="0"
 				borderRight="2.1rem solid transparent"
 			>
-				<option
-					defaultChecked
-					value="default"
-					disabled
-					selected={!factionSelected}
-				>
+				<option defaultChecked value="default" disabled selected={!factionSelected}>
 					SELECT A FACTION TO BATTLE
 				</option>
 				{allFactions.map((faction) =>
@@ -205,11 +200,7 @@ const SearchBar: FC<{
 				padding="1.75rem"
 				color="brand.secondary"
 			/>
-			<SearchIcon
-				color="brand.tertiary"
-				fontSize="1.75rem"
-				marginRight="2rem"
-			/>
+			<SearchIcon color="brand.tertiary" fontSize="1.75rem" marginRight="2rem" />
 		</Flex>
 	)
 }
