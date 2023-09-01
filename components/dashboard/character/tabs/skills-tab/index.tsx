@@ -30,7 +30,7 @@ export const SkillsTab: React.FC<{
 	>
 
 	return (
-		<PanelContainer display="flex" flexDirection="column" gap="2rem">
+		<PanelContainer display="flex" flexDirection="column" gap="3rem">
 			<Header
 				name={currentCharacter.name}
 				image={currentCharacter.image}
@@ -79,10 +79,12 @@ export const SkillsTab: React.FC<{
 					</SkillContainer>
 				</Grid>
 				<br></br>
-				<Flex m="0 auto" fontSize="1rem" gap="2rem">
-					<Box>
-						<Text>Confused on what to do next? Try:</Text>
-						<UnorderedList pl="1rem" mt="1rem" mb="2rem">
+				<Flex m="1 auto" fontSize="1.5rem" gap="2rem" fontWeight="600">
+					<Box flex="1" background="blacks.500" p="2rem" borderRadius="0.5rem">
+						<Text fontWeight="600">
+							Confused on what to do next? Try one of the following:
+						</Text>
+						<UnorderedList pl="0.5rem" mt="1rem" fontWeight="500">
 							<ListItem>Join a Faction</ListItem>
 							<ListItem>Harvest resources</ListItem>
 							<ListItem>Train your skills</ListItem>
@@ -90,12 +92,12 @@ export const SkillsTab: React.FC<{
 							<ListItem>Go to battle!</ListItem>
 						</UnorderedList>
 					</Box>
-					<Box>
+					<Box flex="2" background="blacks.500" p="2rem" borderRadius="0.5rem">
 						<Text>
 							Training your skills and racking up battle wins helps you boost your
 							faction&apos;s chances at victory in one of the three win conditions!
 						</Text>
-						<UnorderedList pl="1rem" mt="0.5rem" mb="1rem">
+						<UnorderedList pl="0.5rem" mt="1rem" fontWeight="500">
 							<ListItem>
 								<strong>Domination:</strong> collectively won battles by faction
 							</ListItem>
@@ -132,23 +134,48 @@ const Header: FC<{ image: string; name: string; faction: any }> = ({
 	faction,
 }) => {
 	return (
-		<Flex gap="1rem" alignItems="end">
-			<Frame img={image} />
-			<Box>
-				<Text fontFamily="header" fontSize="3rem" fontWeight={700}>
+		<Flex gap="1.5rem" alignItems="center">
+			<Box
+				bgImage={image}
+				w="7rem"
+				h="7rem"
+				bgSize="cover"
+				borderRadius="0.5rem"
+			/>
+			<Flex flexDir="column">
+				<Text
+					fontFamily="header"
+					fontSize="3rem"
+					lineHeight="3rem"
+					mb="0.5rem"
+					fontWeight={700}
+				>
 					{name}
 				</Text>
-				<Flex gap="1rem" alignItems="center">
-					<Text letterSpacing="1px">FACTION:</Text>
+				<Flex alignItems="center" fontSize="1.5rem" lineHeight="1.5rem">
+					<Text fontWeight="700" pr="0.5rem">
+						FACTION:
+					</Text>
 					{faction ? (
-						<Text>{faction}</Text>
+						<Text
+							fontWeight="600"
+							backgroundColor="blacks.600"
+							borderRadius="0.5rem"
+							h="3rem"
+							p="0 1rem"
+							display="flex"
+							justifyContent="center"
+							alignItems="center"
+						>
+							{faction}
+						</Text>
 					) : (
 						<Link href="/faction">
 							<Button fontSize="1rem">Join Faction</Button>
 						</Link>
 					)}
 				</Flex>
-			</Box>
+			</Flex>
 		</Flex>
 	)
 }
