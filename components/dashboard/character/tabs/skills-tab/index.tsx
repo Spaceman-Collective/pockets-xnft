@@ -22,7 +22,7 @@ import { combatSkillKeys } from "./constants"
 import { Tip } from "../../../../tooltip"
 
 export const SkillsTab: React.FC<{
-	currentCharacter?: Character
+	currentCharacter: Character
 	selectSkill: (skill: string) => void
 }> = ({ currentCharacter, selectSkill }) => {
 	const experienceKeys = Object.keys(currentCharacter.experience) as Array<
