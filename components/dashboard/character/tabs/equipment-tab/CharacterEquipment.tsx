@@ -162,38 +162,40 @@ export const CharacterEquipment: FC<{
 					</Box>
 				)}
 			</GridItem>
-			<GridItem
-				area={"scroller"}
-				display="flex"
-				flexDir="column"
-				color="white"
-				fontSize="3rem"
-			>
-				<Flex
-					flex="1"
-					bg="blacks.400"
-					cursor="pointer"
-					transition="all 0.1s ease"
-					_hover={{
-						backgroundColor: "brand.quaternary",
-					}}
+			{character.army.length > 20 ? (
+				<GridItem
+					area={"scroller"}
+					display="flex"
+					flexDir="column"
+					color="white"
+					fontSize="3rem"
 				>
-					<ChevronUpIcon />
-				</Flex>
-				<Box h="1rem" />
-				<Flex
-					flex="1"
-					bg="blacks.400"
-					alignItems="flex-end"
-					cursor="pointer"
-					transition="all 0.1s ease"
-					_hover={{
-						backgroundColor: "brand.quaternary",
-					}}
-				>
-					<ChevronDownIcon />
-				</Flex>
-			</GridItem>
+					<Flex
+						flex="1"
+						bg="blacks.400"
+						cursor="pointer"
+						transition="all 0.1s ease"
+						_hover={{
+							backgroundColor: "brand.quaternary",
+						}}
+					>
+						<ChevronUpIcon />
+					</Flex>
+					<Box h="1rem" />
+					<Flex
+						flex="1"
+						bg="blacks.400"
+						alignItems="flex-end"
+						cursor="pointer"
+						transition="all 0.1s ease"
+						_hover={{
+							backgroundColor: "brand.quaternary",
+						}}
+					>
+						<ChevronDownIcon />
+					</Flex>
+				</GridItem>
+			) : null}
 		</Grid>
 	)
 }
