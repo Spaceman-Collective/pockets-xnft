@@ -188,6 +188,7 @@ export const Units: FC<{
 													const Icon = Object.values(IconSkill)[index]
 													return (
 														<Flex
+															key={skill}
 															p="0.625rem"
 															bgColor="white.700"
 															borderRadius="0.5rem"
@@ -203,7 +204,7 @@ export const Units: FC<{
 									</Flex>
 									<Flex flexDirection="row" w="100%" pt="2rem">
 										{Object.keys(unit.bonus).map((bonus, index) => (
-											<Flex flexDirection="column" pr="3rem">
+											<Flex flexDirection="column" pr="3rem" key={index}>
 												<Text
 													fontWeight="600"
 													fontSize="1.5rem"

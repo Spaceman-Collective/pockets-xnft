@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react"
+import React, { FC, useRef, useState } from "react"
 
 import { Character, Unit } from "@/types/server"
 import {
@@ -36,7 +36,7 @@ export const CharacterEquipment: FC<{
 	setLoadingUnitDequip,
 }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure()
-	const cancelRef = React.useRef()
+	const cancelRef = useRef<HTMLButtonElement>(null)
 
 	const [unequippingUnit, setUneqippingUnit] = useState<Unit>()
 
@@ -267,7 +267,7 @@ export const CharacterEquipment: FC<{
 										onClose()
 									}
 									setLoadingUnitDequip(true)
-									await handleDequipUnit(unequippingUnit.assetId)
+									await handleDequipUnit(unequippingUnit?.assetId || "")
 									setLoadingUnitDequip(false)
 									onClose()
 								}}
