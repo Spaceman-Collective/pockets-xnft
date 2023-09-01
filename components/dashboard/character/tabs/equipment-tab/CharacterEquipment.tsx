@@ -136,6 +136,7 @@ export const CharacterEquipment: FC<{
 												unit.bonus,
 											).join(", ")}`}
 											placement="top"
+											key={unit.assetId}
 										>
 											<GridItem
 												cursor="pointer"
@@ -143,7 +144,6 @@ export const CharacterEquipment: FC<{
 													setUneqippingUnit(unit)
 													onOpen()
 												}}
-												key={unit.assetId}
 												bgColor="blacks.400"
 												minH="3.5rem"
 												w="3.5rem"
@@ -252,7 +252,8 @@ export const CharacterEquipment: FC<{
 
 						<AlertDialogBody>
 							Are you sure you want to unequip {unequippingUnit?.name} from your
-							current loadout?
+							current loadout? Note: It takes around 30 seconds for the unit to
+							appear in the list of available units after unequipping.
 						</AlertDialogBody>
 
 						<AlertDialogFooter mt="3rem">
