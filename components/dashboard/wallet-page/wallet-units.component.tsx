@@ -1,14 +1,6 @@
 import { Tip } from "@/components/tooltip"
 import { NFT, UNIT_TEMPLATES, Unit } from "@/types/server"
-import {
-	Checkbox,
-	Flex,
-	Grid,
-	HStack,
-	Skeleton,
-	Text,
-	VStack,
-} from "@chakra-ui/react"
+import { Flex, Grid, HStack, Skeleton, Text, VStack } from "@chakra-ui/react"
 import { FC, ReactNode, useState } from "react"
 import { Value } from "./wallet-page.styles"
 

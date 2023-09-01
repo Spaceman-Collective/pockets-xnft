@@ -1,5 +1,6 @@
 import { Tip } from "@/components/tooltip"
-import { RESOURCES, RESOURCE_XP_GAIN } from "@/constants"
+
+import { RESOURCES, RESOURCE_XP_GAIN } from "@/types/server"
 import { useResourceConsume } from "@/hooks/useResource"
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { useSolana } from "@/hooks/useSolana"
@@ -28,6 +29,7 @@ export const ConsumeSkillModal: FC<{
 	skill: string
 }> = ({ isOpen, onClose, skill }) => {
 	const relevantResources = getRelevantResources(skill)
+	console.log({ relevantResources })
 
 	const {
 		data: walletAssets,
