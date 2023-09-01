@@ -14,7 +14,10 @@ import { Toaster } from "react-hot-toast"
 
 const queryClient = new QueryClient()
 const headerFont = Roboto({ weight: ["400", "700"], subsets: ["latin"] })
-const bodyFont = Montserrat({ weight: ["400", "700"], subsets: ["latin"] })
+const bodyFont = Montserrat({
+	weight: ["400", "500", "600", "700"],
+	subsets: ["latin"],
+})
 
 export default function App({ Component, pageProps }: AppProps) {
 	return (
