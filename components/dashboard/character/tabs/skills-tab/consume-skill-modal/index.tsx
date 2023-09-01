@@ -1,6 +1,6 @@
 import { Tip } from "@/components/tooltip"
 
-import { RESOURCES, RESOURCE_XP_GAIN } from "@/types/server"
+import { RESOURCES, RESOURCE_XP_GAIN, UNIT_TEMPLATES } from "@/types/server"
 import { useResourceConsume } from "@/hooks/useResource"
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { useSolana } from "@/hooks/useSolana"
@@ -29,7 +29,8 @@ export const ConsumeSkillModal: FC<{
 	skill: string
 }> = ({ isOpen, onClose, skill }) => {
 	const relevantResources = getRelevantResources(skill)
-	console.log({ relevantResources })
+	const relevantUnit = getRelevantUnit(skill)
+	console.log({ relevantResources, relevantUnit })
 
 	const {
 		data: walletAssets,
@@ -252,9 +253,20 @@ const ConsumeItemContainer: FC<{
 	)
 }
 
-const getRelevantResources = (skill: string) =>
-	RESOURCES.filter((resource) => {
-		const isCombat = combatSkillKeys.includes(skill.toLowerCase())
+const getRelevantResources = (skill: string) => {
+	const isCombat = combatSkillKeys.includes(skill.toLowerCase())
+	if (isCombat) return []
+	return RESOURCES.filter((resource) => {
 		const resourceSkills = resource.skills.map((sk) => sk.toLowerCase())
 		return resourceSkills.includes(skill)
 	})
+}
+
+const getRelevantUnit = (skill: string) => {
+	const isCombat = combatSkillKeys.includes(skill.toLowerCase())
+	if (!isCombat) return []
+	UNIT_TEMPLATES.filter((unit) => {
+		console.table({ unitSkill: unit.skill, skill })
+		return unit.skill.toLowerCase() === skill.toLowerCase()
+	})
+}
