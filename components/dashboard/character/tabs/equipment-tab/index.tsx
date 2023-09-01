@@ -62,18 +62,23 @@ export const EquipmentTab: FC<{ currentCharacter: Character }> = ({
 			onSuccess: async (data: { encodedTx: string }) => {
 				const { encodedTx } = data
 
+				console.log(encodedTx)
+
 				const signedTx = await signTransaction(
 					Transaction.from(bs58.decode(encodedTx)),
 				)
+
+				console.log("signed!")
 				const encodedReturnTx = bs58.encode(signedTx.serialize())
 
 				confirmUnitEquip(encodedReturnTx, {
 					onSuccess: async () => {
 						toast.success("Unit equipped")
+						queryClient.refetchQueries({ queryKey: ["assets"] })
 						queryClient.refetchQueries({
 							queryKey: ["wallet-assets", walletAddress],
 						})
-						queryClient.refetchQueries({ queryKey: ["assets"] })
+
 						setLoadingUnitEquip(false)
 					},
 					onError: (e) => toast.error(JSON.stringify(e)),
@@ -134,6 +139,8 @@ export const EquipmentTab: FC<{ currentCharacter: Character }> = ({
 				handleDequipUnit={handleDequipUnit}
 				combatSkillLevels={combatSkillLevels}
 				selectedSkill={selectedSkill}
+				loadingUnitDequip={loadingUnitDequip}
+				setLoadingUnitDequip={setLoadingUnitDequip}
 			/>
 			<Header title="Available Units" />
 			<Units

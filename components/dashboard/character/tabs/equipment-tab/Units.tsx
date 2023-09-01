@@ -1,10 +1,11 @@
 import { FC, useState } from "react"
 
-import { COMBAT_SKILLS, Character, NFT } from "@/types/server"
+import { COMBAT_SKILLS, Character, NFT, buildUnitFromNFT } from "@/types/server"
 import { AddIcon } from "@chakra-ui/icons"
 import { Box, Button, Flex, Spinner, Text } from "@chakra-ui/react"
 import { IconSkill } from "@/components/icons"
 import { colors } from "@/styles/defaultTheme"
+import { Tip } from "@/components/tooltip"
 
 export const Units: FC<{
 	character: Character
@@ -30,8 +31,8 @@ export const Units: FC<{
 					selectedSkill.toUpperCase() || !selectedSkill.length,
 		) || []
 	return (
-		<Box>
-			<Flex flexDirection="row" overflow="auto" mb="2rem">
+		<Box overflow="auto">
+			<Flex flexDirection="row" mb="2rem">
 				{Object.keys(IconSkill).map((skill, index) => {
 					if (
 						COMBAT_SKILLS.find(
@@ -50,7 +51,7 @@ export const Units: FC<{
 										: setSelectedSkill(skill)
 								}
 								m="0 0.5rem"
-								flexDir="row"
+								flexDir="column"
 								borderRadius="0.5rem"
 								p="1.5rem"
 								flex="1 1 auto"
@@ -82,7 +83,7 @@ export const Units: FC<{
 									}}
 								/>
 								<Text
-									ml="1rem"
+									mt="1rem"
 									textTransform="uppercase"
 									fontWeight="600"
 									fontSize="1.25rem"
@@ -94,9 +95,15 @@ export const Units: FC<{
 					}
 				})}
 			</Flex>
-			<Box overflow="auto">
+			<Box>
 				{filteredUnits.length ? (
-					filteredUnits.map((unit) => {
+					filteredUnits.map((unitNFT) => {
+						const unit = buildUnitFromNFT(unitNFT)
+						// Unit rank is the sum of its bonusses
+						const unitRank = Object.values(unit.bonus).reduce(
+							(acc, key) => acc + key,
+							0,
+						)
 						return (
 							<Flex
 								bgColor="blacks.500"
@@ -116,7 +123,7 @@ export const Units: FC<{
 									w="12rem"
 									h="12rem"
 									p="1rem"
-									bgImage={unit.image_uri}
+									bgImage={unit.image}
 									bgSize="cover"
 									bgPos="center"
 								>
@@ -137,7 +144,7 @@ export const Units: FC<{
 											alignSelf="center"
 											color="brand.secondary"
 										>
-											{unit.attributes.Rank}
+											{unitRank}
 										</Text>
 									</Flex>
 								</Flex>
@@ -174,10 +181,10 @@ export const Units: FC<{
 											justifyContent="flex-end"
 										>
 											{Object.keys(IconSkill).map((skill, index) => {
-												const unitSkill = String(
-													unit.attributes.Skill,
-												).toUpperCase()
-												if (unitSkill === skill.toUpperCase()) {
+												if (
+													String(unit.skill).toUpperCase() ===
+													skill.toUpperCase()
+												) {
 													const Icon = Object.values(IconSkill)[index]
 													return (
 														<Flex
@@ -195,48 +202,30 @@ export const Units: FC<{
 										</Flex>
 									</Flex>
 									<Flex flexDirection="row" w="100%" pt="2rem">
-										<Flex flexDirection="column" pr="4rem">
-											<Text
-												fontWeight="600"
-												fontSize="1.5rem"
-												lineHeight="1.5rem"
-												color="brand.tertiary"
-												textTransform="uppercase"
-											>
-												Bonus 1
-											</Text>
-											<Text
-												pt="0.5rem"
-												fontWeight="600"
-												fontSize="1.75rem"
-												lineHeight="1.75rem"
-											>
-												{Object.keys(unit.attributes)[0]}
-												{" +"}
-												{unit.attributes[Object.keys(unit.attributes)[0]]}
-											</Text>
-										</Flex>
-										<Flex flexDirection="column" pr="4rem">
-											<Text
-												fontWeight="600"
-												fontSize="1.5rem"
-												lineHeight="1.5rem"
-												color="brand.tertiary"
-												textTransform="uppercase"
-											>
-												Bonus 2
-											</Text>
-											<Text
-												pt="0.5rem"
-												fontWeight="600"
-												fontSize="1.75rem"
-												lineHeight="1.75rem"
-											>
-												{Object.keys(unit.attributes)[1]}
-												{" +"}
-												{unit.attributes[Object.keys(unit.attributes)[1]]}
-											</Text>
-										</Flex>
+										{Object.keys(unit.bonus).map((bonus, index) => (
+											<Flex flexDirection="column" pr="3rem">
+												<Text
+													fontWeight="600"
+													fontSize="1.5rem"
+													lineHeight="1.5rem"
+													color="brand.tertiary"
+													textTransform="uppercase"
+												>
+													Bonus {index + 1}
+												</Text>
+												<Text
+													pt="0.5rem"
+													fontWeight="600"
+													fontSize="1.75rem"
+													lineHeight="1.75rem"
+												>
+													{Object.keys(unit.bonus)[index]}
+													{" +"}
+													{unit.bonus[bonus]}
+												</Text>
+											</Flex>
+										))}
+
 										<Flex
 											flexDirection="row"
 											flex="1 1 auto"
@@ -254,7 +243,7 @@ export const Units: FC<{
 												onClick={
 													loadingUnitEquip
 														? () => {}
-														: () => handleEquipUnit(unit)
+														: () => handleEquipUnit(unitNFT)
 												}
 												opacity={loadingUnitEquip ? 0.5 : 1}
 												cursor={loadingUnitEquip ? "not-allowed" : "cursor"}

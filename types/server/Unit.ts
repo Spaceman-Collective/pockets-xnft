@@ -1,5 +1,7 @@
+import { NFT } from "."
+
 export interface Unit {
-	mint: string
+	mint?: string
 	name: string
 	skill: string
 	bonus: {
@@ -61,3 +63,32 @@ export const UNIT_TEMPLATES: UnitTemplate[] = [
 		skill: "Magic",
 	},
 ]
+
+export const UNIT_NAMES = UNIT_TEMPLATES.map((template) => {
+	return template.name
+})
+
+export function buildUnitFromNFT(nft: NFT): Unit {
+	// Get type to make sure it's unit
+	if (nft.attributes["Type"] != "Unit") {
+		throw new Error("Not a unit!")
+	}
+
+	// Get skill
+	let unit: Unit = {
+		assetId: nft.mint,
+		bonus: {},
+		name: nft.name,
+		image: nft.image_uri,
+		skill: nft.attributes["Skill"],
+	}
+
+	// get bonuses
+	for (let trait of nft.attributes_array) {
+		if (UNIT_NAMES.includes(trait.trait_type)) {
+			unit.bonus[trait.trait_type] = parseInt(trait.value)
+		}
+	}
+
+	return unit
+}
