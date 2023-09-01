@@ -95,9 +95,9 @@ export const LeaveFactionModal: React.FC<{
         border="2px solid"
         borderColor={colors.brand.secondary}
         borderRadius="0.5rem"
-        w="20rem"
-        p="1rem"
-        fontSize="1.75rem"
+        w="100%"
+        p="0.5rem 2rem"
+        fontSize="1.5rem"
         fontWeight={600}
         letterSpacing="1px"
         onClick={onOpen}
@@ -106,7 +106,7 @@ export const LeaveFactionModal: React.FC<{
           bg: colors.blacks[400],
         }}
       >
-        Leave
+        Leave Faction
       </Button>
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay backdropFilter="blur(5px)" />

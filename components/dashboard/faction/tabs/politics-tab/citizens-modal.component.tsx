@@ -14,9 +14,9 @@ import {
   Tooltip,
   Input,
   VStack,
-  Spinner
+  Spinner,
 } from "@chakra-ui/react";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import {
   MdCheck,
@@ -41,52 +41,74 @@ import {
 import { useCitizen } from "@/hooks/useCitizen";
 import { useFaction } from "@/hooks/useFaction";
 import { useFactionVP } from "@/hooks/useFactionVP";
+import { decode } from "bs58";
+import { LeaveFactionModal } from "../../leave-faction.component";
 
 export const CitizenModal: FC<{
   citizens: Character[];
   onClose: () => void;
   isOpen: boolean;
-}> = ({ citizens, onClose, isOpen }) => {
+  setFactionStatus: (value: boolean) => void;
+}> = ({ citizens, onClose, isOpen, setFactionStatus }) => {
   const [actionType, setActionType] = useState<
     "delegate" | "transfer" | "reclaim" | null
   >(null);
   const [activeCitizen, setActiveCitizen] = useState<string | null>(null);
-
-
+  const [inputValue, setInputValue] = useState<string | number>("");
 
   const queryClient = useQueryClient();
   const [selectedCharacter] = useSelectedCharacter();
-  const { walletAddress, connection } = useSolana();
+  const { connection, walletAddress, signTransaction, encodeTransaction } =
+    useSolana();
   const { data: currentCitizen, isLoading: isCitizenLoading } = useCitizen(
     selectedCharacter?.mint ?? "",
     connection
   );
-  const { data: factionData } = useFactionVP(selectedCharacter?.faction?.id ?? "", connection);
+  const { data: factionData } = useFactionVP(
+    selectedCharacter?.faction?.id ?? "",
+    connection
+  );
 
   const handleTransferVotes = async (
     voteAmt: number,
     voteCharacterRecepientMint: string
   ) => {
+    console.log("iVA: ", voteAmt, "vCRM: ", voteCharacterRecepientMint);
     try {
-      const voteTransferIx = await transferVotes(
-        new PublicKey(walletAddress!),
-        new PublicKey(selectedCharacter?.mint!),
-        voteAmt,
-        new PublicKey(voteCharacterRecepientMint)
-      );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      if (typeof voteTransferIx === "string") {
-        console.log("transfer ix: ", voteTransferIx);
-        toast.success("Transfer vote successful!");
-      } else {
-        console.log("error with transfer ix: ", voteTransferIx);
-        toast.error("Transfer vote failed!");
+      if (!selectedCharacter?.mint) {
+        toast.error("No Character Selected");
+        return;
       }
-      await new Promise((resolve) => setTimeout(resolve, 15000));
+      const encodedSignedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        txInstructions: [
+          await transferVotes(
+            connection,
+            new PublicKey(walletAddress!),
+            new PublicKey(selectedCharacter?.mint!),
+            voteAmt,
+            new PublicKey(voteCharacterRecepientMint)
+          ),
+        ],
+      });
+      console.log("hTV tx: ", encodedSignedTx);
+
+      if (typeof encodedSignedTx === "string") {
+        const sig = await connection.sendRawTransaction(
+          decode(encodedSignedTx)
+        );
+        console.log("hTV sig: ", sig);
+        toast.success("Transfer vote successful!");
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     } catch (e) {
       console.log("Transfer vote failed: ", e);
       toast.error("Transfer vote failed");
     } finally {
+      setInputValue("");
       setActionType(null);
       setActiveCitizen(null);
     }
@@ -97,25 +119,40 @@ export const CitizenModal: FC<{
     voteCharacterRecepientMint: string
   ) => {
     try {
-      const voteTransferIx = await delegateVotes(
-        new PublicKey(walletAddress!),
-        new PublicKey(selectedCharacter?.mint!),
-        voteAmt,
-        new PublicKey(voteCharacterRecepientMint)
-      );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      if (typeof voteTransferIx === "string") {
-        console.log("Delegate ix: ", voteTransferIx);
-        toast.success("Delegate vote successful!");
-      } else {
-        console.log("Error with delegate ix: ", voteTransferIx);
-        toast.error("Delegate vote failed!");
+      if (!selectedCharacter?.mint) {
+        toast.error("No Character Selected");
+        return;
       }
-      await new Promise((resolve) => setTimeout(resolve, 15000));
+      const encodedSignedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        txInstructions: [
+          await delegateVotes(
+            connection,
+            new PublicKey(walletAddress!),
+            new PublicKey(selectedCharacter?.mint!),
+            voteAmt,
+            new PublicKey(voteCharacterRecepientMint)
+          ),
+        ],
+      });
+      console.log("hDV tx: ", encodedSignedTx);
+
+      if (typeof encodedSignedTx === "string") {
+        const sig = await connection.sendRawTransaction(
+          decode(encodedSignedTx)
+        );
+        console.log("hDV sig: ", sig);
+        toast.success("Delegate vote successful!");
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     } catch (e) {
       console.log("Delegate vote failed with error: ", e);
       toast.error("Delegate vote failed");
     } finally {
+      setInputValue("");
       setActionType(null);
       setActiveCitizen(null);
     }
@@ -126,28 +163,50 @@ export const CitizenModal: FC<{
     voteCharacterRecepientMint: string
   ) => {
     try {
-      const voteTransferIx = await returnVoteDelegation(
-        new PublicKey(walletAddress!),
-        new PublicKey(selectedCharacter?.mint!),
-        new PublicKey(voteCharacterRecepientMint),
-        voteAmt
-      );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      if (typeof voteTransferIx === "string") {
-        console.log("Return delegate ix: ", voteTransferIx);
-        toast.success("Return delegate vote successful!");
-      } else {
-        console.log("Error with return delegate ix: ", voteTransferIx);
-        toast.error("Return delegate vote failed!");
+      if (!selectedCharacter?.mint) {
+        toast.error("No Character Selected");
+        return;
       }
-      await new Promise((resolve) => setTimeout(resolve, 15000));
+      const encodedSignedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        txInstructions: [
+          await returnVoteDelegation(
+            connection,
+            new PublicKey(walletAddress!),
+            new PublicKey(selectedCharacter?.mint!),
+            new PublicKey(voteCharacterRecepientMint),
+            voteAmt
+          ),
+        ],
+      });
+      console.log("hRCV tx: ", encodedSignedTx);
+
+      if (typeof encodedSignedTx === "string") {
+        const sig = await connection.sendRawTransaction(
+          decode(encodedSignedTx)
+        );
+        console.log("hRCV sig: ", sig);
+        toast.success("Delegate vote successful!");
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     } catch (e) {
       console.log("Return delegate votes failed with error: ", e);
       toast.error("Return delegate votes failed");
     } finally {
+      setInputValue("");
       setActionType(null);
       setActiveCitizen(null);
     }
+  };
+
+  const isValidInput = (value: string): boolean => {
+    if (value.trim() === "") return false;
+    const numberValue = parseFloat(value);
+    if (isNaN(numberValue)) return false;
+    return true;
   };
 
   return (
@@ -208,24 +267,24 @@ export const CitizenModal: FC<{
               <HStack pb="0.25rem">
                 <CitizenLabel fontSize="2rem"> MY VP: </CitizenLabel>
                 {!isCitizenLoading ? (
-            <>
-              <Text
-                  fontSize="2rem"
-                  fontWeight={700}
-                  bg="brand.quaternary"
-                  color="brand.primary"
-                  w="fit-content"
-                  p="0rem 0.5rem"
-                  borderRadius="0.5rem"
-                  filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
-                >
-                {Number(currentCitizen?.totalVotingPower) -
-                  Number(currentCitizen?.maxPledgedVotingPower)}
-              </Text>
-            </>
-          ) : (
-            <Spinner size="md" color="white" mb="0.5rem"  />
-          )}
+                  <>
+                    <Text
+                      fontSize="2rem"
+                      fontWeight={700}
+                      bg="brand.quaternary"
+                      color="brand.primary"
+                      w="fit-content"
+                      p="0rem 0.5rem"
+                      borderRadius="0.5rem"
+                      filter="drop-shadow(0 2px 2px rgba(0,0,0,0.25))"
+                    >
+                      {Number(currentCitizen?.totalVotingPower) -
+                        Number(currentCitizen?.maxPledgedVotingPower)}
+                    </Text>
+                  </>
+                ) : (
+                  <Spinner size="md" color="white" mb="0.5rem" />
+                )}
               </HStack>
             </HStack>
           </Box>
@@ -313,7 +372,7 @@ export const CitizenModal: FC<{
                   ml="2rem"
                 >
                   <VStack align="start" gap="0" mb="1rem">
-                  <Flex align="center" m="0rem"  p="0rem">
+                    <Flex align="center" m="0rem" p="0rem">
                       <Label fontSize="2rem"> SKILLS: </Label>
                       <Value ml="0.5rem">
                         {Object.values(citizen.skills).reduce((a, b) => a + b)}
@@ -341,7 +400,6 @@ export const CitizenModal: FC<{
                     >
                       {citizen.name.split(" ")[1]}
                     </Text>
-
                   </VStack>
                   <Flex>
                     {actionType && activeCitizen === citizen.mint ? (
@@ -349,7 +407,10 @@ export const CitizenModal: FC<{
                         <StyledInput
                           placeholder="Amount"
                           type="number"
+                          value={inputValue}
+                          onChange={(e) => setInputValue(e.target.value)}
                         />
+
                         <IconButton
                           aria-label="Confirm"
                           icon={<MdCheck />}
@@ -360,62 +421,83 @@ export const CitizenModal: FC<{
                           h="4rem"
                           _hover={{ bg: colors.blacks[700] }}
                           onClick={() => {
-                            if (actionType == "delegate") {
-                              handleDelegateVotes(1, citizen.mint);
-                            } else if (actionType == "transfer") {
-                              handleTransferVotes(1, citizen.mint);
-                            } else if (actionType == "reclaim") {
-                              handleReclaimDelegatedVotes(1, citizen.mint);
+                            if (isValidInput(inputValue as string)) {
+                              if (actionType === "delegate") {
+                                handleDelegateVotes(
+                                  Number(inputValue),
+                                  citizen.mint
+                                );
+                              } else if (actionType === "transfer") {
+                                handleTransferVotes(
+                                  Number(inputValue),
+                                  citizen.mint
+                                );
+                              } else if (actionType === "reclaim") {
+                                handleReclaimDelegatedVotes(
+                                  Number(inputValue),
+                                  citizen.mint
+                                );
+                              }
+                            } else {
+                              alert("Please enter a valid number.");
                             }
                           }}
                         />
                       </Flex>
                     ) : (
                       <Flex justifyContent="space-between" gap="1rem">
-                        <Tooltip label="Reclaim Delegated" hasArrow>
-                          <IconButton
-                            aria-label="Confirm"
-                            icon={<MdPersonRemoveAlt1 />}
-                            bg={colors.blacks[700]}
-                            borderRadius="0.5rem"
-                            color="white"
-                            p="0rem 2rem"
-                            _hover={{ bg: colors.blacks[700] }}
-                            h="4rem"
-                            onClick={() => {
-                              setActionType("reclaim");
-                              setActiveCitizen(citizen.mint);
-                            }}
+                        {currentCitizen.mint === citizen.mint ? (
+                          <LeaveFactionModal
+                            character={selectedCharacter!}
+                            setFactionStatus={setFactionStatus}
                           />
-                        </Tooltip>
-                        <Tooltip label="Delegate Votes" hasArrow>
-                          <IconButton
-                            aria-label="Delegate Votes"
-                            icon={<MdPersonAddAlt1 />}
-                            bg={colors.blacks[700]}
-                            color="white"
-                            p="0rem 2rem"
-                            h="4rem"
-                            onClick={() => {
-                              setActionType("delegate");
-                              setActiveCitizen(citizen.mint);
-                            }}
-                          />
-                        </Tooltip>
-                        <Tooltip label="Transfer Votes" hasArrow>
-                          <IconButton
-                            aria-label="Transfer Votes"
-                            icon={<MdSend />}
-                            bg={colors.blacks[700]}
-                            color="white"
-                            p="0rem 2rem"
-                            h="4rem"
-                            onClick={() => {
-                              setActionType("transfer");
-                              setActiveCitizen(citizen.mint);
-                            }}
-                          />
-                        </Tooltip>
+                        ) : (
+                          <>
+                            <Tooltip label="Reclaim Delegated" hasArrow>
+                              <IconButton
+                                aria-label="Confirm"
+                                icon={<MdPersonRemoveAlt1 />}
+                                bg={colors.blacks[700]}
+                                borderRadius="0.5rem"
+                                color="white"
+                                p="0rem 2rem"
+                                h="4rem"
+                                onClick={() => {
+                                  setActionType("reclaim");
+                                  setActiveCitizen(citizen.mint);
+                                }}
+                              />
+                            </Tooltip>
+                            <Tooltip label="Delegate Votes" hasArrow>
+                              <IconButton
+                                aria-label="Delegate Votes"
+                                icon={<MdPersonAddAlt1 />}
+                                bg={colors.blacks[700]}
+                                color="white"
+                                p="0rem 2rem"
+                                h="4rem"
+                                onClick={() => {
+                                  setActionType("delegate");
+                                  setActiveCitizen(citizen.mint);
+                                }}
+                              />
+                            </Tooltip>
+                            <Tooltip label="Transfer Votes" hasArrow>
+                              <IconButton
+                                aria-label="Transfer Votes"
+                                icon={<MdSend />}
+                                bg={colors.blacks[700]}
+                                color="white"
+                                p="0rem 2rem"
+                                h="4rem"
+                                onClick={() => {
+                                  setActionType("transfer");
+                                  setActiveCitizen(citizen.mint);
+                                }}
+                              />
+                            </Tooltip>
+                          </>
+                        )}
                       </Flex>
                     )}
                   </Flex>

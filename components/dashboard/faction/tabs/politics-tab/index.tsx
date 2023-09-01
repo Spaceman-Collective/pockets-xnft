@@ -312,10 +312,10 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
         }}>
           citizens
         </CitizensButton>
-        <LeaveFactionModal
+        {/* <LeaveFactionModal
           character={currentCharacter}
           setFactionStatus={setFactionStatus}
-        />
+        /> */}
       </Flex>
       {renderContent()}
     </PanelContainer>
@@ -675,7 +675,7 @@ function handleError(error: Error | string) {
 const CitizensButton = styled(Button)`
   border-radius: 0.5rem;
   border: 3px solid ${colors.blacks[700]};
-  margin: 0rem 3rem 0rem 0rem;
+  margin: 0rem;
   width: 100%;
   font-size: 1.75rem;
   font-weight: 600;
