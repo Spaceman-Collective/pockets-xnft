@@ -26,7 +26,6 @@ export const CharacterEquipment: FC<{
 			(unit) => unit.skill.toUpperCase() === selectedSkill.toUpperCase(),
 		).length
 
-	console.log(selectedSkill)
 	return (
 		<Grid
 			templateAreas={`"image name name" "image units scroller"`}

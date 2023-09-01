@@ -30,8 +30,6 @@ export const EquipmentTab: FC<{ currentCharacter: Character }> = ({
 			currentCharacter.skills[skill.charAt(0).toUpperCase() + skill.slice(1)],
 	}))
 
-	console.log(combatSkillLevels)
-
 	const queryClient = useQueryClient()
 
 	const [loadingUnitEquip, setLoadingUnitEquip] = useState<boolean>(false)
