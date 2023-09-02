@@ -116,7 +116,9 @@ export const ModalStation: FC<{
 	const { mutate: claim, isLoading } = useFactionStationClaim()
 
 	const stationBlueprint = station && getBlueprint(station?.blueprint)
-	const progress = ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100
+	const progress = !!timer
+		? ((totalTimeInSeconds - count) / totalTimeInSeconds) * 100
+		: 0
 	const image = getLocalImage({
 		type: "stations",
 		name: station?.blueprint ?? "",
@@ -292,6 +294,14 @@ export const ModalStation: FC<{
 						timer={timer}
 						isFuture={isFuture}
 						isClaimable={isClaimable}
+						speedUp={speedUpWithBonk}
+						speedUpIsLoading={speedUpIsLoading}
+						startBuild={startStationProcess}
+						claimReward={claimStationReward}
+						claimIsLoading={isLoading}
+						count={count}
+						input={input}
+						setInput={setInput}
 					/>
 				</ModalBody>
 			</ModalContent>

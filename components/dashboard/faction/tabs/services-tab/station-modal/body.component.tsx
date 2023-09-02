@@ -1,5 +1,5 @@
 import { Tip } from "@/components/tooltip"
-import { getLocalImage } from "@/lib/utils"
+import { getLocalImage, timeAgo } from "@/lib/utils"
 import { getBlueprint } from "@/types/server"
 import {
 	Grid,
@@ -10,8 +10,11 @@ import {
 	Progress,
 	VStack,
 	Button,
+	Spinner,
 } from "@chakra-ui/react"
-import { FC } from "react"
+import { FC, useState } from "react"
+import { GiStopwatch } from "react-icons/gi"
+import { SpeedUpPopover } from "../../../speed-up.component"
 
 export const StationModalBody: FC<{
 	blueprint: string
@@ -19,14 +22,29 @@ export const StationModalBody: FC<{
 	resourcesInWallet?: { value: string; name: string }[]
 	isFuture: boolean
 	isClaimable: boolean
+	claimIsLoading: boolean
 	timer?: any
+	startBuild: () => Promise<void>
+	claimReward: () => Promise<string | undefined>
+	speedUp: () => Promise<void>
+	speedUpIsLoading: boolean
+	count: number
+	input: number
+	setInput: (e: number) => void
 }> = ({
 	blueprint,
 	progress,
 	resourcesInWallet,
-	isFuture,
 	isClaimable,
+	claimIsLoading,
+	speedUpIsLoading,
 	timer,
+	startBuild,
+	claimReward,
+	speedUp,
+	count,
+	input,
+	setInput,
 }) => {
 	const station = getBlueprint(blueprint)
 	const output = !!station?.unitOutput
@@ -74,7 +92,7 @@ export const StationModalBody: FC<{
 						</Flex>
 					</Box>
 					{!timer && (
-						<Button minW="23rem" bg="brand.primary">
+						<Button onClick={startBuild} minW="23rem" bg="brand.primary">
 							Build {output}
 						</Button>
 					)}
@@ -85,12 +103,31 @@ export const StationModalBody: FC<{
 						borderRadius="1rem"
 					/>
 					{isClaimable && (
-						<Button minW="23rem" bg="brand.primary">
+						<Button onClick={claimReward} minW="23rem" bg="brand.primary">
+							{claimIsLoading && <Spinner />}
 							Claim {output}
 						</Button>
 					)}
 				</VStack>
+				{!!timer && !isClaimable && (
+					<Flex justifyContent="end" pr="1rem" alignItems="center" gap="1rem">
+						<Text>{timeAgo(count)}</Text>
+						<SpeedUpPopover
+							input={input}
+							setInput={setInput}
+							count={count}
+							speedUpWithBonk={speedUp}
+						>
+							<Button bg="brand.primary">
+								{speedUpIsLoading && <Spinner />}
+								{!speedUpIsLoading && <GiStopwatch style={{ fontSize: "2rem" }} />}
+							</Button>
+						</SpeedUpPopover>
+					</Flex>
+				)}
 				<Progress
+					opacity={progress === 0 ? 0.25 : 1}
+					colorScheme={progress !== 100 ? "blue" : "green"}
 					value={progress}
 					w="100%"
 					minH="2rem"
