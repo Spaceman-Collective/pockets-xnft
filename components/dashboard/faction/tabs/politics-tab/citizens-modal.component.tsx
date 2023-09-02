@@ -83,7 +83,6 @@ export const CitizenModal: FC<{
     voteCharacterRecepientMint: string
   ) => {
     setDelegationInProgress(true);
-    console.log("iVA: ", voteAmt, "vCRM: ", voteCharacterRecepientMint);
     try {
       if (!selectedCharacter?.mint) {
         toast.error("No Character Selected");
@@ -103,13 +102,11 @@ export const CitizenModal: FC<{
           ),
         ],
       });
-      console.log("hTV tx: ", encodedSignedTx);
 
       if (typeof encodedSignedTx === "string") {
         const sig = await connection.sendRawTransaction(
           decode(encodedSignedTx)
         );
-        console.log("hTV sig: ", sig);
         toast.success("Transfer vote successful!");
       }
 
@@ -131,20 +128,12 @@ export const CitizenModal: FC<{
   ) => {
     setDelegationInProgress(true);
 currentCitizen
-    // console.log('characterMint into dPDA: ', voteCharacterRecepientMint);
-    // console.log('characterMint into dPDA: ', voteCharacterRecepientMint);
-
     const citizenPDA = getCitizenPDA(new PublicKey(currentCitizen?.mint!));
     const characterRecepientPDA = getCitizenPDA(new PublicKey(voteCharacterRecepientMint));
-    // console.log('vCRM into dPDA: ', characterRecepientPDA);
-    // console.log('characterMint into dPDA: ', voteCharacterRecepientMint);
     const delegationPDA = getDelegationRecordPDA(citizenPDA, characterRecepientPDA);
-    console.log('delegationPDA: ', delegationPDA.toBase58());
 
     const dA = await getDelegationAccount(connection, delegationPDA);
     await new Promise((resolve) => setTimeout(resolve, 15000));
-
-    console.log('dA is: ', dA);
 
     if (!dA) {
       handleDelegateVotes(voteAmt, voteCharacterRecepientMint);
@@ -180,13 +169,10 @@ currentCitizen
           ),
         ],
       });
-      console.log("hDV tx: ", encodedSignedTx);
-
       if (typeof encodedSignedTx === "string") {
         const sig = await connection.sendRawTransaction(
           decode(encodedSignedTx)
         );
-        console.log("hDV sig: ", sig);
         toast.success("Delegate vote successful!");
       }
 
@@ -235,13 +221,11 @@ currentCitizen
           ),
         ],
       });
-      console.log("hUDV tx: ", encodedSignedTx);
 
       if (typeof encodedSignedTx === "string") {
         const sig = await connection.sendRawTransaction(
           decode(encodedSignedTx)
         );
-        console.log("hUDV sig: ", sig);
         toast.success("Delegate vote successful!");
       }
 
@@ -274,19 +258,15 @@ currentCitizen
       const characterRecepientPDA = getCitizenPDA(new PublicKey(voteCharacterRecepientMint));
       const delegationPDA = getDelegationRecordPDA(citizenPDA, characterRecepientPDA);
       const dA = await getDelegationAccount(connection, delegationPDA);
-      // await new Promise((resolve) => setTimeout(resolve, 15000));
+      await new Promise((resolve) => setTimeout(resolve, 15000));
 
       if (!dA) {
-        console.log('dA is null!');
-        console.log('dA: ', dA)
         toast.error('No votes have been delegated!')
         return;
       }
 
       if (!dA.voteAmt) {
-        console.log('dA Votes is null!');
-        console.log('dA Votes: ', dA.voteAmt)
-        toast.error('No votes have been delegated!')
+        toast.error('No vote amount found!')
         return;
       }
 
@@ -305,13 +285,11 @@ currentCitizen
           ),
         ],
       });
-      console.log("hRDV tx: ", encodedSignedTx);
 
       if (typeof encodedSignedTx === "string") {
         const sig = await connection.sendRawTransaction(
           decode(encodedSignedTx)
         );
-        console.log("hRDV sig: ", sig);
         toast.success("Delegate votes reclaimed successfuly!");
       }
 
