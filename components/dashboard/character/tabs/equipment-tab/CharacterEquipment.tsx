@@ -56,6 +56,57 @@ export const CharacterEquipment: FC<{
 			(unit) => unit.skill.toUpperCase() === selectedSkill.toUpperCase(),
 		).length
 
+	const unitsAreaIsScrollable = totalAvailableSlotsForSkill > 20
+	const [canScrollUp, setCanScrollUp] = useState<boolean>(false)
+	const [canScrollDown, setCanScrollDown] = useState<boolean>(
+		unitsAreaIsScrollable,
+	)
+
+	const [currentlyScrolling, setCurrentlyScrolling] = useState<boolean>(false)
+
+	const handleScroll = (direction: "up" | "down") => {
+		const unitsEquippedArea = document.getElementById("unitsEquippedArea")
+		if (!unitsEquippedArea || currentlyScrolling) return
+
+		const scrollAmount = 90 // 10rem + 1.25rem (grid gap)
+		const scrollDirection = direction === "up" ? -1 : 1
+
+		setCurrentlyScrolling(true)
+		unitsEquippedArea.scrollBy({
+			top: scrollAmount * scrollDirection,
+			behavior: "smooth",
+		})
+		setTimeout(() => {
+			setCurrentlyScrolling(false)
+		}, 200)
+	}
+
+	// Scroll event listener
+	const handleScrollEvent = () => {
+		const unitsEquippedArea = document.getElementById("unitsEquippedArea")
+		if (!unitsEquippedArea) return
+
+		const { scrollTop, scrollHeight, clientHeight } = unitsEquippedArea
+
+		const atTop = scrollTop === 0
+		const atBottom = scrollHeight - scrollTop === clientHeight
+
+		setCanScrollUp(!atTop)
+		setCanScrollDown(!atBottom)
+	}
+
+	// Add scroll event listener
+	React.useEffect(() => {
+		const unitsEquippedArea = document.getElementById("unitsEquippedArea")
+		if (!unitsEquippedArea) return
+
+		unitsEquippedArea.addEventListener("scroll", handleScrollEvent)
+
+		return () => {
+			unitsEquippedArea.removeEventListener("scroll", handleScrollEvent)
+		}
+	}, [])
+
 	return (
 		<>
 			<Grid
@@ -66,14 +117,12 @@ export const CharacterEquipment: FC<{
 				maxW="100%"
 				gap="2rem"
 				p="2rem"
-				color="blackAlpha.700"
-				fontWeight="bold"
 				borderRadius="0.5rem"
 				overflow="hiddden"
 				bgColor="blacks.500"
 			>
 				<GridItem
-					area={"image"}
+					area="image"
 					display="flex"
 					alignItems="center"
 					justifyContent="center"
@@ -110,7 +159,7 @@ export const CharacterEquipment: FC<{
 					</Flex>
 				</GridItem>
 				<GridItem
-					area={"name"}
+					area="name"
 					display="flex"
 					flexDir="row"
 					alignItems="center"
@@ -126,7 +175,7 @@ export const CharacterEquipment: FC<{
 						{character.name}
 					</Text>
 				</GridItem>
-				<GridItem area={"units"} overflow="auto">
+				<GridItem area="units" overflow="hidden" id="unitsEquippedArea">
 					{character.army.length || selectedSkill.length ? (
 						<Grid templateColumns="repeat(10, 0fr)" gap="1rem">
 							{character.army.length
@@ -202,40 +251,47 @@ export const CharacterEquipment: FC<{
 						</Box>
 					)}
 				</GridItem>
-				{character.army ? (
-					<GridItem
-						area={"scroller"}
-						display="flex"
-						flexDir="column"
-						color="white"
-						fontSize="3rem"
+				<GridItem
+					area="scroller"
+					display="flex"
+					flexDir="column"
+					color="white"
+					fontSize="3rem"
+				>
+					<Flex
+						flex="1"
+						borderRadius="0.5rem"
+						bg="blacks.400"
+						cursor={canScrollUp ? "pointer" : "not-allowed"}
+						opacity={canScrollUp ? "1" : "0.25"}
+						justifyContent="center"
+						alignItems="center"
+						transition="all 0.1s ease"
+						_hover={{
+							backgroundColor: "brand.quaternary",
+						}}
+						onClick={() => handleScroll("up")}
 					>
-						<Flex
-							flex="1"
-							bg="blacks.400"
-							cursor="pointer"
-							transition="all 0.1s ease"
-							_hover={{
-								backgroundColor: "brand.quaternary",
-							}}
-						>
-							<ChevronUpIcon />
-						</Flex>
-						<Box h="1rem" />
-						<Flex
-							flex="1"
-							bg="blacks.400"
-							alignItems="flex-end"
-							cursor="pointer"
-							transition="all 0.1s ease"
-							_hover={{
-								backgroundColor: "brand.quaternary",
-							}}
-						>
-							<ChevronDownIcon />
-						</Flex>
-					</GridItem>
-				) : null}
+						<ChevronUpIcon />
+					</Flex>
+					<Box h="1rem" />
+					<Flex
+						flex="1"
+						borderRadius="0.5rem"
+						bg="blacks.400"
+						cursor={canScrollDown ? "pointer" : "not-allowed"}
+						opacity={canScrollDown ? "1" : "0.25"}
+						justifyContent="center"
+						alignItems="center"
+						transition="all 0.1s ease"
+						_hover={{
+							backgroundColor: "brand.quaternary",
+						}}
+						onClick={() => handleScroll("down")}
+					>
+						<ChevronDownIcon />
+					</Flex>
+				</GridItem>
 			</Grid>
 
 			<AlertDialog
