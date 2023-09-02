@@ -155,7 +155,21 @@ export const ModalStation: FC<{
 				queryClient,
 			})
 		} catch (err) {
-			toast.error("Failed to start the station: " + JSON.stringify(err))
+			console.error("failed to start error", err)
+			//@ts-ignore
+			const errorMessage = err?.response?.data?.error
+			const errorWrongFaction =
+				errorMessage === "Can only use stations in your faction!"
+					? " Reselect character to fix."
+					: ""
+			toast.error(
+				"Failed to start the station: " +
+					`\n` +
+					errorMessage +
+					errorWrongFaction +
+					`\n\n` +
+					JSON.stringify(err),
+			)
 		}
 	}
 

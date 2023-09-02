@@ -96,7 +96,14 @@ export const startStationProcess = async ({
 					toast.success("You've started a build in the " + station?.blueprint)
 				},
 				onError: (e: any) => {
-					toast.error("Ooops! Did not start station: \n\n" + e)
+					const errorMessage = e?.response?.data?.error
+					const errorWrongFaction =
+						errorMessage === "Can only use stations in your faction!"
+							? " Reselect character to fix."
+							: ""
+					toast.error(
+						"Ooops! Did not start station: \n\n" + errorMessage + errorWrongFaction,
+					)
 				},
 			},
 		)
