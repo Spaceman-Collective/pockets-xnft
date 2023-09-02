@@ -95,11 +95,9 @@ export const OpponentEquipment: FC<{
 
 		battleMutate(encodedTx, {
 			onSuccess: async (e) => {
-				console.log(e)
 				toast.success("Battle started")
 			},
 			onError: (e) => {
-				console.log("battle error", e)
 				toast.error(JSON.stringify(e))
 			},
 		})

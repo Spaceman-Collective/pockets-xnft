@@ -19,7 +19,6 @@ export const BattleLogCard: React.FC<BattleLogCardProps> = ({
 }) => {
 	const color =
 		type === "bonus" ? colors.brand.quaternary : colors.brand.tertiary
-	console.log(unit)
 	return (
 		<Flex
 			flexDirection="column"
