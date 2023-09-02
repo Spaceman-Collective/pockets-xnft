@@ -191,7 +191,6 @@ const Header: FC<{ character: Character }> = ({ character }) => {
 			uniqueOpponents.forEach(async (opponent) => {
 				const { character } = await fetchCharacter({ mint: opponent })
 				setOpponents((prev) => [...prev, character!])
-				console.log(character)
 			})
 		}
 	}, [battleHistory, character])
@@ -293,11 +292,7 @@ const Header: FC<{ character: Character }> = ({ character }) => {
 									bgColor="blacks.600"
 								>
 									{battleHistory.histories.map((item, i) => {
-										const characterIsAttacker = item.attacker === character.mint
-										const characterIsDefender = item.defender === character.mint
 										const opponentIsAttacker = item.attacker !== character.mint
-										const opponentIsDefender = item.defender !== character.mint
-										console.log(item)
 										const opponent = opponents.find(
 											(o) =>
 												o.mint === (opponentIsAttacker ? item.attacker : item.defender),
