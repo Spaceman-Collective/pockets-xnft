@@ -1,5 +1,5 @@
 import { Proposal } from "@/types/server/Proposal"
-import type { NFT, Character, Faction, Blueprint } from "@/types/server"
+import type { NFT, Character, Faction, Blueprint, Unit } from "@/types/server"
 import fetch from "axios"
 import { FactionScore } from "@/components/leaderboard"
 const API_BASE_URL = "https://api.pockets.gg"
@@ -520,6 +520,50 @@ export const postRfAllocate = async ({
 	} catch (error) {
 		console.error("Request info: ", signedTx, charMint)
 		console.error("Network Error while allocating resources:", error)
+		throw error
+	}
+}
+
+export const postConsumeUnitRequest = async ({
+	mint,
+	unit,
+}: {
+	mint: string
+	unit: string
+}): Promise<{ encodedTx: string }> => {
+	const URL = API_BASE_URL + "/character/units/consume/request"
+	try {
+		const response = await fetch.post<any>(URL, { mint, unit })
+		if (response.status === 200) {
+			const data = await response.data
+			return data
+		} else {
+			console.error("Server Error while consuming unit for character:", response)
+			throw new Error("Server Error while consuming unit for character")
+		}
+	} catch (error) {
+		console.error("Network Error while consuming unit for character:", error)
+		throw error
+	}
+}
+
+export const postConsumeUnitConfirm = async ({
+	signedTx,
+}: {
+	signedTx: string
+}): Promise<Unit> => {
+	const URL = API_BASE_URL + "/character/units/consume/confirm"
+	try {
+		const response = await fetch.post<any>(URL, { signedTx })
+		if (response.status === 200) {
+			const data = await response.data
+			return data
+		} else {
+			console.error("Server Error while consuming unit for character:", response)
+			throw new Error("Server Error while consuming unit for character")
+		}
+	} catch (error) {
+		console.error("Network Error while consuming unit for character:", error)
 		throw error
 	}
 }
