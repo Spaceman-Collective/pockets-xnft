@@ -131,7 +131,7 @@ export const StationModalBody: FC<{
 							>
 								<Tip
 									label={
-										stationLevel > 1
+										stationLevel && stationLevel > 1
 											? `Has a ${
 													15 * (stationLevel - 1)
 											  }% chance of additionally dropping a ${station.rareDrop}`
