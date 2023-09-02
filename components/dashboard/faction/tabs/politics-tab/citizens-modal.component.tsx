@@ -37,6 +37,7 @@ import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import {
   adjustVoteDelegation,
   delegateVotes,
+  getCitizenPDA,
   getDelegationAccount,
   getDelegationRecordPDA,
   returnVoteDelegation,
@@ -129,13 +130,15 @@ export const CitizenModal: FC<{
     voteCharacterRecepientMint: string
   ) => {
     setDelegationInProgress(true);
+currentCitizen
+    // console.log('characterMint into dPDA: ', voteCharacterRecepientMint);
+    // console.log('characterMint into dPDA: ', voteCharacterRecepientMint);
 
-    console.log('characterMint into dPDA: ', voteCharacterRecepientMint);
-    const cM = new PublicKey(currentCitizen?.mint!);
-    console.log('cM into dPDA: ', voteCharacterRecepientMint);
-    const vCRM = new PublicKey(voteCharacterRecepientMint);
-    console.log('vCRM into dPDA: ', voteCharacterRecepientMint);
-    const delegationPDA = getDelegationRecordPDA(cM, vCRM);
+    const citizenPDA = getCitizenPDA(new PublicKey(currentCitizen?.mint!));
+    const characterRecepientPDA = getCitizenPDA(new PublicKey(voteCharacterRecepientMint));
+    // console.log('vCRM into dPDA: ', characterRecepientPDA);
+    // console.log('characterMint into dPDA: ', voteCharacterRecepientMint);
+    const delegationPDA = getDelegationRecordPDA(citizenPDA, characterRecepientPDA);
     console.log('delegationPDA: ', delegationPDA.toBase58());
 
     const dA = await getDelegationAccount(connection, delegationPDA);
@@ -267,9 +270,11 @@ export const CitizenModal: FC<{
         return;
       }
 
-      const delegationPDA = getDelegationRecordPDA(new PublicKey(currentCitizen?.mint!), new PublicKey(voteCharacterRecepientMint));
+      const citizenPDA = getCitizenPDA(new PublicKey(currentCitizen?.mint!));
+      const characterRecepientPDA = getCitizenPDA(new PublicKey(voteCharacterRecepientMint));
+      const delegationPDA = getDelegationRecordPDA(citizenPDA, characterRecepientPDA);
       const dA = await getDelegationAccount(connection, delegationPDA);
-      await new Promise((resolve) => setTimeout(resolve, 15000));
+      // await new Promise((resolve) => setTimeout(resolve, 15000));
 
       if (!dA) {
         console.log('dA is null!');
