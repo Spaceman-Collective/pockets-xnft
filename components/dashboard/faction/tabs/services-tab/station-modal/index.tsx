@@ -35,7 +35,7 @@ import { FaClock } from "react-icons/fa"
 import { ResourceContainer } from "./resource-container.component"
 import { startStationProcess as startStation } from "./tx-builder"
 import { Tip } from "@/components/tooltip"
-import { getLocalImage, timeAgo } from "@/lib/utils"
+import { formatBalance, getLocalImage, timeAgo } from "@/lib/utils"
 import { getBlueprint } from "@/types/server"
 import {
 	BONK_COST_PER_MS_WIPED,
@@ -331,8 +331,14 @@ export const ModalStation: FC<{
 											w="10rem"
 											h="3rem"
 											bg="blacks.700"
+											textAlign="center"
 										>
 											{timeAgo(input)}
+											<br />
+											{formatBalance(
+												(Number(BONK_COST_PER_MS_WIPED) * 1e3 * input) / 1e5,
+											).toString()}{" "}
+											BONK
 										</SliderThumb>
 									</Slider>
 									<Button onClick={speedUpWithBonk} mb="2rem">

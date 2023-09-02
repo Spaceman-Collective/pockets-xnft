@@ -43,8 +43,7 @@ export const useProposalVoteInfo = (
 			const vA = await getVoteAccount(connection, votePDA)
 
 			if (!vA) {
-				console.log("vA is null!")
-				console.log("vA: ", vA)
+				console.warn("vote account is null:", vA)
 				return {
 					voteAccountExists: false,
 					totalVoteAmount: "0",
@@ -54,8 +53,7 @@ export const useProposalVoteInfo = (
 
 			const pA = await getProposalAccount(connection, proposalId)
 			if (!pA) {
-				console.log("pA is null!")
-				console.log("pA: ", pA)
+				console.warn("proposal account is null!", pA)
 				return {
 					voteAccountExists: false,
 					totalVoteAmount: "NA",
