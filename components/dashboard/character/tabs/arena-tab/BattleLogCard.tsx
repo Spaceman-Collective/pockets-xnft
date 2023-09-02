@@ -40,9 +40,13 @@ export const BattleLogCard: React.FC<BattleLogCardProps> = ({
 			</Text>
 			<Tip
 				placement="top"
-				label={`${unit?.name}. Skill: ${unit?.skill}. Bonusses: ${
-					unit ? Object.keys(unit.bonus).join(", ") : ""
-				}`}
+				label={
+					unit
+						? `${unit?.name}. Skill: ${unit?.skill}. Bonusses: ${
+								unit ? Object.keys(unit.bonus).join(", ") : ""
+						  }`
+						: ""
+				}
 			>
 				<Box
 					bgColor="blacks.500"
