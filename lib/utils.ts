@@ -57,7 +57,9 @@ export function timeAgo(timestamp: number): string {
 	const minutes = Math.floor((timeDifference % 3600) / 60)
 	const seconds = timeDifference % 60
 
-	return `${hours}h ${minutes}m ${seconds}s`
+	return `${hours ? hours + "h" : ""} ${minutes ? minutes + "m" : ""} ${
+		seconds ? seconds + "s" : ""
+	}`
 }
 
 export function getLocalImage({
