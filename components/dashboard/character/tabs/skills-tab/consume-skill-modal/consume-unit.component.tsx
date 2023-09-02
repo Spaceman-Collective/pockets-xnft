@@ -1,5 +1,5 @@
 import { getLocalImage } from "@/lib/utils"
-import { NFT, Unit, UnitTemplate } from "@/types/server"
+import { NFT, Unit, UnitTemplate, XP_PER_RANK } from "@/types/server"
 import { Box, Flex, Grid, Image, Text } from "@chakra-ui/react"
 import { FC } from "react"
 
@@ -9,38 +9,64 @@ interface UnitPlusRank extends Unit {
 
 export const ConsumeUnitContainer: FC<{
 	unit: UnitTemplate
-	unitsInWallet?: Unit[]
+	unitsInWallet?: UnitPlusRank[]
 }> = ({ unit, unitsInWallet }) => {
 	const img = getLocalImage({ type: "units", name: unit.name })
 	console.log({ unitsInWallet })
 	return (
 		<Box>
-			<Grid templateColumns="1fr 1fr">
-				<Image src={img} alt={"unit " + unit.name} />
-				<Flex gap="1rem" flexWrap="wrap">
-					{unitsInWallet &&
-						unitsInWallet.map((unit) => {
-							return <UnitFrame key={unit?.mint} unit={unit} />
-						})}
-				</Flex>
-			</Grid>
+			<Image
+				src={img}
+				alt={"unit " + unit.name}
+				w="20rem"
+				m="1rem auto"
+				borderRadius="1rem"
+			/>
+			<Flex gap="1rem" flexWrap="wrap">
+				{unitsInWallet &&
+					unitsInWallet.map((unit) => {
+						return <UnitFrame key={unit?.mint} unit={unit} />
+					})}
+			</Flex>
 		</Box>
 	)
 }
 
 const UnitFrame: FC<{
-	unit: Unit
+	unit: UnitPlusRank
 }> = ({ unit }) => {
 	if (!unit) return null
 	const bonuses = Object.keys(unit.bonus)
-	console.log({ unit })
 	return (
-		<Box bg="darkblue" color="white">
-			{bonuses.map((bonus, i) => (
-				<Text key={i + "bonus" + bonus}>
-					{bonus} {unit.bonus[bonus]}
+		<Box bg="blacks.700" color="white" p="0.5rem" borderRadius="1rem" h="135px">
+			<Flex bg="blacks.500" p="1rem" borderRadius="0.5rem" justifyContent="center">
+				<Text fontWeight="700" letterSpacing="1px">
+					{+unit.rank * XP_PER_RANK}xp
 				</Text>
-			))}
+			</Flex>
+			<Box overflowY="auto" h="90px">
+				{bonuses.map((bonus, i) => (
+					<Flex
+						key={i + "bonus" + bonus}
+						justifyContent="space-between"
+						gap="1rem"
+						px="1rem"
+					>
+						<Text
+							fontSize="1.25rem"
+							letterSpacing="0.5px"
+							w="8ch"
+							noOfLines={1}
+							textOverflow="ellipsis"
+						>
+							{bonus}
+						</Text>
+						<Text fontSize="1.25rem" letterSpacing="0.5px">
+							{unit.bonus[bonus]}
+						</Text>
+					</Flex>
+				))}
+			</Box>
 		</Box>
 	)
 }

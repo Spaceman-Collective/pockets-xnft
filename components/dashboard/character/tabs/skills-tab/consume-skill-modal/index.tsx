@@ -64,9 +64,10 @@ export const ConsumeSkillModal: FC<{
 								unit={relevantUnit}
 								unitsInWallet={walletAssets?.units
 									.filter((asset) => asset.name === relevantUnit.name)
+									.sort((a, b) => +b.attributes.Rank - +a.attributes.Rank)
 									.map((unit) => {
 										const parsedUnit = buildUnitFromNFT(unit)
-										return parsedUnit
+										return { ...parsedUnit, rank: unit.attributes.Rank ?? "0" }
 									})}
 							/>
 						)}
