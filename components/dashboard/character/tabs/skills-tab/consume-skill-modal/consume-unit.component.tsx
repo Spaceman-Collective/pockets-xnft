@@ -78,7 +78,9 @@ export const ConsumeUnitContainer: FC<{
 					{ signedTx: encodedReturnTx },
 					{
 						onSuccess: async () => {
-							toast.success("Unit equipped")
+							toast.success(
+								`${unit.name} was consumed for ${+unit.rank * XP_PER_RANK}xp!`,
+							)
 							setRemovedMints([...removedMints, unit.mint])
 							queryClient.refetchQueries({ queryKey: ["assets"] })
 							queryClient.refetchQueries({
@@ -125,7 +127,7 @@ export const ConsumeUnitContainer: FC<{
 							<>
 								{isRemoved && (
 									<Tip label="Consumption is in progress">
-										<Skeleton h="102px" w="104px" />
+										<Skeleton h="102px" w="104px" borderRadius="1rem" />
 									</Tip>
 								)}
 								{!isRemoved && (
