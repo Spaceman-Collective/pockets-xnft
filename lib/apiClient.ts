@@ -24,6 +24,8 @@ export const fetchCharacters = async ({
 }): Promise<{ nfts?: NFT[]; characters?: any[] }> => {
 	const URL = API_BASE_URL + "/wallet/characters"
 	try {
+		if (!walletAddress || walletAddress === undefined) throw Error("No wallet")
+
 		const response = await fetch.get<any>(URL, {
 			params: {
 				wallet: walletAddress,
@@ -347,9 +349,14 @@ type CategorizedNFTs = {
 export const fetchAllAssets = async ({
 	walletAddress,
 }: {
-	walletAddress: string
+	walletAddress?: string
 }): Promise<CategorizedNFTs> => {
+	if (!walletAddress || walletAddress === undefined || walletAddress === "") {
+		throw Error("No wallet")
+	}
 	const URL = API_BASE_URL + "/wallet/assets"
+
+	console.log({ walletAddress })
 	try {
 		const response = await fetch.get<any>(URL, {
 			params: {

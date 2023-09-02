@@ -11,7 +11,7 @@ export const useAllWalletAssets = () => {
 
 	return useQuery(
 		["wallet-assets", walletAddress],
-		() => fetchAllAssets({ walletAddress: walletAddress ?? "" }),
+		() => fetchAllAssets({ walletAddress: walletAddress }),
 		{ enabled: walletAddress !== undefined },
 	)
 }
