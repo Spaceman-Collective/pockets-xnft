@@ -15,6 +15,7 @@ import { useFaction } from "@/hooks/useFaction"
 import { StationBox, Title } from "./service-tab.styles"
 import { RemainingSlot } from "./remaining-slot.component"
 import { getLocalImage } from "@/lib/utils"
+import { BuildingInfoModal } from "./buildingInfo-modal"
 
 const stationSize = "7rem"
 
@@ -23,6 +24,7 @@ export const FactionTabServices: React.FC<{
 	currentCharacter: Character
 }> = ({ currentCharacter, openCitizenModal }) => {
 	const stationDisclosure = useDisclosure()
+	const buildingInfoDisclosure = useDisclosure()
 	const [selectedStationId, setSelectedStationId] = useState<string>("")
 	const { data: factionData } = useFaction({
 		factionId: currentCharacter?.faction?.id ?? "",
@@ -45,6 +47,7 @@ export const FactionTabServices: React.FC<{
 					setSelectedStationId("")
 				}}
 			/>
+			<BuildingInfoModal {...buildingInfoDisclosure} />
 			<PanelContainer display="flex" flexDirection="column">
 				<HeaderStats
 					factionName={currentCharacter.faction?.name}
@@ -80,6 +83,7 @@ export const FactionTabServices: React.FC<{
 									<RemainingSlot
 										key={"slot" + i}
 										factionId={factionData?.faction?.id}
+										onClick={buildingInfoDisclosure.onOpen}
 										construction={
 											hasConstruction ? factionData.faction.construction : undefined
 										}
