@@ -285,7 +285,11 @@ export const ModalStation: FC<{
 						desc={getBlueprint(station?.blueprint ?? "")?.description}
 						level={station?.level}
 					/>
-					<StationModalBody blueprint={station?.blueprint ?? ""} />
+					<StationModalBody
+						blueprint={station?.blueprint ?? ""}
+						resourcesInWallet={resourcesInWallet}
+						progress={progress}
+					/>
 				</ModalBody>
 			</ModalContent>
 		</Modal>
