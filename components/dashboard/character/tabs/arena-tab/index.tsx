@@ -128,7 +128,7 @@ export const ArenaTab: FC<{
 								enabled={
 									!!opponent.army.length &&
 									!!currentCharacter.army.length &&
-									currentCharacter.faction
+									!!currentCharacter.faction
 								}
 								opponent={opponent}
 								currentCharacter={currentCharacter}
