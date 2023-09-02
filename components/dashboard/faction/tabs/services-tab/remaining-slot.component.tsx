@@ -19,10 +19,12 @@ type Construction = {
 }
 
 export const RemainingSlot: FC<{
+	onClick?: () => void
 	factionId?: string
 	construction?: Construction
 	slots?: [number, number]
 }> = ({
+	onClick: openBuildingInfoModal,
 	factionId,
 	construction,
 	slots: [remainingSlots, availableSlots] = [0, 0],
@@ -85,7 +87,11 @@ export const RemainingSlot: FC<{
 
 	if (!hasConstruction) {
 		return (
-			<EmptySlot remainingSlots={remainingSlots} availableSlots={availableSlots} />
+			<EmptySlot
+				openModal={openBuildingInfoModal}
+				remainingSlots={remainingSlots}
+				availableSlots={availableSlots}
+			/>
 		)
 	}
 
@@ -114,14 +120,22 @@ export const RemainingSlot: FC<{
 export const EmptySlot: FC<{
 	availableSlots: string | number
 	remainingSlots: string | number
-}> = ({ availableSlots, remainingSlots }) => {
+	openModal?: () => void
+}> = ({ availableSlots, remainingSlots, openModal }) => {
 	return (
 		<Tip
 			label={`This slot is available for a station to be built. Townhall Level ${availableSlots}: allows for a total of ${availableSlots} stations. You have ${remainingSlots} available slot${
 				+remainingSlots > 1 ? "s" : ""
 			} left. Create a proposal in the politics tab to start one.`}
 		>
-			<Box bg="brand.primary" h="7rem" w="7rem" borderRadius="1rem" />
+			<Box
+				cursor="pointer"
+				onClick={openModal}
+				bg="brand.primary"
+				h="7rem"
+				w="7rem"
+				borderRadius="1rem"
+			/>
 		</Tip>
 	)
 }
