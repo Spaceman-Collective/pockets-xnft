@@ -1,3 +1,4 @@
+import styled from "@emotion/styled"
 import { Tip } from "@/components/tooltip"
 import { getLocalImage, timeAgo } from "@/lib/utils"
 import { getBlueprint } from "@/types/server"
@@ -10,6 +11,7 @@ import {
 	VStack,
 	Button,
 	Spinner,
+	Grid,
 } from "@chakra-ui/react"
 import { FC } from "react"
 import { GiStopwatch } from "react-icons/gi"
@@ -30,6 +32,8 @@ export const StationModalBody: FC<{
 	count: number
 	input: number
 	setInput: (e: number) => void
+	hasEnoughResources: boolean
+	stationLevel?: number
 }> = ({
 	blueprint,
 	progress,
@@ -44,6 +48,8 @@ export const StationModalBody: FC<{
 	count,
 	input,
 	setInput,
+	hasEnoughResources,
+	stationLevel,
 }) => {
 	const station = getBlueprint(blueprint)
 	const output = !!station?.unitOutput
@@ -91,16 +97,57 @@ export const StationModalBody: FC<{
 						</Flex>
 					</Box>
 					{!timer && (
-						<Button onClick={startBuild} minW="23rem" bg="brand.primary">
+						<Button
+							onClick={startBuild}
+							minW="23rem"
+							bg="brand.primary"
+							isDisabled={!hasEnoughResources}
+						>
 							Build {output}
 						</Button>
 					)}
-					<Image
-						src={outputImg}
-						alt={"output" + output}
-						boxSize="23rem"
-						borderRadius="1rem"
-					/>
+					<Box position="relative">
+						<Image
+							src={outputImg}
+							alt={"output" + output}
+							boxSize="23rem"
+							borderRadius="1rem"
+						/>
+						{station?.rareDrop && (
+							<RareDrop
+								placeItems="center"
+								p="1rem"
+								bg="red"
+								borderRadius="1rem"
+								w="fit-content"
+								position="absolute"
+								bottom="-4px"
+								right="-4px"
+								filter="drop-shadow(0 2px 2px rgba(0,0,0,0.5))"
+								transition="all 0.25s ease-in-out"
+								_hover={{
+									transform: "scale(1.1)",
+								}}
+							>
+								<Tip
+									label={
+										stationLevel > 1
+											? `Has a ${
+													15 * (stationLevel - 1)
+											  }% chance of additionally dropping a ${station.rareDrop}`
+											: `Upgrade station to have a chance of additionally dropping ${station.rareDrop}`
+									}
+								>
+									<Image
+										src={getLocalImage({ type: "resources", name: station.rareDrop })}
+										alt="rare drop"
+										boxSize="5rem"
+										borderRadius="0.5rem"
+									/>
+								</Tip>
+							</RareDrop>
+						)}
+					</Box>
 					{isClaimable && (
 						<Button
 							onClick={claimReward}
@@ -178,3 +225,21 @@ const ItemImg: FC<{
 		</Tip>
 	)
 }
+
+const RareDrop = styled(Grid)`
+	background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 400% 400%;
+	animation: gradient 15s ease infinite;
+
+	@keyframes gradient {
+		0% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0% 50%;
+		}
+	}
+`

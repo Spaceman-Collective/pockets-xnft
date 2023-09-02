@@ -287,6 +287,7 @@ export const ModalStation: FC<{
 						level={station?.level}
 					/>
 					<StationModalBody
+						hasEnoughResources={!hasEnoughResources?.includes("0")}
 						blueprint={station?.blueprint ?? ""}
 						resourcesInWallet={resourcesInWallet}
 						progress={progress}
@@ -301,6 +302,7 @@ export const ModalStation: FC<{
 						count={count}
 						input={input}
 						setInput={setInput}
+						stationLevel={station?.level}
 					/>
 				</ModalBody>
 			</ModalContent>
