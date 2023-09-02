@@ -41,7 +41,7 @@ export const UNIT_TEMPLATES: UnitTemplate[] = [
 	{
 		name: "Gunner",
 		image:
-			"https://shdw-drive.genesysgo.net/7DeMHXZa3cXfzft3pmCVtGbiPHKQfXEQLb8cJxWHEP1Q/gunwoman.png",
+			"https://shdw-drive.genesysgo.net/7DeMHXZa3cXfzft3pmCVtGbiPHKQfXEQLb8cJxWHEP1Q/gunner.png",
 		skill: "Shooting",
 	},
 	{
