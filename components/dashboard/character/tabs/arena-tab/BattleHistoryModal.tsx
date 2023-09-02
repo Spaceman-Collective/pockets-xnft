@@ -16,6 +16,8 @@ import { BattleHistory, Character } from "@/types/server"
 import { CharacterImage } from "./CharacterImage"
 import { timeSince } from "@/lib/utils"
 import { Tip } from "@/components/tooltip"
+import { colors } from "@/styles/defaultTheme"
+import { BattleLogCard } from "./BattleLogCard"
 
 interface BattleHistoryModalProps {
 	opponent: Character
@@ -65,136 +67,157 @@ export const BattleHistoryModal: React.FC<BattleHistoryModalProps> = ({
 											{battle.winner === character.mint ? character.name : opponent.name}
 										</Text>
 										<Flex
-											key={battle.id}
-											p="4rem"
-											borderRadius="0.5rem"
-											m="3rem 0"
+											bgColor="blacks.600"
+											flexDir="column"
 											mt="2rem"
-											bgColor="blacks.500"
+											borderRadius="0.5rem"
 										>
-											<Flex
-												flexDir="column"
-												flex="1"
-												alignItems="flex-end"
-												opacity={battle.winner === battle.attacker ? 1 : 0.5}
-											>
-												<Text
-													fontSize="1.5rem"
-													lineHeight="1.5rem"
-													fontWeight="700"
-													textTransform="uppercase"
+											<Flex key={battle.id} p="4rem">
+												<Flex
+													flexDir="column"
+													flex="1"
+													alignItems="flex-end"
+													opacity={battle.winner === battle.attacker ? 1 : 0.5}
 												>
-													Attacker
-												</Text>
-												<Text fontSize="2rem" lineHeight="2rem" pt="1rem" pb="4rem">
-													{battle.attacker === character.mint
-														? character.name
-														: opponent.name}
-												</Text>
-												<CharacterImage
-													image={
-														battle.attacker === character.mint
-															? character.image
-															: opponent.image
-													}
-													level={6}
-												/>
-												<Box h="1.125rem"></Box>
-												{battle.result.rounds.map((round, i) => (
-													<Flex
-														key={i}
-														gap="2rem"
-														alignItems="center"
-														justifyContent="center"
-													>
-														<Tip placement="top" label={round.attacker.unit.name}>
-															<Box
-																bgImage={round.attacker.unit.image}
-																bgSize="cover"
-																bgPos="center"
-																w="8rem"
-																h="8rem"
-																borderRadius="0.5rem"
-															/>
-														</Tip>
-														<Text fontWeight="700" pt="12rem">
-															Roll {round.attacker.roll}
-														</Text>
-														<Text fontWeight="700" pt="12rem" key={i}>
-															Bonus {round.attacker.bonus}
-														</Text>
-													</Flex>
-												))}
-											</Flex>
-											<Flex w="12rem" alignItems="center" flexDirection="column">
-												<Text fontWeight="700" pt="13rem" pb="6rem">
-													v.s.
-												</Text>
-												{battle.result.rounds.map((round, i) => (
 													<Text
+														fontSize="1.5rem"
+														lineHeight="1.5rem"
 														fontWeight="700"
-														pt="12rem"
-														key={i}
-														_last={{ paddingBottom: "6rem" }}
+														textTransform="uppercase"
 													>
-														Round {i + 1}
+														Attacker
 													</Text>
-												))}
-											</Flex>
-											<Flex
-												flexDir="column"
-												flex="1"
-												opacity={battle.winner === battle.defender ? 1 : 0.5}
-											>
-												<Text
-													fontSize="1.5rem"
-													lineHeight="1.5rem"
-													fontWeight="700"
-													textTransform="uppercase"
+													<Text fontSize="2rem" lineHeight="2rem" pt="1rem" pb="4rem">
+														{battle.attacker === character.mint
+															? character.name
+															: opponent.name}
+													</Text>
+													<CharacterImage
+														image={
+															battle.attacker === character.mint
+																? character.image
+																: opponent.image
+														}
+														level={6}
+													/>
+												</Flex>
+												<Flex w="12rem" alignItems="center" flexDirection="column">
+													<Text fontWeight="700" pt="13rem">
+														v.s.
+													</Text>
+												</Flex>
+												<Flex
+													flexDir="column"
+													flex="1"
+													opacity={battle.winner === battle.defender ? 1 : 0.5}
 												>
-													Defender
-												</Text>
-												<Text fontSize="2rem" lineHeight="2rem" pt="1rem" pb="4rem">
-													{battle.defender === character.mint
-														? character.name
-														: opponent.name}
-												</Text>
-												<CharacterImage
-													image={
-														battle.defender === character.mint
-															? character.image
-															: opponent.image
-													}
-													level={6}
-												/>
-												<Box h="1.125rem"></Box>
+													<Text
+														fontSize="1.5rem"
+														lineHeight="1.5rem"
+														fontWeight="700"
+														textTransform="uppercase"
+													>
+														Defender
+													</Text>
+													<Text fontSize="2rem" lineHeight="2rem" pt="1rem" pb="4rem">
+														{battle.defender === character.mint
+															? character.name
+															: opponent.name}
+													</Text>
+													<CharacterImage
+														image={
+															battle.defender === character.mint
+																? character.image
+																: opponent.image
+														}
+														level={6}
+													/>
+												</Flex>
+											</Flex>
+											<Box>
 												{battle.result.rounds.map((round, i) => (
 													<Flex
+														minH="12rem"
+														bgColor="blacks.500"
+														borderRadius="0.5rem"
+														_notFirst={{
+															marginTop: "2rem",
+														}}
+														mb="2rem"
 														key={i}
-														gap="2rem"
-														alignItems="center"
-														justifyContent="center"
+														m="2rem"
+														flexDirection="column"
 													>
-														<Text fontWeight="700" pt="12rem" key={i}>
-															Bonus {round.defender.bonus}
+														<Text
+															p="2rem"
+															fontWeight="700"
+															letterSpacing="0.1rem"
+															fontSize="1.5rem"
+															opacity="0.5"
+														>
+															ROUND {i + 1}
 														</Text>
-														<Text fontWeight="700" pt="12rem">
-															Roll {round.defender.roll}
-														</Text>
-
-														<Tip placement="top" label={round.defender.unit.name}>
-															<Box
-																bgImage={round.defender.unit.image}
-																bgSize="cover"
-																bgPos="center"
-																w="8rem"
-																h="8rem"
-																borderRadius="0.5rem"
-															/>
-														</Tip>
+														<Flex flexDir="row" justifyContent="space-between">
+															<Flex
+																m="2rem"
+																flex="1"
+																minH="10rem"
+																gap="2rem"
+																justifyContent="flex-end"
+															>
+																<BattleLogCard
+																	value={round.attacker.bonus}
+																	text="BONUS"
+																	type="bonus"
+																/>
+																<BattleLogCard
+																	value={round.attacker.roll}
+																	text="ROLL"
+																	type="roll"
+																/>
+																<BattleLogCard
+																	unit={round.attacker.unit}
+																	text="UNIT"
+																	type="unit"
+																/>
+															</Flex>
+															<Flex
+																w="12rem"
+																alignItems="center"
+																flexDirection="column"
+																justifyContent="center"
+															>
+																<Text fontWeight="700" opacity="0.5">
+																	v.s.
+																</Text>
+															</Flex>
+															<Flex
+																m="2rem"
+																flex="1"
+																minH="10rem"
+																gap="2rem"
+																justifyContent="flex-end"
+															>
+																<BattleLogCard
+																	unit={round.defender.unit}
+																	text="UNIT"
+																	type="unit"
+																/>
+																<BattleLogCard
+																	value={round.defender.roll}
+																	text="ROLL"
+																	type="roll"
+																/>
+																<BattleLogCard
+																	value={round.defender.bonus}
+																	text="BONUS"
+																	type="bonus"
+																/>
+															</Flex>
+														</Flex>
 													</Flex>
 												))}
-											</Flex>
+											</Box>
 										</Flex>
 									</>
 								)
