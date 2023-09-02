@@ -18,6 +18,8 @@ import {
 	HStack,
 	Spinner,
 	Box,
+	ModalHeader,
+	useDisclosure,
 } from "@chakra-ui/react"
 import { FC, useEffect, useState } from "react"
 import { useCountdown } from "usehooks-ts"
@@ -43,6 +45,8 @@ import {
 	SERVER_KEY,
 	STATION_USE_COST_PER_LEVEL,
 } from "@/constants"
+import { StationModalHeader } from "./header.component"
+import { StationModalBody } from "./body.component"
 
 export const ModalStation: FC<{
 	station?: {
@@ -256,207 +260,34 @@ export const ModalStation: FC<{
 		// fin
 	}
 
+	const sidebarDisclosure = useDisclosure()
+	const toggleSidebar = () => {
+		if (sidebarDisclosure.isOpen) {
+			sidebarDisclosure.onClose()
+		} else {
+			sidebarDisclosure.onOpen()
+		}
+	}
+
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered>
 			<ModalOverlay />
 			<ModalContent
 				bg="blacks.500"
-				p="2rem"
 				borderRadius="1rem"
-				minW={{ base: "90vw", md: "70vw" }}
+				minW={{ base: "90vw", md: "500px" }}
 				minH={{ base: "90vh", md: "50vh" }}
 			>
-				<ModalCloseButton display={{ base: "inline", md: "none" }} />
 				<ModalBody>
-					<ModalHeader
+					<StationModalHeader
 						image={image ?? ""}
 						name={station?.blueprint}
 						desc={getBlueprint(station?.blueprint ?? "")?.description}
 						level={station?.level}
 					/>
-					<Grid templateColumns="repeat(3, 1fr)" mt="4rem">
-						<VStack gap="2rem">
-							<Tip
-								isHidden={!timer}
-								label={`${isClaimable ? "Claim before starting again" : ""} ${
-									!isClaimable
-										? "Wait for build to finish and then claim to start again."
-										: ""
-								}`}
-							>
-								<Button isDisabled={!!timer} onClick={startStationProcess}>
-									Start Build
-								</Button>
-							</Tip>
-							<ResourceContainer
-								type="resources"
-								isDisabled={progress === 100}
-								resources={
-									stationBlueprint?.inputs.map((input) => ({
-										name: input.resource,
-										amount: input.amount,
-										balance:
-											resourcesInWallet?.find((e) => e.name === input.resource)?.value ??
-											"",
-									})) ?? []
-								}
-							/>
-						</VStack>
-						<Flex
-							direction="column"
-							justifyContent="center"
-							alignItems="center"
-							mt="4rem"
-							onMouseOver={over}
-							onMouseOut={out}
-						>
-							{timer && !isClaimable && (
-								<>
-									<Slider
-										focusThumbOnChange={false}
-										value={input}
-										onChange={setInput}
-										min={0}
-										max={count}
-										maxW="80%"
-										m="1rem auto"
-										transition="all 0.25 ease-in-out"
-										opacity={onHover ? 1 : 0}
-									>
-										<SliderTrack>
-											<SliderFilledTrack bg="brand.secondary" />
-										</SliderTrack>
-										<SliderThumb
-											fontWeight={700}
-											fontSize="1rem"
-											w="10rem"
-											h="3rem"
-											bg="blacks.700"
-											textAlign="center"
-										>
-											{timeAgo(input)}
-											<br />
-											{formatBalance(
-												(Number(BONK_COST_PER_MS_WIPED) * 1e3 * input) / 1e5,
-											).toString()}{" "}
-											BONK
-										</SliderThumb>
-									</Slider>
-									<Button onClick={speedUpWithBonk} mb="2rem">
-										<FaClock style={{ marginRight: "0.5rem" }} /> SPEED UP
-									</Button>
-								</>
-							)}
-							{timer && (
-								<Progress
-									hasStripe={progress === 100 ? false : true}
-									value={progress}
-									w="100%"
-									h="2rem"
-									colorScheme={progress === 100 ? "green" : "blue"}
-								/>
-							)}
-							{timer ? (
-								<Text>{timeAgo(count)}</Text>
-							) : (
-								<Text fontWeight={700} fontSize="3rem" textAlign="center">
-									Ready for the next build
-								</Text>
-							)}
-						</Flex>
-						<VStack gap="2rem">
-							<Tip
-								isHidden={!timer}
-								label={
-									count !== 0
-										? "Wait for the build to finish before claiming"
-										: "Ready to claim!"
-								}
-							>
-								<Button
-									onClick={claimStationReward}
-									isDisabled={count !== 0 || isLoading || !timer}
-								>
-									{isLoading ? (
-										<HStack>
-											<Text>Claiming</Text>
-											<Spinner />
-										</HStack>
-									) : (
-										<Text>Claim</Text>
-									)}
-								</Button>
-							</Tip>
-							<ResourceContainer
-								type={
-									stationBlueprint?.unitOutput !== undefined ? "units" : "resources"
-								}
-								isDisabled={progress !== 100}
-								rareDrop={stationBlueprint?.rareDrop}
-								stationLevel={station?.level}
-								resources={[
-									{
-										name:
-											stationBlueprint?.unitOutput?.[0] ??
-											stationBlueprint?.resourceOutput?.[0] ??
-											"",
-										amount: 1,
-										balance:
-											walletAssets?.units
-												?.filter(
-													(unit) =>
-														unit.name.toLowerCase() ===
-														stationBlueprint?.unitOutput?.[0].toLowerCase(),
-												)
-												?.length.toString() ?? "0",
-									},
-								]}
-							/>
-						</VStack>
-					</Grid>
+					<StationModalBody blueprint={station?.blueprint ?? ""} />
 				</ModalBody>
 			</ModalContent>
 		</Modal>
-	)
-}
-
-const ModalHeader = ({
-	image,
-	name,
-	desc,
-	level,
-}: {
-	image: string
-	name?: string
-	desc?: string
-	level?: number
-}) => {
-	const stationCost =
-		(STATION_USE_COST_PER_LEVEL * BigInt(level ?? 0)) / BigInt(1e5)
-	return (
-		<Flex gap="1rem">
-			<Image src={image} alt="station" w="15rem" borderRadius="1rem" />
-
-			<VStack alignItems="start">
-				<Text
-					fontSize="3rem"
-					fontWeight="700"
-					textTransform="uppercase"
-					letterSpacing="1px"
-				>
-					{name}
-				</Text>
-				<Text letterSpacing="0.5px" noOfLines={4} textOverflow="ellipsis">
-					{desc}
-				</Text>
-				<Text>
-					Station Level: <strong>{level}</strong>
-				</Text>
-				<Text>
-					Station cost to use:{" "}
-					<strong>{(stationCost / BigInt(1000)).toString()}K BONK</strong>
-				</Text>
-			</VStack>
-		</Flex>
 	)
 }
