@@ -252,18 +252,18 @@ export const RESOURCE_BLUEPRINTS: Blueprint[] = [
 		description: "Where pigs go to die.",
 		upgradeConstructionMultiplier: 1000 * 60 * 60, //1hr per level
 		upgradeResources: [
-			[{ resource: "Seeds", amount: 6 }],
+			[{ resource: "Flowers", amount: 6 }],
 			[
-				{ resource: "Seeds", amount: 8 },
+				{ resource: "Flowers", amount: 8 },
 				{ resource: "Fruits", amount: 8 },
 			],
 			[
-				{ resource: "Seeds", amount: 16 },
+				{ resource: "Flowers", amount: 16 },
 				{ resource: "Fruits", amount: 16 },
 				{ resource: "Tobacco", amount: 8 },
 			],
 		],
-		inputs: [{ resource: "Seeds", amount: 2 }],
+		inputs: [{ resource: "Flowers", amount: 2 }],
 		timeRequired: 1000 * 60 * 10, // 10 min
 		resourceOutput: ["Tobacco"],
 		rareDrop: "Wood",

@@ -245,6 +245,7 @@ export const ModalStation: FC<{
 					onSuccess: (_) => {
 						toast.success("Successfully speed up timer!")
 						queryClient.refetchQueries({ queryKey: ["char-timers"] })
+						queryClient.resetQueries({ queryKey: ["fetch-faction"] })
 					},
 				},
 			)
