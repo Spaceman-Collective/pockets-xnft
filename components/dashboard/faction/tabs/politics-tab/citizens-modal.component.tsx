@@ -15,6 +15,7 @@ import {
 	Input,
 	VStack,
 	Spinner,
+	Img,
 } from "@chakra-ui/react"
 import { FC, useEffect, useState } from "react"
 import styled from "@emotion/styled"
@@ -315,7 +316,7 @@ export const CitizenModal: FC<{
 			<ModalOverlay />
 			<ModalContent
 				p="1rem"
-				minW={{ base: "95%", sm: "600px" }}
+				minW={{ base: "95%", sm: "75rem" }}
 				minH="600px"
 				maxH="800px"
 				bg="blacks.500"
@@ -387,11 +388,18 @@ export const CitizenModal: FC<{
 							</HStack>
 						</HStack>
 					</Box>
-					<Grid templateColumns="repeat(auto-fill, minmax(23rem, 1fr))" gap="1rem">
+					<Grid templateColumns="repeat(auto-fill, minmax(33rem, 1fr))" gap="3rem">
 						{citizens.map((citizen) => (
 							<Flex direction="row" key={citizen.mint} position="relative">
 								<Box>
-									<Frame img={citizen.image} />
+									<Box position="relative">
+										<Img
+											borderRadius="1rem"
+											style={{ height: "14rem", width: "14rem" }}
+											alt="nft"
+											src={citizen.image}
+										/>
+									</Box>
 									<Tooltip label="Citizen VP" hasArrow>
 										<Text
 											position="absolute"
@@ -429,7 +437,7 @@ export const CitizenModal: FC<{
 									<Tooltip label="Delegated VP" hasArrow>
 										<Text
 											position="absolute"
-											bottom="1rem"
+											bottom="0.5rem"
 											left="0.5rem"
 											fontSize="1.75rem"
 											fontWeight={700}
@@ -469,10 +477,10 @@ export const CitizenModal: FC<{
 								>
 									<VStack align="start" gap="0" mb="1rem">
 										<Flex align="center" m="0rem" p="0rem">
-											<Label fontSize="2rem"> SKILLS: </Label>
-											<Value ml="0.5rem">
+											<CitizenLabel> SKILLS: </CitizenLabel>
+											<CitizenValue ml="0.5rem">
 												{Object.values(citizen.skills).reduce((a, b) => a + b)}
-											</Value>
+											</CitizenValue>
 										</Flex>
 										<Text
 											noOfLines={1}
@@ -513,7 +521,6 @@ export const CitizenModal: FC<{
 													value={inputValue}
 													onChange={(e) => setInputValue(e.target.value)}
 												/>
-
 												<IconButton
 													aria-label="Confirm"
 													icon={<MdCheck />}
@@ -601,7 +608,7 @@ export const CitizenModal: FC<{
 }
 
 export const CitizenLabel = styled(Text)`
-	font-size: 1.5rem;
+	font-size: 1.25rem;
 	font-weight: 400;
 	text-transform: uppercase;
 	letter-spacing: 0.6px;
