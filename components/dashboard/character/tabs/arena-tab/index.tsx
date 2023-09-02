@@ -7,13 +7,6 @@ import {
 	Button,
 	Flex,
 	Input,
-	Modal,
-	ModalBody,
-	ModalCloseButton,
-	ModalContent,
-	ModalFooter,
-	ModalHeader,
-	ModalOverlay,
 	Popover,
 	PopoverArrow,
 	PopoverBody,
@@ -132,7 +125,11 @@ export const ArenaTab: FC<{
 					: opponents?.map((opponent) => (
 							<OpponentEquipment
 								key={opponent.mint}
-								enabled={!!opponent.army.length}
+								enabled={
+									!!opponent.army.length &&
+									!!currentCharacter.army.length &&
+									currentCharacter.faction
+								}
 								opponent={opponent}
 								currentCharacter={currentCharacter}
 							/>

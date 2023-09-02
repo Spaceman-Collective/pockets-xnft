@@ -316,27 +316,37 @@ export const OpponentEquipment: FC<{
 					) : null}
 				</GridItem>
 				<GridItem area="battleButton">
-					<Button
-						variant="solid"
-						border="0.25rem solid"
-						borderColor="blacks.700"
-						_hover={
-							enabled
-								? {
-										border: `0.25rem solid ${colors.brand.quaternary}`,
-										bgColor: colors.brand.quaternary,
-								  }
-								: {}
+					<Tip
+						label={
+							!currentCharacter.faction
+								? "Join a faction first"
+								: currentCharacter.army.length < 1
+								? "Equip at least one unit first"
+								: ""
 						}
-						width="100%"
-						p="1rem 3.5rem"
-						fontSize="1.5rem"
-						cursor={enabled ? "pointer" : "not-allowed"}
-						disabled={!enabled}
-						opacity={enabled ? "1" : "0.5"}
-						onClick={() => (enabled ? handleBattle() : null)}
+						placement="top"
 					>
-						{/* <Image
+						<Button
+							variant="solid"
+							border="0.25rem solid"
+							borderColor="blacks.700"
+							_hover={
+								enabled
+									? {
+											border: `0.25rem solid ${colors.brand.quaternary}`,
+											bgColor: colors.brand.quaternary,
+									  }
+									: {}
+							}
+							width="100%"
+							p="1rem 3.5rem"
+							fontSize="1.5rem"
+							cursor={enabled ? "pointer" : "not-allowed"}
+							disabled={!enabled}
+							opacity={enabled ? "1" : "0.5"}
+							onClick={() => (enabled ? handleBattle() : null)}
+						>
+							{/* <Image
 							src={"/assets/arena/helmet.svg"}
 							w="2.5rem"
 							h="2.5rem"
@@ -345,8 +355,9 @@ export const OpponentEquipment: FC<{
 							mr="1rem"
 							transform="scaleX(-1)" // Flip around the Y axis
 						/> */}
-						Battle
-					</Button>
+							Battle
+						</Button>
+					</Tip>
 				</GridItem>
 			</Grid>
 			{battleHistory ? (
