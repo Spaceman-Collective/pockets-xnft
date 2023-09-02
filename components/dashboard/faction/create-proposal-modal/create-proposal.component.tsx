@@ -165,6 +165,9 @@ export const CreateProposal: React.FC<{
 				fontSize="1.5rem"
 				color="brand.secondary"
 				cursor="pointer"
+				_hover={{
+					textDecoration: "underline",
+				}}
 				onClick={onOpen}
 			>
 				CREATE +

@@ -224,9 +224,12 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 								fontSize="1.5rem"
 								color="brand.secondary"
 								cursor="pointer"
+								_hover={{
+									textDecoration: "underline"
+								}}
 								onClick={reclaimProposalVotes}
 							>
-								Unstake Votes
+								UNSTAKE VOTES
 							</Text>
 						</Tip>
 					</Flex>
@@ -675,7 +678,7 @@ const Title = styled(Text)`
 `
 
 const MenuTitle = styled(Text)`
-	font-size: 1.75rem;
+	font-size: 2rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 1px;
