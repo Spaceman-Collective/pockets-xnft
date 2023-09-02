@@ -32,20 +32,23 @@ export const useCitizen = (
 				return defaultQueryResult
 			}
 
-      const characterMint = new PublicKey(mint);
-      const citizenPDA = getCitizenPDA(characterMint);
-
-      const citizenAccount = await getCitizenAccount(connection, citizenPDA);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+			const characterMint = new PublicKey(mint)
+			const citizenPDA = getCitizenPDA(characterMint)
+			const citizenAccount = await getCitizenAccount(connection, citizenPDA)
 
 			if (!citizenAccount) {
 				console.error("Failed to fetch citizen")
 				return defaultQueryResult
 			}
 
+			if (!citizenAccount.faction) {
+				console.error("No citizen faction found")
+				return defaultQueryResult
+			}
+
 			return {
 				delegatedVotingPower: citizenAccount.delegatedVotingPower.toString(),
-				faction: citizenAccount.faction!.toString(),
+				faction: citizenAccount.faction?.toString(),
 				grantedVotingPower: citizenAccount.grantedVotingPower.toString(),
 				maxPledgedVotingPower: citizenAccount.maxPledgedVotingPower.toString(),
 				mint: citizenAccount.mint.toString(),
