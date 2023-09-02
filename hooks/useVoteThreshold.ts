@@ -15,7 +15,7 @@ export const useVoteThreshold = (
 		["voteThreshold", currentCharacter?.faction?.id],
 		async () => {
 			if (!currentCharacter?.faction?.id) {
-				console.log("Character undefined on vote threshold retrieval")
+				console.warn("Character undefined on vote threshold retrieval")
 				return "UND"
 			}
 
