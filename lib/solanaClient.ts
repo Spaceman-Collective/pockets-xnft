@@ -160,6 +160,29 @@ export function getDelegationRecordPDA(
 	return delegationRecordPDA
 }
 
+export async function getDelegationAccount(
+	connection: Connection,
+	delegationRecordPDA: PublicKey,
+) {
+	if (!connection || !delegationRecordPDA) {
+		return
+	}
+	console.log("getDelegationAccount connection: ", connection)
+	console.log(
+		"getDelegationAccount delegationPDA: ",
+		delegationRecordPDA.toString(),
+	)
+	const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+		pocketsIDL,
+		POCKETS_PROGRAM_PROGRAMID,
+		{ connection },
+	)
+	return await POCKETS_PROGRAM.account.voteDelegation.fetchNullable(
+		delegationRecordPDA,
+		"finalized",
+	)
+}
+
 export async function getCitizensIx(
 	wallet: PublicKey,
 	characterMint: PublicKey,
@@ -310,6 +333,7 @@ export async function closeVoteAccount(
 }
 
 export async function transferVotes(
+	connection: Connection,
 	wallet: PublicKey,
 	characterMint: PublicKey,
 	voteAmt: number,
@@ -318,6 +342,9 @@ export async function transferVotes(
 	const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
 		pocketsIDL,
 		POCKETS_PROGRAM_PROGRAMID,
+		{
+			connection,
+		},
 	)
 
 	const citizen = getCitizenPDA(characterMint)
@@ -331,7 +358,7 @@ export async function transferVotes(
 			walletAta,
 			systemProgram: SystemProgram.programId,
 			citizen,
-			voteRecepient: voteCharacterRecepientMint,
+			voteRecepient: voteRecepientCitizen,
 		})
 		.instruction()
 
@@ -339,6 +366,7 @@ export async function transferVotes(
 }
 
 export async function delegateVotes(
+	connection: Connection,
 	wallet: PublicKey,
 	characterMint: PublicKey,
 	voteAmt: number,
@@ -347,6 +375,9 @@ export async function delegateVotes(
 	const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
 		pocketsIDL,
 		POCKETS_PROGRAM_PROGRAMID,
+		{
+			connection,
+		},
 	)
 	const walletAta = getAssociatedTokenAddressSync(characterMint, wallet)
 
@@ -361,7 +392,7 @@ export async function delegateVotes(
 			walletAta,
 			systemProgram: SystemProgram.programId,
 			citizen,
-			voteRecepient: voteCharacterRecepientMint,
+			voteRecepient: voteRecepientCitizen,
 			delegationRecord,
 		})
 		.instruction()
@@ -370,6 +401,7 @@ export async function delegateVotes(
 }
 
 export async function adjustVoteDelegation(
+	connection: Connection,
 	wallet: PublicKey,
 	characterMint: PublicKey,
 	voteCharacterRecepientMint: PublicKey,
@@ -379,6 +411,9 @@ export async function adjustVoteDelegation(
 	const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
 		pocketsIDL,
 		POCKETS_PROGRAM_PROGRAMID,
+		{
+			connection,
+		},
 	)
 
 	const walletAta = getAssociatedTokenAddressSync(characterMint, wallet)
@@ -402,6 +437,7 @@ export async function adjustVoteDelegation(
 }
 
 export async function returnVoteDelegation(
+	connection: Connection,
 	wallet: PublicKey,
 	characterMint: PublicKey,
 	voteCharacterRecepientMint: PublicKey,
@@ -410,6 +446,7 @@ export async function returnVoteDelegation(
 	const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
 		pocketsIDL,
 		POCKETS_PROGRAM_PROGRAMID,
+		{ connection },
 	)
 
 	const walletAta = getAssociatedTokenAddressSync(characterMint, wallet)

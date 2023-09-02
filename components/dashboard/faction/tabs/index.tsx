@@ -6,6 +6,7 @@ import { FactionTabPolitics } from "./politics-tab"
 import { CitizenModal } from "./politics-tab/citizens-modal.component"
 import { FactionTabResources } from "./resources-tab"
 import { FactionTabServices } from "./services-tab"
+import { useEffect } from "react"
 
 export const FactionTabs: React.FC<{
 	currentCharacter: Character
@@ -15,10 +16,18 @@ export const FactionTabs: React.FC<{
 	const factionId = currentCharacter?.faction?.id ?? ""
 	const { data: factionData } = useFaction({ factionId })
 
+	useEffect(() => {
+		setFactionStatus(!!currentCharacter?.faction)
+	}, [currentCharacter?.faction, setFactionStatus])
+
 	return (
 		<>
 			{factionData?.citizens && (
-				<CitizenModal {...citizenDisclosure} citizens={factionData.citizens} />
+				<CitizenModal
+					{...citizenDisclosure}
+					citizens={factionData.citizens}
+					setFactionStatus={setFactionStatus}
+				/>
 			)}
 			<PageTabs
 				tabItems={[

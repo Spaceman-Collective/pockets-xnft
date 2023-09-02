@@ -33,9 +33,7 @@ export const useCitizen = (
 			}
 
 			const characterMint = new PublicKey(mint)
-
 			const citizenPDA = getCitizenPDA(characterMint)
-
 			const citizenAccount = await getCitizenAccount(connection, citizenPDA)
 
 			if (!citizenAccount) {
@@ -43,9 +41,14 @@ export const useCitizen = (
 				return defaultQueryResult
 			}
 
+			if (!citizenAccount.faction) {
+				console.error("No citizen faction found")
+				return defaultQueryResult
+			}
+
 			return {
 				delegatedVotingPower: citizenAccount.delegatedVotingPower.toString(),
-				faction: citizenAccount.faction!.toString(),
+				faction: citizenAccount.faction?.toString(),
 				grantedVotingPower: citizenAccount.grantedVotingPower.toString(),
 				maxPledgedVotingPower: citizenAccount.maxPledgedVotingPower.toString(),
 				mint: citizenAccount.mint.toString(),

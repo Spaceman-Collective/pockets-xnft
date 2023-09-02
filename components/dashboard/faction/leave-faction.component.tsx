@@ -99,9 +99,9 @@ export const LeaveFactionModal: React.FC<{
 				border="2px solid"
 				borderColor={colors.brand.secondary}
 				borderRadius="0.5rem"
-				w="20rem"
-				p="1rem"
-				fontSize="1.75rem"
+				w="100%"
+				p="0.5rem 2rem"
+				fontSize="1.5rem"
 				fontWeight={600}
 				letterSpacing="1px"
 				onClick={onOpen}
@@ -110,7 +110,7 @@ export const LeaveFactionModal: React.FC<{
 					bg: colors.blacks[400],
 				}}
 			>
-				Leave
+				Leave Faction
 			</Button>
 			<Modal isOpen={isOpen} onClose={onClose} size="xl">
 				<ModalOverlay backdropFilter="blur(5px)" />
@@ -154,28 +154,23 @@ export const LeaveFactionModal: React.FC<{
 						>
 							CANCEL
 						</Button>
-						<LeaveButton
+						<Button
+							w="100%"
+							bg={colors.red[700]}
+							border="2px solid"
+							borderColor={colors.red[700]}
+							borderRadius="0.5rem"
 							onClick={handleLeaveFaction}
 							_hover={{
 								bg: "#ff4444",
 								borderColor: "#ff4444",
 							}}
 						>
-							{isLoading ? <Spinner /> : "Leave Faction"}
-						</LeaveButton>
+							LEAVE FACTION
+						</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
 		</Box>
 	)
 }
-
-const LeaveButton = styled(Button)`
-	background-color: ${colors.red[700]};
-	border: 2px solid ${colors.red[700]};
-	border-radius: 0.5rem;
-	width: 100%;
-	font-size: 1.75rem;
-	font-weight: 600;
-	letter-spacing: 1px;
-`
