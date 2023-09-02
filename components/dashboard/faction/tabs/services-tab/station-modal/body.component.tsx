@@ -2,7 +2,6 @@ import { Tip } from "@/components/tooltip"
 import { getLocalImage, timeAgo } from "@/lib/utils"
 import { getBlueprint } from "@/types/server"
 import {
-	Grid,
 	Text,
 	Flex,
 	Box,
@@ -12,7 +11,7 @@ import {
 	Button,
 	Spinner,
 } from "@chakra-ui/react"
-import { FC, useState } from "react"
+import { FC } from "react"
 import { GiStopwatch } from "react-icons/gi"
 import { SpeedUpPopover } from "../../../speed-up.component"
 
@@ -103,8 +102,13 @@ export const StationModalBody: FC<{
 						borderRadius="1rem"
 					/>
 					{isClaimable && (
-						<Button onClick={claimReward} minW="23rem" bg="brand.primary">
-							{claimIsLoading && <Spinner />}
+						<Button
+							onClick={claimReward}
+							minW="23rem"
+							bg="green.700"
+							isDisabled={claimIsLoading}
+						>
+							{claimIsLoading && <Spinner mr="1rem" mb="0.5rem" />}
 							Claim {output}
 						</Button>
 					)}
