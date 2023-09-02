@@ -15,8 +15,6 @@ import {
 import { BattleHistory, Character } from "@/types/server"
 import { CharacterImage } from "./CharacterImage"
 import { timeSince } from "@/lib/utils"
-import { Tip } from "@/components/tooltip"
-import { colors } from "@/styles/defaultTheme"
 import { BattleLogCard } from "./BattleLogCard"
 
 interface BattleHistoryModalProps {
