@@ -19,6 +19,7 @@ import {
 } from "@chakra-ui/react"
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons"
 import { Tip } from "@/components/tooltip"
+import { CharacterImage } from "../arena-tab/CharacterImage"
 
 export const CharacterEquipment: FC<{
 	character: Character
@@ -57,6 +58,7 @@ export const CharacterEquipment: FC<{
 		).length
 
 	const unitsAreaIsScrollable = totalAvailableSlotsForSkill > 20
+	const unitArea = React.useRef<HTMLDivElement>(null)
 	const [canScrollUp, setCanScrollUp] = useState<boolean>(false)
 	const [canScrollDown, setCanScrollDown] = useState<boolean>(
 		unitsAreaIsScrollable,
@@ -65,17 +67,14 @@ export const CharacterEquipment: FC<{
 	const [currentlyScrolling, setCurrentlyScrolling] = useState<boolean>(false)
 
 	const handleScroll = (direction: "up" | "down") => {
-		const unitsEquippedArea = document.getElementById("unitsEquippedArea")
-		if (!unitsEquippedArea || currentlyScrolling) return
+		if (currentlyScrolling) return
 
 		const scrollAmount = 90 // 10rem + 1.25rem (grid gap)
 		const scrollDirection = direction === "up" ? -1 : 1
+		const top = scrollAmount * scrollDirection + unitArea.current!.scrollTop
 
 		setCurrentlyScrolling(true)
-		unitsEquippedArea.scrollBy({
-			top: scrollAmount * scrollDirection,
-			behavior: "smooth",
-		})
+		unitArea.current!.scroll({ top, behavior: "smooth" })
 		setTimeout(() => {
 			setCurrentlyScrolling(false)
 		}, 200)
@@ -83,17 +82,15 @@ export const CharacterEquipment: FC<{
 
 	// Scroll event listener
 	const handleScrollEvent = () => {
-		const unitsEquippedArea = document.getElementById("unitsEquippedArea")
-		if (!unitsEquippedArea) return
-
-		const { scrollTop, scrollHeight, clientHeight } = unitsEquippedArea
-
-		const atTop = scrollTop === 0
-		const atBottom = scrollHeight - scrollTop === clientHeight
-
-		setCanScrollUp(!atTop)
-		setCanScrollDown(!atBottom)
+		const { scrollTop, scrollHeight, clientHeight } = unitArea.current!
+		setCanScrollUp(!(scrollTop === 0))
+		setCanScrollDown(!(scrollHeight - scrollTop === clientHeight))
 	}
+
+	// Add scroll event listener
+	React.useEffect(() => {
+		unitArea.current?.addEventListener("scroll", handleScrollEvent)
+	}, [])
 
 	// Add scroll event listener
 	React.useEffect(() => {
@@ -127,36 +124,7 @@ export const CharacterEquipment: FC<{
 					alignItems="center"
 					justifyContent="center"
 				>
-					<Flex
-						w="12rem"
-						h="12rem"
-						bgImage={character.image}
-						bgSize="cover"
-						bgPos="center"
-						borderRadius="0.5rem"
-						p="1rem"
-					>
-						<Box
-							backgroundColor="brand.quaternary"
-							minW="2.75rem"
-							p="0 0.5rem"
-							height="2.75rem"
-							borderRadius="0.25rem"
-							justifyContent="center"
-							alignItems="center"
-						>
-							<Text
-								fontSize="1.75rem"
-								fontWeight="700"
-								display="block"
-								textAlign="center"
-								alignSelf="center"
-								color="blacks.700"
-							>
-								{totalCombatLevel}
-							</Text>
-						</Box>
-					</Flex>
+					<CharacterImage image={character.image} level={totalCombatLevel} />
 				</GridItem>
 				<GridItem
 					area="name"
@@ -175,7 +143,7 @@ export const CharacterEquipment: FC<{
 						{character.name}
 					</Text>
 				</GridItem>
-				<GridItem area="units" overflow="hidden" id="unitsEquippedArea">
+				<GridItem area="units" overflow="hidden" ref={unitArea}>
 					{character.army.length || selectedSkill.length ? (
 						<Grid templateColumns="repeat(10, 0fr)" gap="1rem">
 							{character.army.length
@@ -210,7 +178,8 @@ export const CharacterEquipment: FC<{
 								  }).map((_, i) => (
 										<GridItem
 											key={i}
-											bgColor="blacks.400"
+											bgColor="brand.quaternary"
+											opacity="0.5"
 											h="3.5rem"
 											w="3.5rem"
 											borderRadius="0.25rem"
@@ -267,9 +236,13 @@ export const CharacterEquipment: FC<{
 						justifyContent="center"
 						alignItems="center"
 						transition="all 0.1s ease"
-						_hover={{
-							backgroundColor: "brand.quaternary",
-						}}
+						_hover={
+							canScrollUp
+								? {
+										backgroundColor: "brand.quaternary",
+								  }
+								: {}
+						}
 						onClick={() => handleScroll("up")}
 					>
 						<ChevronUpIcon />
@@ -284,9 +257,13 @@ export const CharacterEquipment: FC<{
 						justifyContent="center"
 						alignItems="center"
 						transition="all 0.1s ease"
-						_hover={{
-							backgroundColor: "brand.quaternary",
-						}}
+						_hover={
+							canScrollDown
+								? {
+										backgroundColor: "brand.quaternary",
+								  }
+								: {}
+						}
 						onClick={() => handleScroll("down")}
 					>
 						<ChevronDownIcon />

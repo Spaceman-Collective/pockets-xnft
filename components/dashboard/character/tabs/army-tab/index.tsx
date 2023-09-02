@@ -14,7 +14,7 @@ import { CharacterEquipment } from "./CharacterEquipment"
 import { Header } from "./Header"
 import { UnitsList } from "./UnitsList"
 
-export const EquipmentTab: React.FC<{ currentCharacter: Character }> = ({
+export const ArmyTab: React.FC<{ currentCharacter: Character }> = ({
 	currentCharacter,
 }) => {
 	const queryClient = useQueryClient()

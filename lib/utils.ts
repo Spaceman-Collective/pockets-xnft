@@ -86,3 +86,40 @@ export const formatBalance = (balance: number) => {
 
 	return format
 }
+
+export const timeSince = (dateString: string): string => {
+	// Convert the date string into a Date object
+	const date = new Date(dateString)
+
+	// Get the current time in the user's timezone
+	const now = new Date()
+
+	// Calculate the time difference in milliseconds
+	const timeDifference = now.getTime() - date.getTime()
+
+	// Calculate the time units
+	const seconds = Math.floor(timeDifference / 1000)
+	const minutes = Math.floor(seconds / 60)
+	const hours = Math.floor(minutes / 60)
+	const days = Math.floor(hours / 24)
+	const weeks = Math.floor(days / 7)
+	const months = Math.floor(days / 30)
+	const years = Math.floor(days / 365)
+
+	// Generate the readable time string
+	if (seconds < 60) {
+		return `${seconds} second${seconds === 1 ? "" : "s"} ago`
+	} else if (minutes < 60) {
+		return `${minutes} minute${minutes === 1 ? "" : "s"} ago`
+	} else if (hours < 24) {
+		return `${hours} hour${hours === 1 ? "" : "s"} ago`
+	} else if (days < 7) {
+		return `${days} day${days === 1 ? "" : "s"} ago`
+	} else if (weeks < 4) {
+		return `${weeks} week${weeks === 1 ? "" : "s"} ago`
+	} else if (months < 12) {
+		return `${months} month${months === 1 ? "" : "s"} ago`
+	} else {
+		return `${years} year${years === 1 ? "" : "s"} ago`
+	}
+}

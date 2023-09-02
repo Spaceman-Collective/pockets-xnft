@@ -1,5 +1,12 @@
 import { Proposal } from "@/types/server/Proposal"
-import type { NFT, Character, Faction, Blueprint, Unit } from "@/types/server"
+import type {
+	NFT,
+	Character,
+	Faction,
+	Blueprint,
+	Unit,
+	BattleHistory,
+} from "@/types/server"
 import fetch from "axios"
 import { FactionScore } from "@/components/leaderboard"
 const API_BASE_URL = "https://api.pockets.gg"
@@ -901,6 +908,50 @@ export const dequipUnit = async (signedTx: string): Promise<any> => {
 		}
 	} catch (error) {
 		console.error("Network error while dequipping unit:", error)
+		throw error
+	}
+}
+
+export const postBattle = async (signedTx: string): Promise<any> => {
+	const URL = `${API_BASE_URL}/character/battle`
+	try {
+		const response = await fetch.post<any>(URL, { signedTx })
+
+		if (response.status === 200) {
+			const data = await response.data
+			return data
+		} else {
+			console.error("Server error while battling:", response)
+			throw new Error("Server error while battling")
+		}
+	} catch (error) {
+		console.error("Network error while battling:", error)
+		throw error
+	}
+}
+
+export const getBattleHistory = async ({
+	attacker,
+	defenders,
+}: {
+	attacker: string
+	defenders: string[]
+}): Promise<BattleHistory> => {
+	const URL = `${API_BASE_URL}/character/battle/history`
+	try {
+		const response = await fetch.get<any>(URL, {
+			params: { attacker, defenders },
+		})
+
+		if (response.status === 200) {
+			const data = await response.data
+			return data
+		} else {
+			console.error("Server error while fetching battle history:", response)
+			throw new Error("Server error while fetching battle history")
+		}
+	} catch (error) {
+		console.error("Network error while fetching battle history:", error)
 		throw error
 	}
 }
