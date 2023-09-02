@@ -18,7 +18,7 @@ export default function Confetti(canFire) {
 			})
 	}, [])
 
-	useEffect(() => fire(), [canFire, fire])
+	useEffect(() => fire(), [canFire]) // removed fire, it causes app to crash before initialization
 
 	const fire = useCallback(() => {
 		makeShot(0.25, {
