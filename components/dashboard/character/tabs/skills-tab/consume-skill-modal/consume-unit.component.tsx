@@ -16,13 +16,6 @@ export const ConsumeUnitContainer: FC<{
 	console.log({ unitsInWallet })
 	return (
 		<Box>
-			<Image
-				src={img}
-				alt={"unit " + unit.name}
-				w="20rem"
-				m="1rem auto"
-				borderRadius="1rem"
-			/>
 			<Flex gap="1rem" flexWrap="wrap">
 				{unitsInWallet &&
 					unitsInWallet.map((unit) => {
