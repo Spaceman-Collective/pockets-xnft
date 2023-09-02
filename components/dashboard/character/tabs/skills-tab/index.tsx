@@ -10,16 +10,18 @@ import {
 	HStack,
 	Img,
 	ListItem,
+	Progress,
 	Text,
 	UnorderedList,
 } from "@chakra-ui/react"
 import styled from "@emotion/styled"
 import Link from "next/link"
-import { FC, ReactNode } from "react"
+import { FC, ReactNode, useEffect, useState } from "react"
 import { PageTabsEmptyState as EmptyState } from "@/components/nav"
 import { PanelContainer } from "@/components/layout"
 import { combatSkillKeys } from "./constants"
 import { Tip } from "../../../../tooltip"
+import { useDebounce } from "@uidotdev/usehooks"
 
 export const SkillsTab: React.FC<{
 	currentCharacter: Character
@@ -259,7 +261,18 @@ const SkillBox: FC<{
 	xp: string
 	onClick: (skill: string) => void
 }> = ({ name, level, xp, onClick }) => {
+	const [xpIsLoading, setXpIsLoading] = useState(false)
 	const click = () => onClick(name.toLowerCase())
+
+	const debouncedXp = useDebounce(xp, 1000 * 10)
+	useEffect(() => {
+		if (debouncedXp === xp) {
+			setXpIsLoading(false)
+			return
+		}
+		setXpIsLoading(true)
+	}, [xp, debouncedXp, setXpIsLoading])
+
 	const Icon = () => {
 		function is(value: string) {
 			return name.toLowerCase() === value.toLowerCase()
@@ -298,14 +311,14 @@ const SkillBox: FC<{
 		)
 	}
 
+	const [current, total] = xp.split("/")
 	return (
 		<Flex
-			bg="blacks.500"
+			bg={xpIsLoading ? "purple.700" : "blacks.500"}
 			h="7rem"
 			alignItems="center"
 			gap="0.5rem"
 			borderRadius="0.5rem"
-			title={name}
 			opacity={level === "0" ? "0.25" : "1"}
 			_hover={{
 				opacity: 1,
@@ -325,16 +338,26 @@ const SkillBox: FC<{
 			>
 				<Icon />
 			</Grid>
-			<Flex direction="column">
-				<HStack>
-					<Label>LVL:</Label>
-					<Value>{level}</Value>
-				</HStack>
-				<HStack>
-					<Label>XP:</Label>
-					<Value>{xp}</Value>
-				</HStack>
-			</Flex>
+
+			<Tip label={`${name}\n${xp}`}>
+				<Flex direction="column" flexGrow={1} pr="1.5rem">
+					<HStack>
+						<Label>LVL:</Label>
+						<Value>{level}</Value>
+					</HStack>
+					<Progress
+						colorScheme={xpIsLoading ? "green" : "blue"}
+						value={(+current / +total) * 100}
+						hasStripe={xpIsLoading}
+						isAnimated={xpIsLoading}
+					/>
+					{/* <HStack alignItems="center"> */}
+					{/* 	<Label>XP:</Label> */}
+					{/* 	<Value>{xp?.split("/")[0]}</Value> */}
+					{/* 	<Value fontSize="1rem !important">/{+xp?.split("/")[1] / 1000}k</Value> */}
+					{/* </HStack> */}
+				</Flex>
+			</Tip>
 		</Flex>
 	)
 }

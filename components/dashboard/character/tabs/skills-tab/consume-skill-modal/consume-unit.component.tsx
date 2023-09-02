@@ -80,6 +80,7 @@ export const ConsumeUnitContainer: FC<{
 						onSuccess: async () => {
 							toast.success(
 								`${unit.name} was consumed for ${+unit.rank * XP_PER_RANK}xp!`,
+								{ duration: 7000 },
 							)
 							setRemovedMints([...removedMints, unit.mint])
 							queryClient.refetchQueries({ queryKey: ["assets"] })
