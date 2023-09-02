@@ -26,7 +26,6 @@ import { useBattleHistory } from "@/hooks/useBattle"
 import { timeSince } from "@/lib/utils"
 import { useCharacter } from "@/hooks/useCharacter"
 import { fetchCharacter } from "@/lib/apiClient"
-import { CharacterImage } from "./CharacterImage"
 import { BattleHistoryModal } from "./BattleHistoryModal"
 
 export const ArenaTab: FC<{

@@ -16,6 +16,7 @@ import { BattleHistory, Character } from "@/types/server"
 import { CharacterImage } from "./CharacterImage"
 import { timeSince } from "@/lib/utils"
 import { BattleLogCard } from "./BattleLogCard"
+import { combatSkillKeys } from "../../constants"
 
 interface BattleHistoryModalProps {
 	opponent: Character
@@ -32,6 +33,16 @@ export const BattleHistoryModal: React.FC<BattleHistoryModalProps> = ({
 	isOpen,
 	onClose,
 }) => {
+	const oppponentCombatLevel = combatSkillKeys.reduce(
+		(acc, key) =>
+			acc + opponent.skills[key.charAt(0).toUpperCase() + key.slice(1)] || 0,
+		0,
+	)
+	const characterCombatLevel = combatSkillKeys.reduce(
+		(acc, key) =>
+			acc + character.skills[key.charAt(0).toUpperCase() + key.slice(1)] || 0,
+		0,
+	)
 	return (
 		<Modal isOpen={isOpen} onClose={onClose}>
 			<ModalOverlay />
@@ -96,7 +107,11 @@ export const BattleHistoryModal: React.FC<BattleHistoryModalProps> = ({
 																? character.image
 																: opponent.image
 														}
-														level={6}
+														level={
+															battle.defender === character.mint
+																? oppponentCombatLevel
+																: characterCombatLevel
+														}
 													/>
 												</Flex>
 												<Flex w="12rem" alignItems="center" flexDirection="column">
@@ -128,7 +143,11 @@ export const BattleHistoryModal: React.FC<BattleHistoryModalProps> = ({
 																? character.image
 																: opponent.image
 														}
-														level={6}
+														level={
+															battle.defender === character.mint
+																? characterCombatLevel
+																: oppponentCombatLevel
+														}
 													/>
 												</Flex>
 											</Flex>
