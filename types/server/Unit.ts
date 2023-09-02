@@ -17,7 +17,7 @@ export interface Unit extends UnitTemplate {
 	}
 }
 
-export const XP_PER_RANK = 15
+export const XP_PER_RANK = 50
 
 export interface UnitTemplate {
 	name: string

@@ -4,7 +4,15 @@ import { useSolana } from "@/hooks/useSolana"
 import { useUnitConsumeConfirm, useUnitConsumeRequest } from "@/hooks/useUnit"
 import { getLocalImage } from "@/lib/utils"
 import { Unit, UnitTemplate, XP_PER_RANK } from "@/types/server"
-import { Box, Flex, Image, Text } from "@chakra-ui/react"
+import {
+	Box,
+	Flex,
+	Grid,
+	Image,
+	Skeleton,
+	Spinner,
+	Text,
+} from "@chakra-ui/react"
 import { Transaction } from "@solana/web3.js"
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes"
 import { useQueryClient } from "@tanstack/react-query"
@@ -13,6 +21,7 @@ import { FC, ReactNode, useState } from "react"
 
 interface UnitPlusRank extends Unit {
 	rank: string
+	mint: string
 }
 
 export const ConsumeUnitContainer: FC<{
@@ -22,22 +31,35 @@ export const ConsumeUnitContainer: FC<{
 	const { signTransaction, walletAddress } = useSolana()
 	const [selectedChar, _] = useSelectedCharacter()
 	const img = getLocalImage({ type: "units", name: unit.name })
-	const [isLoadingRequest, setIsLoadingRequest] = useState(false)
-
+	const [removedMints, setRemovedMints] = useState([""]) // for optimistic removals
+	const [isLoadingRequest, setIsLoadingRequest] = useState<boolean | string>(
+		false,
+	)
 	const queryClient = useQueryClient()
 	const { mutate: requestConsume } = useUnitConsumeRequest()
 	const { mutate: confirmConsume } = useUnitConsumeConfirm()
 
 	const handleRequestConsume = async (unit: UnitPlusRank) => {
-		if (!selectedChar) return
-		if (!unit || unit.mint === undefined) return
-		setIsLoadingRequest(true)
+		console.log({ unit })
+		if (!selectedChar) {
+			toast.error("no selected char")
+			return
+		}
+		if (!unit || unit.mint === undefined) {
+			toast.error("no unit")
+			return
+		}
+		setIsLoadingRequest(unit.mint)
 		const payload = {
 			mint: selectedChar.mint, // Character Mint
 			unit: unit.mint, // NFT address
 		}
 
 		requestConsume(payload, {
+			onError: (e) => {
+				toast.error(JSON.stringify(e))
+				setIsLoadingRequest(false)
+			},
 			onSuccess: async (data: { encodedTx: string }) => {
 				const { encodedTx } = data
 				console.log("unit consume request encoded tx: ", encodedTx)
@@ -57,6 +79,7 @@ export const ConsumeUnitContainer: FC<{
 					{
 						onSuccess: async () => {
 							toast.success("Unit equipped")
+							setRemovedMints([...removedMints, unit.mint])
 							queryClient.refetchQueries({ queryKey: ["assets"] })
 							queryClient.refetchQueries({
 								queryKey: ["wallet-assets", walletAddress],
@@ -69,25 +92,52 @@ export const ConsumeUnitContainer: FC<{
 					},
 				)
 			},
-			onError: (e) => {
-				toast.error(JSON.stringify(e))
-				setIsLoadingRequest(false)
-			},
 		})
 	}
 
 	return (
 		<Box>
 			<Flex gap="1rem" flexWrap="wrap">
+				{unitsInWallet && unitsInWallet.length === 0 && (
+					<Grid placeItems="center" w="100%" gap="1rem">
+						<Text textAlign="center">
+							You don&apos;t own any <br />
+							{unit.name}s.
+						</Text>
+						<Image
+							src={img}
+							alt={unit.name}
+							w="20rem"
+							opacity={0.5}
+							filter="saturate(0.2)"
+							borderRadius="1rem"
+							transition="all 0.25s ease-in-out"
+							_hover={{
+								filter: "saturate(1)",
+							}}
+						/>
+					</Grid>
+				)}
 				{unitsInWallet &&
 					unitsInWallet.map((unit) => {
+						const isRemoved = removedMints.includes(unit.mint)
 						return (
-							<UnitFrame
-								key={unit?.mint}
-								unit={unit}
-								img={img}
-								onClick={() => handleRequestConsume(unit)}
-							/>
+							<>
+								{isRemoved && (
+									<Tip label="Consumption is in progress">
+										<Skeleton h="102px" w="104px" />
+									</Tip>
+								)}
+								{!isRemoved && (
+									<UnitFrame
+										key={unit?.mint}
+										unit={unit}
+										img={img}
+										isLoading={isLoadingRequest}
+										onClick={async () => await handleRequestConsume(unit)}
+									/>
+								)}
+							</>
 						)
 					})}
 			</Flex>
@@ -98,21 +148,34 @@ export const ConsumeUnitContainer: FC<{
 const UnitFrame: FC<{
 	unit: UnitPlusRank
 	img: string
+	isLoading: boolean | string
 	onClick: () => void
-}> = ({ unit, img }) => {
+}> = ({ unit, img, onClick, isLoading }) => {
 	if (!unit) return null
 	const bonuses = Object.keys(unit.bonus)
+	const loading = isLoading?.toString().toLowerCase() === unit.mint.toLowerCase()
 	return (
-		<Box bg="blacks.700" color="white" p="0.5rem" borderRadius="1rem">
+		<Box
+			onClick={onClick}
+			cursor="pointer"
+			bg="blacks.700"
+			color="white"
+			p="0.5rem"
+			borderRadius="1rem"
+		>
 			<Flex
 				bg="blacks.500"
 				p="1rem"
 				borderRadius="0.5rem 0.5rem 0 0"
 				justifyContent="center"
+				minH="4.75rem"
 			>
-				<Text fontWeight="700" letterSpacing="1px">
-					{+unit.rank * XP_PER_RANK}xp
-				</Text>
+				{loading && <Spinner />}
+				{!loading && (
+					<Text fontWeight="700" letterSpacing="1px">
+						{+unit.rank * XP_PER_RANK}xp
+					</Text>
+				)}
 			</Flex>
 			<TipWrapper bonuses={bonuses} unit={unit}>
 				<Image

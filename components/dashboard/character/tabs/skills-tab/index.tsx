@@ -63,19 +63,25 @@ export const SkillsTab: React.FC<{
 						{experienceKeys
 							?.filter((key) => combatSkillKeys.includes(key.toLowerCase()))
 							?.sort((a, b) => a.localeCompare(b))
-							.map((key) => (
-								<SkillBox
-									key={"combat" + key}
-									onClick={selectSkill}
-									name={key}
-									level={currentCharacter.skills[key].toString()}
-									xp={
-										currentCharacter.experience[key].current.toString() +
-										"/" +
-										currentCharacter.experience[key].threshold.toString()
-									}
-								/>
-							))}
+							.map((key) => {
+								if (!currentCharacter) return
+								if (currentCharacter?.experience[key]?.current === undefined) return
+								if (currentCharacter?.experience[key]?.current === null) return
+
+								return (
+									<SkillBox
+										key={"combat" + key}
+										onClick={selectSkill}
+										name={key}
+										level={currentCharacter.skills[key].toString()}
+										xp={
+											currentCharacter.experience[key].current.toString() +
+											"/" +
+											currentCharacter.experience[key].threshold.toString()
+										}
+									/>
+								)
+							})}
 					</SkillContainer>
 				</Grid>
 				<br></br>

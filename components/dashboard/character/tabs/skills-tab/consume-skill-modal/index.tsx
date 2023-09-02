@@ -1,4 +1,9 @@
-import { RESOURCES, UNIT_TEMPLATES, buildUnitFromNFT } from "@/types/server"
+import {
+	RESOURCES,
+	UNIT_TEMPLATES,
+	XP_PER_RANK,
+	buildUnitFromNFT,
+} from "@/types/server"
 import { useAllWalletAssets } from "@/hooks/useWalletAssets"
 import {
 	Box,
@@ -47,8 +52,9 @@ export const ConsumeSkillModal: FC<{
 						{isCombat ? (
 							<Text>
 								Upgrade your <strong>{skill}</strong> by consuming{" "}
-								{relevantUnit?.name + "s"}. Each unit gives 15xp * level of the unit.
-								Consuming a unit burns it.
+								<strong>{relevantUnit?.name + "s"}</strong>.<br /> Each unit gives{" "}
+								<span>{XP_PER_RANK}xp * level</span> of the unit. Consuming a unit burns
+								it.
 							</Text>
 						) : (
 							<Text>
@@ -67,7 +73,11 @@ export const ConsumeSkillModal: FC<{
 									.sort((a, b) => +b.attributes.Rank - +a.attributes.Rank)
 									.map((unit) => {
 										const parsedUnit = buildUnitFromNFT(unit)
-										return { ...parsedUnit, rank: unit.attributes.Rank ?? "0" }
+										return {
+											...parsedUnit,
+											rank: unit.attributes.Rank ?? "0",
+											mint: unit.mint,
+										}
 									})}
 							/>
 						)}
