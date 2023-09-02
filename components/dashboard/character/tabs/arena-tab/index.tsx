@@ -165,24 +165,54 @@ const Header: FC<{ character: Character }> = ({ character }) => {
 		history: { histories: [] },
 	})
 
+	const [opponents, setOpponents] = useState<Character[]>([])
+
+	const { isOpen, onOpen, onClose } = useDisclosure()
+
 	const { data: battleHistory, isLoading: battleHistoryIsLoading } =
 		useBattleHistory(character.mint)
 
-	const getCharacter = useCharacter
+	const { data: characterData, isLoading: characterIsLoading } = useCharacter(
+		character.mint,
+	)
+
+	const allOpponents = []
+
+	useEffect(() => {
+		if (battleHistory && battleHistory.histories.length) {
+			const opponents = battleHistory.histories.map((history) => {
+				if (history.attacker === character.mint) {
+					return history.defender
+				} else {
+					return history.attacker
+				}
+			})
+			const uniqueOpponents = opponents.filter(
+				(opponent, i) => opponents.indexOf(opponent) === i,
+			)
+
+			uniqueOpponents.forEach(async (opponent) => {
+				const { character } = await fetchCharacter({ mint: opponent })
+				setOpponents((prev) => [...prev, character!])
+				console.log(character)
+			})
+		}
+	}, [battleHistory, character])
+
+	if (characterIsLoading || battleHistoryIsLoading) {
+		return null
+	}
 	const combatLevel = combatSkillKeys.reduce(
 		(acc, key) =>
 			acc + character.skills[key.charAt(0).toUpperCase() + key.slice(1)] || 0,
 		0,
 	)
 
-	const { isOpen, onOpen, onClose } = useDisclosure()
-
 	const handleBattleLogClick = (history: History, opponent: Character) => {
 		setViewBattleLog({
 			history: { histories: [history] },
 			opponent,
 		})
-		console.log(viewBattleLog)
 		onOpen()
 	}
 
@@ -270,13 +300,14 @@ const Header: FC<{ character: Character }> = ({ character }) => {
 										const characterIsDefender = item.defender === character.mint
 										const opponentIsAttacker = item.attacker !== character.mint
 										const opponentIsDefender = item.defender !== character.mint
-
-										const { data: opponent } = getCharacter(
-											opponentIsAttacker ? item.attacker : item.defender,
+										console.log(item)
+										const opponent = opponents.find(
+											(o) =>
+												o.mint === (opponentIsAttacker ? item.attacker : item.defender),
 										)
 										return (
 											<Flex
-												onClick={() => handleBattleLogClick(item, opponent!.character!)}
+												onClick={() => handleBattleLogClick(item, opponent!)}
 												key={i}
 												_notLast={{
 													borderBottom: "0.1rem solid #ffffff20",
@@ -301,7 +332,7 @@ const Header: FC<{ character: Character }> = ({ character }) => {
 														bgImage={
 															item.attacker === character.mint
 																? character.image
-																: opponent?.character?.image
+																: opponent?.image
 														}
 														bgSize="cover"
 													/>
@@ -322,7 +353,7 @@ const Header: FC<{ character: Character }> = ({ character }) => {
 														bgImage={
 															item.defender === character.mint
 																? character.image
-																: opponent?.character?.image
+																: opponent?.image
 														}
 														bgSize="cover"
 													/>
@@ -339,7 +370,7 @@ const Header: FC<{ character: Character }> = ({ character }) => {
 															fontWeight="500"
 															opacity="0.5"
 														>
-															Rounds: {item.result.rounds.length}
+															Rounds: {item.result.rounds?.length}
 														</Text>
 														<Box h="1.25rem" />
 														<Text
