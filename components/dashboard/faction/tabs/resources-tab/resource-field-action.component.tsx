@@ -15,7 +15,7 @@ import {
 	PopoverContent,
 } from "@chakra-ui/react"
 import { Tip } from "@/components/tooltip"
-import { getLocalImage, timeAgo } from "@/lib/utils"
+import { formatBalance, getLocalImage, timeAgo } from "@/lib/utils"
 import { Label, Value } from "../tab.styles"
 import { colors } from "@/styles/defaultTheme"
 import { FC, useEffect, useState } from "react"
@@ -222,46 +222,52 @@ export const ResourceFieldAction: FC<{
 					</Button>
 				)}
 				{!isHarvestable && (
-					<Tip label="Coming soon! Speed up with BONK">
-						<Popover>
-							<PopoverTrigger>
-								<IconButton
-									icon={<FaClock />}
-									aria-label="Speed up"
-									bg={colors.blacks[400]}
-									w="3rem" // Adjust the width as needed
-									h="3rem" // Adjust the height as needed
-									// isDisabled={true}
-								/>
-							</PopoverTrigger>
-							<PopoverContentStyled bg="teal">
-								<Slider
-									focusThumbOnChange={false}
-									value={input}
-									onChange={setInput}
-									min={0}
-									max={count}
-									maxW="80%"
-									m="1rem auto"
-									transition="all 0.25 ease-in-out"
+					<Popover>
+						<PopoverTrigger>
+							<IconButton
+								icon={<FaClock />}
+								aria-label="Speed up"
+								bg={colors.blacks[400]}
+								w="3rem" // Adjust the width as needed
+								h="3rem" // Adjust the height as needed
+								// isDisabled={true}
+							/>
+						</PopoverTrigger>
+						<PopoverContentStyled bg="teal">
+							<Slider
+								focusThumbOnChange={false}
+								value={input}
+								onChange={setInput}
+								min={0}
+								max={count}
+								maxW="80%"
+								m="1rem auto"
+								transition="all 0.25 ease-in-out"
+							>
+								<SliderTrack>
+									<SliderFilledTrack bg="brand.secondary" />
+								</SliderTrack>
+								<SliderThumb
+									display="flex"
+									fontWeight={700}
+									fontSize="1rem"
+									w="10rem"
+									h="3rem"
+									bg="blacks.700"
+									alignItems="center"
+									textAlign="center"
 								>
-									<SliderTrack>
-										<SliderFilledTrack bg="brand.secondary" />
-									</SliderTrack>
-									<SliderThumb
-										fontWeight={700}
-										fontSize="1rem"
-										w="10rem"
-										h="3rem"
-										bg="blacks.700"
-									>
-										{timeAgo(input)}
-									</SliderThumb>
-								</Slider>
-								<Button onClick={speedUpWithBonk}>Speed UP</Button>
-							</PopoverContentStyled>
-						</Popover>
-					</Tip>
+									{timeAgo(input)}
+									<br />
+									{formatBalance(
+										(Number(BONK_COST_PER_MS_WIPED) * 1e3 * input) / 1e5,
+									).toString()}{" "}
+									BONK
+								</SliderThumb>
+							</Slider>
+							<Button onClick={speedUpWithBonk}>Speed UP</Button>
+						</PopoverContentStyled>
+					</Popover>
 				)}
 			</HStack>
 		</ResourceActionContainer>
