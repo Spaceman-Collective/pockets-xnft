@@ -19,6 +19,7 @@ import { useSolana } from "@/hooks/useSolana"
 import toast from "react-hot-toast"
 import { CharacterImage } from "./CharacterImage"
 import { BattleHistoryModal } from "./BattleHistoryModal"
+import { useQueryClient } from "@tanstack/react-query"
 
 export const OpponentEquipment: FC<{
 	enabled: boolean
@@ -39,6 +40,8 @@ export const OpponentEquipment: FC<{
 	const [canScrollDown, setCanScrollDown] = useState<boolean>(
 		unitsAreaIsScrollable,
 	)
+
+	const queryClient = useQueryClient()
 
 	const {
 		buildMemoIx,
@@ -95,7 +98,19 @@ export const OpponentEquipment: FC<{
 
 		battleMutate(encodedTx, {
 			onSuccess: async (e) => {
-				toast.success("Battle started")
+				// Refetch battle history
+				await queryClient.invalidateQueries([
+					"battleHistory",
+					currentCharacter.mint,
+					[opponent],
+				])
+				const won = e.result.winner === currentCharacter.mint
+
+				if (won) {
+					toast.success("You won the battle!")
+				} else {
+					toast.error("You lost the battle!")
+				}
 			},
 			onError: (e) => {
 				toast.error(JSON.stringify(e))
