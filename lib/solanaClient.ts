@@ -161,6 +161,22 @@ export function getDelegationRecordPDA(
   return delegationRecordPDA;
 }
 
+export async function getDelegationAccount(
+  connection: Connection,
+  delegationRecordPDA: PublicKey
+) {
+  if (!connection || !delegationRecordPDA) return;
+  const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+    pocketsIDL,
+    POCKETS_PROGRAM_PROGRAMID,
+    { connection }
+  );
+  return await POCKETS_PROGRAM.account.voteDelegation.fetchNullable(
+    delegationRecordPDA,
+    "finalized"
+  );
+}
+
 export async function getCitizensIx(
   wallet: PublicKey,
   characterMint: PublicKey,
@@ -373,7 +389,7 @@ export async function delegateVotes(
       walletAta,
       systemProgram: SystemProgram.programId,
       citizen,
-      voteRecepient: voteCharacterRecepientMint,
+      voteRecepient: voteRecepientCitizen,
       delegationRecord,
     })
     .instruction();

@@ -23,6 +23,7 @@ import {
   MdPersonAddAlt1,
   MdSend,
   MdPersonRemoveAlt1,
+  MdChangeCircle,
   MdGroup,
 } from "react-icons/md";
 import { GiHammerSickle } from "react-icons/gi";
@@ -34,7 +35,10 @@ import { PublicKey } from "@solana/web3.js";
 import { useSolana } from "@/hooks/useSolana";
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter";
 import {
+  adjustVoteDelegation,
   delegateVotes,
+  getDelegationAccount,
+  getDelegationRecordPDA,
   returnVoteDelegation,
   transferVotes,
 } from "@/lib/solanaClient";
@@ -68,6 +72,8 @@ export const CitizenModal: FC<{
     selectedCharacter?.faction?.id ?? "",
     connection
   );
+
+
 
   const handleTransferVotes = async (
     voteAmt: number,
@@ -114,6 +120,23 @@ export const CitizenModal: FC<{
     }
   };
 
+  const handleDelegation = async (
+    voteAmt: number,
+    voteCharacterRecepientMint: string
+  ) => {
+    const delegationPDA = getDelegationRecordPDA(new PublicKey(currentCitizen?.mint!), new PublicKey(voteCharacterRecepientMint));
+    const dA = await getDelegationAccount(connection, delegationPDA);
+    await new Promise((resolve) => setTimeout(resolve, 15000));
+
+    console.log('dA is: ', dA);
+
+    if (!dA) {
+      handleDelegateVotes(voteAmt, voteCharacterRecepientMint);
+    } else {
+      handleUpdateDelegatedVotes(voteAmt, voteCharacterRecepientMint);
+    }
+  };
+
   const handleDelegateVotes = async (
     voteAmt: number,
     voteCharacterRecepientMint: string
@@ -121,6 +144,10 @@ export const CitizenModal: FC<{
     try {
       if (!selectedCharacter?.mint) {
         toast.error("No Character Selected");
+        return;
+      }
+      if (voteAmt < 0) {
+        toast.error("Initial delegation cannot be negative!");
         return;
       }
       const encodedSignedTx = await encodeTransaction({
@@ -158,11 +185,18 @@ export const CitizenModal: FC<{
     }
   };
 
-  const handleReclaimDelegatedVotes = async (
+  const handleUpdateDelegatedVotes = async (
     voteAmt: number,
     voteCharacterRecepientMint: string
   ) => {
+    let isIncrement = true;
+    let normalizedVotingAmt = voteAmt;
+
     try {
+      if (voteAmt < 0) {
+        isIncrement = false;
+        normalizedVotingAmt *= -1;
+      }
       if (!selectedCharacter?.mint) {
         toast.error("No Character Selected");
         return;
@@ -172,12 +206,13 @@ export const CitizenModal: FC<{
         connection,
         signTransaction,
         txInstructions: [
-          await returnVoteDelegation(
+          await adjustVoteDelegation(
             connection,
             new PublicKey(walletAddress!),
             new PublicKey(selectedCharacter?.mint!),
             new PublicKey(voteCharacterRecepientMint),
-            voteAmt
+            normalizedVotingAmt,
+            isIncrement
           ),
         ],
       });
@@ -195,6 +230,70 @@ export const CitizenModal: FC<{
     } catch (e) {
       console.log("Return delegate votes failed with error: ", e);
       toast.error("Return delegate votes failed");
+    } finally {
+      setInputValue("");
+      setActionType(null);
+      setActiveCitizen(null);
+    }
+  };
+
+  const handleReclaimDelegatedVotes = async (
+    voteCharacterRecepientMint: string
+  ) => {
+
+    try {
+      if (!selectedCharacter?.mint) {
+        toast.error("No Character Selected");
+        return;
+      }
+
+      const delegationPDA = getDelegationRecordPDA(new PublicKey(currentCitizen?.mint!), new PublicKey(voteCharacterRecepientMint));
+      const dA = await getDelegationAccount(connection, delegationPDA);
+      await new Promise((resolve) => setTimeout(resolve, 15000));
+
+      if (!dA) {
+        console.log('dA is null!');
+        console.log('dA: ', dA)
+        toast.error('No votes have been delegated!')
+        return;
+      }
+
+      if (!dA.voteAmt) {
+        console.log('dA Votes is null!');
+        console.log('dA Votes: ', dA.voteAmt)
+        toast.error('No votes have been delegated!')
+        return;
+      }
+
+      const encodedSignedTx = await encodeTransaction({
+        walletAddress,
+        connection,
+        signTransaction,
+        txInstructions: [
+          await adjustVoteDelegation(
+            connection,
+            new PublicKey(walletAddress!),
+            new PublicKey(selectedCharacter?.mint!),
+            new PublicKey(voteCharacterRecepientMint),
+            dA.voteAmt,
+            false
+          ),
+        ],
+      });
+      console.log("hRDV tx: ", encodedSignedTx);
+
+      if (typeof encodedSignedTx === "string") {
+        const sig = await connection.sendRawTransaction(
+          decode(encodedSignedTx)
+        );
+        console.log("hRDV sig: ", sig);
+        toast.success("Delegate votes reclaimed successfuly!");
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    } catch (e) {
+      console.log("Reclaim delegate votes failed with error: ", e);
+      toast.error("Reclaim delegate votes failed");
     } finally {
       setInputValue("");
       setActionType(null);
@@ -423,17 +522,12 @@ export const CitizenModal: FC<{
                           onClick={() => {
                             if (isValidInput(inputValue as string)) {
                               if (actionType === "delegate") {
-                                handleDelegateVotes(
+                                handleDelegation(
                                   Number(inputValue),
                                   citizen.mint
                                 );
                               } else if (actionType === "transfer") {
                                 handleTransferVotes(
-                                  Number(inputValue),
-                                  citizen.mint
-                                );
-                              } else if (actionType === "reclaim") {
-                                handleReclaimDelegatedVotes(
                                   Number(inputValue),
                                   citizen.mint
                                 );
@@ -462,26 +556,23 @@ export const CitizenModal: FC<{
                                 color="white"
                                 p="0rem 2rem"
                                 h="4rem"
-                                onClick={() => {
-                                  setActionType("reclaim");
-                                  setActiveCitizen(citizen.mint);
-                                }}
+                                onClick={() => handleReclaimDelegatedVotes(citizen.mint)}
                               />
                             </Tooltip>
                             <Tooltip label="Delegate Votes" hasArrow>
-                              <IconButton
-                                aria-label="Delegate Votes"
-                                icon={<MdPersonAddAlt1 />}
-                                bg={colors.blacks[700]}
-                                color="white"
-                                p="0rem 2rem"
-                                h="4rem"
-                                onClick={() => {
-                                  setActionType("delegate");
-                                  setActiveCitizen(citizen.mint);
-                                }}
-                              />
-                            </Tooltip>
+                                <IconButton
+                                  aria-label="Delegate Votes"
+                                  icon={<MdPersonAddAlt1 />}
+                                  bg={colors.blacks[700]}
+                                  color="white"
+                                  p="0rem 2rem"
+                                  h="4rem"
+                                  onClick={() => {
+                                    setActionType("delegate");
+                                    setActiveCitizen(citizen.mint);
+                                  }}
+                                />
+                              </Tooltip>
                             <Tooltip label="Transfer Votes" hasArrow>
                               <IconButton
                                 aria-label="Transfer Votes"
