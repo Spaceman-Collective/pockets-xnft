@@ -225,7 +225,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 								color="brand.secondary"
 								cursor="pointer"
 								_hover={{
-									textDecoration: "underline"
+									textDecoration: "underline",
 								}}
 								onClick={reclaimProposalVotes}
 							>
