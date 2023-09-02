@@ -304,19 +304,21 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 				</HStack>
 			</Flex>
 
-			<Flex>
-				<CitizensButton onClick={openCitizenModal} cursor="pointer">
-					citizens
-				</CitizensButton>
-				<LeaveFactionModal
-					character={currentCharacter}
-					setFactionStatus={setFactionStatus}
-				/>
-			</Flex>
-			{renderContent()}
-		</PanelContainer>
-	)
-}
+      <Flex>
+        <CitizensButton onClick={openCitizenModal} cursor="pointer" _hover={{
+          borderColor: colors.blacks[600], bg: colors.blacks[600]
+        }}>
+          citizens
+        </CitizensButton>
+        {/* <LeaveFactionModal
+          character={currentCharacter}
+          setFactionStatus={setFactionStatus}
+        /> */}
+      </Flex>
+      {renderContent()}
+    </PanelContainer>
+  );
+};
 
 type ProposalItemProps = {
 	proposal: Proposal
@@ -652,13 +654,14 @@ function handleError(error: Error | string) {
 }
 
 const CitizensButton = styled(Button)`
-	border-radius: 0.5rem;
-	margin: 0rem 3rem 0rem 0rem;
-	width: 100%;
-	font-size: 1.75rem;
-	font-weight: 600;
-	letter-spacing: 1px;
-`
+  border-radius: 0.5rem;
+  border: 3px solid ${colors.blacks[700]};
+  margin: 0rem;
+  width: 100%;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+`;
 
 const Title = styled(Text)`
 	text-transform: uppercase;
