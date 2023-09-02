@@ -59,6 +59,8 @@ export const CitizenModal: FC<{
   >(null);
   const [activeCitizen, setActiveCitizen] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState<string | number>("");
+  const [delegationInProgress, setDelegationInProgress] = useState<boolean>(false);
+
 
   const queryClient = useQueryClient();
   const [selectedCharacter] = useSelectedCharacter();
@@ -79,6 +81,7 @@ export const CitizenModal: FC<{
     voteAmt: number,
     voteCharacterRecepientMint: string
   ) => {
+    setDelegationInProgress(true);
     console.log("iVA: ", voteAmt, "vCRM: ", voteCharacterRecepientMint);
     try {
       if (!selectedCharacter?.mint) {
@@ -117,6 +120,7 @@ export const CitizenModal: FC<{
       setInputValue("");
       setActionType(null);
       setActiveCitizen(null);
+      setDelegationInProgress(false);
     }
   };
 
@@ -124,7 +128,16 @@ export const CitizenModal: FC<{
     voteAmt: number,
     voteCharacterRecepientMint: string
   ) => {
-    const delegationPDA = getDelegationRecordPDA(new PublicKey(currentCitizen?.mint!), new PublicKey(voteCharacterRecepientMint));
+    setDelegationInProgress(true);
+
+    console.log('characterMint into dPDA: ', voteCharacterRecepientMint);
+    const cM = new PublicKey(currentCitizen?.mint!);
+    console.log('cM into dPDA: ', voteCharacterRecepientMint);
+    const vCRM = new PublicKey(voteCharacterRecepientMint);
+    console.log('vCRM into dPDA: ', voteCharacterRecepientMint);
+    const delegationPDA = getDelegationRecordPDA(cM, vCRM);
+    console.log('delegationPDA: ', delegationPDA.toBase58());
+
     const dA = await getDelegationAccount(connection, delegationPDA);
     await new Promise((resolve) => setTimeout(resolve, 15000));
 
@@ -182,6 +195,7 @@ export const CitizenModal: FC<{
       setInputValue("");
       setActionType(null);
       setActiveCitizen(null);
+      setDelegationInProgress(false);
     }
   };
 
@@ -189,6 +203,8 @@ export const CitizenModal: FC<{
     voteAmt: number,
     voteCharacterRecepientMint: string
   ) => {
+    setDelegationInProgress(true);
+
     let isIncrement = true;
     let normalizedVotingAmt = voteAmt;
 
@@ -216,13 +232,13 @@ export const CitizenModal: FC<{
           ),
         ],
       });
-      console.log("hRCV tx: ", encodedSignedTx);
+      console.log("hUDV tx: ", encodedSignedTx);
 
       if (typeof encodedSignedTx === "string") {
         const sig = await connection.sendRawTransaction(
           decode(encodedSignedTx)
         );
-        console.log("hRCV sig: ", sig);
+        console.log("hUDV sig: ", sig);
         toast.success("Delegate vote successful!");
       }
 
@@ -234,12 +250,16 @@ export const CitizenModal: FC<{
       setInputValue("");
       setActionType(null);
       setActiveCitizen(null);
+      setDelegationInProgress(false);
+
     }
   };
 
   const handleReclaimDelegatedVotes = async (
     voteCharacterRecepientMint: string
   ) => {
+    setDelegationInProgress(true);
+
 
     try {
       if (!selectedCharacter?.mint) {
@@ -298,6 +318,7 @@ export const CitizenModal: FC<{
       setInputValue("");
       setActionType(null);
       setActiveCitizen(null);
+      setDelegationInProgress(false);
     }
   };
 
@@ -501,7 +522,14 @@ export const CitizenModal: FC<{
                     </Text>
                   </VStack>
                   <Flex>
-                    {actionType && activeCitizen === citizen.mint ? (
+                    {delegationInProgress ? (
+                      <Flex alignItems="center">
+                        <Spinner color="white" />
+                        <Text ml="0.5rem" color="white" fontSize="1rem">
+                          LOADING...
+                        </Text>
+                      </Flex>
+                    ) : actionType && activeCitizen === citizen.mint ? (
                       <Flex width="100%" mr="1rem">
                         <StyledInput
                           placeholder="Amount"
@@ -560,19 +588,19 @@ export const CitizenModal: FC<{
                               />
                             </Tooltip>
                             <Tooltip label="Delegate Votes" hasArrow>
-                                <IconButton
-                                  aria-label="Delegate Votes"
-                                  icon={<MdPersonAddAlt1 />}
-                                  bg={colors.blacks[700]}
-                                  color="white"
-                                  p="0rem 2rem"
-                                  h="4rem"
-                                  onClick={() => {
-                                    setActionType("delegate");
-                                    setActiveCitizen(citizen.mint);
-                                  }}
-                                />
-                              </Tooltip>
+                              <IconButton
+                                aria-label="Delegate Votes"
+                                icon={<MdPersonAddAlt1 />}
+                                bg={colors.blacks[700]}
+                                color="white"
+                                p="0rem 2rem"
+                                h="4rem"
+                                onClick={() => {
+                                  setActionType("delegate");
+                                  setActiveCitizen(citizen.mint);
+                                }}
+                              />
+                            </Tooltip>
                             <Tooltip label="Transfer Votes" hasArrow>
                               <IconButton
                                 aria-label="Transfer Votes"

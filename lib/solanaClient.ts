@@ -165,7 +165,12 @@ export async function getDelegationAccount(
   connection: Connection,
   delegationRecordPDA: PublicKey
 ) {
-  if (!connection || !delegationRecordPDA) return;
+  if (!connection || !delegationRecordPDA) { 
+    console.log('getDelegationAccount connection: ', connection);
+    console.log('getDelegationAccount delegationPDA: ', delegationRecordPDA);
+    return;
+
+  }
   const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
     pocketsIDL,
     POCKETS_PROGRAM_PROGRAMID,
