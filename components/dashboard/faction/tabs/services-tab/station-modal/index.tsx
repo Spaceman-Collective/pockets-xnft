@@ -289,6 +289,9 @@ export const ModalStation: FC<{
 						blueprint={station?.blueprint ?? ""}
 						resourcesInWallet={resourcesInWallet}
 						progress={progress}
+						timer={timer}
+						isFuture={isFuture}
+						isClaimable={isClaimable}
 					/>
 				</ModalBody>
 			</ModalContent>

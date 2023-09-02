@@ -16,8 +16,18 @@ import { FC } from "react"
 export const StationModalBody: FC<{
 	blueprint: string
 	progress: number
-	resourcesInWallet: { value: number; name: string }[]
-}> = ({ blueprint, progress, resourcesInWallet }) => {
+	resourcesInWallet?: { value: string; name: string }[]
+	isFuture: boolean
+	isClaimable: boolean
+	timer?: any
+}> = ({
+	blueprint,
+	progress,
+	resourcesInWallet,
+	isFuture,
+	isClaimable,
+	timer,
+}) => {
 	const station = getBlueprint(blueprint)
 	const output = !!station?.unitOutput
 		? station.unitOutput[0]
@@ -57,24 +67,28 @@ export const StationModalBody: FC<{
 									name={e.resource}
 									amount={e.amount}
 									inWallet={
-										resourcesInWallet.find((item) => item.name === e.resource)?.value
+										resourcesInWallet?.find((item) => item.name === e.resource)?.value
 									}
 								/>
 							))}
 						</Flex>
 					</Box>
-					<Button minW="23rem" bg="brand.primary">
-						Build {output}
-					</Button>
+					{!timer && (
+						<Button minW="23rem" bg="brand.primary">
+							Build {output}
+						</Button>
+					)}
 					<Image
 						src={outputImg}
 						alt={"output" + output}
 						boxSize="23rem"
 						borderRadius="1rem"
 					/>
-					<Button minW="23rem" bg="brand.primary">
-						Claim {output}
-					</Button>
+					{isClaimable && (
+						<Button minW="23rem" bg="brand.primary">
+							Claim {output}
+						</Button>
+					)}
 				</VStack>
 				<Progress
 					value={progress}
@@ -91,10 +105,10 @@ const ItemImg: FC<{
 	isUnit?: boolean
 	name: string
 	amount: number
-	inWallet?: number
+	inWallet?: string
 }> = ({ isUnit, name, amount, inWallet }) => {
 	const img = getLocalImage({ type: isUnit ? "units" : "resources", name: name })
-	const hasEnough = inWallet ? amount <= inWallet : false
+	const hasEnough = inWallet ? +amount <= +inWallet : false
 	return (
 		<Tip label={`Requires ${amount}x ${name}`}>
 			<Box position="relative" opacity={hasEnough ? 1 : 0.25}>
