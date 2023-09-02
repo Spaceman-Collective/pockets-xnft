@@ -79,10 +79,17 @@ export const ResourceContainer: FC<{
 
 				{rareDrop && stationLevel && (
 					<Box bg="green.700" p="2rem" borderRadius="1rem">
-						<Text color="brand.secondary">
-							Has a {15 * (stationLevel - 1)}% chance of dropping{" "}
-							<strong>{rareDrop}</strong>
-						</Text>
+						{stationLevel <= 1 && (
+							<Text>
+								Upgrade station to have a chance of additionally dropping {rareDrop}
+							</Text>
+						)}
+						{stationLevel > 1 && (
+							<Text color="brand.secondary">
+								Has a {15 * (stationLevel - 1)}% chance of dropping{" "}
+								<strong>{rareDrop}</strong>
+							</Text>
+						)}
 					</Box>
 				)}
 			</Grid>
