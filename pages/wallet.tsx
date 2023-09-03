@@ -18,12 +18,10 @@ import { useAssets } from "@/hooks/useCharacters"
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { WalletTabs } from "@/components/dashboard/wallet-page"
 import { PleaseSignInContainer } from "@/components/no-wallet.component"
+import { useRouter } from "next/router"
 
 export default function WalletPage() {
-	const { walletAddress } = useSolana()
-	const { data: assets, isLoading: assetsIsLoading } = useAssets() // chars/nfts
-
-	const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter()
+	const { query } = useRouter()
 
 	return (
 		<>
@@ -35,7 +33,7 @@ export default function WalletPage() {
 			</Head>
 			<NavBar />
 			<Grid placeItems="center" minH="50vh">
-				{walletAddress ? (
+				{query?.wallet ? (
 					<>
 						<DashboardContainer>
 							<DashboardInfoContainer>

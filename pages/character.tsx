@@ -22,8 +22,10 @@ import { ConsumeSkillModal } from "@/components/dashboard/character/tabs/skills-
 import { PleaseSignInContainer } from "@/components/no-wallet.component"
 import { CharacterTabs } from "@/components/dashboard/character/tabs"
 import { useAllFactions } from "@/hooks/useAllFactions"
+import { useRouter } from "next/router"
 
 export default function CharacterPage() {
+	const { query } = useRouter()
 	const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets()
 	const { walletAddress } = useSolana()
 	const joinFactionDisclosure = useDisclosure()
@@ -53,7 +55,7 @@ export default function CharacterPage() {
 			</Head>
 			<NavBar />
 			<Grid placeItems="center" minH="50vh">
-				{walletAddress ? (
+				{query?.wallet ? (
 					<>
 						<DashboardContainer>
 							<DashboardInfoContainer>
