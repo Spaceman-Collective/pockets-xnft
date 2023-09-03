@@ -48,7 +48,7 @@ export const SectionContainer = styled(Box)`
 	margin: 0rem 0rem 0rem 1rem;
 	/* padding: 3rem; */
 	width: 75rem;
-	height: 72rem;
+	min-height: 72rem;
 	border-radius: 0.5rem;
 	background-color: ${colors.brand.primary};
 `
