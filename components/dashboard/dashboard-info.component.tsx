@@ -99,7 +99,9 @@ export const DashboardInfo = () => {
 									? colors.brand.quaternary
 									: colors.brand.secondary
 							}
-							onClick={() => router.push("/leaderboard")}
+							onClick={() =>
+								router.push({ pathname: "/leaderboard", query: router.query })
+							}
 						/>
 					</IconButton>
 				</Tip>
