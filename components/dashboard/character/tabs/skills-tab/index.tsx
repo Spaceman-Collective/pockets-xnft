@@ -314,7 +314,7 @@ const SkillBox: FC<{
 	const [current, total] = xp.split("/")
 	return (
 		<Flex
-			bg={xpIsLoading ? "purple.700" : "blacks.500"}
+			bg="blacks.500"
 			h="7rem"
 			alignItems="center"
 			gap="0.5rem"
