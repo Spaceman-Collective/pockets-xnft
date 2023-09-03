@@ -7,13 +7,16 @@ import { useEffect } from "react"
 import { useRouter } from "next/router"
 
 export default function Home() {
-	const { walletAddress } = useSolana()
-	const { push } = useRouter()
+	const { push, query } = useRouter()
+
 	useEffect(() => {
-		if (walletAddress) {
-			push("/character")
+		if (query?.wallet && typeof query?.wallet === "string") {
+			push({
+				pathname: "/character",
+				query: { ...query },
+			})
 		}
-	}, [walletAddress])
+	}, [push, query])
 
 	return (
 		<>

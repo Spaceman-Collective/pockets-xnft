@@ -36,8 +36,7 @@ export const DashboardInfo = () => {
 			<TextContainer>
 				<Label>BONK:</Label>
 
-				{isLoading && <Spinner />}
-				{!isLoading && prizePool && <Value>{bonkBalance}</Value>}
+				<Value>{bonkBalance}</Value>
 				<Link href="https://jup.ag/swap/SOL-Bonk" target="_blank">
 					<Button
 						variant="outline"
