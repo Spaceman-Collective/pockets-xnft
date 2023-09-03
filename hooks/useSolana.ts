@@ -26,12 +26,14 @@ import { PocketsProgram } from "../lib/program/pockets_program"
 const pocketsIDL = require("../lib/program/pockets_program.json")
 import { Program, AnchorProvider, Wallet, BN } from "@coral-xyz/anchor"
 import { toast } from "react-hot-toast"
+import { useRouter } from "next/router"
 type TxType = VersionedTransaction | Transaction
 
 export const POCKETS_PROGRAM_PROGRAMID =
 	"GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ"
 
 export const useSolana = () => {
+	const router = useRouter()
 	const [payload, setPayload] = useState<{
 		connection?: any
 		walletAddress?: string
@@ -70,6 +72,18 @@ export const useSolana = () => {
 			init()
 		})
 	}, [connection, publicKey, signTransaction, signAllTransactions])
+
+	useEffect(() => {
+		if (router.query?.wallet) return
+		if (payload?.walletAddress) {
+			router.push({
+				query: {
+					...router.query,
+					wallet: payload.walletAddress,
+				},
+			})
+		}
+	}, [payload])
 
 	return {
 		...payload,

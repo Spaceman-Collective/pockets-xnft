@@ -13,8 +13,7 @@ import {
 	DashboardContainer,
 	SectionContainer,
 } from "@/components/layout/containers.styled"
-import { Box, Grid, Text, useDisclosure } from "@chakra-ui/react"
-import { useSolana } from "@/hooks/useSolana"
+import { Box, Grid, useDisclosure } from "@chakra-ui/react"
 import { FactionModal } from "@/components/dashboard/faction/join-faction-modal"
 import {
 	NoFaction,
@@ -24,10 +23,11 @@ import { FactionTabs } from "@/components/dashboard/faction/tabs"
 import { useEffect, useState } from "react"
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { PleaseSignInContainer } from "@/components/no-wallet.component"
+import { useRouter } from "next/router"
 
 export default function FactionPage() {
+	const { query } = useRouter()
 	const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets()
-	const { walletAddress } = useSolana()
 	const joinFactionDisclosure = useDisclosure()
 	const [isInFaction, setIsInFaction] = useState(true)
 	const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter()
@@ -50,7 +50,7 @@ export default function FactionPage() {
 			</Head>
 			<NavBar />
 			<Grid placeItems="center" minH="50vh">
-				{walletAddress ? (
+				{query?.wallet ? (
 					<>
 						<DashboardContainer>
 							<DashboardInfoContainer>

@@ -1,19 +1,21 @@
 import Head from "next/head"
 import { NavBar } from "@/components/nav"
-import { Grid } from "@chakra-ui/react"
+import { Grid, Spinner } from "@chakra-ui/react"
 import { useSolana } from "@/hooks/useSolana"
 import { PleaseSignInContainer } from "@/components/no-wallet.component"
 import { useEffect } from "react"
 import { useRouter } from "next/router"
 
 export default function Home() {
-	const { walletAddress } = useSolana()
-	const { push } = useRouter()
+	const { push, query } = useRouter()
 	useEffect(() => {
-		if (walletAddress) {
-			push("/character")
+		if (typeof query?.wallet === "string") {
+			push({
+				pathname: "/character",
+				query,
+			})
 		}
-	}, [walletAddress])
+	}, [query?.wallet, push, query])
 
 	return (
 		<>
@@ -25,7 +27,7 @@ export default function Home() {
 			</Head>
 			<NavBar />
 			<Grid placeItems="center" minH="50vh">
-				<PleaseSignInContainer />
+				{query?.wallet ? <Spinner /> : <PleaseSignInContainer />}
 			</Grid>
 		</>
 	)
