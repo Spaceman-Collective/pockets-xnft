@@ -55,7 +55,7 @@ export const SkillsTab: React.FC = () => {
 									?.filter((key) => !combatSkillKeys.includes(key.toLowerCase()))
 									?.sort((a, b) => a.localeCompare(b))
 									.map((key) => (
-										<>
+										<Box key={"container" + key}>
 											<SkillBox
 												key={"noncombat" + key}
 												onClick={selectSkill}
@@ -67,7 +67,7 @@ export const SkillsTab: React.FC = () => {
 													selectedCharacter.experience[key].threshold.toString()
 												}
 											/>
-										</>
+										</Box>
 									))}
 						</SkillContainer>
 						<SkillContainer isCombat>

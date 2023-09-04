@@ -52,7 +52,7 @@ export const MainContextProvider: FC<{ children: ReactNode }> = ({
 		if (!connected && !connecting && !disconnecting && pathname !== "/") {
 			push("/")
 		}
-	}, [connected, connecting, disconnecting, pathname, push])
+	}, [address, connected, connecting, disconnecting, pathname, push])
 
 	return (
 		<MainContext.Provider

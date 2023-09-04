@@ -30,10 +30,14 @@ export default function WalletPage() {
 						<DashboardMenu />
 					</DashboardMenuContainer>
 					<PersonalSection>
-						<Box m="0 auto">
-							<SectionContainer>
-								<WalletTabs />
-							</SectionContainer>
+						<Box
+							m="0 auto"
+							minH="72rem"
+							w="115rem"
+							borderRadius="0.5rem"
+							bgColor="brand.primary"
+						>
+							<WalletTabs />
 						</Box>
 					</PersonalSection>
 				</DashboardContainer>

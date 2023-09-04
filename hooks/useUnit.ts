@@ -8,7 +8,13 @@ import {
 } from "@/lib/API"
 
 export const useUnitRequestEquip = () => {
-	return useMutation(["unit-equip-request"], postCharacterUnitsEquipRequest)
+	return useMutation<
+		{ encodedTx: string },
+		unknown,
+		{ mint: string; unit: string; owner: string }
+	>(["unit-equip-request"], ({ mint, unit, owner }) =>
+		postCharacterUnitsEquipRequest(mint, unit, owner),
+	)
 }
 
 export const useUnitConfirmEquip = () => {
@@ -20,7 +26,13 @@ export const useUnitDequip = () => {
 }
 
 export const useUnitConsumeRequest = () => {
-	return useMutation(["unit-consume-request"], postCharacterUnitsConsumeRequest)
+	return useMutation<
+		{ encodedTx: string },
+		unknown,
+		{ mint: string; unit: string }
+	>(["unit-consume-request"], ({ mint, unit }) =>
+		postCharacterUnitsConsumeRequest(mint, unit),
+	)
 }
 
 export const useUnitConsumeConfirm = () => {
