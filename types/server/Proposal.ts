@@ -1,16 +1,26 @@
-export interface Proposal
-	extends Build,
-		Upgrade,
-		Withdraw,
-		Mint,
-		Allocate,
-		Threshold,
-		Tax,
-		Burn {
+interface ProposalBase {
 	created: string | number | Date
 	id?: string
-	type: string
+	faction: string
+	status: ProposalStatus
+	type: ProposalType
 }
+
+export enum ProposalStatus {
+	VOTING = "VOTING",
+	PASSED = "PASSED",
+	CLOSED = "CLOSED",
+}
+
+export type ProposalType =
+	| "BUILD"
+	| "UPGRADE"
+	| "WITHDRAW"
+	| "MINT"
+	| "ALLOCATE"
+	| "THRESHOLD"
+	| "TAX"
+	| "BURN"
 
 export const ProposalTypes = [
 	"BUILD",
@@ -22,38 +32,79 @@ export const ProposalTypes = [
 	"TAX",
 	"BURN",
 ]
-
-interface Build {
-	blueprintName?: string
+interface BuildProposal extends ProposalBase {
+	type: "BUILD"
+	proposal: {
+		type: "BUILD"
+		blueprintName: string
+	}
 }
 
-interface Upgrade {
-	stationId?: string | "Townhall"
+interface UpgradeProposal extends ProposalBase {
+	type: "UPGRADE"
+	proposal: {
+		type: "UPGRADE"
+		stationId: string
+	}
 }
 
-interface Withdraw {
-	citizen?: string //character mint
-	resources?: { resourceName: string; amount: number }[]
-	bonk?: string
+interface WithdrawProposal extends ProposalBase {
+	type: "WITHDRAW"
+	proposal: {
+		type: "WITHDRAW"
+		citizen: string
+		resources: { resourceName: string; amount: number }[]
+		bonk: string
+	}
 }
 
-interface Mint {
-	newSharesToMint?: string //bigint
+interface MintProposal extends ProposalBase {
+	type: "MINT"
+	proposal: {
+		type: "MINT"
+		newSharesToMint: string
+	}
 }
 
-interface Allocate {
-	citizen?: string
-	amount?: string
+interface AllocateProposal extends ProposalBase {
+	type: "ALLOCATE"
+	proposal: {
+		type: "ALLOCATE"
+		citizen: string
+		amount: string
+	}
 }
 
-interface Threshold {
-	newThreshold?: string //bigint
+interface ThresholdProposal extends ProposalBase {
+	type: "THRESHOLD"
+	proposal: {
+		type: "THRESHOLD"
+		newThreshold: string
+	}
 }
 
-interface Tax {
-	newTaxRate?: number
+interface TaxProposal extends ProposalBase {
+	type: "TAX"
+	proposal: {
+		type: "TAX"
+		newTaxRate: number
+	}
 }
 
-interface Burn {
-	resources?: { resourceName: string; amount: number }[]
+interface BurnProposal extends ProposalBase {
+	type: "BURN"
+	proposal: {
+		type: "BURN"
+		resources: { resourceName: string; amount: number }[]
+	}
 }
+
+export type Proposal =
+	| BuildProposal
+	| UpgradeProposal
+	| WithdrawProposal
+	| MintProposal
+	| AllocateProposal
+	| ThresholdProposal
+	| TaxProposal
+	| BurnProposal

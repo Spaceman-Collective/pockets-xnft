@@ -22,11 +22,8 @@ import {
 import { FactionTabs } from "@/components/dashboard/faction/tabs"
 import { useEffect, useState } from "react"
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
-import { PleaseSignInContainer } from "@/components/no-wallet.component"
-import { useRouter } from "next/router"
 
 export default function FactionPage() {
-	const { query } = useRouter()
 	const { data: allAssetData, isLoading: allAssetDataIsLoading } = useAssets()
 	const joinFactionDisclosure = useDisclosure()
 	const [isInFaction, setIsInFaction] = useState(true)
@@ -50,48 +47,42 @@ export default function FactionPage() {
 			</Head>
 			<NavBar />
 			<Grid placeItems="center" minH="50vh">
-				{query?.wallet ? (
-					<>
-						<DashboardContainer>
-							<DashboardInfoContainer>
-								<DashboardInfo />
-							</DashboardInfoContainer>
-							<DashboardMenuContainer>
-								<DashboardMenu />
-							</DashboardMenuContainer>
-							<FactionSection>
-								<CharacterList
-									data={allAssetData?.characters}
-									isLoading={allAssetDataIsLoading}
-									selectedCharacter={selectedCharacter}
-									setSelectedCharacter={setSelectedCharacter}
-								/>
-								<SectionContainer>
-									{!selectedCharacter ? (
-										<NoSelectedCharacter />
-									) : isInFaction ? (
-										<FactionTabs
-											currentCharacter={selectedCharacter!}
-											setFactionStatus={handleSetFactionStatus}
-										/>
-									) : (
-										<NoFaction
-											onOpenJoinFaction={joinFactionDisclosure.onOpen}
-											setFactionStatus={handleSetFactionStatus}
-										/>
-									)}
-								</SectionContainer>
-							</FactionSection>
-						</DashboardContainer>
-						<FactionModal
-							character={selectedCharacter!}
-							{...joinFactionDisclosure}
-							setFactionStatus={handleSetFactionStatus}
+				<DashboardContainer>
+					<DashboardInfoContainer>
+						<DashboardInfo />
+					</DashboardInfoContainer>
+					<DashboardMenuContainer>
+						<DashboardMenu />
+					</DashboardMenuContainer>
+					<FactionSection>
+						<CharacterList
+							data={allAssetData?.characters}
+							isLoading={allAssetDataIsLoading}
+							selectedCharacter={selectedCharacter}
+							setSelectedCharacter={setSelectedCharacter}
 						/>
-					</>
-				) : (
-					<PleaseSignInContainer />
-				)}
+						<SectionContainer>
+							{!selectedCharacter ? (
+								<NoSelectedCharacter />
+							) : isInFaction ? (
+								<FactionTabs
+									currentCharacter={selectedCharacter!}
+									setFactionStatus={handleSetFactionStatus}
+								/>
+							) : (
+								<NoFaction
+									onOpenJoinFaction={joinFactionDisclosure.onOpen}
+									setFactionStatus={handleSetFactionStatus}
+								/>
+							)}
+						</SectionContainer>
+					</FactionSection>
+				</DashboardContainer>
+				<FactionModal
+					character={selectedCharacter!}
+					{...joinFactionDisclosure}
+					setFactionStatus={handleSetFactionStatus}
+				/>
 			</Grid>
 		</>
 	)

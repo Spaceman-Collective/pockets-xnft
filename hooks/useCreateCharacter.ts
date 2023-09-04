@@ -1,6 +1,6 @@
-import { postCharCreate } from "@/lib/apiClient"
+import { postCharacterCreate } from "@/lib/API"
 import { useMutation } from "@tanstack/react-query"
 
 export const useCreateCharacter = () => {
-	return useMutation(["mint-char"], postCharCreate)
+	return useMutation(["mint-char"], postCharacterCreate)
 }

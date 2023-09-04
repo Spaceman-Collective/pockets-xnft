@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
-import { processProposal as processProposalRequest } from "@/lib/apiClient"
+import { postFactionProposalProcess as processProposalRequest } from "@/lib/API"
 import toast from "react-hot-toast"
 
 import { useQueryClient } from "@tanstack/react-query"

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { fetchProposalVotesByCitizen } from "@/lib/apiClient"
+import { getAccountsVote } from "@/lib/API"
 
 export const useProposalVotesByCitizen = (
 	{ mint, proposalId }: { mint: string | null; proposalId: string },
@@ -7,7 +7,7 @@ export const useProposalVotesByCitizen = (
 ) => {
 	return useQuery(
 		["proposal-votes-by-citizen", mint ?? "", proposalId ?? ""],
-		() => fetchProposalVotesByCitizen(mint!, proposalId),
+		() => getAccountsVote(mint!, proposalId),
 		{
 			enabled: isEnabled,
 		},

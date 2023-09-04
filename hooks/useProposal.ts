@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { fetchProposal } from "@/lib/apiClient"
+import { getFactionProposal } from "@/lib/API"
 
 // NOTE: not currently being used
 // export const useFetchProposal = () => {

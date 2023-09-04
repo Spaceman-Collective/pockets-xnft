@@ -1,5 +1,5 @@
 // Import other components where needed, for example:
-import React from "react"
+import React, { useContext } from "react"
 import toast from "react-hot-toast"
 
 import { PanelContainer } from "@/components/layout"
@@ -13,10 +13,10 @@ import { useQueryClient } from "@tanstack/react-query"
 import { CharacterEquipment } from "./CharacterEquipment"
 import { Header } from "./Header"
 import { UnitsList } from "./UnitsList"
+import { MainContext } from "@/contexts/MainContext"
 
-export const ArmyTab: React.FC<{ currentCharacter: Character }> = ({
-	currentCharacter,
-}) => {
+export const ArmyTab: React.FC = () => {
+	const { selectedCharacter } = useContext(MainContext)
 	const queryClient = useQueryClient()
 
 	const [loadingUnitDequip, setLoadingUnitDequip] =
@@ -36,8 +36,10 @@ export const ArmyTab: React.FC<{ currentCharacter: Character }> = ({
 		connection,
 	} = useSolana()
 
+	if (!selectedCharacter) return null
+
 	const handleDequipUnit = async (assetId: string) => {
-		const payload = { mint: currentCharacter.mint, assetId }
+		const payload = { mint: selectedCharacter.mint, assetId }
 
 		const txInstructions = [
 			buildMemoIx({ walletAddress: walletAddress || "", payload }),
@@ -74,7 +76,7 @@ export const ArmyTab: React.FC<{ currentCharacter: Character }> = ({
 	const combatSkillLevels = COMBAT_SKILLS.map((skill) => ({
 		skill,
 		level:
-			currentCharacter.skills[skill.charAt(0).toUpperCase() + skill.slice(1)],
+			selectedCharacter.skills[skill.charAt(0).toUpperCase() + skill.slice(1)],
 	}))
 
 	return (
@@ -84,7 +86,7 @@ export const ArmyTab: React.FC<{ currentCharacter: Character }> = ({
 				For each level in a given skill you can equip that many linked units.
 			</Text>
 			<CharacterEquipment
-				character={currentCharacter}
+				character={selectedCharacter}
 				handleDequipUnit={handleDequipUnit}
 				combatSkillLevels={combatSkillLevels}
 				selectedSkill={selectedSkill}
@@ -93,7 +95,7 @@ export const ArmyTab: React.FC<{ currentCharacter: Character }> = ({
 			/>
 			<Header title="Available Units" />
 			<UnitsList
-				character={currentCharacter}
+				character={selectedCharacter}
 				units={walletAssets?.units || []}
 				combatSkillLevels={combatSkillLevels}
 				selectedSkill={selectedSkill}

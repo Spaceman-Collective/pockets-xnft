@@ -1,28 +1,28 @@
 import { useMutation } from "@tanstack/react-query"
 import {
-	confirmEquipUnit,
-	dequipUnit,
-	postConsumeUnitConfirm,
-	postConsumeUnitRequest,
-	requestEquipUnit,
-} from "@/lib/apiClient"
+	postCharacterUnitsEquipConfirm,
+	postCharacterUnitsDequip,
+	postCharacterUnitsConsumeConfirm,
+	postCharacterUnitsConsumeRequest,
+	postCharacterUnitsEquipRequest,
+} from "@/lib/API"
 
 export const useUnitRequestEquip = () => {
-	return useMutation(["unit-equip-request"], requestEquipUnit)
+	return useMutation(["unit-equip-request"], postCharacterUnitsEquipRequest)
 }
 
 export const useUnitConfirmEquip = () => {
-	return useMutation(["unit-equip-confirm"], confirmEquipUnit)
+	return useMutation(["unit-equip-confirm"], postCharacterUnitsEquipConfirm)
 }
 
 export const useUnitDequip = () => {
-	return useMutation(["unit-dequip"], dequipUnit)
+	return useMutation(["unit-dequip"], postCharacterUnitsDequip)
 }
 
 export const useUnitConsumeRequest = () => {
-	return useMutation(["unit-consume-request"], postConsumeUnitRequest)
+	return useMutation(["unit-consume-request"], postCharacterUnitsConsumeRequest)
 }
 
 export const useUnitConsumeConfirm = () => {
-	return useMutation(["unit-consume-confirm"], postConsumeUnitConfirm)
+	return useMutation(["unit-consume-confirm"], postCharacterUnitsConsumeConfirm)
 }
