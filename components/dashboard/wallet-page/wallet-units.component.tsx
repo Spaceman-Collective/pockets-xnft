@@ -1,5 +1,5 @@
 import { Tip } from "@/components/tooltip"
-import { NFT, UNIT_TEMPLATES, Unit } from "@/types/server"
+import { NFT, UNIT_TEMPLATES, Unit, buildUnitFromNFT } from "@/types/server"
 import { Flex, Grid, HStack, Skeleton, Text, VStack } from "@chakra-ui/react"
 import { FC, ReactNode, useState } from "react"
 import { Value } from "./wallet-page.styles"
@@ -58,14 +58,7 @@ export const WalletUnitPanel: FC<{ isLoading: boolean; units?: NFT[] }> = ({
 											countUnit.name.toLowerCase() === templateUnit.name.toLowerCase(),
 									).length
 
-									const selectedUnit: Unit = {
-										...templateUnit,
-										mint: unit.mint,
-										assetId: "todo-replace-this",
-										bonus: {
-											[unit.attributes.Skill]: unit.attributes.Rank,
-										},
-									}
+									const selectedUnit: Unit = buildUnitFromNFT(unit)
 									return (
 										<TroopBox
 											key={unit.mint}
