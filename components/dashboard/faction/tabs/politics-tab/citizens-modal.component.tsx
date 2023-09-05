@@ -63,8 +63,6 @@ export const CitizenModal: FC<{
 	const [inputValue, setInputValue] = useState<string | number>("")
 	const [delegationInProgress, setDelegationInProgress] =
 		useState<boolean>(false)
-
-	const queryClient = useQueryClient()
 	const { selectedCharacter } = useContext(MainContext)
 
 	const { connection, walletAddress, signTransaction, encodeTransaction } =
