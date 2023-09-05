@@ -16,7 +16,7 @@ import {
 	VStack,
 	Spinner,
 } from "@chakra-ui/react"
-import { FC, useEffect, useState } from "react"
+import { FC, useContext, useEffect, useState } from "react"
 import styled from "@emotion/styled"
 import {
 	MdCheck,
@@ -48,6 +48,7 @@ import { useFaction } from "@/hooks/useFaction"
 import { useFactionVP } from "@/hooks/useFactionVP"
 import { decode } from "bs58"
 import { LeaveFactionModal } from "../../leave-faction.component"
+import { MainContext } from "@/contexts/MainContext"
 
 export const CitizenModal: FC<{
 	citizens: Character[]
@@ -64,7 +65,8 @@ export const CitizenModal: FC<{
 		useState<boolean>(false)
 
 	const queryClient = useQueryClient()
-	const [selectedCharacter] = useSelectedCharacter()
+	const { selectedCharacter } = useContext(MainContext)
+
 	const { connection, walletAddress, signTransaction, encodeTransaction } =
 		useSolana()
 	const { data: currentCitizen, isLoading: isCitizenLoading } = useCitizen(
