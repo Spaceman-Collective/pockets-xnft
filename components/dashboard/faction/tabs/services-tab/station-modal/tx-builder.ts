@@ -85,30 +85,27 @@ export const startStationProcess = async ({
 		if (encodedTx instanceof Error || encodedTx === undefined)
 			return toast.error("Failed to start station")
 
-		mutateStartStation(
-			{ signedTx: encodedTx },
-			{
-				onSuccess: () => {
-					queryClient.refetchQueries({
-						queryKey: ["char-timers", selectedCharacter.mint],
-					})
-					queryClient.refetchQueries({ queryKey: ["assets"] })
-					queryClient.refetchQueries({ queryKey: ["wallet-assets", walletAddress] })
-					startCountdown()
-					toast.success("You've started a build in the " + station?.blueprint)
-				},
-				onError: (e: any) => {
-					const errorMessage = e?.response?.data?.error
-					const errorWrongFaction =
-						errorMessage === "Can only use stations in your faction!"
-							? " Reselect character to fix."
-							: ""
-					toast.error(
-						"Ooops! Did not start station: \n\n" + errorMessage + errorWrongFaction,
-					)
-				},
+		mutateStartStation(encodedTx, {
+			onSuccess: () => {
+				queryClient.refetchQueries({
+					queryKey: ["char-timers", selectedCharacter.mint],
+				})
+				queryClient.refetchQueries({ queryKey: ["assets"] })
+				queryClient.refetchQueries({ queryKey: ["wallet-assets", walletAddress] })
+				startCountdown()
+				toast.success("You've started a build in the " + station?.blueprint)
 			},
-		)
+			onError: (e: any) => {
+				const errorMessage = e?.response?.data?.error
+				const errorWrongFaction =
+					errorMessage === "Can only use stations in your faction!"
+						? " Reselect character to fix."
+						: ""
+				toast.error(
+					"Ooops! Did not start station: \n\n" + errorMessage + errorWrongFaction,
+				)
+			},
+		})
 	} catch (err) {
 		toast.error("Oops! That didn't work: \n\n" + JSON.stringify(err))
 	}

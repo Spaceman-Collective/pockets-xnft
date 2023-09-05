@@ -403,7 +403,7 @@ export const CreateProposal: React.FC<{
 								{proposalType === "TAX" && (
 									<Box mb="2rem" w="100%">
 										<NumberInput
-											defaultValue={0}
+											value={proposal.newTaxRate} // Use the state value directly
 											max={100}
 											min={0}
 											onChange={(value) =>
@@ -419,7 +419,6 @@ export const CreateProposal: React.FC<{
 												fontSize="14px"
 												borderRadius="4px"
 												borderColor={colors.blacks[600]}
-												defaultValue={0}
 												min={0}
 												max={100}
 											/>

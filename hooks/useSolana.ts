@@ -233,7 +233,7 @@ const encodeTransaction = async ({
 	}
 }
 
-const sendTransaction = async ({
+export const sendTransaction = async ({
 	connection,
 	ixs,
 	wallet,
@@ -246,6 +246,7 @@ const sendTransaction = async ({
 }) => {
 	if (!wallet || !ixs || !signTransaction) return
 	const { blockhash } = await connection!.getLatestBlockhash()
+	console.log("bh: ", blockhash)
 
 	const txMsg = new TransactionMessage({
 		payerKey: new PublicKey(wallet),
@@ -255,6 +256,11 @@ const sendTransaction = async ({
 
 	const tx = new VersionedTransaction(txMsg)
 	if (!tx) return
+
+	console.log(
+		"handleVote entx: ",
+		Buffer.from(tx.serialize()).toString("base64"),
+	)
 
 	if (window?.xnft?.solana?.isXnft) {
 		const signedTx = await window?.xnft?.solana?.signTransaction(tx)

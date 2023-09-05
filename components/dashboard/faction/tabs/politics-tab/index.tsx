@@ -13,7 +13,7 @@ import { css } from "@emotion/react"
 import { Label, PanelContainer, Value, ValueCalculation } from "../tab.styles"
 import { colors } from "@/styles/defaultTheme"
 import styled from "@emotion/styled"
-import { useSolana } from "@/hooks/useSolana"
+import { sendTransaction, useSolana } from "@/hooks/useSolana"
 import { Character } from "@/types/server"
 import { useContext, useEffect, useState } from "react"
 import { CreateProposal } from "../../create-proposal-modal/create-proposal.component"
@@ -68,16 +68,21 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 	openCitizenModal,
 }) => {
 	const { selectedCharacter: currentCharacter } = useContext(MainContext)
-	const factionId = currentCharacter?.faction?.id ?? ""
 	const [isLoading, setIsLoading] = useState(false)
 	const [voteThreshold, setVoteThreshold] = useState<string>("")
 	const [votingPower, setVotingPower] = useState<string>("")
 	const [proposalIds, setProposalIds] = useState<string[]>()
 	const [allProposalIds, setAllProposalIds] = useState<string[]>()
+	const factionId = currentCharacter?.faction?.id ?? ""
 
 	const { data: factionData } = useFaction({ factionId })
-	const { connection, walletAddress, signTransaction, encodeTransaction } =
-		useSolana()
+	const {
+		connection,
+		walletAddress,
+		signTransaction,
+		encodeTransaction,
+		sendTransaction,
+	} = useSolana()
 	const {
 		data: allVotingProposals,
 		isLoading: allVotingProposalsIsLoading,
@@ -87,7 +92,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 		data: allProposals,
 		isLoading: allProposalsIsLoading,
 		isError: allProposalsError,
-	} = useAllProposalsByFaction(factionId, 0, 300)
+	} = useAllProposalsByFaction(factionId)
 	const { data: citizen, isLoading: isCitizenLoading } = useCitizen(
 		currentCharacter?.mint!,
 		connection,
@@ -468,39 +473,28 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 	const handleVote = async (votingAmt: number) => {
 		setIsVoteInProgress(true)
 		try {
-			const encodedSignedTx = await encodeTransaction({
-				walletAddress,
+			const ix = await voteOnProposalIx(
 				connection,
+				new PublicKey(walletAddress!),
+				new PublicKey(currentCharacter?.mint!),
+				proposalId!,
+				votingAmt,
+				currentCharacter?.faction?.id!,
+			)
+			const sig = await sendTransaction({
+				connection,
+				ixs: [ix],
+				wallet: walletAddress!,
 				signTransaction,
-				txInstructions: [
-					await voteOnProposalIx(
-						connection,
-						new PublicKey(walletAddress!),
-						new PublicKey(currentCharacter?.mint!),
-						proposalId!,
-						votingAmt,
-						currentCharacter?.faction?.id!,
-					),
-				],
 			})
-
-			if (typeof encodedSignedTx === "string") {
-				const sig = await connection.sendRawTransaction(decode(encodedSignedTx))
-				toast.success("Vote successful!")
-			} else {
-				toast.error("Vote failed!")
-			}
 			setLocalVote("")
-			// await new Promise((resolve) => setTimeout(resolve, 5000));
-			// queryClient.refetchQueries(["proposalInfo"]);
-			// queryClient.refetchQueries(["citizen", currentCharacter?.mint]).then(() => {
-			//   setIsVoteInProgress(false);
-			// });
+
 			await new Promise((resolve) => setTimeout(resolve, 15000))
 
 			queryClient.refetchQueries(["proposalInfo", proposalId]).then(() => {
 				queryClient.refetchQueries({ queryKey: ["citizen"] }).then(() => {
 					setIsVoteInProgress(false)
+					toast.success("Vote successful!")
 				})
 			})
 		} catch (e) {
@@ -520,35 +514,24 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 				isIncrement = false
 				normalizedVotingAmt *= -1
 			}
-			const encodedSignedTx = await encodeTransaction({
-				walletAddress,
+
+			const ix = await updateVoteOnProposalIx(
 				connection,
+				new PublicKey(walletAddress!),
+				new PublicKey(currentCharacter?.mint!),
+				proposalId!,
+				votingAmt,
+				currentCharacter?.faction?.id!,
+				isIncrement,
+			)
+			const sig = await sendTransaction({
+				connection,
+				ixs: [ix],
+				wallet: walletAddress!,
 				signTransaction,
-				txInstructions: [
-					await updateVoteOnProposalIx(
-						connection,
-						new PublicKey(walletAddress!),
-						new PublicKey(currentCharacter?.mint!),
-						proposalId!,
-						votingAmt,
-						currentCharacter?.faction?.id!,
-						isIncrement,
-					),
-				],
 			})
 
-			if (typeof encodedSignedTx === "string") {
-				const sig = await connection.sendRawTransaction(decode(encodedSignedTx))
-			} else {
-				toast.error("Failed to update vote")
-			}
-
 			setLocalVote("")
-			// await new Promise((resolve) => setTimeout(resolve, 5000));
-			// queryClient.refetchQueries(["proposalInfo"]);
-			// queryClient.refetchQueries(["citizen", currentCharacter?.mint]).then(() => {
-			//   setIsVoteInProgress(false);
-			// });
 			await new Promise((resolve) => setTimeout(resolve, 15000))
 
 			queryClient.refetchQueries(["proposalInfo", proposalId]).then(() => {
