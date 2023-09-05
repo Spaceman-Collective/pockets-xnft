@@ -40,6 +40,10 @@ export default function FactionPage() {
 		setIsInFaction(status)
 	}
 
+	useEffect(() => {
+		console.log("sc: ", selectedCharacter)
+	}, [selectedCharacter])
+
 	return (
 		<>
 			<Head>

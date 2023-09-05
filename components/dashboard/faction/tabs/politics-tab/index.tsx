@@ -54,21 +54,21 @@ import { useProposalVotesAll } from "@/hooks/useProposalVotesAll"
 import { useQueryClient } from "@tanstack/react-query"
 import { ToolTip } from "@/styles/brand-components"
 import { Tip } from "@/components/tooltip"
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 
 const spacing = "1rem"
 type FactionTabPoliticsProps = {
-	currentCharacter: Character
 	setFactionStatus: (value: boolean) => void
 	fire: () => void
 	openCitizenModal: () => void
 }
 
 export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
-	currentCharacter,
 	setFactionStatus,
 	fire: fireConfetti,
 	openCitizenModal,
 }) => {
+
 	const factionId = currentCharacter?.faction?.id ?? ""
 	const [isLoading, setIsLoading] = useState(false)
 	const [voteThreshold, setVoteThreshold] = useState<string>("")
@@ -78,18 +78,17 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 	const { data: factionData } = useFaction({ factionId })
 	const { connection, walletAddress, signTransaction, encodeTransaction } =
 		useSolana()
-
 	const {
 		data: allProposals,
 		isLoading: allProposalsIsLoading,
 		isError,
 	} = useFetchProposalsByFaction(factionId, 0, 50)
 	const { data: citizen, isLoading: isCitizenLoading } = useCitizen(
-		currentCharacter?.mint,
+		currentCharacter?.mint!,
 		connection,
 	)
 	const { data: vT, isLoading: isThresholdLoading } = useVoteThreshold(
-		currentCharacter,
+		currentCharacter!,
 		connection,
 	)
 	const { data: votesData } = useProposalVotesAll(proposalIds)
@@ -235,7 +234,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 					</Flex>
 					<Flex alignItems="end">
 						<CreateProposal
-							currentCharacter={currentCharacter}
+							currentCharacter={currentCharacter!}
 							fire={fireConfetti}
 							factionData={factionData}
 						/>
@@ -250,7 +249,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 						<ProposalItem
 							key={proposal.id}
 							proposal={proposal}
-							currentCharacter={currentCharacter}
+							currentCharacter={currentCharacter!}
 							voteThreshold={voteThreshold}
 							setIsLoading={setIsLoading}
 							connection={connection}

@@ -6,6 +6,7 @@ import {
 import { FC, ReactNode, useCallback, useMemo, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { useSolana } from "@/hooks/useSolana"
+import { CharacterProvider } from "./CharacterProvider"
 
 const ReactUIWalletModalProviderDynamic = dynamic(
 	async () =>
@@ -25,11 +26,10 @@ export const ContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 	}, [])
 
 	return (
-		// TODO: updates needed for updating and referencing endpoint: wallet adapter rework
 		<ConnectionProvider endpoint={endpoint as string}>
 			<WalletProvider wallets={wallets} onError={onError} autoConnect>
 				<ReactUIWalletModalProviderDynamic>
-					{children}
+					<CharacterProvider>{children}</CharacterProvider>
 				</ReactUIWalletModalProviderDynamic>
 			</WalletProvider>
 		</ConnectionProvider>

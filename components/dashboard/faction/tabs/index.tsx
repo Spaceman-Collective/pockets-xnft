@@ -7,11 +7,20 @@ import { CitizenModal } from "./politics-tab/citizens-modal.component"
 import { FactionTabResources } from "./resources-tab"
 import { FactionTabServices } from "./services-tab"
 import { useEffect } from "react"
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
+import { useRouter } from "next/router"
 
 export const FactionTabs: React.FC<{
-	currentCharacter: Character
 	setFactionStatus: (value: boolean) => void
-}> = ({ currentCharacter, setFactionStatus }) => {
+}> = ({ setFactionStatus }) => {
+	const router = useRouter()
+	const mintFromURL = router.query.mint as string | undefined
+	const [currentCharacter] = useSelectedCharacter(mintFromURL!)
+
+	useEffect(() => {
+		console.log("sc: ", mintFromURL)
+	}, [mintFromURL])
+
 	const citizenDisclosure = useDisclosure()
 	const factionId = currentCharacter?.faction?.id ?? ""
 	const { data: factionData } = useFaction({ factionId })

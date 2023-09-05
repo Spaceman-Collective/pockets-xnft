@@ -27,15 +27,16 @@ import { ModalRfProspect } from "./prospect-modal.component"
 import { ResourceGridContainer } from "../../resources-grid.component"
 import Confetti from "@/components/Confetti"
 import { useQueryClient } from "@tanstack/react-query"
+import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 
 const spacing = "1rem"
 export const FactionTabResources: React.FC<{
-	currentCharacter: Character
 	setFactionStatus: (value: boolean) => void
-}> = ({ currentCharacter }) => {
+}> = ({ setFactionStatus }) => {
 	const discoverDisclosure = useDisclosure()
 	const prospectDisclosure = useDisclosure()
 	const queryClient = useQueryClient()
+	// const [currentCharacter] = useSelectedCharacter()
 
 	const { data: factionData, isLoading: factionIsLoading } = useFaction({
 		factionId: currentCharacter?.faction?.id ?? "",
@@ -66,6 +67,15 @@ export const FactionTabResources: React.FC<{
 	useEffect(() => {
 		refetchRFAllocation().then((data) => setDiscoverableData(data.data))
 	}, [refetchRFAllocation])
+
+	if (!currentCharacter) {
+		return (
+			<HStack spacing={4} justify="center" align="center" height="100vh">
+				<Spinner />
+				<Text>Loading...</Text>
+			</HStack>
+		)
+	}
 
 	return (
 		<PanelContainer display="flex" flexDirection="column" gap="4rem">
@@ -114,16 +124,18 @@ export const FactionTabResources: React.FC<{
 				fire={fireConfetti}
 				{...discoverDisclosure}
 			/>
-			<ModalRfProspect
-				setDiscoverableData={setDiscoverableData}
-				refetchRFAllocation={refetchRFAllocation}
-				rf={discoverableData}
-				charMint={currentCharacter.mint}
-				factionId={currentCharacter?.faction?.id}
-				currentCharacter={currentCharacter}
-				{...prospectDisclosure}
-				fire={fireConfetti}
-			/>
+			{currentCharacter && (
+				<ModalRfProspect
+					setDiscoverableData={setDiscoverableData}
+					refetchRFAllocation={refetchRFAllocation}
+					rf={discoverableData}
+					charMint={currentCharacter.mint}
+					factionId={currentCharacter.faction?.id}
+					currentCharacter={currentCharacter}
+					{...prospectDisclosure}
+					fire={fireConfetti}
+				/>
+			)}
 			{confetti && <Confetti canFire={confetti} />}
 		</PanelContainer>
 	)
