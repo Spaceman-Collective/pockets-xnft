@@ -1,0 +1,22 @@
+{
+  "name": "Pockets GG",
+  "version": "1.0.0",
+  "storage": "aws",
+  "description": "Social coordination game on Solana.",
+  "website": "https://pockets.gg",
+  "kind": "app",
+  "icon": {
+    "md": "./screenshots/collection.png"
+  },
+  "contact": "https://twitter.com/spacemandev",
+  "screenshots": [
+    "./screenshots/01.png",
+    "./screenshots/02.png",
+    "./screenshots/03.png"
+  ],
+  "entrypoints": {
+    "default": {
+      "web": "https://app.pockets.gg"
+    }
+  }
+}
