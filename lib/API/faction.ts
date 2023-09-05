@@ -121,6 +121,23 @@ export const getFactionProposals = async (
 	})
 }
 
+export const getAllFactionProposals = async (
+	faction: string,
+	skip: number,
+	take: number,
+) => {
+	return apiRequest<{
+		proposals: Proposal[]
+		skip: string
+		take: string
+		total: number
+	}>("get", "/faction/proposals/all", {
+		faction,
+		skip,
+		take,
+	})
+}
+
 // TODO: Add the correct return type in the generic
 export const postFactionProposalProcess = async (proposalId: string) => {
 	return apiRequest("post", "/faction/proposal/process", { id: proposalId })

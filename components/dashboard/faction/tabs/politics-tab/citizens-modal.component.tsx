@@ -34,7 +34,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 import { PublicKey } from "@solana/web3.js"
 import { useSolana } from "@/hooks/useSolana"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import {
 	adjustVoteDelegation,
 	delegateVotes,
@@ -52,11 +51,12 @@ import { LeaveFactionModal } from "../../leave-faction.component"
 import { MainContext } from "@/contexts/MainContext"
 
 export const CitizenModal: FC<{
+	selectedCharacter: Character
 	citizens: Character[]
 	onClose: () => void
 	isOpen: boolean
 	setFactionStatus: (value: boolean) => void
-}> = ({ citizens, onClose, isOpen, setFactionStatus }) => {
+}> = ({ selectedCharacter, citizens, onClose, isOpen, setFactionStatus }) => {
 	const [actionType, setActionType] = useState<
 		"delegate" | "transfer" | "reclaim" | null
 	>(null)
@@ -64,7 +64,6 @@ export const CitizenModal: FC<{
 	const [inputValue, setInputValue] = useState<string | number>("")
 	const [delegationInProgress, setDelegationInProgress] =
 		useState<boolean>(false)
-	const { selectedCharacter } = useContext(MainContext)
 
 	const { connection, walletAddress, signTransaction, encodeTransaction } =
 		useSolana()

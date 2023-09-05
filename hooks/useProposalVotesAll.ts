@@ -6,11 +6,12 @@ import {
 	getVoteAccount,
 } from "@/lib/solanaClient"
 import { Connection, PublicKey } from "@solana/web3.js"
-import { useSelectedCharacter } from "./useSelectedCharacter"
 import { useSolana } from "./useSolana"
+import { useContext } from "react"
+import { MainContext } from "@/contexts/MainContext"
 
 export const useProposalVotesAll = (proposalIds: string[] | undefined) => {
-	const [selectedCharacter] = useSelectedCharacter()
+	const { selectedCharacter } = useContext(MainContext)
 	const { connection } = useSolana()
 
 	const defaultQueryResult = {

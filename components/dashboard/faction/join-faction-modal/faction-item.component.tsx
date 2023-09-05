@@ -32,6 +32,8 @@ export const FactionBox: FC<FactionBoxProps> = ({
 	const queryClient = useQueryClient()
 	const onSuccess = (data: any) => {
 		queryClient.refetchQueries({ queryKey: ["assets"] })
+		queryClient.refetchQueries({ queryKey: ["citizen"] })
+		queryClient.refetchQueries({ queryKey: ["fetch-faction"] })
 		toast.success("Successfully joined faction:" + faction.name)
 		setFactionStatus(true)
 		onClose()

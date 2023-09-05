@@ -1,6 +1,3 @@
-import { useEffect, useState } from "react"
-import { useSolana } from "./useSolana"
-import { useSelectedCharacter } from "./useSelectedCharacter"
 import { getFactionPDA, getFactionAccount } from "@/lib/solanaClient"
 import { Connection } from "@solana/web3.js"
 import { Character } from "@/types/server"

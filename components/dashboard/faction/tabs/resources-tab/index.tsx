@@ -27,7 +27,6 @@ import { ModalRfProspect } from "./prospect-modal.component"
 import { ResourceGridContainer } from "../../resources-grid.component"
 import Confetti from "@/components/Confetti"
 import { useQueryClient } from "@tanstack/react-query"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { MainContext } from "@/contexts/MainContext"
 
 const spacing = "1rem"
@@ -151,7 +150,7 @@ const Header: React.FC<{
 			<Title verticalAlign="end">{factionName!}</Title>
 			<Tip label="Percentage that the faction takes of each harvest. Adjusted through Politics.">
 				<HStack alignItems="end">
-					<Label>Faction Tax Rate</Label>
+					<Label mb="0.25rem">Faction Tax Rate</Label>
 					<Value>{taxRate}%</Value>
 				</HStack>
 			</Tip>

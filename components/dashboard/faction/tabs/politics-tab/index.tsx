@@ -17,7 +17,8 @@ import { useSolana } from "@/hooks/useSolana"
 import { Character } from "@/types/server"
 import { useContext, useEffect, useState } from "react"
 import { CreateProposal } from "../../create-proposal-modal/create-proposal.component"
-import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction"
+import { useProposalsByFaction } from "@/hooks/useProposalsByFaction"
+import { useAllProposalsByFaction } from "@/hooks/useAllProposalsByFaction"
 import { Proposal } from "@/types/server/Proposal"
 import {
 	Connection,
@@ -52,7 +53,6 @@ import { useProposalVotesAll } from "@/hooks/useProposalVotesAll"
 import { useQueryClient } from "@tanstack/react-query"
 import { ToolTip } from "@/styles/brand-components"
 import { Tip } from "@/components/tooltip"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { MainContext } from "@/contexts/MainContext"
 
 const spacing = "1rem"
@@ -73,15 +73,21 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 	const [voteThreshold, setVoteThreshold] = useState<string>("")
 	const [votingPower, setVotingPower] = useState<string>("")
 	const [proposalIds, setProposalIds] = useState<string[]>()
+	const [allProposalIds, setAllProposalIds] = useState<string[]>()
 
 	const { data: factionData } = useFaction({ factionId })
 	const { connection, walletAddress, signTransaction, encodeTransaction } =
 		useSolana()
 	const {
+		data: allVotingProposals,
+		isLoading: allVotingProposalsIsLoading,
+		isError: allVotingProposalsError,
+	} = useProposalsByFaction(factionId, 0, 100)
+	const {
 		data: allProposals,
 		isLoading: allProposalsIsLoading,
-		isError,
-	} = useFetchProposalsByFaction(factionId, 0, 50)
+		isError: allProposalsError,
+	} = useAllProposalsByFaction(factionId, 0, 300)
 	const { data: citizen, isLoading: isCitizenLoading } = useCitizen(
 		currentCharacter?.mint!,
 		connection,
@@ -94,14 +100,25 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 
 	useEffect(() => {
 		if (Array.isArray(allProposals) && !allProposalsIsLoading) {
-			console.log("all proposals is: ", allProposals)
-			setProposalIds(
+			console.log("all proposals are: ", allProposals)
+			setAllProposalIds(
 				allProposals
 					.map((proposal: Proposal) => proposal.id)
 					.filter(Boolean) as string[],
 			)
 		}
-	}, [allProposals, allProposalsIsLoading, votesData])
+	}, [allProposals, allProposalsIsLoading])
+
+	useEffect(() => {
+		if (Array.isArray(allVotingProposals) && !allVotingProposalsIsLoading) {
+			console.log("all voting proposals are: ", allVotingProposals)
+			setProposalIds(
+				allVotingProposals
+					.map((proposal: Proposal) => proposal.id)
+					.filter(Boolean) as string[],
+			)
+		}
+	}, [allVotingProposals, allVotingProposalsIsLoading])
 
 	useEffect(() => {
 		if (votesData) {
@@ -121,9 +138,9 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 
 	useEffect(() => {
 		setFactionStatus(!!currentCharacter?.faction)
-	}, [currentCharacter, allProposals, setFactionStatus])
+	}, [currentCharacter, setFactionStatus])
 
-	const sortedProposals = allProposals?.proposals
+	const sortedProposals = allVotingProposals?.proposals
 		?.slice()
 		.sort((a: Proposal, b: Proposal) => {
 			return new Date(b.created).getTime() - new Date(a.created).getTime()
@@ -136,7 +153,6 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 		await new Promise((resolve) => setTimeout(resolve, 1000))
 
 		const vA = await getVoteAccount(connection, votePDA)
-		console.log("proposalVotes voteAccount: ", vA)
 		await new Promise((resolve) => setTimeout(resolve, 1000))
 
 		return vA ? parseInt(vA.voteAmt.toString(), 10) : 0
@@ -181,19 +197,21 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 
 	const reclaimProposalVotes = async () => {
 		setIsLoading(true)
-		if (!proposalIds || proposalIds.length === 0) {
-			console.log("No proposals to fetch votes for")
+		if (!allProposalIds || allProposalIds.length === 0) {
+			toast.error("You have no outstanding votes")
 			setIsLoading(false)
 			return
 		}
-		const voteAmounts = await Promise.all(proposalIds.map(fetchVotesForProposal))
+		const voteAmounts = await Promise.all(
+			allProposalIds.map(fetchVotesForProposal),
+		)
 
-		for (let i = 0; i < proposalIds.length; i++) {
-			const proposalId = proposalIds[i]
+		for (let i = 0; i < allProposalIds.length; i++) {
+			const currentProposalId = allProposalIds[i]
 			const voteAmount = voteAmounts[i]
 
 			if (voteAmount > 0) {
-				await updateVote(-voteAmount, proposalId)
+				await updateVote(-voteAmount, currentProposalId)
 			}
 		}
 
@@ -204,7 +222,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 	useEffect(() => {}, [factionData, currentCharacter?.faction])
 
 	const renderContent = () => {
-		if (isLoading || allProposalsIsLoading || isError) {
+		if (isLoading || allVotingProposalsIsLoading || allVotingProposalsError) {
 			return (
 				<VStack gap={spacing} align="center">
 					<LoadingContainer>
@@ -241,7 +259,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 						/>
 					</Flex>
 				</Flex>
-				{allProposals.total === 0 ? (
+				{allVotingProposals.total === 0 ? (
 					<ProposalAction>
 						<Value>NO PROPOSALS CREATED</Value>
 					</ProposalAction>
@@ -439,13 +457,6 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 	)
 	const { voteAccountExists, totalVoteAmount, personalVoteAmount } = data
 
-	useEffect(() => {
-		if (voteAccountExists) {
-			console.log("tVA: ", totalVoteAmount)
-			console.log("pVA: ", personalVoteAmount)
-		}
-	}, [personalVoteAmount, totalVoteAmount, voteAccountExists])
-
 	const validateInput = (): boolean => {
 		const isValid = !!localVote.trim() && !isNaN(parseInt(localVote))
 		setInputError(isValid ? null : "Invalid vote input")
@@ -528,7 +539,8 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 
 			if (typeof encodedSignedTx === "string") {
 				const sig = await connection.sendRawTransaction(decode(encodedSignedTx))
-				toast.success("Update vote successful!")
+			} else {
+				toast.error("Failed to update vote")
 			}
 
 			setLocalVote("")
@@ -542,10 +554,12 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 			queryClient.refetchQueries(["proposalInfo", proposalId]).then(() => {
 				queryClient.refetchQueries({ queryKey: ["citizen"] }).then(() => {
 					setIsVoteInProgress(false)
+					toast.success("Update vote successful!")
 				})
 			})
 		} catch (e) {
-			console.log("Update failed: ", e)
+			console.log("Update vote failed: ", e)
+			toast.error("Failed to update vote")
 			setIsVoteInProgress(false)
 		}
 	}

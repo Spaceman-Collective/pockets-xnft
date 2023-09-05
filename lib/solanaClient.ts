@@ -64,7 +64,10 @@ export async function getCitizenAccount(
 	connection: Connection,
 	citizenPDA: PublicKey,
 ) {
-	if (!connection || !citizenPDA) return
+	if (!connection || !citizenPDA) {
+		console.log("gCA connection: ", connection, "cPDA: ", citizenPDA)
+		return
+	}
 	const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
 		pocketsIDL,
 		POCKETS_PROGRAM_PROGRAMID,

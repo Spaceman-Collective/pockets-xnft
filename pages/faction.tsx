@@ -21,7 +21,6 @@ import {
 } from "@/components/dashboard/faction/no-faction.component"
 import { FactionTabs } from "@/components/dashboard/faction/tabs"
 import { useContext, useEffect, useState } from "react"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { MainContext } from "@/contexts/MainContext"
 
 export default function FactionPage() {

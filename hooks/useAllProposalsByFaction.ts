@@ -2,7 +2,7 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query"
 import { getFactionProposals } from "@/lib/API"
 import { Proposal } from "@/types/server/Proposal"
 
-export const useProposalsByFaction = (
+export const useAllProposalsByFaction = (
 	faction?: string,
 	skip?: number,
 	take?: number,

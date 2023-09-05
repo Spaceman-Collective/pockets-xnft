@@ -1,5 +1,4 @@
 import { Tip } from "@/components/tooltip"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { useSolana } from "@/hooks/useSolana"
 import { useUnitConsumeConfirm, useUnitConsumeRequest } from "@/hooks/useUnit"
 import { getLocalImage } from "@/lib/utils"
@@ -17,7 +16,8 @@ import { Transaction } from "@solana/web3.js"
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes"
 import { useQueryClient } from "@tanstack/react-query"
 import toast from "react-hot-toast"
-import { FC, ReactNode, useState } from "react"
+import { FC, ReactNode, useContext, useState } from "react"
+import { MainContext } from "@/contexts/MainContext"
 
 interface UnitPlusRank extends Unit {
 	rank: string
@@ -29,7 +29,7 @@ export const ConsumeUnitContainer: FC<{
 	unitsInWallet?: UnitPlusRank[]
 }> = ({ unit, unitsInWallet }) => {
 	const { signTransaction, walletAddress } = useSolana()
-	const [selectedChar, _] = useSelectedCharacter()
+	const { selectedCharacter: selectedChar } = useContext(MainContext)
 	const img = getLocalImage({ type: "units", name: unit.name })
 	const [removedMints, setRemovedMints] = useState([""]) // for optimistic removals
 	const [isLoadingRequest, setIsLoadingRequest] = useState<boolean | string>(

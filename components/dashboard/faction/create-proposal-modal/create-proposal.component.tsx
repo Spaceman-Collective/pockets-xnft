@@ -24,7 +24,7 @@ import {
 	Spinner,
 } from "@chakra-ui/react"
 import { colors } from "@/styles/defaultTheme"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { css } from "@emotion/react"
 import styled from "@emotion/styled"
 import { useCreateFaction } from "@/hooks/useCreateFaction"
@@ -37,8 +37,7 @@ import {
 	ProposalTypes,
 } from "@/types/server"
 import { useCreateProposal } from "@/hooks/useCreateProposal"
-import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
+import { useProposalsByFaction } from "@/hooks/useProposalsByFaction"
 import toast from "react-hot-toast"
 import { BLUEPRINTS } from "@/types/server/Station"
 import { FaTimes } from "react-icons/fa"
@@ -46,6 +45,7 @@ import { z } from "zod"
 import { useFaction } from "@/hooks/useFaction"
 import { Value } from "../tabs/tab.styles"
 import { useQueryClient } from "@tanstack/react-query"
+import { MainContext } from "@/contexts/MainContext"
 
 export const CreateProposal: React.FC<{
 	factionData: FactionData
@@ -53,7 +53,7 @@ export const CreateProposal: React.FC<{
 	fire: () => void
 }> = ({ currentCharacter, fire: fireConfetti, factionData }) => {
 	const { mutate, isLoading } = useCreateProposal()
-	const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter()
+	const { selectedCharacter } = useContext(MainContext)
 	const {
 		connection,
 		walletAddress,
@@ -64,7 +64,7 @@ export const CreateProposal: React.FC<{
 		getBonkBalance,
 	} = useSolana()
 
-	const { data: allProposals, refetch } = useFetchProposalsByFaction(
+	const { data: allProposals, refetch } = useProposalsByFaction(
 		currentCharacter?.faction?.id,
 		0,
 		10,

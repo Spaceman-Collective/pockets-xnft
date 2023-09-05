@@ -26,6 +26,7 @@ export const FactionTabs: React.FC<{
 			{factionData?.citizens && (
 				<CitizenModal
 					{...citizenDisclosure}
+					selectedCharacter={selectedCharacter!}
 					citizens={factionData.citizens}
 					setFactionStatus={setFactionStatus}
 				/>

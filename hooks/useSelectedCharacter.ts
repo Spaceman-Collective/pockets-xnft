@@ -13,16 +13,16 @@ export const useSelectedCharacter = (): [
 
 	const setSelectedChar = useCallback((character?: Character | null) => {
 		if (character) {
-			sessionStorage.setItem(storedCharKey, JSON.stringify(character))
+			localStorage.setItem(storedCharKey, JSON.stringify(character))
 		} else {
-			sessionStorage.removeItem(storedCharKey)
+			localStorage.removeItem(storedCharKey)
 		}
 
 		setSelectedCharacter(character)
 	}, [])
 
 	useEffect(() => {
-		const char = sessionStorage.getItem(storedCharKey)
+		const char = localStorage.getItem(storedCharKey)
 		if (char) {
 			setSelectedCharacter(JSON.parse(char))
 		}

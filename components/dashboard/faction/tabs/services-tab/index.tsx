@@ -17,7 +17,6 @@ import { StationBox, Title } from "./service-tab.styles"
 import { RemainingSlot } from "./remaining-slot.component"
 import { getLocalImage } from "@/lib/utils"
 import { BuildingInfoModal } from "./buildingInfo-modal"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { MainContext } from "@/contexts/MainContext"
 
 const stationSize = "7rem"

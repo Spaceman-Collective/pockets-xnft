@@ -1,14 +1,14 @@
 import { Tip } from "@/components/tooltip"
 import { RESOURCES, RESOURCE_XP_GAIN, UNIT_TEMPLATES } from "@/types/server"
 import { useResourceConsume } from "@/hooks/useResource"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { useSolana } from "@/hooks/useSolana"
 import { getLocalImage } from "@/lib/utils"
 import { Flex, Image, Spinner, Text, VStack } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { FC } from "react"
+import { FC, useContext } from "react"
 import { toast } from "react-hot-toast"
 import { ConsumeButton } from "./consume-button.component"
+import { MainContext } from "@/contexts/MainContext"
 
 export const ConsumeItemContainer: FC<{
 	isLoading?: boolean
@@ -35,7 +35,7 @@ export const ConsumeItemContainer: FC<{
 		encodeTransaction,
 		signTransaction,
 	} = useSolana()
-	const [selectedCharacter] = useSelectedCharacter()
+	const { selectedCharacter } = useContext(MainContext)
 
 	const { mutate } = useResourceConsume()
 	const postConsume = async (amountToConsume: number) => {

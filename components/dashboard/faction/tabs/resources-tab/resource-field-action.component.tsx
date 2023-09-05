@@ -18,16 +18,16 @@ import { Tip } from "@/components/tooltip"
 import { formatBalance, getLocalImage, timeAgo } from "@/lib/utils"
 import { Label, Value } from "../tab.styles"
 import { colors } from "@/styles/defaultTheme"
-import { FC, useEffect, useState } from "react"
+import { FC, useContext, useEffect, useState } from "react"
 import { useCountdown } from "usehooks-ts"
 import { useRfHarvest } from "@/hooks/useRf"
 import { useSolana } from "@/hooks/useSolana"
 import { toast } from "react-hot-toast"
 import { useQueryClient } from "@tanstack/react-query"
 import { FaClock } from "react-icons/fa"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { BONK_COST_PER_MS_WIPED, BONK_MINT, SERVER_KEY } from "@/constants"
 import { useSpeedUpTimer } from "@/hooks/useCharTimers"
+import { MainContext } from "@/contexts/MainContext"
 
 export const ResourceFieldAction: FC<{
 	charMint?: string
@@ -47,7 +47,7 @@ export const ResourceFieldAction: FC<{
 	const isFuture = remainingTime > 0
 	const isHarvestable = !isFuture || timer === undefined
 
-	const [selectedCharacter, _] = useSelectedCharacter()
+	const { selectedCharacter } = useContext(MainContext)
 	const [input, setInput] = useState<number>(0)
 
 	const {

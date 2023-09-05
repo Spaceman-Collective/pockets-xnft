@@ -7,7 +7,8 @@ import {
 	getProposalAccount,
 } from "@/lib/solanaClient"
 import { Connection, PublicKey } from "@solana/web3.js"
-import { useSelectedCharacter } from "./useSelectedCharacter"
+import { useContext } from "react"
+import { MainContext } from "@/contexts/MainContext"
 
 type ProposalVoteInfo = {
 	voteAccountExists: boolean
@@ -19,7 +20,7 @@ export const useProposalVoteInfo = (
 	proposalId: string | undefined,
 	connection: Connection,
 ): { data: ProposalVoteInfo; isLoading: boolean } => {
-	const [selectedCharacter] = useSelectedCharacter()
+	const { selectedCharacter } = useContext(MainContext)
 
 	const defaultQueryResult: ProposalVoteInfo = {
 		voteAccountExists: false,
