@@ -18,9 +18,9 @@ export const useFactionStationStart = () => {
 }
 
 export const useFactionStationClaim = () => {
-	return useMutation<Faction, unknown, { stationId: string; factionId: string }>(
+	return useMutation<Faction, unknown, { mint: string; stationId: string }>(
 		["station-claim"],
-		({ stationId, factionId }) => postFactionStationClaim(stationId, factionId),
+		({ mint, stationId }) => postFactionStationClaim(mint, stationId),
 	)
 }
 

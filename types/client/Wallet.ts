@@ -6,7 +6,7 @@ export interface WalletAssets {
 		name: string
 		mint: string
 		value: string
-	}
+	}[]
 }
 
 export interface WalletCharacters {

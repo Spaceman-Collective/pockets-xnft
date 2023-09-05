@@ -1,3 +1,5 @@
+import { Character } from "."
+
 export interface Faction {
 	id: string
 	pubkey: string
@@ -18,3 +20,20 @@ interface Construction {
 	stationId?: string
 	stationNewLevel?: number
 }
+
+export type FactionData =
+	| {
+			citizens: Character[]
+			faction: Faction
+			resources: {
+				name: string
+				value: string
+			}[]
+			stations: {
+				blueprint: string
+				faction: string
+				id: string
+				level: number
+			}[]
+	  }
+	| undefined

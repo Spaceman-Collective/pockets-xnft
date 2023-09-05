@@ -26,10 +26,15 @@ export const ResourceGridContainer: FC<{
 	const [_, copy] = useCopyToClipboard()
 
 	const sendDisclosure = useDisclosure()
-	const [selectedResource, setSelectedResource] = useState<string>("") // for displaying resource modal
+	const [selectedResource, setSelectedResource] = useState<string>("")
 	const valueInWallet =
-		data?.resources.find(
-			(e) => e.name.toLowerCase() === selectedResource.toLowerCase(),
+		(
+			data?.resources as
+				| Array<{ name: string; mint: string; value: string }>
+				| undefined
+		)?.find(
+			(e: { name: string }) =>
+				e.name.toLowerCase() === selectedResource.toLowerCase(),
 		)?.value ?? 0
 
 	const abbreviatedFactionKey =

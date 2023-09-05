@@ -74,26 +74,23 @@ export const ConsumeUnitContainer: FC<{
 					return
 				}
 
-				confirmConsume(
-					{ signedTx: encodedReturnTx },
-					{
-						onSuccess: async () => {
-							toast.success(
-								`${unit.name} was consumed for ${+unit.rank * XP_PER_RANK}xp!`,
-								{ duration: 7000 },
-							)
-							setRemovedMints([...removedMints, unit.mint])
-							queryClient.refetchQueries({ queryKey: ["assets"] })
-							queryClient.refetchQueries({
-								queryKey: ["wallet-assets", walletAddress],
-							})
+				confirmConsume(encodedReturnTx, {
+					onSuccess: async () => {
+						toast.success(
+							`${unit.name} was consumed for ${+unit.rank * XP_PER_RANK}xp!`,
+							{ duration: 7000 },
+						)
+						setRemovedMints([...removedMints, unit.mint])
+						queryClient.refetchQueries({ queryKey: ["assets"] })
+						queryClient.refetchQueries({
+							queryKey: ["wallet-assets", walletAddress],
+						})
 
-							setIsLoadingRequest(false)
-						},
-						onError: (e) => toast.error(JSON.stringify(e)),
-						onSettled: () => setIsLoadingRequest(false),
+						setIsLoadingRequest(false)
 					},
-				)
+					onError: (e) => toast.error(JSON.stringify(e)),
+					onSettled: () => setIsLoadingRequest(false),
+				})
 			},
 		})
 	}

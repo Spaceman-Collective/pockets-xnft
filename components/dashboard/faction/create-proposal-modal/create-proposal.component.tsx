@@ -29,7 +29,13 @@ import { css } from "@emotion/react"
 import styled from "@emotion/styled"
 import { useCreateFaction } from "@/hooks/useCreateFaction"
 import { useSolana } from "@/hooks/useSolana"
-import { Character, Faction, Proposal, ProposalTypes } from "@/types/server"
+import {
+	Character,
+	Faction,
+	FactionData,
+	Proposal,
+	ProposalTypes,
+} from "@/types/server"
 import { useCreateProposal } from "@/hooks/useCreateProposal"
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction"
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
@@ -40,23 +46,6 @@ import { z } from "zod"
 import { useFaction } from "@/hooks/useFaction"
 import { Value } from "../tabs/tab.styles"
 import { useQueryClient } from "@tanstack/react-query"
-
-type FactionData =
-	| {
-			citizens: Character[]
-			faction: Faction
-			resources: {
-				name: string
-				value: string
-			}[]
-			stations: {
-				blueprint: string
-				faction: string
-				id: string
-				level: number
-			}[]
-	  }
-	| undefined
 
 export const CreateProposal: React.FC<{
 	factionData: FactionData
@@ -152,7 +141,7 @@ export const CreateProposal: React.FC<{
 		})
 
 		if (typeof encodedSignedTx === "string") {
-			mutate({ signedTx: encodedSignedTx }, { onSuccess })
+			mutate(encodedSignedTx, { onSuccess })
 		} else {
 			toast.error("Failed to create proposal tx")
 			console.error(encodedSignedTx)

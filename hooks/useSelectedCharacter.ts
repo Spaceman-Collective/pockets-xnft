@@ -1,39 +1,32 @@
 import { Character } from "@/types/server"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/router"
+import { useCallback, useEffect, useState } from "react"
+
+const storedCharKey = "SELECTEDCHARACTER"
 
 export const useSelectedCharacter = (): [
-	Character | null,
+	Character | null | undefined,
 	(char?: Character | null) => void,
 ] => {
-	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(
-		null,
-	)
-	const router = useRouter()
+	const [selectedCharacter, setSelectedCharacter] = useState<
+		Character | null | undefined
+	>(null)
 
-	const setSelectedChar = (character?: Character | null) => {
+	const setSelectedChar = useCallback((character?: Character | null) => {
 		if (character) {
-			router.push({
-				pathname: router.pathname,
-				query: { ...router.query, mint: character.mint },
-			})
+			sessionStorage.setItem(storedCharKey, JSON.stringify(character))
 		} else {
-			const { mint, ...rest } = router.query
-			router.push({
-				pathname: router.pathname,
-				query: rest,
-			})
+			sessionStorage.removeItem(storedCharKey)
 		}
-	}
+
+		setSelectedCharacter(character)
+	}, [])
 
 	useEffect(() => {
-		const { mint } = router.query
-		if (mint && typeof mint === "string") {
-			// setSelectedCharacter({ char }) // Minimal data
-		} else {
-			setSelectedCharacter(null)
+		const char = sessionStorage.getItem(storedCharKey)
+		if (char) {
+			setSelectedCharacter(JSON.parse(char))
 		}
-	}, [router.query])
+	}, [])
 
 	return [selectedCharacter, setSelectedChar]
 }

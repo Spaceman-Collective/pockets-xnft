@@ -11,13 +11,14 @@ import {
 	useDisclosure,
 } from "@chakra-ui/react"
 import { ModalStation } from "@/components/dashboard/faction/tabs/services-tab/station-modal"
-import { FC, useState } from "react"
+import { FC, useContext, useState } from "react"
 import { useFaction } from "@/hooks/useFaction"
 import { StationBox, Title } from "./service-tab.styles"
 import { RemainingSlot } from "./remaining-slot.component"
 import { getLocalImage } from "@/lib/utils"
 import { BuildingInfoModal } from "./buildingInfo-modal"
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
+import { MainContext } from "@/contexts/MainContext"
 
 const stationSize = "7rem"
 
@@ -26,7 +27,7 @@ export const FactionTabServices: React.FC<{
 }> = ({ openCitizenModal }) => {
 	const stationDisclosure = useDisclosure()
 	const buildingInfoDisclosure = useDisclosure()
-	const [currentCharacter] = useSelectedCharacter()
+	const { selectedCharacter: currentCharacter } = useContext(MainContext)
 
 	const [selectedStationId, setSelectedStationId] = useState<string>("")
 	const { data: factionData } = useFaction({

@@ -14,9 +14,18 @@ export const postCharacterCreate = async (signedTx: string) => {
 	return apiRequest<Character>("post", "/character/create", { signedTx })
 }
 
-// TODO: Add the correct return type in the generic
-export const postCharacterTimersSpeedup = async (signedTx: string) => {
-	return apiRequest("post", "/character/timers/speedup", { signedTx })
+type SpeedupResponse = {
+	message: string
+}
+
+export const postCharacterTimersSpeedup = async ({
+	signedTx,
+}: {
+	signedTx: string
+}) => {
+	return apiRequest<SpeedupResponse>("post", "/character/timers/speedup", {
+		signedTx,
+	})
 }
 
 export const getCharacterTimers = async (mint: string) => {

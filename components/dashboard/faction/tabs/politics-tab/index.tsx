@@ -15,7 +15,7 @@ import { colors } from "@/styles/defaultTheme"
 import styled from "@emotion/styled"
 import { useSolana } from "@/hooks/useSolana"
 import { Character } from "@/types/server"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { CreateProposal } from "../../create-proposal-modal/create-proposal.component"
 import { useFetchProposalsByFaction } from "@/hooks/useProposalsByFaction"
 import { Proposal } from "@/types/server/Proposal"
@@ -53,6 +53,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { ToolTip } from "@/styles/brand-components"
 import { Tip } from "@/components/tooltip"
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
+import { MainContext } from "@/contexts/MainContext"
 
 const spacing = "1rem"
 type FactionTabPoliticsProps = {
@@ -66,7 +67,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 	fire: fireConfetti,
 	openCitizenModal,
 }) => {
-
+	const { selectedCharacter: currentCharacter } = useContext(MainContext)
 	const factionId = currentCharacter?.faction?.id ?? ""
 	const [isLoading, setIsLoading] = useState(false)
 	const [voteThreshold, setVoteThreshold] = useState<string>("")
@@ -122,9 +123,11 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 		setFactionStatus(!!currentCharacter?.faction)
 	}, [currentCharacter, allProposals, setFactionStatus])
 
-	const sortedProposals = allProposals?.proposals?.slice().sort((a, b) => {
-		return new Date(b.created).getTime() - new Date(a.created).getTime()
-	})
+	const sortedProposals = allProposals?.proposals
+		?.slice()
+		.sort((a: Proposal, b: Proposal) => {
+			return new Date(b.created).getTime() - new Date(a.created).getTime()
+		})
 
 	const fetchVotesForProposal = async (proposalId: string) => {
 		const propPDA = getProposalPDA(proposalId)

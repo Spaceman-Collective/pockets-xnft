@@ -81,17 +81,22 @@ export const ConsumeSkillModal: FC<{
 									})}
 							/>
 						)}
-						{relevantResources.map((resource) => (
-							<ConsumeItemContainer
-								key={resource.mint}
-								skill={skill}
-								isLoading={walletAssetsIsLoading || isFetching}
-								resource={resource}
-								resourceInWallet={walletAssets?.resources.find(
-									(asset) => asset.name === resource.name,
-								)}
-							/>
-						))}
+						{Array.isArray(walletAssets?.resources) &&
+							relevantResources.map((resource) => (
+								<ConsumeItemContainer
+									key={resource.mint}
+									skill={skill}
+									isLoading={walletAssetsIsLoading || isFetching}
+									resource={resource}
+									resourceInWallet={(
+										walletAssets?.resources as unknown as Array<{
+											name: string
+											mint: string
+											value: string
+										}>
+									).find((asset: { name: string }) => asset.name === resource.name)}
+								/>
+							))}
 					</Flex>
 				</ModalBody>
 			</ModalContent>

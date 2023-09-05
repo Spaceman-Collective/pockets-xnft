@@ -11,7 +11,7 @@ export const useUnitRequestEquip = () => {
 	return useMutation<
 		{ encodedTx: string },
 		unknown,
-		{ mint: string; unit: string; owner: string }
+		{ mint: string; unit: string; owner?: string }
 	>(["unit-equip-request"], ({ mint, unit, owner }) =>
 		postCharacterUnitsEquipRequest(mint, unit, owner),
 	)

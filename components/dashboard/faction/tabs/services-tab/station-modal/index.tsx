@@ -124,14 +124,17 @@ export const ModalStation: FC<{
 		name: station?.blueprint ?? "",
 	})
 	const stationInputs = stationBlueprint?.inputs.map((e) => e.resource)
-	const resourcesInWallet = walletAssets?.resources.filter((e) => {
-		return stationInputs?.includes(e.name)
-	})
+	const resourcesInWallet = walletAssets?.resources.filter(
+		(e: { name: string }) => {
+			return stationInputs?.includes(e.name)
+		},
+	)
 
 	const hasEnoughResources = stationBlueprint?.inputs?.map(
 		(e) =>
-			resourcesInWallet?.find((walletItem) => walletItem.name === e?.resource)
-				?.value,
+			resourcesInWallet?.find(
+				(walletItem: { name: string }) => walletItem.name === e?.resource,
+			)?.value,
 	)
 
 	const startStationProcess = async () => {

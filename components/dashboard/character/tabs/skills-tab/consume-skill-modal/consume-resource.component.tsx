@@ -70,30 +70,27 @@ export const ConsumeItemContainer: FC<{
 
 			if (!encodedTx || encodedTx instanceof Error)
 				return toast.error("Oops! Failed to consume resource")
-			mutate(
-				{ signedTx: encodedTx },
-				{
-					onSuccess: (_) => {
-						queryClient.refetchQueries({
-							queryKey: ["wallet-assets", walletAddress],
-						})
-						queryClient.refetchQueries({
-							queryKey: ["assets"],
-						})
-						const xpGained =
-							//@ts-ignore
-							RESOURCE_XP_GAIN?.[resource.tier] * amountToConsume
-						toast.success(
-							`Successfully consumed\n${amountToConsume}x ${resource.name}\nGained ${xpGained}xp`,
-							{
-								duration: 5000,
-							},
-						)
-					},
-					onError: (e) =>
-						toast.error("Oops! Failed to consume: " + JSON.stringify(e)),
+			mutate(encodedTx, {
+				onSuccess: (_) => {
+					queryClient.refetchQueries({
+						queryKey: ["wallet-assets", walletAddress],
+					})
+					queryClient.refetchQueries({
+						queryKey: ["assets"],
+					})
+					const xpGained =
+						//@ts-ignore
+						RESOURCE_XP_GAIN?.[resource.tier] * amountToConsume
+					toast.success(
+						`Successfully consumed\n${amountToConsume}x ${resource.name}\nGained ${xpGained}xp`,
+						{
+							duration: 5000,
+						},
+					)
 				},
-			)
+				onError: (e) =>
+					toast.error("Oops! Failed to consume: " + JSON.stringify(e)),
+			})
 		} catch (err) {
 			toast.error("Oops! Failed to consume resource: " + err)
 		}

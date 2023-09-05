@@ -55,8 +55,16 @@ export const getFaction = async (factionId: string) => {
 	return apiRequest<{
 		citizens: Character[]
 		faction: Faction
-		resources: any[]
-		station: Blueprint[]
+		resources: {
+			name: string
+			value: string
+		}[]
+		stations: {
+			blueprint: string
+			faction: string
+			id: string
+			level: number
+		}[]
 	}>("get", "/faction", {
 		id: factionId,
 	})
@@ -87,14 +95,13 @@ export const getFactionResourceFields = async (factionId: string) => {
 }
 
 export const postFactionProposalCreate = async (signedTx: string) => {
-	return apiRequest<{
-		sig: string[]
-	}>("post", "/faction/proposal/create", { signedTx })
+	return apiRequest<{ sig: string }>("post", "/faction/proposal/create", {
+		signedTx,
+	})
 }
 
-// TODO: Add the correct return type in the generic
 export const getFactionProposal = async (proposalId: string) => {
-	return apiRequest("get", "/faction/proposal", { id: proposalId })
+	return apiRequest<Proposal>("get", "/faction/proposal", { id: proposalId })
 }
 
 export const getFactionProposals = async (

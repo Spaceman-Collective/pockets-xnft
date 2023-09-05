@@ -36,7 +36,7 @@ export const ResourceFieldAction: FC<{
 		character: string
 		finished: string
 		id: string
-		rf: string
+		rf?: string
 	}
 }> = ({ rf, timer, charMint }) => {
 	// show harvest button on timer undefined

@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react"
 import { Label, PanelContainer, Value } from "../tab.styles"
 import styled from "@emotion/styled"
-import { FC, useEffect, useState } from "react"
+import { FC, useContext, useEffect, useState } from "react"
 import { Character } from "@/types/server"
 import { useFaction } from "@/hooks/useFaction"
 import { timeout } from "@/lib/utils"
@@ -28,6 +28,7 @@ import { ResourceGridContainer } from "../../resources-grid.component"
 import Confetti from "@/components/Confetti"
 import { useQueryClient } from "@tanstack/react-query"
 import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
+import { MainContext } from "@/contexts/MainContext"
 
 const spacing = "1rem"
 export const FactionTabResources: React.FC<{
@@ -36,7 +37,7 @@ export const FactionTabResources: React.FC<{
 	const discoverDisclosure = useDisclosure()
 	const prospectDisclosure = useDisclosure()
 	const queryClient = useQueryClient()
-	// const [currentCharacter] = useSelectedCharacter()
+	const { selectedCharacter: currentCharacter } = useContext(MainContext)
 
 	const { data: factionData, isLoading: factionIsLoading } = useFaction({
 		factionId: currentCharacter?.faction?.id ?? "",
