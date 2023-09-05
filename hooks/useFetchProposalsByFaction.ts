@@ -1,14 +1,13 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
-import { FetchResponse, fetchProposalsByFaction } from "@/lib/apiClient"
-import { Proposal } from "@/types/server/Proposal"
+import { getFactionProposals } from "@/lib/API"
 
 export const useFetchProposalsByFaction = (
 	faction: string,
 	skip: number,
 	take: number,
-): UseQueryResult<FetchResponse, Error> => {
-	return useQuery<FetchResponse, Error>(
+): UseQueryResult => {
+	return useQuery(
 		["fetch-proposals-by-faction", faction, `${skip}`, `${take}`],
-		() => fetchProposalsByFaction(faction, skip, take),
+		() => getFactionProposals(faction, skip, take),
 	)
 }

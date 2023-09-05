@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
-import { postJoinFaction } from "@/lib/apiClient"
+import { postFactionJoin } from "@/lib/API"
 
 export const useJoinFaction = () => {
-	return useMutation(["join-faction"], postJoinFaction)
+	return useMutation(["join-faction"], postFactionJoin)
 }

@@ -1,7 +1,7 @@
 import { useQuery, QueryFunctionContext } from "@tanstack/react-query"
-import { fetchProposalAccount } from "@/lib/apiClient"
+import { getAccountsProposal } from "@/lib/API"
 import { Connection } from "@solana/web3.js"
 
 export const useProposalAccountServer = (id: string) => {
-	return useQuery(["proposalAccount", id], () => fetchProposalAccount(id))
+	return useQuery(["proposalAccount", id], () => getAccountsProposal(id))
 }

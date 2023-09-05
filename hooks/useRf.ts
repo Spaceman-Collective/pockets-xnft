@@ -1,18 +1,18 @@
 import { useQuery, useMutation } from "@tanstack/react-query"
 import {
-	fetchRfAllocation,
-	postRfAllocate,
-	postRfHarvest,
-} from "@/lib/apiClient"
+	getResourceFieldAllocation,
+	postResourceFieldAllocate,
+	postResourceFieldHarvest,
+} from "@/lib/API"
 
 export const useRfAllocation = () => {
-	return useQuery(["rf-allocation"], fetchRfAllocation)
+	return useQuery(["rf-allocation"], getResourceFieldAllocation)
 }
 
 export const useRfAllocate = () => {
-	return useMutation(["rf-allocate"], postRfAllocate)
+	return useMutation(["rf-allocate"], postResourceFieldAllocate)
 }
 
 export const useRfHarvest = () => {
-	return useMutation(["rf-harvest"], postRfHarvest)
+	return useMutation(["rf-harvest"], postResourceFieldHarvest)
 }

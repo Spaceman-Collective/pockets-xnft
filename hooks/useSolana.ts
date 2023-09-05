@@ -3,35 +3,37 @@ declare global {
 		xnft: any
 	}
 }
-import { useEffect, useState } from "react"
-import { useConnection, useWallet } from "@solana/wallet-adapter-react"
+
+import { SPL_TOKENS } from "@/constants"
+import { Program } from "@coral-xyz/anchor"
 import {
 	createAssociatedTokenAccountInstruction,
 	createBurnCheckedInstruction,
 	createTransferCheckedInstruction,
 	getAssociatedTokenAddressSync,
 } from "@solana/spl-token"
+import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import {
 	Connection,
 	PublicKey,
-	Transaction,
+	SystemProgram,
 	TransactionInstruction,
 	TransactionMessage,
 	VersionedTransaction,
-	SystemProgram,
 } from "@solana/web3.js"
-import { decode, encode } from "bs58"
-import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants"
-import { PocketsProgram } from "../lib/program/pockets_program"
-const pocketsIDL = require("../lib/program/pockets_program.json")
-import { Program, AnchorProvider, Wallet, BN } from "@coral-xyz/anchor"
+import { encode } from "bs58"
+import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
 import { toast } from "react-hot-toast"
-type TxType = VersionedTransaction | Transaction
+import { PocketsProgram } from "../lib/program/pockets_program"
+
+const pocketsIDL = require("../lib/program/pockets_program.json")
 
 export const POCKETS_PROGRAM_PROGRAMID =
 	"GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ"
 
 export const useSolana = () => {
+	const router = useRouter()
 	const [payload, setPayload] = useState<{
 		connection?: any
 		walletAddress?: string

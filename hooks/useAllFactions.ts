@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
-import { fetchFactions, fetchLeaderboard } from "@/lib/apiClient"
+import { getFactions, getLeaderboard } from "@/lib/API"
 
 export const useAllFactions = () => {
-	return useQuery(["fetch-factions"], fetchFactions)
+	return useQuery(["fetch-factions"], getFactions)
 }
-
 export const useGetLeaderboard = () => {
-	return useQuery(["fetch-leaderboard"], fetchLeaderboard)
+	return useQuery(["fetch-leaderboard"], getLeaderboard)
 }

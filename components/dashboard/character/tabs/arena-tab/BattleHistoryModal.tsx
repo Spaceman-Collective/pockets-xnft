@@ -46,7 +46,7 @@ export const BattleHistoryModal: React.FC<BattleHistoryModalProps> = ({
 	return (
 		<Modal isOpen={isOpen} onClose={onClose}>
 			<ModalOverlay />
-			<ModalContent bg="brand.primary" maxWidth="30%" minW="30rem" p="3rem">
+			<ModalContent bg="brand.primary" maxWidth="50%" minW="30rem" p="3rem">
 				<ModalHeader fontSize="3rem" lineHeight="3rem" fontWeight="bold">
 					Battle Log
 				</ModalHeader>

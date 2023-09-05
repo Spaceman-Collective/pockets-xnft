@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
-import { fetchResources } from "@/lib/apiClient"
+import { getFactionResourceFields } from "@/lib/API"
 
 export const useResourceField = ({ factionId }: { factionId?: string }) => {
 	return useQuery(
 		["fetch-resource-field", factionId],
-		() => fetchResources({ factionId: factionId ?? "" }),
+		() => getFactionResourceFields(factionId ?? ""),
 		{
 			enabled: factionId !== undefined,
 		},

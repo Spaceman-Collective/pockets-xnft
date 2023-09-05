@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
-import { postCreateProposal } from "@/lib/apiClient"
+import { postFactionProposalCreate } from "@/lib/API"
 
 export const useCreateProposal = () => {
-	return useMutation(["create-proposal"], postCreateProposal)
+	return useMutation(["create-proposal"], postFactionProposalCreate)
 }
