@@ -544,7 +544,7 @@ export const CitizenModal: FC<{
 											</Flex>
 										) : (
 											<Flex justifyContent="space-between" gap="1rem">
-												{currentCitizen.mint === citizen.mint ? (
+												{selectedCharacter.mint === citizen.mint ? (
 													<LeaveFactionModal
 														character={selectedCharacter!}
 														setFactionStatus={setFactionStatus}
