@@ -26,7 +26,7 @@ export const CharacterList: FC = () => {
 	}
 
 	return (
-		<CharacterListContainer>
+		<CharacterListContainer overflowY="auto" maxHeight="75rem">
 			<Tip
 				label="Start by creating a character from one of your NFTs here!"
 				placement="top"
