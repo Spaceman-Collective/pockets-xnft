@@ -257,6 +257,12 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 			return
 		}
 
+		if (!signAllTransactions) {
+			toast.error("Ledger wallets do not support this function")
+			setIsLoading(false)
+			return
+		}
+
 		const voteAmounts = await Promise.all(
 			allProposalIds.map(fetchVotesForProposal),
 		)
@@ -339,16 +345,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 		<PanelContainer display="flex" flexDirection="column" gap="4rem">
 			<Flex justifyContent="space-between">
 				<Header factionName={currentCharacter?.faction?.name} />
-				<Flex alignItems="end">
-					{/* <Text
-        fontSize="1.5rem"
-        color="brand.secondary"
-        cursor="pointer"
-        onClick={reclaimAllVotes}
-      >
-        RECLAIM PROPOSAL VOTES
-      </Text> */}
-				</Flex>
+				<Flex alignItems="end"></Flex>
 				<HStack alignItems="end" pb="0.5rem">
 					<Label color={colors.brand.tertiary} pb="0.25rem">
 						Voting Power:
