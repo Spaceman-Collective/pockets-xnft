@@ -28,7 +28,7 @@ export const DashboardMenu = () => {
 					flex="1"
 					mr="1rem"
 					minW="38rem"
-					onClick={() => router.push({ pathname: "/wallet", query: router.query })}
+					onClick={() => router.push({ pathname: "/wallet" })}
 				>
 					INVENTORY
 				</Button>
@@ -49,7 +49,7 @@ export const DashboardMenu = () => {
 				flex="1"
 				ml="1rem"
 				mr="1rem"
-				onClick={() => router.push({ pathname: "/character", query: router.query })}
+				onClick={() => router.push({ pathname: "/character" })}
 			>
 				CHARACTER
 			</Button>
@@ -68,7 +68,7 @@ export const DashboardMenu = () => {
 				h="6rem"
 				flex="1"
 				ml="1rem"
-				onClick={() => router.push({ pathname: "/faction", query: router.query })}
+				onClick={() => router.push({ pathname: "/faction" })}
 			>
 				FACTION
 			</Button>

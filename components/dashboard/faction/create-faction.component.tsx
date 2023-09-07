@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react"
+import { FC, useContext, useEffect, useState } from "react"
 import {
 	Box,
 	Input,
@@ -27,12 +27,12 @@ import {
 	SERVER_KEY,
 } from "@/constants"
 import { useAllFactions } from "@/hooks/useAllFactions"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { Label, Value } from "./tabs/tab.styles"
 import toast from "react-hot-toast"
 import styled from "@emotion/styled"
 import { formatBalance } from "@/lib/utils"
 import { useQueryClient } from "@tanstack/react-query"
+import { MainContext } from "@/contexts/MainContext"
 
 export const CreateFaction: FC<{
 	fire: () => void
@@ -63,7 +63,8 @@ export const CreateFaction: FC<{
 	})
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [creatingFaction, setCreatingFaction] = useState<boolean>(false)
-	const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter()
+	const { selectedCharacter } = useContext(MainContext)
+
 	const [requiredBonk, setRequiredBonk] = useState<string>("0")
 
 	const totalFactions = currentFactions?.total

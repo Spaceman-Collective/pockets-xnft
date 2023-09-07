@@ -1,19 +1,16 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import {
-	fetchFaction,
-	postCompleteConstruction,
+	getFaction,
+	postFactionConstructionComplete,
 	postFactionStationClaim,
 	postFactionStationStart,
-} from "@/lib/apiClient"
+} from "@/lib/API"
+import { Faction } from "@/types/server"
 
 export const useFaction = ({ factionId }: { factionId: string }) => {
-	return useQuery(
-		["fetch-faction", factionId],
-		() => fetchFaction({ factionId }),
-		{
-			enabled: !!factionId,
-		},
-	)
+	return useQuery(["fetch-faction", factionId], () => getFaction(factionId), {
+		enabled: !!factionId,
+	})
 }
 
 export const useFactionStationStart = () => {
@@ -21,10 +18,13 @@ export const useFactionStationStart = () => {
 }
 
 export const useFactionStationClaim = () => {
-	return useMutation(["station-claim"], postFactionStationClaim)
+	return useMutation<Faction, unknown, { mint: string; stationId: string }>(
+		["station-claim"],
+		({ mint, stationId }) => postFactionStationClaim(mint, stationId),
+	)
 }
 
 // Complete a station construction
 export const useCompleteConstruction = () => {
-	return useMutation(["station-complete"], postCompleteConstruction)
+	return useMutation(["station-complete"], postFactionConstructionComplete)
 }

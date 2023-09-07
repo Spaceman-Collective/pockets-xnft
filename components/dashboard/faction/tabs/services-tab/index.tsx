@@ -5,26 +5,29 @@ import {
 	Flex,
 	Grid,
 	HStack,
+	Spinner,
 	Text,
 	VStack,
 	useDisclosure,
 } from "@chakra-ui/react"
 import { ModalStation } from "@/components/dashboard/faction/tabs/services-tab/station-modal"
-import { FC, useState } from "react"
+import { FC, useContext, useState } from "react"
 import { useFaction } from "@/hooks/useFaction"
 import { StationBox, Title } from "./service-tab.styles"
 import { RemainingSlot } from "./remaining-slot.component"
 import { getLocalImage } from "@/lib/utils"
 import { BuildingInfoModal } from "./buildingInfo-modal"
+import { MainContext } from "@/contexts/MainContext"
 
 const stationSize = "7rem"
 
 export const FactionTabServices: React.FC<{
 	openCitizenModal: () => void
-	currentCharacter: Character
-}> = ({ currentCharacter, openCitizenModal }) => {
+}> = ({ openCitizenModal }) => {
 	const stationDisclosure = useDisclosure()
 	const buildingInfoDisclosure = useDisclosure()
+	const { selectedCharacter: currentCharacter } = useContext(MainContext)
+
 	const [selectedStationId, setSelectedStationId] = useState<string>("")
 	const { data: factionData } = useFaction({
 		factionId: currentCharacter?.faction?.id ?? "",
@@ -34,6 +37,15 @@ export const FactionTabServices: React.FC<{
 	const remainingSlots =
 		availableSlots && availableSlots - factionData?.stations.length
 	const hasRemainingSlots = remainingSlots && remainingSlots > 0
+
+	if (!currentCharacter) {
+		return (
+			<HStack spacing={4} justify="center" align="center" height="100vh">
+				<Spinner />
+				<Text>Loading...</Text>
+			</HStack>
+		)
+	}
 
 	return (
 		<>

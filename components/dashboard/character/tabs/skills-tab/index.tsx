@@ -13,124 +13,122 @@ import {
 	Progress,
 	Text,
 	UnorderedList,
+	useDisclosure,
 } from "@chakra-ui/react"
 import styled from "@emotion/styled"
 import Link from "next/link"
-import { FC, ReactNode, useEffect, useState } from "react"
-import { PageTabsEmptyState as EmptyState } from "@/components/nav"
+import { FC, ReactNode, useContext, useEffect, useState } from "react"
 import { PanelContainer } from "@/components/layout"
 import { combatSkillKeys } from "./constants"
 import { Tip } from "../../../../tooltip"
 import { useDebounce } from "@uidotdev/usehooks"
+import { MainContext } from "@/contexts/MainContext"
+import { ConsumeSkillModal } from "./consume-skill-modal"
 
-export const SkillsTab: React.FC<{
-	currentCharacter: Character
-	selectSkill: (skill: string) => void
-}> = ({ currentCharacter, selectSkill }) => {
-	const experienceKeys = Object.keys(currentCharacter.experience) as Array<
-		keyof typeof currentCharacter.experience
+export const SkillsTab: React.FC = () => {
+	const { selectedCharacter } = useContext(MainContext)
+	const consumeResourceDisclosure = useDisclosure()
+	const [selectedSkill, setSelectedSkill] = useState<string>("")
+	const selectSkill = (skill: string) => {
+		setSelectedSkill(skill)
+		consumeResourceDisclosure.onOpen()
+	}
+
+	if (!selectedCharacter) return null
+	const experienceKeys = Object.keys(selectedCharacter.experience) as Array<
+		keyof typeof selectedCharacter.experience
 	>
 
 	return (
-		<PanelContainer display="flex" flexDirection="column" gap="3rem">
-			<Header
-				name={currentCharacter.name}
-				image={currentCharacter.image}
-				faction={currentCharacter.faction?.name}
-			/>
-			<Fade in={!!currentCharacter?.experience}>
-				<Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="1rem">
-					<SkillContainer>
-						{currentCharacter.experience &&
-							experienceKeys
-								?.filter((key) => !combatSkillKeys.includes(key.toLowerCase()))
+		<>
+			<PanelContainer display="flex" flexDirection="column" gap="3rem">
+				<Header
+					name={selectedCharacter.name}
+					image={selectedCharacter.image}
+					faction={selectedCharacter.faction?.name}
+				/>
+				<Fade in={!!selectedCharacter?.experience}>
+					<Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="1rem">
+						<SkillContainer>
+							{selectedCharacter.experience &&
+								experienceKeys
+									?.filter((key) => !combatSkillKeys.includes(key.toLowerCase()))
+									?.sort((a, b) => a.localeCompare(b))
+									.map((key) => (
+										<Box key={"container" + key}>
+											<SkillBox
+												key={"noncombat" + key}
+												onClick={selectSkill}
+												name={key}
+												level={selectedCharacter.skills[key].toString()}
+												xp={
+													selectedCharacter.experience[key].current.toString() +
+													"/" +
+													selectedCharacter.experience[key].threshold.toString()
+												}
+											/>
+										</Box>
+									))}
+						</SkillContainer>
+						<SkillContainer isCombat>
+							{experienceKeys
+								?.filter((key) => combatSkillKeys.includes(key.toLowerCase()))
 								?.sort((a, b) => a.localeCompare(b))
-								.map((key) => (
-									<>
+								.map((key) => {
+									if (!selectedCharacter) return
+									if (selectedCharacter?.experience[key]?.current === undefined) return
+									if (selectedCharacter?.experience[key]?.current === null) return
+
+									return (
 										<SkillBox
-											key={"noncombat" + key}
+											key={"combat" + key}
 											onClick={selectSkill}
 											name={key}
-											level={currentCharacter.skills[key].toString()}
+											level={selectedCharacter.skills[key].toString()}
 											xp={
-												currentCharacter.experience[key].current.toString() +
+												selectedCharacter.experience[key].current.toString() +
 												"/" +
-												currentCharacter.experience[key].threshold.toString()
+												selectedCharacter.experience[key].threshold.toString()
 											}
 										/>
-									</>
-								))}
-					</SkillContainer>
-					<SkillContainer isCombat>
-						{experienceKeys
-							?.filter((key) => combatSkillKeys.includes(key.toLowerCase()))
-							?.sort((a, b) => a.localeCompare(b))
-							.map((key) => {
-								if (!currentCharacter) return
-								if (currentCharacter?.experience[key]?.current === undefined) return
-								if (currentCharacter?.experience[key]?.current === null) return
-
-								return (
-									<SkillBox
-										key={"combat" + key}
-										onClick={selectSkill}
-										name={key}
-										level={currentCharacter.skills[key].toString()}
-										xp={
-											currentCharacter.experience[key].current.toString() +
-											"/" +
-											currentCharacter.experience[key].threshold.toString()
-										}
-									/>
-								)
-							})}
-					</SkillContainer>
-				</Grid>
-				<br></br>
-				<Flex m="1 auto" fontSize="1.5rem" gap="2rem" fontWeight="600">
-					<Box flex="1" background="blacks.500" p="2rem" borderRadius="0.5rem">
-						<Text fontWeight="600">Confused on what to do next? Try:</Text>
-						<UnorderedList pl="0.5rem" mt="1rem" fontWeight="500">
-							<ListItem>Join a Faction</ListItem>
-							<ListItem>Harvest resources</ListItem>
-							<ListItem>Train your skills</ListItem>
-							<ListItem>Build your army</ListItem>
-							<ListItem>Go to battle!</ListItem>
-						</UnorderedList>
-					</Box>
-					<Box flex="2" background="blacks.500" p="2rem" borderRadius="0.5rem">
-						<Text>
-							Training your skills and racking up battle wins helps you boost your
-							faction&apos;s chances at victory in one of the three win conditions!
-						</Text>
-						<UnorderedList pl="0.5rem" mt="1rem" fontWeight="500">
-							<ListItem>
-								<strong>Domination:</strong> collectively won battles by faction
-							</ListItem>
-							<ListItem>
-								<strong>Knowledge:</strong> total skill levels of faction citizens
-							</ListItem>
-							<ListItem>
-								<strong>Wealth:</strong> total resources burned by your faction
-							</ListItem>
-						</UnorderedList>
-					</Box>
-				</Flex>
-			</Fade>
-			{/* <Flex gap="4rem"> */}
-			{/*   <Value>ARMY</Value> */}
-			{/*   <HStack> */}
-			{/*     <Label>Equipped</Label> */}
-			{/*     <Value>123/456</Value> */}
-			{/*   </HStack> */}
-			{/* </Flex> */}
-			{/* <Grid templateColumns="repeat(auto-fill,minmax(100px,1fr))"> */}
-			{/*   <TroopBox num={1} /> */}
-			{/*   <TroopBox num={2} /> */}
-			{/*   <TroopBox num={3} /> */}
-			{/*   <TroopBox /> */}
-			{/* </Grid> */}
-		</PanelContainer>
+									)
+								})}
+						</SkillContainer>
+					</Grid>
+					<br></br>
+					<Flex m="1 auto" fontSize="1.5rem" gap="2rem" fontWeight="600">
+						<Box flex="1" background="blacks.500" p="2rem" borderRadius="0.5rem">
+							<Text fontWeight="600">Confused on what to do next? Try:</Text>
+							<UnorderedList pl="0.5rem" mt="1rem" fontWeight="500">
+								<ListItem>Join a Faction</ListItem>
+								<ListItem>Harvest resources</ListItem>
+								<ListItem>Train your skills</ListItem>
+								<ListItem>Build your army</ListItem>
+								<ListItem>Go to battle!</ListItem>
+							</UnorderedList>
+						</Box>
+						<Box flex="2" background="blacks.500" p="2rem" borderRadius="0.5rem">
+							<Text>
+								Training your skills and racking up battle wins helps you boost your
+								faction&apos;s chances at victory in one of the three win conditions!
+							</Text>
+							<UnorderedList pl="0.5rem" mt="1rem" fontWeight="500">
+								<ListItem>
+									<strong>Domination:</strong> collectively won battles by faction
+								</ListItem>
+								<ListItem>
+									<strong>Knowledge:</strong> total skill levels of faction citizens
+								</ListItem>
+								<ListItem>
+									<strong>Wealth:</strong> total resources burned by your faction
+								</ListItem>
+							</UnorderedList>
+						</Box>
+					</Flex>
+				</Fade>
+				<ConsumeSkillModal skill={selectedSkill} {...consumeResourceDisclosure} />
+			</PanelContainer>
+		</>
 	)
 }
 

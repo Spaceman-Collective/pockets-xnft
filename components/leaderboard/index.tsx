@@ -1,21 +1,12 @@
 import styled from "@emotion/styled"
 import { Box, Flex, Grid, Spacer, Text, VStack } from "@chakra-ui/react"
 import { colors } from "@/styles/defaultTheme"
-import { useAllFactions, useGetLeaderboard } from "@/hooks/useAllFactions"
+import { useGetLeaderboard } from "@/hooks/useAllFactions"
 import { LeaderboardItem } from "./faction-leaderboard-bar.component"
-import { Label } from "../dashboard/personal/personal.styled"
-import { SortButton } from "./sort-button.component"
 import { useEffect, useState } from "react"
-import { Faction } from "@/types/server"
 import { Tip } from "../tooltip"
 import { usePrizePool } from "@/hooks/useWalletAssets"
-
-export interface FactionScore {
-	faction: Faction
-	domination: number
-	wealth: number
-	knowledge: number
-}
+import { Leaderboard } from "@/types/client/Leaderboard"
 
 /**
  * Leaderboard
@@ -23,32 +14,60 @@ export interface FactionScore {
  */
 export const LeaderboardList = () => {
 	//const handleFilter = (e: any) => console.info(e);
-	const { data: prizePool, isLoading: prizePoolIsLoading } = usePrizePool()
+	const { data: prizePool } = usePrizePool()
 	const { data } = useGetLeaderboard()
-	const [factions, setFactions] = useState<FactionScore[]>(
-		data?.find((c) => c.condition === "knowledge")?.factions || [],
+	const [factions, setFactions] = useState(
+		(data?.find((c) => c.condition === "knowledge")?.factions ||
+			[]) as Leaderboard["factions"][],
 	)
 
 	useEffect(() => {
-		setFactions(data?.find((c) => c.condition == "domination")?.factions || [])
+		setFactions(
+			(data?.find((c) => c.condition == "domination")?.factions ||
+				[]) as Leaderboard["factions"][],
+		)
 	}, [data])
 
 	const selectTab = (tab: string) => {
 		if (tab == "domination") {
-			setFactions(data?.find((c) => c.condition == "domination")?.factions || [])
+			setFactions(
+				(data?.find((c) => c.condition == "domination")?.factions ||
+					[]) as Leaderboard["factions"][],
+			)
 		} else if (tab == "knowledge") {
-			setFactions(data?.find((c) => c.condition == "knowledge")?.factions || [])
+			setFactions(
+				(data?.find((c) => c.condition == "knowledge")?.factions ||
+					[]) as Leaderboard["factions"][],
+			)
 		} else if (tab == "wealth") {
-			setFactions(data?.find((c) => c.condition == "wealth")?.factions || [])
+			setFactions(
+				(data?.find((c) => c.condition == "wealth")?.factions ||
+					[]) as Leaderboard["factions"][],
+			)
 		}
 	}
 
 	return (
-		<LeaderboardContainer>
+		<Flex
+			m="0 auto"
+			display="flex"
+			flexDir="column"
+			p="3rem"
+			w="100%"
+			borderRadius="0.5rem"
+			bgColor="brand.primary"
+		>
 			<Flex justifyContent="space-between" alignItems="center">
-				<Title>LEADERBOARD</Title>
+				<Text textTransform="uppercase" fontSize="3rem" fontWeight="800" mb="3px">
+					LEADERBOARD
+				</Text>
 				<Tip label="For a chance to win this prize, join and participate in a faction!">
-					<Text fontSize={"2rem"} fontWeight={700} fontFamily="heading">
+					<Text
+						fontSize="2rem"
+						lineHeight="2rem"
+						fontWeight="700"
+						fontFamily="heading"
+					>
 						BONK Prize Pool: {prizePool}
 					</Text>
 				</Tip>
@@ -61,39 +80,21 @@ export const LeaderboardList = () => {
 						label={`Domination is how many battles a faction's citizens have collectively won together.`}
 						placement="top"
 					>
-						<Label
-							onClick={() => {
-								selectTab("domination")
-							}}
-						>
-							Domination
-						</Label>
+						<Label onClick={() => selectTab("domination")}>Domination</Label>
 					</Tip>
 
 					<Tip
 						label={`Wealth is how many resources a faction has burned.`}
 						placement="top"
 					>
-						<Label
-							onClick={() => {
-								selectTab("wealth")
-							}}
-						>
-							Wealth
-						</Label>
+						<Label onClick={() => selectTab("wealth")}>Wealth</Label>
 					</Tip>
 
 					<Tip
 						label={`Knowledge is the total skill level of all the faction's citizens added together.`}
 						placement="top"
 					>
-						<Label
-							onClick={() => {
-								selectTab("knowledge")
-							}}
-						>
-							Knowledge
-						</Label>
+						<Label onClick={() => selectTab("knowledge")}>Knowledge</Label>
 					</Tip>
 				</Flex>
 			</Grid>
@@ -112,24 +113,20 @@ export const LeaderboardList = () => {
 					/>
 				))}
 			</VStack>
-		</LeaderboardContainer>
+		</Flex>
 	)
 }
 
-export const LeaderboardContainer = styled(Box)`
-	margin: 0 auto;
-	display: flex;
-	flex-direction: column;
-	padding: 3rem;
-	width: 100%;
-	border-radius: 0.5rem;
-	background-color: ${colors.brand.primary};
-`
-
-const Title = styled(Text)`
-	text-transform: uppercase;
-	font-size: 3rem;
-	font-weight: 800;
-	font-spacing: 3px;
-	margin-bottom: 3px;
-`
+const Label = ({ ...props }): JSX.Element => (
+	<Text
+		cursor="pointer"
+		fontSize="1.25rem"
+		fontWeight="500"
+		textTransform="uppercase"
+		transition="all 0.25s ease-in-out"
+		_hover={{ transform: "scale(1.1)" }}
+		onClick={props.onClick}
+	>
+		{props.children}
+	</Text>
+)

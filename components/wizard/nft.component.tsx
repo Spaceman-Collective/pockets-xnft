@@ -73,7 +73,7 @@ export const SelectNFT: FC<{
 				</Grid>
 				<Tip label="NFTs available to create a character with" placement="top">
 					<H3 pt="4rem" w="fit-content" h="fit-content">
-						Availbe NFTs
+						Available NFTs
 					</H3>
 				</Tip>
 				<Grid

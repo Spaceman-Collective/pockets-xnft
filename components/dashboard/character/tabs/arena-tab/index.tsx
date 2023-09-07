@@ -19,34 +19,36 @@ import {
 	Text,
 	useDisclosure,
 } from "@chakra-ui/react"
-import React, { FC, FormEvent, useEffect, useState } from "react"
+import React, { FC, FormEvent, useContext, useEffect, useState } from "react"
 import { combatSkillKeys } from "../../constants"
 import { OpponentEquipment } from "./OpponentEquipment"
 import { useBattleHistory } from "@/hooks/useBattle"
 import { timeSince } from "@/lib/utils"
 import { useCharacter } from "@/hooks/useCharacter"
-import { fetchCharacter } from "@/lib/apiClient"
+import { getCharacter } from "@/lib/API"
 import { BattleHistoryModal } from "./BattleHistoryModal"
+import { MainContext } from "@/contexts/MainContext"
+import { useAllFactions } from "@/hooks/useAllFactions"
 
-export const ArenaTab: FC<{
-	currentCharacter: Character
-	allFactions: Faction[]
-}> = ({ currentCharacter, allFactions }) => {
+export const ArenaTab: FC = () => {
+	const { selectedCharacter } = useContext(MainContext)
 	const [factionId, setFactionId] = useState<string>("")
 	const [factionSelected, setFactionSelected] = useState<boolean>(false)
 	const [search, setSearch] = useState<string>("")
+	const { data: factionsData, isLoading: factionsAreLoading } = useAllFactions()
+	const allFactions = factionsData?.factions
 	const { data: factionData, isLoading: factionIsLoading } = useFaction({
 		factionId,
 	})
 
 	const { data: battleHistory, isLoading: battleHistoryIsLoading } =
-		useBattleHistory(currentCharacter.mint, factionData?.citizens || [])
+		useBattleHistory(selectedCharacter!.mint, factionData?.citizens || [])
 
 	useEffect(() => {
 		setFactionId("")
 		setFactionSelected(false)
 		setSearch("")
-	}, [currentCharacter])
+	}, [selectedCharacter])
 
 	useEffect(() => {
 		if (factionData && factionId) {
@@ -71,6 +73,8 @@ export const ArenaTab: FC<{
 			: true,
 	)
 
+	if (!selectedCharacter) return null
+
 	return (
 		<PanelContainer
 			display="flex"
@@ -78,7 +82,7 @@ export const ArenaTab: FC<{
 			gap="2rem"
 			width={"100%"}
 		>
-			<Header character={currentCharacter} />
+			<Header character={selectedCharacter} />
 			<Select
 				onChange={onFactionSelectionChange}
 				borderRadius="0.5rem"
@@ -95,17 +99,19 @@ export const ArenaTab: FC<{
 				<option defaultChecked value="default" disabled selected={!factionSelected}>
 					SELECT A FACTION TO BATTLE
 				</option>
-				{allFactions.map((faction) =>
-					faction.id !== currentCharacter?.faction?.id ? (
-						<option
-							key={faction.id}
-							value={faction.id}
-							selected={factionId === faction.id && factionSelected}
-						>
-							{faction.name}
-						</option>
-					) : null,
-				)}
+				{!factionsAreLoading
+					? allFactions?.map((faction) =>
+							faction.id !== selectedCharacter?.faction?.id ? (
+								<option
+									key={faction.id}
+									value={faction.id}
+									selected={factionId === faction.id && factionSelected}
+								>
+									{faction.name}
+								</option>
+							) : null,
+					  )
+					: null}
 			</Select>
 			<SearchBar
 				disabled={!factionSelected}
@@ -126,11 +132,11 @@ export const ArenaTab: FC<{
 								key={opponent.mint}
 								enabled={
 									!!opponent.army.length &&
-									!!currentCharacter.army.length &&
-									!!currentCharacter.faction
+									!!selectedCharacter.army.length &&
+									!!selectedCharacter.faction
 								}
 								opponent={opponent}
-								currentCharacter={currentCharacter}
+								currentCharacter={selectedCharacter}
 							/>
 					  ))}
 
@@ -188,7 +194,7 @@ const Header: FC<{ character: Character }> = ({ character }) => {
 			)
 
 			uniqueOpponents.forEach(async (opponent) => {
-				const { character } = await fetchCharacter({ mint: opponent })
+				const { character } = await getCharacter(opponent)
 				setOpponents((prev) => [...prev, character!])
 			})
 		}

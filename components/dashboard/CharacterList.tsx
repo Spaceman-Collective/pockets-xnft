@@ -1,30 +1,22 @@
-import { FC, useState } from "react"
-import { useRouter } from "next/router"
-import { Flex, Button, Text, Box, Skeleton, SlideFade } from "@chakra-ui/react"
-import { CharacterListContainer } from "@/components/layout/containers.styled"
-import { Character } from "@/types/server"
-import { Frame } from "../wizard/wizard.components"
+import { FC, useContext } from "react"
+import { Box, Button, Flex, Skeleton, SlideFade, Text } from "@chakra-ui/react"
 import styled from "@emotion/styled"
+import { useRouter } from "next/router"
 
+import { CharacterListContainer } from "@/components/layout/containers.styled"
+import { MainContext } from "@/contexts/MainContext"
 import { colors } from "@/styles/defaultTheme"
+import { Character } from "@/types/server"
 import { Tip } from "../tooltip"
 
-interface Props {
-	selectedCharacter: Character | undefined | null
-	setSelectedCharacter: (char?: Character | null) => void
-	data?: Character[]
-	isLoading?: boolean
-}
-
-export const CharacterList: FC<Props> = ({
-	selectedCharacter,
-	setSelectedCharacter,
-	data,
-	isLoading,
-}: Props) => {
+export const CharacterList: FC = () => {
 	const router = useRouter()
-	const [actionStatus, setActionStatus] = useState(false)
-
+	const {
+		characters: data,
+		isLoading,
+		setSelectedCharacter,
+		selectedCharacter,
+	} = useContext(MainContext)
 	const handleCharacterSelect = (char: Character) => {
 		if (selectedCharacter?.mint === char.mint) {
 			setSelectedCharacter(undefined)
@@ -34,7 +26,7 @@ export const CharacterList: FC<Props> = ({
 	}
 
 	return (
-		<CharacterListContainer>
+		<CharacterListContainer overflowY="auto" maxHeight="75rem">
 			<Tip
 				label="Start by creating a character from one of your NFTs here!"
 				placement="top"
@@ -64,7 +56,7 @@ export const CharacterList: FC<Props> = ({
 						</SlideFade>
 					))}
 				<SlideFade in={!!data}>
-					{data?.map((char) => {
+					{data?.characters?.map((char) => {
 						return (
 							<CharacterFlex
 								key={char.mint}

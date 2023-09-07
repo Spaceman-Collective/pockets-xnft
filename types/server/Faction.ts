@@ -1,3 +1,5 @@
+import { Character } from "."
+
 export interface Faction {
 	id: string
 	pubkey: string
@@ -7,13 +9,31 @@ export interface Faction {
 	external_link: string
 	description: string
 	townhallLevel: number
-	construction: {
-		started: string | undefined
-		finished: string | undefined
-		// if id already exists, then upgrade, if it doesn't, then it's a new construction
-		stationId?: string
-		blueprint: string | undefined
-		stationNewLevel: number | undefined
-	}
+	construction: Construction
 	taxRate: number
 }
+
+interface Construction {
+	started?: string
+	finished?: string
+	blueprint?: string
+	stationId?: string
+	stationNewLevel?: number
+}
+
+export type FactionData =
+	| {
+			citizens: Character[]
+			faction: Faction
+			resources: {
+				name: string
+				value: string
+			}[]
+			stations: {
+				blueprint: string
+				faction: string
+				id: string
+				level: number
+			}[]
+	  }
+	| undefined

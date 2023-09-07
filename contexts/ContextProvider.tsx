@@ -6,6 +6,7 @@ import {
 import { FC, ReactNode, useCallback, useMemo, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { useSolana } from "@/hooks/useSolana"
+import { MainContextProvider } from "./MainContext"
 
 const ReactUIWalletModalProviderDynamic = dynamic(
 	async () =>

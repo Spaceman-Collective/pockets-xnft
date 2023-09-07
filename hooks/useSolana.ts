@@ -3,31 +3,31 @@ declare global {
 		xnft: any
 	}
 }
-import { useEffect, useState } from "react"
-import { useConnection, useWallet } from "@solana/wallet-adapter-react"
+
+import { SPL_TOKENS } from "@/constants"
+import { Program } from "@coral-xyz/anchor"
 import {
 	createAssociatedTokenAccountInstruction,
 	createBurnCheckedInstruction,
 	createTransferCheckedInstruction,
 	getAssociatedTokenAddressSync,
 } from "@solana/spl-token"
+import { useConnection, useWallet } from "@solana/wallet-adapter-react"
 import {
 	Connection,
 	PublicKey,
-	Transaction,
+	SystemProgram,
 	TransactionInstruction,
 	TransactionMessage,
 	VersionedTransaction,
-	SystemProgram,
 } from "@solana/web3.js"
-import { decode, encode } from "bs58"
-import { SERVER_KEY, SPL_TOKENS, RESOURCES } from "@/constants"
-import { PocketsProgram } from "../lib/program/pockets_program"
-const pocketsIDL = require("../lib/program/pockets_program.json")
-import { Program, AnchorProvider, Wallet, BN } from "@coral-xyz/anchor"
-import { toast } from "react-hot-toast"
+import { encode } from "bs58"
 import { useRouter } from "next/router"
-type TxType = VersionedTransaction | Transaction
+import { useEffect, useState } from "react"
+import { toast } from "react-hot-toast"
+import { PocketsProgram } from "../lib/program/pockets_program"
+
+const pocketsIDL = require("../lib/program/pockets_program.json")
 
 export const POCKETS_PROGRAM_PROGRAMID =
 	"GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ"
@@ -72,18 +72,6 @@ export const useSolana = () => {
 			init()
 		})
 	}, [connection, publicKey, signTransaction, signAllTransactions])
-
-	useEffect(() => {
-		if (router.query?.wallet) return
-		if (payload?.walletAddress) {
-			router.push({
-				query: {
-					...router.query,
-					wallet: payload.walletAddress,
-				},
-			})
-		}
-	}, [payload])
 
 	return {
 		...payload,
@@ -245,7 +233,7 @@ const encodeTransaction = async ({
 	}
 }
 
-const sendTransaction = async ({
+export const sendTransaction = async ({
 	connection,
 	ixs,
 	wallet,
@@ -258,6 +246,7 @@ const sendTransaction = async ({
 }) => {
 	if (!wallet || !ixs || !signTransaction) return
 	const { blockhash } = await connection!.getLatestBlockhash()
+	console.log("bh: ", blockhash)
 
 	const txMsg = new TransactionMessage({
 		payerKey: new PublicKey(wallet),
@@ -268,6 +257,11 @@ const sendTransaction = async ({
 	const tx = new VersionedTransaction(txMsg)
 	if (!tx) return
 
+	console.log(
+		"handleVote entx: ",
+		Buffer.from(tx.serialize()).toString("base64"),
+	)
+
 	if (window?.xnft?.solana?.isXnft) {
 		const signedTx = await window?.xnft?.solana?.signTransaction(tx)
 		return await connection.sendRawTransaction(signedTx.serialize())
@@ -277,7 +271,49 @@ const sendTransaction = async ({
 	}
 }
 
-const sendAllTransactions = async (
+export const sendAllTxParallel = async (
+	connection: Connection,
+	ixs: TransactionInstruction[],
+	wallet: string,
+	signAllTransactions: any,
+) => {
+	try {
+		const maxIxsInTx = 10
+		let txs = []
+		for (let i = 0; i < ixs.length; i += maxIxsInTx) {
+			const messageV0 = new TransactionMessage({
+				payerKey: new PublicKey(wallet),
+				recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
+				instructions: ixs.slice(
+					i,
+					i + maxIxsInTx > ixs.length ? ixs.length : i + maxIxsInTx,
+				),
+			}).compileToLegacyMessage()
+			const tx = new VersionedTransaction(messageV0)
+			txs.push(tx)
+		}
+		signAllTransactions(txs)
+			.then((sTxs: any) => {
+				let sigs: Promise<string>[] = []
+				for (let stx of sTxs) {
+					console.log(Buffer.from(stx.serialize()).toString("base64"))
+					sigs.push(connection.sendRawTransaction(stx.serialize()))
+				}
+				Promise.all(sigs).then((sigs: string[]) => {
+					console.log(sigs)
+					toast.success("Sent all transactions successfully!")
+				})
+			})
+			.catch((e: Error) => {
+				console.error(e)
+				toast.error("Something went wrong sending transactions")
+			})
+	} catch (e) {
+		throw e
+	}
+}
+
+export const sendAllTransactions = async (
 	connection: Connection,
 	ixs: TransactionInstruction[],
 	wallet: string,

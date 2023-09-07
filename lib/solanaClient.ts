@@ -64,7 +64,10 @@ export async function getCitizenAccount(
 	connection: Connection,
 	citizenPDA: PublicKey,
 ) {
-	if (!connection || !citizenPDA) return
+	if (!connection || !citizenPDA) {
+		console.log("gCA connection: ", connection, "cPDA: ", citizenPDA)
+		return
+	}
 	const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
 		pocketsIDL,
 		POCKETS_PROGRAM_PROGRAMID,
@@ -258,6 +261,21 @@ export async function voteOnProposalIx(
 		.instruction()
 
 	return ix
+}
+
+export async function getVoteAccounts(
+	connection: Connection,
+	votePDAs: PublicKey[],
+) {
+	const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+		pocketsIDL,
+		POCKETS_PROGRAM_PROGRAMID,
+		{
+			connection,
+		},
+	)
+
+	return await POCKETS_PROGRAM.account.proposalVote.fetchMultiple(votePDAs)
 }
 
 export async function updateVoteOnProposalIx(

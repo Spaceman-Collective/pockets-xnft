@@ -1,19 +1,19 @@
-import { getBattleHistory, postBattle } from "@/lib/apiClient"
+import { getCharacterBattleHistory, postCharacterBattle } from "@/lib/API"
 import { Character } from "@/types/server"
 import { useMutation, useQuery } from "@tanstack/react-query"
 
 export const useBattle = () => {
-	return useMutation(["battle"], postBattle)
+	return useMutation(["battle"], postCharacterBattle)
 }
 
 export const useBattleHistory = (mint: string, opponents?: Character[]) => {
 	return useQuery(
 		["battle-history", mint, opponents],
 		() =>
-			getBattleHistory({
-				attacker: mint,
-				defenders: opponents ? opponents.map((opponent: any) => opponent.mint) : [],
-			}),
+			getCharacterBattleHistory(
+				mint,
+				opponents ? opponents.map((opponent: any) => opponent.mint) : [],
+			),
 		{
 			enabled: !!mint,
 		},

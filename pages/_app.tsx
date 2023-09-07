@@ -11,6 +11,7 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
 import "@solana/wallet-adapter-react-ui/styles.css"
 import { ContextProvider } from "@/contexts/ContextProvider"
 import { Toaster } from "react-hot-toast"
+import { MainContext, MainContextProvider } from "@/contexts/MainContext"
 
 const queryClient = new QueryClient()
 const headerFont = Roboto({ weight: ["400", "700"], subsets: ["latin"] })
@@ -34,14 +35,16 @@ export default function App({ Component, pageProps }: AppProps) {
 				<WalletModalProvider>
 					{/* APP */}
 					<QueryClientProvider client={queryClient}>
-						<ChakraBaseProvider theme={defaultTheme}>
-							<main className={bodyFont.className}>
-								<Layout>
-									<Component {...pageProps} />
-								</Layout>
-								<Toaster />
-							</main>
-						</ChakraBaseProvider>
+						<MainContextProvider>
+							<ChakraBaseProvider theme={defaultTheme}>
+								<main className={bodyFont.className}>
+									<Layout>
+										<Component {...pageProps} />
+									</Layout>
+									<Toaster />
+								</main>
+							</ChakraBaseProvider>
+						</MainContextProvider>
 						<ReactQueryDevtools initialIsOpen={false} />
 					</QueryClientProvider>
 					{/* APP */}

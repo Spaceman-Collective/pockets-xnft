@@ -7,7 +7,8 @@ import {
 	getMultipleVoteAccounts,
 } from "@/lib/solanaClient"
 import { Connection, PublicKey } from "@solana/web3.js"
-import { useSelectedCharacter } from "./useSelectedCharacter"
+import { useContext } from "react"
+import { MainContext } from "@/contexts/MainContext"
 
 type ProposalVoteInfo = {
 	voteAccountExists: boolean
@@ -18,7 +19,7 @@ export const useAllProposalVoteInfo = (
 	proposalIds: string[] | undefined,
 	connection: Connection,
 ): { data: ProposalVoteInfo; refetch: () => void; isLoading: boolean } => {
-	const [selectedCharacter] = useSelectedCharacter()
+	const { selectedCharacter } = useContext(MainContext)
 	const queryClient = useQueryClient()
 
 	const defaultQueryResult: ProposalVoteInfo = {

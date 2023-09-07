@@ -1,5 +1,5 @@
 import { Box, Text } from "@chakra-ui/react"
-import { getLadImageURL, getPogImageURL } from "@/lib/apiClient"
+import { getLadImageURL, getPogImageURL } from "@/lib/API"
 import { Image100 as Img } from "./wizard.styled"
 
 export const Frame = ({

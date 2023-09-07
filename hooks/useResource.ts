@@ -1,6 +1,6 @@
-import { postConsumeResource } from "@/lib/apiClient"
+import { postCharacterResourcesConsume } from "@/lib/API"
 import { useMutation } from "@tanstack/react-query"
 
 export const useResourceConsume = () => {
-	return useMutation(["resource-consume"], postConsumeResource)
+	return useMutation(["resource-consume"], postCharacterResourcesConsume)
 }

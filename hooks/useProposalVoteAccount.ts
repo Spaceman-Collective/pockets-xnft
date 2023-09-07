@@ -7,13 +7,14 @@ import {
 } from "@/lib/solanaClient"
 import { Connection, PublicKey } from "@solana/web3.js"
 import { Character } from "@/types/server"
-import { useSelectedCharacter } from "./useSelectedCharacter"
 import { useSolana } from "./useSolana"
+import { useContext } from "react"
+import { MainContext } from "@/contexts/MainContext"
 
 export const useProposalVoteAccount = (
 	proposalId: string | undefined,
 ): boolean => {
-	const [selectedCharacter] = useSelectedCharacter()
+	const { selectedCharacter } = useContext(MainContext)
 	const { connection } = useSolana()
 
 	const queryClient = useQueryClient()

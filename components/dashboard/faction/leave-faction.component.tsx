@@ -83,7 +83,7 @@ export const LeaveFactionModal: React.FC<{
 			console.error("No Tx")
 			return
 		}
-		mutate({ signedTx: encodedSignedTx as string }, { onSuccess })
+		mutate(encodedSignedTx as string, { onSuccess })
 	}
 
 	return (

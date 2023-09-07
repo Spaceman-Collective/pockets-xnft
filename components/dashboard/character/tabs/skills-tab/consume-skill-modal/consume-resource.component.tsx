@@ -1,14 +1,14 @@
 import { Tip } from "@/components/tooltip"
 import { RESOURCES, RESOURCE_XP_GAIN, UNIT_TEMPLATES } from "@/types/server"
 import { useResourceConsume } from "@/hooks/useResource"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { useSolana } from "@/hooks/useSolana"
 import { getLocalImage } from "@/lib/utils"
 import { Flex, Image, Spinner, Text, VStack } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { FC } from "react"
+import { FC, useContext } from "react"
 import { toast } from "react-hot-toast"
 import { ConsumeButton } from "./consume-button.component"
+import { MainContext } from "@/contexts/MainContext"
 
 export const ConsumeItemContainer: FC<{
 	isLoading?: boolean
@@ -35,7 +35,7 @@ export const ConsumeItemContainer: FC<{
 		encodeTransaction,
 		signTransaction,
 	} = useSolana()
-	const [selectedCharacter] = useSelectedCharacter()
+	const { selectedCharacter } = useContext(MainContext)
 
 	const { mutate } = useResourceConsume()
 	const postConsume = async (amountToConsume: number) => {
@@ -70,30 +70,27 @@ export const ConsumeItemContainer: FC<{
 
 			if (!encodedTx || encodedTx instanceof Error)
 				return toast.error("Oops! Failed to consume resource")
-			mutate(
-				{ signedTx: encodedTx },
-				{
-					onSuccess: (_) => {
-						queryClient.refetchQueries({
-							queryKey: ["wallet-assets", walletAddress],
-						})
-						queryClient.refetchQueries({
-							queryKey: ["assets"],
-						})
-						const xpGained =
-							//@ts-ignore
-							RESOURCE_XP_GAIN?.[resource.tier] * amountToConsume
-						toast.success(
-							`Successfully consumed\n${amountToConsume}x ${resource.name}\nGained ${xpGained}xp`,
-							{
-								duration: 5000,
-							},
-						)
-					},
-					onError: (e) =>
-						toast.error("Oops! Failed to consume: " + JSON.stringify(e)),
+			mutate(encodedTx, {
+				onSuccess: (_) => {
+					queryClient.refetchQueries({
+						queryKey: ["wallet-assets", walletAddress],
+					})
+					queryClient.refetchQueries({
+						queryKey: ["assets"],
+					})
+					const xpGained =
+						//@ts-ignore
+						RESOURCE_XP_GAIN?.[resource.tier] * amountToConsume
+					toast.success(
+						`Successfully consumed\n${amountToConsume}x ${resource.name}\nGained ${xpGained}xp`,
+						{
+							duration: 5000,
+						},
+					)
 				},
-			)
+				onError: (e) =>
+					toast.error("Oops! Failed to consume: " + JSON.stringify(e)),
+			})
 		} catch (err) {
 			toast.error("Oops! Failed to consume resource: " + err)
 		}

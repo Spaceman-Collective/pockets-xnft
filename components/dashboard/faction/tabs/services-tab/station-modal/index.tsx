@@ -21,11 +21,10 @@ import {
 	ModalHeader,
 	useDisclosure,
 } from "@chakra-ui/react"
-import { FC, useEffect, useState } from "react"
+import { FC, useContext, useEffect, useState } from "react"
 import { useCountdown } from "usehooks-ts"
 import { toast } from "react-hot-toast"
 import { useCharTimers, useSpeedUpTimer } from "@/hooks/useCharTimers"
-import { useSelectedCharacter } from "@/hooks/useSelectedCharacter"
 import { buildTransferIx, useSolana } from "@/hooks/useSolana"
 import {
 	useFactionStationClaim,
@@ -47,6 +46,7 @@ import {
 } from "@/constants"
 import { StationModalHeader } from "./header.component"
 import { StationModalBody } from "./body.component"
+import { MainContext } from "@/contexts/MainContext"
 
 export const ModalStation: FC<{
 	station?: {
@@ -67,7 +67,7 @@ export const ModalStation: FC<{
 		buildBurnIx,
 	} = useSolana()
 
-	const [selectedCharacter, _] = useSelectedCharacter()
+	const { selectedCharacter } = useContext(MainContext)
 	const { data: walletAssets } = useAllWalletAssets()
 	const { data: timersData } = useCharTimers({ mint: selectedCharacter?.mint })
 
@@ -124,14 +124,17 @@ export const ModalStation: FC<{
 		name: station?.blueprint ?? "",
 	})
 	const stationInputs = stationBlueprint?.inputs.map((e) => e.resource)
-	const resourcesInWallet = walletAssets?.resources.filter((e) => {
-		return stationInputs?.includes(e.name)
-	})
+	const resourcesInWallet = walletAssets?.resources.filter(
+		(e: { name: string }) => {
+			return stationInputs?.includes(e.name)
+		},
+	)
 
 	const hasEnoughResources = stationBlueprint?.inputs?.map(
 		(e) =>
-			resourcesInWallet?.find((walletItem) => walletItem.name === e?.resource)
-				?.value,
+			resourcesInWallet?.find(
+				(walletItem: { name: string }) => walletItem.name === e?.resource,
+			)?.value,
 	)
 
 	const startStationProcess = async () => {

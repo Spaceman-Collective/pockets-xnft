@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query"
-import { processProposal as processProposalRequest } from "@/lib/apiClient"
+import { postFactionProposalProcess as processProposalRequest } from "@/lib/API"
 import toast from "react-hot-toast"
 
 import { useQueryClient } from "@tanstack/react-query"
@@ -14,11 +14,13 @@ export const useProcessProposal = (
 		onMutate: () => {
 			setIsLoading(true)
 		},
-		onSuccess: (data) => {
+		onSuccess: async (data) => {
+			console.log("pp: ", data)
 			queryClient.refetchQueries(["proposalVotes", proposalId])
 			queryClient.refetchQueries(["proposalInfo", proposalId])
 			queryClient.refetchQueries({ queryKey: ["citizen"] })
 			queryClient.refetchQueries({ queryKey: ["fetch-proposals-by-faction"] })
+			await new Promise((resolve) => setTimeout(resolve, 1000))
 			toast.success("Proposal processed successfully!")
 			setIsLoading(false)
 		},

@@ -32,6 +32,8 @@ export const FactionBox: FC<FactionBoxProps> = ({
 	const queryClient = useQueryClient()
 	const onSuccess = (data: any) => {
 		queryClient.refetchQueries({ queryKey: ["assets"] })
+		queryClient.refetchQueries({ queryKey: ["citizen"] })
+		queryClient.refetchQueries({ queryKey: ["fetch-faction"] })
 		toast.success("Successfully joined faction:" + faction.name)
 		setFactionStatus(true)
 		onClose()
@@ -58,13 +60,10 @@ export const FactionBox: FC<FactionBoxProps> = ({
 		)
 			return toast.error("Did not join Faction")
 
-		mutate(
-			{ signedTx: encodedSignedTx },
-			{
-				onSuccess,
-				onError: (e) => toast.error("Did not join faction: " + e?.toString()),
-			},
-		)
+		mutate(encodedSignedTx, {
+			onSuccess,
+			onError: (e) => toast.error("Did not join faction: " + e?.toString()),
+		})
 	}
 
 	return (

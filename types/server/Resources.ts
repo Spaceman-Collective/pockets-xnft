@@ -12,11 +12,27 @@ export const RESOURCE_XP_GAIN = {
 	legendary: 300,
 }
 
-export const TEST_RESOURCE: Resource = {
-	name: "Test Resouce",
-	tier: "common",
-	skills: [],
-	mint: "3PbqQVXx7ShkDnmGMuPPH494uuaZK25ZZYi26oqeCKTW",
+export enum ResourceType {
+	"Cables" = "Cables",
+	"Soil" = "Soil",
+	"Flowers" = "Flowers",
+	"Bandages" = "Bandages",
+	"Ingots" = "Ingots",
+	"Stone" = "Stone",
+	"Circuits" = "Circuits",
+	"Mushrooms" = "Mushrooms",
+	"Fruits" = "Fruits",
+	"Trade Goods" = "Trade Goods",
+	"Marble" = "Marble",
+	"Batteries" = "Batteries",
+	"Wood" = "Wood",
+	"Tobacco" = "Tobacco",
+	"Poison" = "Poison",
+	"Magic Runes" = "Magic Runes",
+	"Gemstones" = "Gemstones",
+	"Runic Circuits" = "Runic Circuits",
+	"Psychedelics" = "Psychedelics",
+	"Golden Apples" = "Golden Apples",
 }
 
 export const RESOURCES: Resource[] = [

@@ -68,21 +68,18 @@ export const RemainingSlot: FC<{
 	const queryClient = useQueryClient()
 	const onClick = () => {
 		if (!isFinished || !factionId) return
-		mutate(
-			{ factionId },
-			{
-				onSuccess: (_) => {
-					queryClient.refetchQueries({ queryKey: ["fetch-faction"] })
-					toast.success(
-						construction?.blueprint +
-							" created! You can now use it to process resources",
-					)
-				},
-				onError: (_) => {
-					toast.error("Oops! Did not create a station")
-				},
+		mutate(factionId, {
+			onSuccess: (_) => {
+				queryClient.refetchQueries({ queryKey: ["fetch-faction"] })
+				toast.success(
+					construction?.blueprint +
+						" created! You can now use it to process resources",
+				)
 			},
-		)
+			onError: (_) => {
+				toast.error("Oops! Did not create a station")
+			},
+		})
 	}
 
 	if (!hasConstruction) {

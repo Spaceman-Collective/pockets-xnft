@@ -1,9 +1,7 @@
 import styled from "@emotion/styled"
-import { Grid, Image, Flex, Text } from "@chakra-ui/react"
-import { Value } from "@/components/dashboard/personal/personal.styled"
+import { Grid, Image, Flex, Text, Box } from "@chakra-ui/react"
 import { colors } from "@/styles/defaultTheme"
 import { FC } from "react"
-import { Tip } from "../tooltip"
 
 export const LeaderboardItem: FC<{
 	name: string
@@ -37,10 +35,13 @@ export const LeaderboardItem: FC<{
 				display={{ base: "none", sm: "flex" }}
 				justifyContent="space-between"
 				alignItems="center"
+				fontSize="1.75rem"
+				fontWeight="700"
+				textTransform="uppercase"
 			>
-				<Value>{stats.domWins}</Value>
-				<Value>{stats.wealth}</Value>
-				<Value>{stats.knowledge}</Value>
+				<Text>{stats.domWins}</Text>
+				<Text>{stats.wealth}</Text>
+				<Text>{stats.knowledge}</Text>
 			</Flex>
 		</Grid>
 	)
