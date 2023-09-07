@@ -13,7 +13,12 @@ import { css } from "@emotion/react"
 import { Label, PanelContainer, Value, ValueCalculation } from "../tab.styles"
 import { colors } from "@/styles/defaultTheme"
 import styled from "@emotion/styled"
-import { sendTransaction, useSolana } from "@/hooks/useSolana"
+import {
+	sendAllTransactions,
+	sendAllTxParallel,
+	sendTransaction,
+	useSolana,
+} from "@/hooks/useSolana"
 import { Character } from "@/types/server"
 import { useContext, useEffect, useState } from "react"
 import { CreateProposal } from "../../create-proposal-modal/create-proposal.component"
@@ -34,12 +39,13 @@ import {
 	getProposalAccount,
 	getProposalPDA,
 	getVoteAccount,
+	getVoteAccounts,
 	getVotePDA,
 	updateVoteOnProposalIx,
 	voteOnProposalIx,
 } from "@/lib/solanaClient"
 import { useProposalAccountServer } from "@/hooks/useProposalAccountServer"
-import { BN } from "@coral-xyz/anchor"
+import { BN, web3 } from "@coral-xyz/anchor"
 import { useProposalVotesByCitizen } from "@/hooks/useProposalVotesByCitizen"
 import { useFaction } from "@/hooks/useFaction"
 import { decode } from "bs58"
@@ -77,14 +83,8 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 	const factionId = currentCharacter?.faction?.id ?? ""
 
 	const { data: factionData } = useFaction({ factionId })
-	const {
-		connection,
-		walletAddress,
-		signTransaction,
-		signAllTransactions,
-		encodeTransaction,
-		sendTransaction,
-	} = useSolana()
+	const { connection, walletAddress, signTransaction, signAllTransactions } =
+		useSolana()
 	const {
 		data: allVotingProposals,
 		isLoading: allVotingProposalsIsLoading,
@@ -153,60 +153,40 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 		const propPDA = getProposalPDA(proposalId)
 		const citiPDA = getCitizenPDA(new PublicKey(currentCharacter?.mint!))
 		const votePDA = getVotePDA(citiPDA, propPDA)
-		await new Promise((resolve) => setTimeout(resolve, 1000))
+		//await new Promise((resolve) => setTimeout(resolve, 1000))
 
 		const vA = await getVoteAccount(connection, votePDA)
-		await new Promise((resolve) => setTimeout(resolve, 1000))
+		//await new Promise((resolve) => setTimeout(resolve, 1000))
 
-		return vA ? parseInt(vA.voteAmt.toString(), 10) : 0
+		return vA ? vA.voteAmt.toNumber() : 0
 	}
 
 	const updateAllVotes = async (
-		votingAmts: number[],
-		currentProposalIds: string[],
+		proposalIdAndVotes: {
+			id: string
+			amt: number
+		}[],
 	) => {
 		let ixs: TransactionInstruction[] = []
-		for (let i = 0; i < votingAmts.length; i++) {
-			let isIncrement = true
-			let normalizedVotingAmt = votingAmts[i]
-
-			if (votingAmts[i] < 0) {
-				isIncrement = false
-				normalizedVotingAmt *= -1
-			}
-
+		for (let prop of proposalIdAndVotes) {
 			const instruction = await updateVoteOnProposalIx(
 				connection,
 				new PublicKey(walletAddress!),
 				new PublicKey(currentCharacter?.mint!),
-				currentProposalIds[i]!,
-				normalizedVotingAmt,
+				prop.id,
+				prop.amt,
 				currentCharacter?.faction?.id!,
-				isIncrement,
+				false,
 			)
 			ixs.push(instruction)
 		}
 
-		const chunkSize = 10
-		for (let i = 0; i < ixs.length; i += chunkSize) {
-			const currentChunk = ixs.slice(i, i + chunkSize)
-			try {
-				const encodedSignedTx = await encodeTransaction({
-					walletAddress,
-					connection,
-					signTransaction,
-					txInstructions: currentChunk,
-				})
-
-				if (typeof encodedSignedTx === "string") {
-					await connection.sendRawTransaction(decode(encodedSignedTx))
-					toast.success(`Update vote ${i / chunkSize + 1} successful!`)
-				}
-				await new Promise((resolve) => setTimeout(resolve, 2000))
-			} catch (e) {
-				console.error(`Update failed for chunk ${i / chunkSize + 1}:`, e)
-			}
-		}
+		await sendAllTxParallel(
+			connection,
+			ixs,
+			walletAddress as string,
+			signAllTransactions,
+		)
 	}
 
 	const reclaimProposalVotes = async () => {
@@ -224,20 +204,26 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 			return
 		}
 
-		const voteAmounts = await Promise.all(
-			allProposalIds.map(fetchVotesForProposal),
+		// Fetch every proposal account
+		// For every proposal account, reclaim it to 0
+		let proposalIdAndVotes: { id: string; amt: number }[] = []
+		let votePDAs = allProposalIds.map((id) =>
+			getVotePDA(
+				getCitizenPDA(new PublicKey(currentCharacter!.mint)),
+				getProposalPDA(id),
+			),
 		)
-		const proposalIdsToSend: string[] = []
-		const voteAmountsToSend: number[] = []
-
+		const voteAccounts = await getVoteAccounts(connection, votePDAs)
 		for (let i = 0; i < allProposalIds.length; i++) {
-			if (voteAmounts[i] > 0) {
-				proposalIdsToSend.push(allProposalIds[i])
-				voteAmountsToSend.push(-voteAmounts[i])
+			if (voteAccounts[i]) {
+				// they haven't voted on all proposals, so only decrement ones they have voted on
+				proposalIdAndVotes.push({
+					id: allProposalIds[i],
+					amt: voteAccounts[i]!.voteAmt.toNumber(),
+				})
 			}
 		}
-
-		await updateAllVotes(voteAmountsToSend, proposalIdsToSend)
+		await updateAllVotes(proposalIdAndVotes)
 		toast.success("All votes reclaimed!")
 		setIsLoading(false)
 	}

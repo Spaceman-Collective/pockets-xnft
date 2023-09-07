@@ -271,7 +271,49 @@ export const sendTransaction = async ({
 	}
 }
 
-const sendAllTransactions = async (
+export const sendAllTxParallel = async (
+	connection: Connection,
+	ixs: TransactionInstruction[],
+	wallet: string,
+	signAllTransactions: any,
+) => {
+	try {
+		const maxIxsInTx = 10
+		let txs = []
+		for (let i = 0; i < ixs.length; i += maxIxsInTx) {
+			const messageV0 = new TransactionMessage({
+				payerKey: new PublicKey(wallet),
+				recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
+				instructions: ixs.slice(
+					i,
+					i + maxIxsInTx > ixs.length ? ixs.length : i + maxIxsInTx,
+				),
+			}).compileToLegacyMessage()
+			const tx = new VersionedTransaction(messageV0)
+			txs.push(tx)
+		}
+		signAllTransactions(txs)
+			.then((sTxs: any) => {
+				let sigs: Promise<string>[] = []
+				for (let stx of sTxs) {
+					console.log(Buffer.from(stx.serialize()).toString("base64"))
+					sigs.push(connection.sendRawTransaction(stx.serialize()))
+				}
+				Promise.all(sigs).then((sigs: string[]) => {
+					console.log(sigs)
+					toast.success("Sent all transactions successfully!")
+				})
+			})
+			.catch((e: Error) => {
+				console.error(e)
+				toast.error("Something went wrong sending transactions")
+			})
+	} catch (e) {
+		throw e
+	}
+}
+
+export const sendAllTransactions = async (
 	connection: Connection,
 	ixs: TransactionInstruction[],
 	wallet: string,

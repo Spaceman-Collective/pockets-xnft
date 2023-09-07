@@ -263,6 +263,21 @@ export async function voteOnProposalIx(
 	return ix
 }
 
+export async function getVoteAccounts(
+	connection: Connection,
+	votePDAs: PublicKey[],
+) {
+	const POCKETS_PROGRAM: Program<PocketsProgram> = new Program(
+		pocketsIDL,
+		POCKETS_PROGRAM_PROGRAMID,
+		{
+			connection,
+		},
+	)
+
+	return await POCKETS_PROGRAM.account.proposalVote.fetchMultiple(votePDAs)
+}
+
 export async function updateVoteOnProposalIx(
 	connection: Connection,
 	wallet: PublicKey,
