@@ -24,6 +24,7 @@ import {
 	Connection,
 	PublicKey,
 	sendAndConfirmTransaction,
+	TransactionInstruction,
 	VersionedTransaction,
 } from "@solana/web3.js"
 import {
@@ -80,6 +81,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 		connection,
 		walletAddress,
 		signTransaction,
+		signAllTransactions,
 		encodeTransaction,
 		sendTransaction,
 	} = useSolana()
@@ -104,24 +106,20 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 	const { data: votesData } = useProposalVotesAll(proposalIds)
 
 	useEffect(() => {
-		if (Array.isArray(allProposals) && !allProposalsIsLoading) {
-			console.log("all proposals are: ", allProposals)
-			setAllProposalIds(
-				allProposals
-					.map((proposal: Proposal) => proposal.id)
-					.filter(Boolean) as string[],
-			)
+		if (allProposals && !allProposalsIsLoading) {
+			const ids = allProposals.proposals.map(
+				(proposal: Proposal) => proposal.id,
+			) as string[]
+			setAllProposalIds(ids)
 		}
 	}, [allProposals, allProposalsIsLoading])
 
 	useEffect(() => {
-		if (Array.isArray(allVotingProposals) && !allVotingProposalsIsLoading) {
-			console.log("all voting proposals are: ", allVotingProposals)
-			setProposalIds(
-				allVotingProposals
-					.map((proposal: Proposal) => proposal.id)
-					.filter(Boolean) as string[],
-			)
+		if (allVotingProposals && !allVotingProposalsIsLoading) {
+			const ids = allVotingProposals.proposals.map(
+				(proposal: Proposal) => proposal.id,
+			) as string[]
+			setProposalIds(ids)
 		}
 	}, [allVotingProposals, allVotingProposalsIsLoading])
 
@@ -200,27 +198,80 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 		}
 	}
 
+	const updateAllVotes = async (
+		votingAmts: number[],
+		currentProposalIds: string[],
+	) => {
+		let ixs: TransactionInstruction[] = []
+
+		// Create transaction instructions based on voting amounts and proposal IDs
+		for (let i = 0; i < votingAmts.length; i++) {
+			let isIncrement = true
+			let normalizedVotingAmt = votingAmts[i]
+
+			if (votingAmts[i] < 0) {
+				isIncrement = false
+				normalizedVotingAmt *= -1
+			}
+
+			const instruction = await updateVoteOnProposalIx(
+				connection,
+				new PublicKey(walletAddress!),
+				new PublicKey(currentCharacter?.mint!),
+				currentProposalIds[i]!,
+				normalizedVotingAmt,
+				currentCharacter?.faction?.id!,
+				isIncrement,
+			)
+			ixs.push(instruction)
+		}
+
+		const chunkSize = 10 // Define the chunk size
+		for (let i = 0; i < ixs.length; i += chunkSize) {
+			const currentChunk = ixs.slice(i, i + chunkSize)
+			try {
+				const encodedSignedTx = await encodeTransaction({
+					walletAddress,
+					connection,
+					signTransaction,
+					txInstructions: currentChunk, // Send only the current chunk
+				})
+
+				if (typeof encodedSignedTx === "string") {
+					await connection.sendRawTransaction(decode(encodedSignedTx))
+					toast.success(`Update vote ${i / chunkSize + 1} successful!`)
+				}
+				await new Promise((resolve) => setTimeout(resolve, 2000))
+			} catch (e) {
+				console.error(`Update failed for chunk ${i / chunkSize + 1}:`, e)
+			}
+		}
+	}
+
 	const reclaimProposalVotes = async () => {
 		setIsLoading(true)
+
 		if (!allProposalIds || allProposalIds.length === 0) {
 			toast.error("You have no outstanding votes")
 			setIsLoading(false)
 			return
 		}
+
 		const voteAmounts = await Promise.all(
 			allProposalIds.map(fetchVotesForProposal),
 		)
+		const proposalIdsToSend: string[] = []
+		const voteAmountsToSend: number[] = []
 
 		for (let i = 0; i < allProposalIds.length; i++) {
-			const currentProposalId = allProposalIds[i]
-			const voteAmount = voteAmounts[i]
-
-			if (voteAmount > 0) {
-				await updateVote(-voteAmount, currentProposalId)
+			if (voteAmounts[i] > 0) {
+				proposalIdsToSend.push(allProposalIds[i])
+				voteAmountsToSend.push(-voteAmounts[i])
 			}
 		}
 
-		console.log("All votes reclaimed!")
+		await updateAllVotes(voteAmountsToSend, proposalIdsToSend)
+		toast.success("All votes reclaimed!")
 		setIsLoading(false)
 	}
 
@@ -492,6 +543,7 @@ const ProposalItem: React.FC<ProposalItemProps> = ({
 			await new Promise((resolve) => setTimeout(resolve, 15000))
 
 			queryClient.refetchQueries(["proposalInfo", proposalId]).then(() => {
+				console.log("rffff")
 				queryClient.refetchQueries({ queryKey: ["citizen"] }).then(() => {
 					setIsVoteInProgress(false)
 					toast.success("Vote successful!")
