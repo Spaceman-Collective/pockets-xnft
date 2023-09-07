@@ -161,50 +161,11 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 		return vA ? parseInt(vA.voteAmt.toString(), 10) : 0
 	}
 
-	const updateVote = async (votingAmt: number, currentProposalId: string) => {
-		let isIncrement = true
-		let normalizedVotingAmt = votingAmt
-
-		try {
-			if (votingAmt < 0) {
-				isIncrement = false
-				normalizedVotingAmt *= -1
-			}
-			const encodedSignedTx = await encodeTransaction({
-				walletAddress,
-				connection,
-				signTransaction,
-				txInstructions: [
-					await updateVoteOnProposalIx(
-						connection,
-						new PublicKey(walletAddress!),
-						new PublicKey(currentCharacter?.mint!),
-						currentProposalId!,
-						votingAmt,
-						currentCharacter?.faction?.id!,
-						isIncrement,
-					),
-				],
-			})
-
-			if (typeof encodedSignedTx === "string") {
-				const sig = await connection.sendRawTransaction(decode(encodedSignedTx))
-				toast.success("Update vote successful!")
-			}
-
-			await new Promise((resolve) => setTimeout(resolve, 2000))
-		} catch (e) {
-			console.error("Update failed: ", e)
-		}
-	}
-
 	const updateAllVotes = async (
 		votingAmts: number[],
 		currentProposalIds: string[],
 	) => {
 		let ixs: TransactionInstruction[] = []
-
-		// Create transaction instructions based on voting amounts and proposal IDs
 		for (let i = 0; i < votingAmts.length; i++) {
 			let isIncrement = true
 			let normalizedVotingAmt = votingAmts[i]
@@ -226,7 +187,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 			ixs.push(instruction)
 		}
 
-		const chunkSize = 10 // Define the chunk size
+		const chunkSize = 10
 		for (let i = 0; i < ixs.length; i += chunkSize) {
 			const currentChunk = ixs.slice(i, i + chunkSize)
 			try {
@@ -234,7 +195,7 @@ export const FactionTabPolitics: React.FC<FactionTabPoliticsProps> = ({
 					walletAddress,
 					connection,
 					signTransaction,
-					txInstructions: currentChunk, // Send only the current chunk
+					txInstructions: currentChunk,
 				})
 
 				if (typeof encodedSignedTx === "string") {
