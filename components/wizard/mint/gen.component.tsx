@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Text } from "@chakra-ui/react"
+import { Box, Button, Flex, Text, Input } from "@chakra-ui/react"
 import { FC, useState } from "react"
 import Image from "next/image"
 import styled from "@emotion/styled"
@@ -10,6 +10,7 @@ import { getRandomName } from "@/lib/utils"
 import { useSolana } from "@/hooks/useSolana"
 import { useCreateCharacter } from "@/hooks/useCreateCharacter"
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants"
+import { colors } from "@/styles/defaultTheme"
 
 export const Generate: FC<{
 	fire: () => void
@@ -35,6 +36,7 @@ export const Generate: FC<{
 		buildMemoIx,
 		encodeTransaction,
 	} = useSolana()
+	const [referrer, setReferrer] = useState<string>(walletAddress as string)
 
 	return (
 		<>
@@ -45,6 +47,14 @@ export const Generate: FC<{
 					<GenderToggleContainer isMale={isMale} setIsMale={setIsMale} />
 					<RumbleInput name={name} shake={getNewName} />
 				</Box>
+				<Flex width="100%" mr="1rem">
+					<StyledInput
+						placeholder={walletAddress}
+						onChange={(e) => {
+							setReferrer(e.target.value)
+						}}
+					/>
+				</Flex>
 				<Flex gap="2rem">
 					<Button variant="outline" w="100%" alignSelf="end" onClick={backStep}>
 						Back
@@ -62,6 +72,7 @@ export const Generate: FC<{
 								mint: nft.mint,
 								timestamp: Date.now().toString(),
 								name,
+								referrer,
 							}
 
 							if (!walletAddress) return console.error("no wallet")
@@ -130,4 +141,25 @@ const Img = styled(Image)`
 	object-fit: cover;
 	max-height: 300px;
 	width: 300px;
+`
+
+const inputStyles = {
+	backgroundColor: colors.blacks[600],
+	height: "6rem",
+	width: "100%",
+	borderRadius: "0.5rem",
+	padding: "0.5rem 1rem",
+	fontWeight: "500",
+	fontSize: "16px",
+	letterSpacing: "1px",
+	marginBottom: "2rem",
+	color: colors.brand.secondary,
+}
+
+const StyledInput = styled(Input)`
+	${inputStyles}
+
+	&:disabled {
+		background-color: ${colors.blacks[500]} !important;
+	}
 `
