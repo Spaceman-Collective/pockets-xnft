@@ -7,6 +7,7 @@ import {
 	Grid,
 	GridItem,
 	Image,
+	Spinner,
 	Text,
 	useDisclosure,
 } from "@chakra-ui/react"
@@ -44,6 +45,7 @@ export const OpponentEquipment: FC<{
 	const unitsAreaIsScrollable = opponent.army.length > 20
 	const unitArea = React.useRef<HTMLDivElement>(null)
 	const [canScrollUp, setCanScrollUp] = useState<boolean>(false)
+	const [battleInProgress, setBattleInProgress] = useState<boolean>(false)
 	const [canScrollDown, setCanScrollDown] = useState<boolean>(
 		unitsAreaIsScrollable,
 	)
@@ -62,25 +64,32 @@ export const OpponentEquipment: FC<{
 	const { data: battleHistory, isLoading: battleHistoryIsLoading } =
 		useBattleHistory(currentCharacter.mint, [opponent])
 
-	useEffect(() => {
-		if (battleHistory) {
-			console.log("history: ", battleHistory)
-		}
-	}, [])
-
 	const hasBattled =
 		battleHistory && battleHistory.histories[0]?.time !== undefined
+
 	const dateString = battleHistory?.histories[0]?.time
+	console.log("ds: ", dateString)
 
-	const timeDifferenceInMilliseconds = dateString
-		? new Date().getTime() - new Date(dateString).getTime()
-		: 0
+	const battleDate = new Date(dateString!)
+	console.log("battleDate:", battleDate)
 
-	const remainingTime = ATTACK_TIMER - timeDifferenceInMilliseconds / 1000
-	const isFuture = remainingTime > 0
+	const currentTime = new Date()
+	console.log("currentTime:", currentTime)
+
+	const endTime = new Date(battleDate.getTime() + ATTACK_TIMER)
+	console.log("endTime:", endTime)
+
+	const isInRange = currentTime >= battleDate && currentTime <= endTime
+
+	let remainingTime = 0
+
+	if (isInRange) {
+		remainingTime = endTime.getTime() - currentTime.getTime()
+	}
+	console.log("Remaining time (in milliseconds):", remainingTime)
 
 	const [count, { startCountdown, resetCountdown }] = useCountdown({
-		countStart: isFuture ? Math.floor(remainingTime) : 0,
+		countStart: isInRange ? Math.floor(remainingTime / 1000) : 0,
 		intervalMs: 1000,
 	})
 
@@ -90,7 +99,7 @@ export const OpponentEquipment: FC<{
 	}, [hasBattled, startCountdown])
 
 	useEffect(() => {
-		if (remainingTime < 0) return
+		if (remainingTime <= 0) return
 		resetCountdown()
 		startCountdown()
 	}, [remainingTime, resetCountdown, startCountdown])
@@ -117,9 +126,10 @@ export const OpponentEquipment: FC<{
 	}
 
 	const handleBattle = async () => {
-		if (dateString && timeDifferenceInMilliseconds < ATTACK_TIMER) {
+		if (isInRange) {
 			toast.error(`You have to wait ${remainingTime}ms before the next battle`)
 		}
+		setBattleInProgress(true)
 
 		const payload: BattleMemo = {
 			mint: currentCharacter.mint,
@@ -153,6 +163,10 @@ export const OpponentEquipment: FC<{
 					currentCharacter.mint,
 					[opponent],
 				])
+				await queryClient.refetchQueries([
+					"fetch-faction",
+					currentCharacter.faction?.id,
+				])
 				const won = e.result.winner === currentCharacter.mint
 
 				if (won) {
@@ -165,6 +179,7 @@ export const OpponentEquipment: FC<{
 				toast.error(JSON.stringify(e))
 			},
 		})
+		setBattleInProgress(false)
 	}
 
 	const handleBattleHistory = async () => {
@@ -388,10 +403,15 @@ export const OpponentEquipment: FC<{
 						}
 						placement="top"
 					>
-						{battleHistory?.histories[0]?.time ? (
+						{battleInProgress ? (
+							<div style={{ display: "flex", alignItems: "center" }}>
+								<Spinner color="white" />{" "}
+								<span style={{ marginLeft: "10px" }}>Battling</span>
+							</div>
+						) : remainingTime > 0 ? (
 							<div>
 								<Label>Battle Again in:</Label>
-								{isFuture && <Value>{timeAgo(count)}</Value>}
+								<Value>{timeAgo(count)}</Value>
 							</div>
 						) : (
 							<Button
