@@ -4,10 +4,13 @@ import styled from "@emotion/styled"
 import { FC } from "react"
 import { H3 } from "."
 import { Tip } from "../tooltip"
+import { useRouter } from "next/router"
 
 export const SelectCollection: FC<{ next: () => void }> = ({
 	next: nextStep,
 }) => {
+	const router = useRouter()
+
 	return (
 		<Flex direction="column" justifyContent="space-between" minH="60vh">
 			<Box>
@@ -44,12 +47,14 @@ export const SelectCollection: FC<{ next: () => void }> = ({
 					</Thumbnail>
 					<Thumbnail
 						cursor="pointer"
-						backgroundImage={"collection/kyogen.png"}
+						backgroundImage={"collection/kyogen.webp"}
 						backgroundSize="cover"
 						backgroundPosition="center"
-						onClick={nextStep}
+						onClick={() => {
+							router.push("https://launch.elixirnft.io/mint/kyogen_clash_8KQyVvJ")
+						}}
 					>
-						Kyogen
+						<Text>Kyogen Clash</Text>
 					</Thumbnail>
 				</Grid>
 			</Box>
