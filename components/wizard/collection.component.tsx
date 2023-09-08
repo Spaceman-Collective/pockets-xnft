@@ -42,11 +42,15 @@ export const SelectCollection: FC<{ next: () => void }> = ({
 					>
 						<Text>Famous Foxes</Text>
 					</Thumbnail>
-					<Tip label="Coming soon!">
-						<Thumbnail userSelect="none" cursor="not-allowed" opacity="0.5">
-							Kyogen
-						</Thumbnail>
-					</Tip>
+					<Thumbnail
+						cursor="pointer"
+						backgroundImage={"collection/kyogen.png"}
+						backgroundSize="cover"
+						backgroundPosition="center"
+						onClick={nextStep}
+					>
+						Kyogen
+					</Thumbnail>
 				</Grid>
 			</Box>
 			<Button w="100%" alignSelf="end" onClick={nextStep}>
