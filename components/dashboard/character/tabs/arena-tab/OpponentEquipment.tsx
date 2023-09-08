@@ -10,7 +10,7 @@ import {
 	Text,
 	useDisclosure,
 } from "@chakra-ui/react"
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { combatSkillKeys } from "../../constants"
 import { Tip } from "@/components/tooltip"
 import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons"
@@ -20,6 +20,7 @@ import toast from "react-hot-toast"
 import { CharacterImage } from "./CharacterImage"
 import { BattleHistoryModal } from "./BattleHistoryModal"
 import { useQueryClient } from "@tanstack/react-query"
+import { timeSince } from "@/lib/utils"
 
 export const OpponentEquipment: FC<{
 	enabled: boolean
@@ -55,6 +56,12 @@ export const OpponentEquipment: FC<{
 	const { data: battleHistory, isLoading: battleHistoryIsLoading } =
 		useBattleHistory(currentCharacter.mint, [opponent])
 
+	useEffect(() => {
+		if (battleHistory) {
+			console.log("history: ", battleHistory)
+		}
+	}, [])
+
 	const [currentlyScrolling, setCurrentlyScrolling] = useState<boolean>(false)
 
 	const handleScroll = (direction: "up" | "down") => {
@@ -72,6 +79,25 @@ export const OpponentEquipment: FC<{
 	}
 
 	const handleBattle = async () => {
+		const lastBattleTime = timeSince(battleHistory!.histories[0].time)
+		console.log("lbt: ", lastBattleTime)
+		console.log("lbt 2: ", battleHistory!.histories[0].time)
+
+		const dateString = battleHistory!.histories[0].time
+		const targetDate = new Date(dateString)
+		const currentDate = new Date()
+		const timeDifferenceInMinutes =
+			(currentDate.getTime() - targetDate.getTime()) / (1000 * 60)
+		console.log("timeDifferenceInMinutes: ", timeDifferenceInMinutes)
+		const minutesLeft = 120 - timeDifferenceInMinutes
+		const roundedMinutesLeft = Math.round(minutesLeft)
+
+		if (lastBattleTime && timeDifferenceInMinutes < 120) {
+			toast.error(
+				`You have to wait ${roundedMinutesLeft} minutes before the next battle`,
+			)
+		}
+
 		const payload: BattleMemo = {
 			mint: currentCharacter.mint,
 			timestamp: Date.now().toString(),
