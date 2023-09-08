@@ -21,6 +21,8 @@ import { CharacterImage } from "./CharacterImage"
 import { BattleHistoryModal } from "./BattleHistoryModal"
 import { useQueryClient } from "@tanstack/react-query"
 import { timeSince } from "@/lib/utils"
+import { ATTACK_TIMER } from "@/constants"
+import { useCountdown } from "usehooks-ts"
 
 export const OpponentEquipment: FC<{
 	enabled: boolean
@@ -62,6 +64,43 @@ export const OpponentEquipment: FC<{
 		}
 	}, [])
 
+	const dateString = battleHistory!.histories[0].time
+	const targetDate = new Date(dateString)
+	const currentDate = new Date()
+	const timeDifferenceInMilliseconds =
+		currentDate.getTime() - targetDate.getTime()
+
+	console.log("timeDifferenceInMilliseconds: ", timeDifferenceInMilliseconds)
+	const hasBattled = battleHistory!.histories[0].time !== undefined
+
+	const remainingTime = ATTACK_TIMER - timeDifferenceInMilliseconds
+	const isFuture = remainingTime > 0
+
+	const [count, { startCountdown, resetCountdown }] = useCountdown({
+		countStart: isFuture ? Math.floor(remainingTime) : 0,
+		intervalMs: 1000,
+	})
+
+	// const lastBattleTime = timeSince(battleHistory!.histories[0]!.time)
+	// console.log("lbt: ", lastBattleTime)
+	// console.log("lbt 2: ", battleHistory!.histories[0].time)
+
+	useEffect(() => {
+		if (!hasBattled) return
+		startCountdown()
+	}, [hasBattled, startCountdown])
+
+	useEffect(() => {
+		if (remainingTime < 0) return
+		resetCountdown()
+		startCountdown()
+	}, [remainingTime, resetCountdown, startCountdown])
+
+	useEffect(() => {
+		if (!!battleHistory!.histories[0].time || !isOpen) return
+		resetCountdown()
+	}, [isOpen])
+
 	const [currentlyScrolling, setCurrentlyScrolling] = useState<boolean>(false)
 
 	const handleScroll = (direction: "up" | "down") => {
@@ -79,23 +118,8 @@ export const OpponentEquipment: FC<{
 	}
 
 	const handleBattle = async () => {
-		const lastBattleTime = timeSince(battleHistory!.histories[0].time)
-		console.log("lbt: ", lastBattleTime)
-		console.log("lbt 2: ", battleHistory!.histories[0].time)
-
-		const dateString = battleHistory!.histories[0].time
-		const targetDate = new Date(dateString)
-		const currentDate = new Date()
-		const timeDifferenceInMinutes =
-			(currentDate.getTime() - targetDate.getTime()) / (1000 * 60)
-		console.log("timeDifferenceInMinutes: ", timeDifferenceInMinutes)
-		const minutesLeft = 120 - timeDifferenceInMinutes
-		const roundedMinutesLeft = Math.round(minutesLeft)
-
-		if (lastBattleTime && timeDifferenceInMinutes < 120) {
-			toast.error(
-				`You have to wait ${roundedMinutesLeft} minutes before the next battle`,
-			)
+		if (dateString && timeDifferenceInMilliseconds < ATTACK_TIMER) {
+			toast.error(`You have to wait ${remainingTime}ms before the next battle`)
 		}
 
 		const payload: BattleMemo = {

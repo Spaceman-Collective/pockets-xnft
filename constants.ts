@@ -12,6 +12,8 @@ export const BONK_MINT = new PublicKey(
 	"DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
 )
 
+export const ATTACK_TIMER = 1000 * 60 * 30 // 1/2 hours
+
 export const SPL_TOKENS: {
 	[token: string]: { mint: string; decimals: number }
 } = {
