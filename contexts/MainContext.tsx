@@ -33,25 +33,39 @@ export const MainContext = createContext<DefaultContext>(
 export const MainContextProvider: FC<{ children: ReactNode }> = ({
 	children,
 }) => {
+	const { walletAddress: address } = useSolana()
 	const { connected, connecting, disconnecting } = useWallet()
 	const { push, pathname } = useRouter()
 
+	if (address && pathname === "/") {
+		push("/character")
+	} else if (!address && pathname !== "/") {
+		push("/")
+	}
+	/*
 	if (connected && pathname === "/") {
 		push("/character")
 	} else if (!connected && pathname !== "/") {
 		push("/")
 	}
+	*/
 
-	const { walletAddress: address } = useSolana()
 	const { data: assets, isLoading: assetsIsLoading } = useAllWalletAssets()
 	const { data: characters, isLoading: charactersIsLoading } = useAssets()
 	const [selectedCharacter, setSelectedCharacter] = useSelectedCharacter()
 
+	/*
 	useEffect(() => {
 		if (!connected && !connecting && !disconnecting && pathname !== "/") {
 			push("/")
 		}
 	}, [address, connected, connecting, disconnecting, pathname, push])
+	*/
+	useEffect(() => {
+		if (!address && pathname !== "/") {
+			push("/")
+		}
+	}, [address, push, pathname])
 
 	return (
 		<MainContext.Provider

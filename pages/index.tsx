@@ -5,14 +5,23 @@ import { PleaseSignInContainer } from "@/components/no-wallet.component"
 import { useEffect } from "react"
 import { useRouter } from "next/router"
 import { useWallet } from "@solana/wallet-adapter-react"
+import { useSolana } from "@/hooks/useSolana"
 
 export default function Home() {
 	const { push } = useRouter()
+
+	/*
 	const { connecting, connected } = useWallet()
 
 	useEffect(() => {
 		if (connected) push("/character")
 	}, [connected, connecting, push])
+	*/
+
+	const { walletAddress } = useSolana()
+	useEffect(() => {
+		if (walletAddress) push("/character")
+	}, [walletAddress, push])
 
 	return (
 		<>

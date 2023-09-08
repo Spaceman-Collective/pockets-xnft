@@ -52,6 +52,7 @@ export const useSolana = () => {
 	useEffect(() => {
 		const init = () => {
 			if (window?.xnft?.solana?.isXnft) {
+				console.log("inside backpack")
 				const accountXnft = window.xnft.solana.publicKey?.toString()
 				setPayload({
 					connection: connection,
@@ -60,6 +61,7 @@ export const useSolana = () => {
 					signAllTransactions: window.xnft.solana.signAllTransactions,
 				})
 			} else {
+				console.log("not inside backpack")
 				setPayload({
 					connection,
 					walletAddress: publicKey?.toString(),
@@ -68,7 +70,7 @@ export const useSolana = () => {
 				})
 			}
 		}
-		new Promise((resolve) => setTimeout(resolve, 500)).then(() => {
+		new Promise((resolve) => setTimeout(resolve, 1500)).then(() => {
 			init()
 		})
 	}, [connection, publicKey, signTransaction, signAllTransactions])
