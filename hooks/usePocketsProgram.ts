@@ -5,7 +5,7 @@ import { useSolana } from "./useSolana"
 import { useMemo } from "react"
 import { useAnchorWallet } from "@solana/wallet-adapter-react"
 
-const POCKETS_PROGRAM_PROGRAMID = "GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ"
+const POCKETS_PROGRAM_PROGRAMID = "9ejfcqQpWYQqXMiPeZVHhhbNu3qufuLWzGzVEBQYBEgS" //"GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ"
 
 /**
  * !!! Currently not being used but did not feel like deleting it
