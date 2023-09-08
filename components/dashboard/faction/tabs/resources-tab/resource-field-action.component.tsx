@@ -205,7 +205,7 @@ export const ResourceFieldAction: FC<{
 					/>
 				</Tip>
 				<VStack alignItems="start">
-					<Label>amount:</Label>
+					<Label>{rf.resource}</Label>
 					<Value>{rf.amount}</Value>
 				</VStack>
 			</HStack>
