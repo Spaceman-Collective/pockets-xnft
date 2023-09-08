@@ -20,9 +20,13 @@ import toast from "react-hot-toast"
 import { CharacterImage } from "./CharacterImage"
 import { BattleHistoryModal } from "./BattleHistoryModal"
 import { useQueryClient } from "@tanstack/react-query"
-import { timeSince } from "@/lib/utils"
+import { timeAgo, timeSince } from "@/lib/utils"
 import { ATTACK_TIMER } from "@/constants"
 import { useCountdown } from "usehooks-ts"
+import {
+	Label,
+	Value,
+} from "@/components/dashboard/wallet-page/wallet-page.styles"
 
 export const OpponentEquipment: FC<{
 	enabled: boolean
@@ -64,26 +68,21 @@ export const OpponentEquipment: FC<{
 		}
 	}, [])
 
-	const dateString = battleHistory!.histories[0].time
-	const targetDate = new Date(dateString)
-	const currentDate = new Date()
-	const timeDifferenceInMilliseconds =
-		currentDate.getTime() - targetDate.getTime()
+	const hasBattled =
+		battleHistory && battleHistory.histories[0]?.time !== undefined
+	const dateString = battleHistory?.histories[0]?.time
 
-	console.log("timeDifferenceInMilliseconds: ", timeDifferenceInMilliseconds)
-	const hasBattled = battleHistory!.histories[0].time !== undefined
+	const timeDifferenceInMilliseconds = dateString
+		? new Date().getTime() - new Date(dateString).getTime()
+		: 0
 
-	const remainingTime = ATTACK_TIMER - timeDifferenceInMilliseconds
+	const remainingTime = ATTACK_TIMER - timeDifferenceInMilliseconds / 1000
 	const isFuture = remainingTime > 0
 
 	const [count, { startCountdown, resetCountdown }] = useCountdown({
 		countStart: isFuture ? Math.floor(remainingTime) : 0,
 		intervalMs: 1000,
 	})
-
-	// const lastBattleTime = timeSince(battleHistory!.histories[0]!.time)
-	// console.log("lbt: ", lastBattleTime)
-	// console.log("lbt 2: ", battleHistory!.histories[0].time)
 
 	useEffect(() => {
 		if (!hasBattled) return
@@ -97,7 +96,7 @@ export const OpponentEquipment: FC<{
 	}, [remainingTime, resetCountdown, startCountdown])
 
 	useEffect(() => {
-		if (!!battleHistory!.histories[0].time || !isOpen) return
+		if (battleHistory?.histories[0]?.time || !isOpen) return
 		resetCountdown()
 	}, [isOpen])
 
@@ -389,37 +388,45 @@ export const OpponentEquipment: FC<{
 						}
 						placement="top"
 					>
-						<Button
-							variant="solid"
-							border="0.25rem solid"
-							borderColor="blacks.700"
-							_hover={
-								enabled
-									? {
-											border: `0.25rem solid ${colors.brand.quaternary}`,
-											bgColor: colors.brand.quaternary,
-									  }
-									: {}
-							}
-							width="100%"
-							p="1rem 3.5rem"
-							fontSize="1.5rem"
-							cursor={enabled ? "pointer" : "not-allowed"}
-							disabled={!enabled}
-							opacity={enabled ? "1" : "0.5"}
-							onClick={() => (enabled ? handleBattle() : null)}
-						>
-							{/* <Image
-							src={"/assets/arena/helmet.svg"}
-							w="2.5rem"
-							h="2.5rem"
-							alt="helmet"
-							color="blue"
-							mr="1rem"
-							transform="scaleX(-1)" // Flip around the Y axis
-						/> */}
-							Battle
-						</Button>
+						{battleHistory?.histories[0]?.time ? (
+							<div>
+								<Label>Battle Again in:</Label>
+								{isFuture && <Value>{timeAgo(count)}</Value>}
+							</div>
+						) : (
+							<Button
+								variant="solid"
+								border="0.25rem solid"
+								borderColor="blacks.700"
+								_hover={
+									enabled
+										? {
+												border: `0.25rem solid ${colors.brand.quaternary}`,
+												bgColor: colors.brand.quaternary,
+										  }
+										: {}
+								}
+								width="100%"
+								p="1rem 3.5rem"
+								fontSize="1.5rem"
+								cursor={enabled ? "pointer" : "not-allowed"}
+								disabled={!enabled}
+								opacity={enabled ? "1" : "0.5"}
+								onClick={() => (enabled ? handleBattle() : null)}
+							>
+								{/* Uncomment the Image tag if you need it */}
+								{/* <Image
+                src={"/assets/arena/helmet.svg"}
+                w="2.5rem"
+                h="2.5rem"
+                alt="helmet"
+                color="blue"
+                mr="1rem"
+                transform="scaleX(-1)" // Flip around the Y axis
+            /> */}
+								Battle
+							</Button>
+						)}
 					</Tip>
 				</GridItem>
 			</Grid>
