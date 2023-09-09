@@ -7,6 +7,7 @@ import styled from "@emotion/styled"
 import { colors, fonts } from "@/styles/defaultTheme"
 import { Tip } from "../tooltip"
 import Head from "next/head"
+import { useRouter } from "next/router"
 
 export const SelectNFT: FC<{
 	next: () => void
@@ -16,7 +17,7 @@ export const SelectNFT: FC<{
 	setReview: (char: Character) => void
 }> = ({ next: nextStep, data, isLoading, select, setReview }) => {
 	const arrayOfMintedChars = data?.characters?.map((record) => record.mint)
-
+	const router = useRouter()
 	return (
 		<Flex direction="column" justifyContent="space-between" minH="60vh">
 			<Header>Create a Character</Header>
@@ -39,11 +40,17 @@ export const SelectNFT: FC<{
 				>
 					<Text>Famous Foxes</Text>
 				</Thumbnail>
-				<Tip label="Coming soon!">
-					<Thumbnail userSelect="none" cursor="not-allowed" opacity="0.5">
-						Kyogen
-					</Thumbnail>
-				</Tip>
+				<Thumbnail
+					cursor="pointer"
+					backgroundImage={"collection/kyogen.png"}
+					backgroundSize="cover"
+					backgroundPosition="center"
+					onClick={() => {
+						router.push("https://launch.elixirnft.io/mint/kyogen_clash_8KQyVvJ")
+					}}
+				>
+					<Text>Kyogen</Text>
+				</Thumbnail>
 			</Grid>
 			<Box>
 				<Text>
