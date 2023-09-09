@@ -30,7 +30,7 @@ import { PocketsProgram } from "../lib/program/pockets_program"
 const pocketsIDL = require("../lib/program/pockets_program.json")
 
 export const POCKETS_PROGRAM_PROGRAMID =
-	"GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ"
+	"9ejfcqQpWYQqXMiPeZVHhhbNu3qufuLWzGzVEBQYBEgS"
 
 export const useSolana = () => {
 	const router = useRouter()
