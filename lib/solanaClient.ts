@@ -6,7 +6,7 @@ import { getAssociatedTokenAddressSync } from "@solana/spl-token"
 import { useAnchorWallet } from "@solana/wallet-adapter-react"
 const pocketsIDL = require("./program/pockets_program.json")
 
-const POCKETS_PROGRAM_PROGRAMID = "GEUwNbnu9jkRMY8GX5Ar4R11mX9vXR8UDFnKZMn5uWLJ"
+const POCKETS_PROGRAM_PROGRAMID = "9ejfcqQpWYQqXMiPeZVHhhbNu3qufuLWzGzVEBQYBEgS"
 
 export function getProposalPDA(proposalId: string): PublicKey {
 	const [proposalPDA] = PublicKey.findProgramAddressSync(
