@@ -11,6 +11,8 @@ import { useSolana } from "@/hooks/useSolana"
 import { useCreateCharacter } from "@/hooks/useCreateCharacter"
 import { SPL_TOKENS, FACTION_CREATION_MULTIPLIER } from "@/constants"
 import { colors } from "@/styles/defaultTheme"
+import { Label } from "@/components/dashboard/wallet-page/wallet-page.styles"
+import { Tip } from "@/components/tooltip"
 
 export const Generate: FC<{
 	fire: () => void
@@ -48,6 +50,9 @@ export const Generate: FC<{
 					<RumbleInput name={name} shake={getNewName} />
 				</Box>
 				<Flex width="100%" mr="1rem">
+					<Tip label="Wallet with the most characters referred gets 1% of prize pool!">
+						<Label mt="1rem">Referrer Wallet</Label>
+					</Tip>
 					<StyledInput
 						placeholder={walletAddress}
 						onChange={(e) => {
