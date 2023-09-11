@@ -238,7 +238,7 @@ export const CreateProposal: React.FC<{
 												</option>
 											))}
 											<option key={"Townhall"} value={"Townhall"}>
-												Townhall
+												Townhall (500k Bonk per level)
 											</option>
 										</Select>
 									</Box>
