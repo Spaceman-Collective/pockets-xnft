@@ -104,6 +104,14 @@ export const FactionTabServices: React.FC<{
 								)
 						  })
 						: ""}
+					{factionData?.faction?.construction?.stationId === "Townhall" && (
+						<RemainingSlot
+							factionId={factionData?.faction?.id}
+							onClick={buildingInfoDisclosure.onOpen}
+							construction={factionData.faction.construction}
+							slots={[0, factionData?.faction?.townhallLevel ?? 1]}
+						/>
+					)}
 				</Grid>
 			</PanelContainer>
 		</>
