@@ -237,6 +237,9 @@ export const CreateProposal: React.FC<{
 													{station?.id}
 												</option>
 											))}
+											<option key={"Townhall"} value={"Townhall"}>
+												Townhall
+											</option>
 										</Select>
 									</Box>
 								)}
