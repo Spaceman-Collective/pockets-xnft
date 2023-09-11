@@ -7,6 +7,7 @@ import { FC, ReactNode, useCallback, useMemo, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { useSolana } from "@/hooks/useSolana"
 import { MainContextProvider } from "./MainContext"
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-wallets"
 
 const ReactUIWalletModalProviderDynamic = dynamic(
 	async () =>
@@ -19,7 +20,7 @@ export const ContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 	// const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 	const endpoint = process.env.NEXT_PUBLIC_RPC
 
-	const wallets = useMemo(() => [], [])
+	const wallets = useMemo(() => [new SolflareWalletAdapter()], [])
 
 	const onError = useCallback((error: WalletError) => {
 		console.error("Wallet error: " + error)
