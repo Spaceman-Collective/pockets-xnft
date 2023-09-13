@@ -24,6 +24,7 @@ export const LeaderboardItem: FC<{
 			<Flex alignItems="center" gap="2rem" mr="2rem">
 				<Image
 					src={imageUrl}
+					fallbackSrc="https://via.placeholder.com/100"
 					alt={name}
 					boxSize="50px"
 					objectFit="cover"

@@ -461,7 +461,7 @@ export const CreateProposal: React.FC<{
 														} else {
 															newResources[0].resourceName = e.target.value
 														}
-														return { ...prevState, resources: newResources }
+														return { ...prevState, resources: newResources, type: "BURN" }
 													})
 												}}
 											>
@@ -487,7 +487,7 @@ export const CreateProposal: React.FC<{
 														if (isNaN(newAmount)) return prevState
 														if (newResources.length === 0) return prevState
 														else newResources[0].amount = newAmount
-														return { ...prevState, resources: newResources }
+														return { ...prevState, resources: newResources, type: "BURN" }
 													})
 												}}
 											/>

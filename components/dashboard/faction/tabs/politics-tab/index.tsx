@@ -401,7 +401,7 @@ const getLabel = (type: string) => {
 			return "Warband"
 		case "TAX":
 			return "New Tax Rate"
-		case "TAX":
+		case "BURN":
 			return "Burn Resources"
 		default:
 			return ""
@@ -431,7 +431,7 @@ const getValue = (type: string, proposal: any) => {
 		case "TAX":
 			return `${proposal.newTaxRate}%`
 		case "BURN":
-			return `${proposal.resources}`
+			return `${JSON.stringify(proposal.resources)}`
 		default:
 			return ""
 	}
@@ -679,9 +679,8 @@ const MenuTitle = styled(Text)`
 `
 
 const ProposalTitle = styled(Text)`
-	text-transform: uppercase;
-	font-size: 2.25rem;
-	font-weight: 800;
+	font-size: 1.25rem;
+	font-weight: 500;
 	font-spacing: 3px;
 `
 
