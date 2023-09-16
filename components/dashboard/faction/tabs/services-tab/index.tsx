@@ -77,20 +77,43 @@ export const FactionTabServices: React.FC<{
 					templateColumns={`repeat(auto-fill, minmax(${stationSize}, 1fr))`}
 					templateRows={stationSize}
 				>
-					{factionData?.stations?.map((station) => (
-						<Station
-							key={station.id}
-							station={station}
-							onClick={() => {
-								setSelectedStationId(station.id)
-								stationDisclosure.onOpen()
-							}}
-						/>
-					))}
+					{factionData?.stations?.map((station) => {
+						const constructionId = factionData?.faction?.construction.stationId
+						if (station.id === constructionId) {
+							return (
+								<RemainingSlot
+									key={"slot" + station.id}
+									factionId={factionData?.faction?.id}
+									onClick={buildingInfoDisclosure.onOpen}
+									construction={factionData.faction.construction}
+									slots={[0, 0]}
+								/>
+							)
+						}
+						return (
+							<Station
+								key={station.id}
+								station={station}
+								onClick={() => {
+									setSelectedStationId(station.id)
+									stationDisclosure.onOpen()
+								}}
+							/>
+						)
+					})}
 
 					{hasRemainingSlots
 						? Array.from({ length: remainingSlots }).map((_, i) => {
-								const hasConstruction = i === 0 && factionData?.faction?.construction
+								let hasConstruction = i === 0 && factionData?.faction?.construction
+								const stationIds = factionData.stations.map((s) => {
+									return s.id
+								})
+								if (
+									hasConstruction &&
+									stationIds.includes(hasConstruction.stationId!)
+								) {
+									hasConstruction = false
+								}
 								return (
 									<RemainingSlot
 										key={"slot" + i}
