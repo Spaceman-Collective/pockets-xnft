@@ -232,9 +232,13 @@ export const CreateProposal: React.FC<{
 											}}
 										>
 											{factionData?.stations?.map((station) => (
-												<option key={station?.blueprint} value={station?.blueprint}>
+												<option key={station?.blueprint} value={station?.id}>
 													{station?.blueprint} / current lvl: {station?.level} / id:{" "}
-													{station?.id}
+													{station?.id} / cost:{" "}
+													{JSON.stringify(
+														BLUEPRINTS.find((b) => b.name == station.blueprint)
+															?.upgradeResources[station.level],
+													)}
 												</option>
 											))}
 											<option key={"Townhall"} value={"Townhall"}>

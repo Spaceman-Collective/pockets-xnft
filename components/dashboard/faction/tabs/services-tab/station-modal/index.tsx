@@ -287,6 +287,7 @@ export const ModalStation: FC<{
 						name={station?.blueprint}
 						desc={getBlueprint(station?.blueprint ?? "")?.description}
 						level={station?.level}
+						stationId={station?.id}
 					/>
 					<StationModalBody
 						hasEnoughResources={!hasEnoughResources?.includes("0")}

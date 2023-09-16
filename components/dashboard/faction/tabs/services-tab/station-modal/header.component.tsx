@@ -6,11 +6,13 @@ export const StationModalHeader = ({
 	name,
 	desc,
 	level,
+	stationId,
 }: {
 	image: string
 	name?: string
 	desc?: string
 	level?: number
+	stationId?: string
 }) => {
 	const stationCost =
 		(STATION_USE_COST_PER_LEVEL * BigInt(level ?? 0)) / BigInt(1e5)
@@ -29,6 +31,9 @@ export const StationModalHeader = ({
 				</Text>
 				<Text letterSpacing="0.5px" noOfLines={4} textOverflow="ellipsis">
 					{desc}
+				</Text>
+				<Text>
+					ID: <strong>{stationId}</strong>
 				</Text>
 				<Text>
 					Station Level: <strong>{level}</strong>
