@@ -122,8 +122,9 @@ export const ResourceFieldAction: FC<{
 					})
 				},
 
-				onError: (e) => {
-					toast.error(JSON.stringify(e))
+				onError: (e: any) => {
+					toast.error(e.response.data)
+					//toast.error(JSON.stringify(e))
 				},
 			},
 		)

@@ -90,7 +90,7 @@ export const UnitCard: React.FC<UnitCardProps> = ({
 
 						setLoadingUnitEquip(false)
 					},
-					onError: (e) => toast.error(JSON.stringify(e)),
+					onError: (e: any) => toast.error(e.response.data), //toast.error(JSON.stringify(e)),
 					onSettled: () => setLoadingUnitEquip(false),
 				})
 			},

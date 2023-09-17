@@ -53,9 +53,10 @@ export const ArmyTab: React.FC = () => {
 				signTransaction,
 				txInstructions,
 			})
-		} catch (e) {
+		} catch (e: any) {
 			encodedTx = ""
-			toast.error(JSON.stringify(e))
+			//toast.error(JSON.stringify(e))
+			toast.error(e.response.data)
 		}
 
 		if (!encodedTx || typeof encodedTx !== "string") {

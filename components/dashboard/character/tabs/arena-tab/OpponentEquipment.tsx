@@ -20,6 +20,7 @@ import toast from "react-hot-toast"
 import { CharacterImage } from "./CharacterImage"
 import { BattleHistoryModal } from "./BattleHistoryModal"
 import { useQueryClient } from "@tanstack/react-query"
+import { AxiosError } from "axios"
 
 export const OpponentEquipment: FC<{
 	enabled: boolean
@@ -112,8 +113,8 @@ export const OpponentEquipment: FC<{
 					toast.error("You lost the battle!")
 				}
 			},
-			onError: (e) => {
-				toast.error(JSON.stringify(e))
+			onError: (e: any) => {
+				toast.error(e.response?.data as string)
 			},
 		})
 	}

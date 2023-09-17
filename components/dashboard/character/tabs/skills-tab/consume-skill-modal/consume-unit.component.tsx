@@ -56,8 +56,9 @@ export const ConsumeUnitContainer: FC<{
 		}
 
 		requestConsume(payload, {
-			onError: (e) => {
-				toast.error(JSON.stringify(e))
+			onError: (e: any) => {
+				//toast.error(JSON.stringify(e))
+				toast.error(e.response.data)
 				setIsLoadingRequest(false)
 			},
 			onSuccess: async (data: { encodedTx: string }) => {
